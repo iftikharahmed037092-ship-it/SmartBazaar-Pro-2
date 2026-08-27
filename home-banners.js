@@ -1,15 +1,17 @@
 /*==================================================
 SMARTBAZAAR PRO 2
-FEATURE: HOME PAGE BANNER SYSTEM
+FEATURE: HOME DYNAMIC BANNER SYSTEM
 ==================================================*/
 
 import {
-    getBanners
-} from "./firebase-banner.js";
-
-import {
+    database,
     auth
 } from "./firebase-config.js";
+
+import {
+    ref,
+    onValue
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
 
 import {
     onAuthStateChanged
@@ -17,7 +19,7 @@ import {
 
 
 /*==================================================
-DOM ELEMENTS
+FEATURE: DOM ELEMENTS
 ==================================================*/
 
 const heroSlider =
@@ -26,206 +28,136 @@ const heroSlider =
 const heroSliderDots =
     document.getElementById("heroSliderDots");
 
+const adminAddBannerButton =
+    document.getElementById("adminAddBannerButton");
+
 const heroPrev =
     document.getElementById("heroPrev");
 
 const heroNext =
     document.getElementById("heroNext");
 
-const adminAddBannerButton =
-    document.getElementById(
-        "adminAddBannerButton"
-    );
-
 
 /*==================================================
-FEATURE: ADMIN EMAIL
-==================================================*/
-
-/*
-   یہاں اپنی Admin Gmail رکھیں۔
-   مثال:
-
-   const ADMIN_EMAIL =
-       "your-email@gmail.com";
-
-*/
-
-const ADMIN_EMAIL =
-    "YOUR_ADMIN_EMAIL@gmail.com";
-
-
-/*==================================================
-FEATURE: CHECK ADMIN
-==================================================*/
-
-function isAdmin(user) {
-
-    if (!user) {
-        return false;
-    }
-
-    return user.email === ADMIN_EMAIL;
-}
-
-
-/*==================================================
-FEATURE: AUTH STATE
-==================================================*/
-
-onAuthStateChanged(
-    auth,
-    (user) => {
-
-        if (
-            user &&
-            isAdmin(user)
-        ) {
-
-            adminAddBannerButton.style.display =
-                "flex";
-
-        } else {
-
-            adminAddBannerButton.style.display =
-                "none";
-
-        }
-
-    }
-);
-
-
-/*==================================================
-FEATURE: BANNER DATA
+FEATURE: BANNER STATE
 ==================================================*/
 
 let banners = [];
 
 let currentSlide = 0;
 
-let slideTimer = null;
+let autoSlideTimer = null;
 
 
 /*==================================================
-FEATURE: LOAD BANNERS
+FEATURE: ADMIN EMAIL
 ==================================================*/
 
-async function loadHomeBanners() {
-
-    try {
-
-        const allBanners =
-            await getBanners();
+const ADMIN_EMAIL =
+    "iftikharahmed037092@gmail.com";
 
 
-        /*==================================================
-        FEATURE: ACTIVE BANNERS ONLY
-        ==================================================*/
+/*==================================================
+FEATURE: ADMIN ACCESS CHECK
+==================================================*/
 
-        banners =
-            allBanners.filter(
-                banner =>
-                    banner.active === true
-            );
+onAuthStateChanged(auth, (user) => {
 
-
-        /*==================================================
-        FEATURE: DATE FILTER
-        ==================================================*/
-
-        const now =
-            new Date();
+    if (!adminAddBannerButton) {
+        return;
+    }
 
 
-        banners =
-            banners.filter(
-                banner => {
+    if (
+        user &&
+        user.email &&
+        user.email.toLowerCase() ===
+        ADMIN_EMAIL.toLowerCase()
+    ) {
 
-                    if (
-                        banner.startDate
-                    ) {
+        adminAddBannerButton.style.display =
+            "flex";
 
-                        const start =
-                            new Date(
-                                banner.startDate
-                            );
+    } else {
+
+        adminAddBannerButton.style.display =
+            "none";
+
+    }
+
+});
+
+
+/*==================================================
+FEATURE: LOAD BANNERS FROM FIREBASE
+==================================================*/
+
+function loadBanners() {
+
+    const bannersRef =
+        ref(database, "banners");
+
+
+    onValue(
+        bannersRef,
+        (snapshot) => {
+
+            const data =
+                snapshot.val();
+
+
+            banners = [];
+
+
+            if (data) {
+
+                Object.entries(data).forEach(
+                    ([id, banner]) => {
 
                         if (
-                            now < start
+                            banner &&
+                            banner.active !== false
                         ) {
 
-                            return false;
+                            banners.push({
+
+                                id: id,
+
+                                ...banner
+
+                            });
 
                         }
 
                     }
+                );
+
+            }
 
 
-                    if (
-                        banner.endDate
-                    ) {
+            /*==========================================
+            FEATURE: SORT BANNERS
+            ==========================================*/
 
-                        const end =
-                            new Date(
-                                banner.endDate
-                            );
-
-                        if (
-                            now > end
-                        ) {
-
-                            return false;
-
-                        }
-
-                    }
-
-
-                    return true;
-
-                }
+            banners.sort(
+                (a, b) =>
+                    (a.order || 0) -
+                    (b.order || 0)
             );
 
 
-        /*==================================================
-        NO BANNERS
-        ==================================================*/
+            renderBanners();
 
-        if (!banners.length) {
+        },
+        (error) => {
 
-            showEmptyBanner();
-
-            return;
+            console.error(
+                "Banner loading error:",
+                error
+            );
 
         }
-
-
-        /*==================================================
-        RENDER BANNERS
-        ==================================================*/
-
-        renderBanners();
-
-
-        /*==================================================
-        START SLIDER
-        ==================================================*/
-
-        startSlider();
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Banner loading error:",
-            error
-        );
-
-        showEmptyBanner();
-
-    }
+    );
 
 }
 
@@ -236,16 +168,90 @@ FEATURE: RENDER BANNERS
 
 function renderBanners() {
 
-    heroSlider.innerHTML = "";
+    if (!heroSlider) {
+        return;
+    }
 
+
+    /*==============================================
+    REMOVE OLD SLIDES
+    ==============================================*/
+
+    heroSlider
+        .querySelectorAll(
+            ".hero-slide:not(#bannerLoadingSlide)"
+        )
+        .forEach(
+            slide => slide.remove()
+        );
+
+
+    const loadingSlide =
+        document.getElementById(
+            "bannerLoadingSlide"
+        );
+
+
+    if (loadingSlide) {
+
+        loadingSlide.remove();
+
+    }
+
+
+    /*==============================================
+    NO BANNERS
+    ==============================================*/
+
+    if (banners.length === 0) {
+
+        const emptySlide =
+            document.createElement("div");
+
+        emptySlide.className =
+            "hero-slide active";
+
+
+        emptySlide.innerHTML = `
+
+            <div class="banner-image-placeholder">
+
+                <span>
+                    No Banners Available
+                </span>
+
+            </div>
+
+        `;
+
+
+        heroSlider.prepend(
+            emptySlide
+        );
+
+
+        if (heroSliderDots) {
+
+            heroSliderDots.innerHTML = "";
+
+        }
+
+
+        return;
+
+    }
+
+
+    /*==============================================
+    CREATE BANNER SLIDES
+    ==============================================*/
 
     banners.forEach(
         (banner, index) => {
 
             const slide =
-                document.createElement(
-                    "div"
-                );
+                document.createElement("div");
+
 
             slide.className =
                 "hero-slide";
@@ -260,184 +266,90 @@ function renderBanners() {
             }
 
 
-            /*==================================================
-            FEATURE: RESPONSIVE IMAGE
-            ==================================================*/
+            /*======================================
+            OPTIONAL CLICK LINK
+            ======================================*/
 
-            const picture =
-                document.createElement(
-                    "picture"
-                );
+            const link =
+                banner.link || "#";
 
 
-            if (
-                banner.mobileImageUrl
-            ) {
+            slide.innerHTML = `
 
-                const source =
-                    document.createElement(
-                        "source"
-                    );
+                <a
+                    href="${escapeHtml(link)}"
+                    class="banner-link"
+                    ${link === "#" ? "onclick='return false;'" : ""}
+                >
 
-                source.media =
-                    "(max-width: 768px)";
+                    <img
+                        src="${escapeHtml(banner.imageUrl)}"
+                        alt="${escapeHtml(
+                            banner.title ||
+                            "SmartBazaar Banner"
+                        )}"
+                        loading="${
+                            index === 0
+                                ? "eager"
+                                : "lazy"
+                        }"
+                    >
 
-                source.srcset =
-                    banner.mobileImageUrl;
+                </a>
 
-                picture.appendChild(
-                    source
-                );
-
-            }
-
-
-            const image =
-                document.createElement(
-                    "img"
-                );
-
-            image.src =
-                banner.imageUrl;
-
-            image.alt =
-                banner.title ||
-                "SmartBazaar Banner";
+            `;
 
 
-            picture.appendChild(
-                image
-            );
-
-
-            /*==================================================
-            FEATURE: BANNER CONTENT
-            ==================================================*/
-
-            const content =
-                document.createElement(
-                    "div"
-                );
-
-            content.className =
-                "banner-content";
-
-
-            if (banner.title) {
-
-                const title =
-                    document.createElement(
-                        "h2"
-                    );
-
-                title.textContent =
-                    banner.title;
-
-                content.appendChild(
-                    title
-                );
-
-            }
-
-
-            if (banner.subtitle) {
-
-                const subtitle =
-                    document.createElement(
-                        "p"
-                    );
-
-                subtitle.textContent =
-                    banner.subtitle;
-
-                content.appendChild(
-                    subtitle
-                );
-
-            }
-
-
-            if (
-                banner.buttonText &&
-                banner.buttonLink
-            ) {
-
-                const button =
-                    document.createElement(
-                        "a"
-                    );
-
-                button.href =
-                    banner.buttonLink;
-
-                button.textContent =
-                    banner.buttonText;
-
-                button.className =
-                    "banner-button";
-
-                content.appendChild(
-                    button
-                );
-
-            }
-
-
-            slide.appendChild(
-                picture
-            );
-
-            slide.appendChild(
-                content
-            );
-
-
-            heroSlider.appendChild(
-                slide
+            heroSlider.insertBefore(
+                slide,
+                heroSlider.querySelector(
+                    ".hero-slider-arrow"
+                )
             );
 
         }
     );
 
 
-    /*==================================================
-    FEATURE: RE-ADD ARROWS
-    ==================================================*/
+    /*==============================================
+    RESET SLIDER
+    ==============================================*/
 
-    heroSlider.appendChild(
-        heroPrev
-    );
+    currentSlide = 0;
 
-    heroSlider.appendChild(
-        heroNext
-    );
+    createDots();
 
+    showSlide(0);
 
-    renderDots();
+    startAutoSlide();
 
 }
 
 
 /*==================================================
-FEATURE: DOTS
+FEATURE: CREATE SLIDER DOTS
 ==================================================*/
 
-function renderDots() {
+function createDots() {
 
-    heroSliderDots.innerHTML =
-        "";
+    if (!heroSliderDots) {
+        return;
+    }
+
+
+    heroSliderDots.innerHTML = "";
 
 
     banners.forEach(
-        (banner, index) => {
+        (_, index) => {
 
             const dot =
-                document.createElement(
-                    "button"
-                );
+                document.createElement("button");
+
 
             dot.type =
                 "button";
+
 
             dot.className =
                 "hero-dot";
@@ -452,11 +364,24 @@ function renderDots() {
             }
 
 
+            dot.setAttribute(
+                "aria-label",
+                `Banner ${index + 1}`
+            );
+
+
             dot.addEventListener(
                 "click",
                 () => {
 
-                    showSlide(index);
+                    currentSlide =
+                        index;
+
+                    showSlide(
+                        currentSlide
+                    );
+
+                    restartAutoSlide();
 
                 }
             );
@@ -479,18 +404,26 @@ FEATURE: SHOW SLIDE
 function showSlide(index) {
 
     const slides =
-        heroSlider.querySelectorAll(
+        heroSlider?.querySelectorAll(
             ".hero-slide"
         );
 
-    const dots =
-        heroSliderDots.querySelectorAll(
-            ".hero-dot"
-        );
 
-
-    if (!slides.length) {
+    if (
+        !slides ||
+        slides.length === 0
+    ) {
         return;
+    }
+
+
+    if (
+        index < 0
+    ) {
+
+        index =
+            slides.length - 1;
+
     }
 
 
@@ -503,123 +436,107 @@ function showSlide(index) {
     }
 
 
-    if (index < 0) {
-
-        index =
-            slides.length - 1;
-
-    }
+    currentSlide =
+        index;
 
 
     slides.forEach(
-        slide =>
-            slide.classList.remove(
-                "active"
-            )
+        (slide, slideIndex) => {
+
+            slide.classList.toggle(
+                "active",
+                slideIndex === currentSlide
+            );
+
+        }
     );
 
 
-    dots.forEach(
-        dot =>
-            dot.classList.remove(
-                "active"
-            )
-    );
-
-
-    slides[index].classList.add(
-        "active"
-    );
-
-
-    if (dots[index]) {
-
-        dots[index].classList.add(
-            "active"
+    const dots =
+        heroSliderDots?.querySelectorAll(
+            ".hero-dot"
         );
 
-    }
 
+    dots?.forEach(
+        (dot, dotIndex) => {
 
-    currentSlide =
-        index;
+            dot.classList.toggle(
+                "active",
+                dotIndex === currentSlide
+            );
+
+        }
+    );
 
 }
 
 
 /*==================================================
-FEATURE: NEXT
+FEATURE: NEXT SLIDE
 ==================================================*/
 
 function nextSlide() {
 
+    if (banners.length <= 1) {
+        return;
+    }
+
+
+    currentSlide =
+        (currentSlide + 1) %
+        banners.length;
+
+
     showSlide(
-        currentSlide + 1
+        currentSlide
     );
 
 }
 
 
 /*==================================================
-FEATURE: PREVIOUS
+FEATURE: PREVIOUS SLIDE
 ==================================================*/
 
 function previousSlide() {
 
+    if (banners.length <= 1) {
+        return;
+    }
+
+
+    currentSlide =
+        (
+            currentSlide -
+            1 +
+            banners.length
+        ) %
+        banners.length;
+
+
     showSlide(
-        currentSlide - 1
+        currentSlide
     );
 
 }
-
-
-/*==================================================
-FEATURE: ARROWS
-==================================================*/
-
-heroNext.addEventListener(
-    "click",
-    () => {
-
-        nextSlide();
-
-        restartSlider();
-
-    }
-);
-
-
-heroPrev.addEventListener(
-    "click",
-    () => {
-
-        previousSlide();
-
-        restartSlider();
-
-    }
-);
 
 
 /*==================================================
 FEATURE: AUTO SLIDER
 ==================================================*/
 
-function startSlider() {
+function startAutoSlide() {
 
-    stopSlider();
+    stopAutoSlide();
 
 
-    if (
-        banners.length <= 1
-    ) {
-
+    if (banners.length <= 1) {
         return;
-
     }
 
 
-    slideTimer =
+    autoSlideTimer =
         setInterval(
             () => {
 
@@ -632,53 +549,91 @@ function startSlider() {
 }
 
 
-function stopSlider() {
+/*==================================================
+FEATURE: RESTART AUTO SLIDER
+==================================================*/
 
-    if (slideTimer) {
+function restartAutoSlide() {
+
+    startAutoSlide();
+
+}
+
+
+/*==================================================
+FEATURE: STOP AUTO SLIDER
+==================================================*/
+
+function stopAutoSlide() {
+
+    if (autoSlideTimer) {
 
         clearInterval(
-            slideTimer
+            autoSlideTimer
         );
 
-        slideTimer =
-            null;
+        autoSlideTimer = null;
 
     }
 
 }
 
 
-function restartSlider() {
+/*==================================================
+FEATURE: ARROW EVENTS
+==================================================*/
 
-    startSlider();
+heroNext?.addEventListener(
+    "click",
+    () => {
 
-}
+        nextSlide();
+
+        restartAutoSlide();
+
+    }
+);
+
+
+heroPrev?.addEventListener(
+    "click",
+    () => {
+
+        previousSlide();
+
+        restartAutoSlide();
+
+    }
+);
 
 
 /*==================================================
-FEATURE: EMPTY BANNER
+FEATURE: SAFE HTML
 ==================================================*/
 
-function showEmptyBanner() {
+function escapeHtml(value) {
 
-    heroSlider.innerHTML = `
-
-        <div class="hero-slide active">
-
-            <div class="banner-image-placeholder">
-
-                <span>
-                    No Active Banners
-                </span>
-
-            </div>
-
-        </div>
-
-    `;
-
-    heroSliderDots.innerHTML =
-        "";
+    return String(value ?? "")
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
 
@@ -687,4 +642,4 @@ function showEmptyBanner() {
 FEATURE: INITIALIZE
 ==================================================*/
 
-loadHomeBanners();
+loadBanners();
