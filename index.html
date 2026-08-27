@@ -1150,18 +1150,58 @@ HERO SECTION PLACEHOLDER
 ==================================================-->
 
 <!--==================================================
-SMARTBAZAAR PRO
-FEATURE: HERO BANNER / SLIDER SYSTEM
+SMARTBAZAAR PRO 2
+FEATURE: HERO BANNER / DYNAMIC BANNER SYSTEM
 ==================================================-->
+
+<main>
+
+    <section
+        class="hero-banner-section"
+        id="heroBannerSection">
+
+        <!--==================================================
+        FEATURE: ADMIN ADD BANNER BUTTON
+        صرف Admin کو دکھایا جائے گا
+        ==================================================-->
+
+        <a
+            href="banner-editor.html"
+            class="admin-add-banner-button"
+            id="adminAddBannerButton"
+            style="display: none;">
+
+            <i class="fa-solid fa-plus"></i>
+
+            <span>Add Banner</span>
+
+        </a>
+
+
+        <!--==================================================
+        FEATURE: DYNAMIC HERO SLIDER
+        ==================================================-->
+
+        <div
+            class="hero-slider"
+            id="heroSlider">
+
+            <div
+                class="hero-slide active"
+                id="bannerLoadingSlide">
+
+                <div class="banner-image-placeholder">
+
+                    <span>
+                        Loading Banners...
+                    </span>
 
                 </div>
 
             </div>
 
 
-            <!--==================================================
-            FEATURE: HERO SLIDER ARROWS
-            ==================================================-->
+            <!-- PREVIOUS -->
 
             <button
                 type="button"
@@ -1174,6 +1214,8 @@ FEATURE: HERO BANNER / SLIDER SYSTEM
             </button>
 
 
+            <!-- NEXT -->
+
             <button
                 type="button"
                 class="hero-slider-arrow hero-next"
@@ -1185,41 +1227,11 @@ FEATURE: HERO BANNER / SLIDER SYSTEM
             </button>
 
 
-            <!--==================================================
-            FEATURE: HERO SLIDER DOTS
-            ==================================================-->
+            <!-- DOTS -->
 
-            <div class="hero-slider-dots"
-                 id="heroSliderDots">
-
-                <button
-                    type="button"
-                    class="hero-dot active"
-                    data-slide="0"
-                    aria-label="Banner 1">
-                </button>
-
-                <button
-                    type="button"
-                    class="hero-dot"
-                    data-slide="1"
-                    aria-label="Banner 2">
-                </button>
-
-                <button
-                    type="button"
-                    class="hero-dot"
-                    data-slide="2"
-                    aria-label="Banner 3">
-                </button>
-
-                <button
-                    type="button"
-                    class="hero-dot"
-                    data-slide="3"
-                    aria-label="Banner 4">
-                </button>
-
+            <div
+                class="hero-slider-dots"
+                id="heroSliderDots">
             </div>
 
         </div>
@@ -1235,8 +1247,6 @@ FOOTER PLACEHOLDER
 ==================================================-->
 
 <!-- Footer بعد میں بنایا جائے گا -->
-
-<script src="app.js"></script>
 
     <script src="app.js"></script>
 
