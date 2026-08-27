@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+          content="SmartBazaar Pro 2 - Secure Account">
+
+    <title>Login | SmartBazaar Pro 2</title>
+
+
+    <!--==================================================
+    SMARTBAZAAR PRO 2
+    FEATURE: AUTHENTICATION
+    Font Awesome
+    ==================================================-->
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+
+    <!--==================================================
+    FEATURE: AUTHENTICATION CSS
+    ==================================================-->
+
+    <link rel="stylesheet"
+          href="admin-login.css">
+
+</head>
+
+
+<body>
+
+
+<!--==================================================
+SMARTBAZAAR PRO 2
+FEATURE: AUTHENTICATION PAGE
+==================================================-->
+
+<main class="auth-page">
+
+
+    <!--==================================================
+    FEATURE: DECORATIVE BACKGROUND
+    ==================================================-->
+
+    <div class="auth-background">
+
+        <span class="background-shape shape-one"></span>
+
+        <span class="background-shape shape-two"></span>
+
+        <span class="background-shape shape-three"></span>
+
+    </div>
+
+
+    <!--==================================================
+    FEATURE: AUTH CONTAINER
+    ==================================================-->
+
+    <section class="auth-container">
+
+
+        <!--==================================================
+        FEATURE: BRAND
+        ==================================================-->
+
+        <div class="auth-brand">
+
+            <a href="index.html"
+               class="auth-logo">
+
+                <span class="auth-logo-icon">
+
+                    <i class="fa-solid fa-bag-shopping"></i>
+
+                </span>
+
+                <span class="auth-logo-text">
+
+                    SmartBazaar
+                    <small>PRO 2</small>
+
+                </span>
+
+            </a>
+
+            <p>
+                Pakistan's Premium Marketplace
+            </p>
+
+        </div>
+
+
+        <!--==================================================
+        FEATURE: AUTH CARD
+        ==================================================-->
+
+        <div class="auth-card">
+
+
+            <!--==================================================
+            FEATURE: LOGIN PANEL
+            ==================================================-->
+
+            <div class="auth-panel active"
+                 id="loginPanel">
+
+
+                <div class="auth-heading">
+
+                    <span class="heading-icon">
+
+                        <i class="fa-solid fa-right-to-bracket"></i>
+
+                    </span>
+
+                    <div>
+
+                        <h1>
+                            Welcome Back
+                        </h1>
+
+                        <p>
+                            Sign in to continue to SmartBazaar Pro 2
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!--==================================================
+                FEATURE: AUTH MESSAGE
+                ==================================================-->
+
+                <div class="auth-message"
+                     id="authMessage">
+
+                </div>
+
+
+                <!--==================================================
+                FEATURE: LOGIN FORM
+                ==================================================-->
+
+                <form id="loginForm"
+                      class="auth-form">
+
+
+                    <!-- EMAIL -->
+
+                    <div class="form-group">
+
+                        <label for="loginEmail">
+                            Email Address
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <i class="fa-regular fa-envelope"></i>
+
+                            <input
+                                type="email"
+                                id="loginEmail"
+                                placeholder="Enter your email"
+                                autocomplete="email"
+                                required>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PASSWORD -->
+
+                    <div class="form-group">
+
+                        <div class="password-label-row">
+
+                            <label for="loginPassword">
+                                Password
+                            </label>
+
+                            <button
+                                type="button"
+                                class="forgot-link"
+                                id="forgotPasswordButton">
+
+                                Forgot Password?
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="input-wrapper">
+
+                            <i class="fa-solid fa-lock"></i>
+
+                            <input
+                                type="password"
+                                id="loginPassword"
+                                placeholder="Enter your password"
+                                autocomplete="current-password"
+                                required>
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                data-target="loginPassword"
+                                aria-label="Show Password">
+
+                                <i class="fa-regular fa-eye"></i>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- REMEMBER -->
+
+                    <label class="remember-me">
+
+                        <input
+                            type="checkbox"
+                            id="rememberMe">
+
+                        <span class="custom-checkbox"></span>
+
+                        <span>
+                            Remember me
+                        </span>
+
+                    </label>
+
+
+                    <!-- LOGIN -->
+
+                    <button
+                        type="submit"
+                        class="primary-auth-button"
+                        id="loginButton">
+
+                        <span class="button-text">
+                            Sign In
+                        </span>
+
+                        <span class="button-loader">
+
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+
+                        </span>
+
+                        <i class="fa-solid fa-arrow-right button-arrow"></i>
+
+                    </button>
+
+
+                </form>
+
+
+                <!--==================================================
+                FEATURE: GOOGLE LOGIN
+                ==================================================-->
+
+                <div class="auth-divider">
+
+                    <span>
+                        OR CONTINUE WITH
+                    </span>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="google-auth-button"
+                    id="googleLoginButton">
+
+                    <span class="google-icon">
+                        G
+                    </span>
+
+                    <span>
+                        Continue with Google
+                    </span>
+
+                </button>
+
+
+                <!--==================================================
+                FEATURE: SIGNUP SWITCH
+                ==================================================-->
+
+                <p class="auth-switch">
+
+                    Don't have an account?
+
+                    <button
+                        type="button"
+                        id="showSignupButton">
+
+                        Create Account
+
+                    </button>
+
+                </p>
+
+            </div>
+
+
+            <!--==================================================
+            FEATURE: SIGNUP PANEL
+            ==================================================-->
+
+            <div class="auth-panel"
+                 id="signupPanel">
+
+
+                <div class="auth-heading">
+
+                    <span class="heading-icon">
+
+                        <i class="fa-solid fa-user-plus"></i>
+
+                    </span>
+
+                    <div>
+
+                        <h1>
+                            Create Account
+                        </h1>
+
+                        <p>
+                            Join SmartBazaar Pro 2 today
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SIGNUP MESSAGE -->
+
+                <div class="auth-message"
+                     id="signupMessage">
+
+                </div>
+
+
+                <form id="signupForm"
+                      class="auth-form">
+
+
+                    <!-- NAME -->
+
+                    <div class="form-group">
+
+                        <label for="signupName">
+                            Full Name
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <i class="fa-regular fa-user"></i>
+
+                            <input
+                                type="text"
+                                id="signupName"
+                                placeholder="Enter your full name"
+                                autocomplete="name"
+                                required>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- EMAIL -->
+
+                    <div class="form-group">
+
+                        <label for="signupEmail">
+                            Email Address
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <i class="fa-regular fa-envelope"></i>
+
+                            <input
+                                type="email"
+                                id="signupEmail"
+                                placeholder="Enter your email"
+                                autocomplete="email"
+                                required>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PASSWORD -->
+
+                    <div class="form-group">
+
+                        <label for="signupPassword">
+                            Password
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <i class="fa-solid fa-lock"></i>
+
+                            <input
+                                type="password"
+                                id="signupPassword"
+                                placeholder="Create a password"
+                                autocomplete="new-password"
+                                minlength="6"
+                                required>
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                data-target="signupPassword"
+                                aria-label="Show Password">
+
+                                <i class="fa-regular fa-eye"></i>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- CONFIRM PASSWORD -->
+
+                    <div class="form-group">
+
+                        <label for="signupConfirmPassword">
+                            Confirm Password
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <i class="fa-solid fa-shield-halved"></i>
+
+                            <input
+                                type="password"
+                                id="signupConfirmPassword"
+                                placeholder="Confirm your password"
+                                autocomplete="new-password"
+                                required>
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                data-target="signupConfirmPassword"
+                                aria-label="Show Password">
+
+                                <i class="fa-regular fa-eye"></i>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- TERMS -->
+
+                    <label class="terms-checkbox">
+
+                        <input
+                            type="checkbox"
+                            id="acceptTerms"
+                            required>
+
+                        <span class="custom-checkbox"></span>
+
+                        <span>
+
+                            I agree to the
+                            <a href="#">
+                                Terms & Conditions
+                            </a>
+
+                            and
+
+                            <a href="#">
+                                Privacy Policy
+                            </a>
+
+                        </span>
+
+                    </label>
+
+
+                    <!-- SIGNUP -->
+
+                    <button
+                        type="submit"
+                        class="primary-auth-button"
+                        id="signupButton">
+
+                        <span class="button-text">
+                            Create Account
+                        </span>
+
+                        <span class="button-loader">
+
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+
+                        </span>
+
+                        <i class="fa-solid fa-arrow-right button-arrow"></i>
+
+                    </button>
+
+
+                </form>
+
+
+                <!--==================================================
+                FEATURE: GOOGLE SIGNUP
+                ==================================================-->
+
+                <div class="auth-divider">
+
+                    <span>
+                        OR SIGN UP WITH
+                    </span>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="google-auth-button"
+                    id="googleSignupButton">
+
+                    <span class="google-icon">
+                        G
+                    </span>
+
+                    <span>
+                        Continue with Google
+                    </span>
+
+                </button>
+
+
+                <!-- SWITCH -->
+
+                <p class="auth-switch">
+
+                    Already have an account?
+
+                    <button
+                        type="button"
+                        id="showLoginButton">
+
+                        Sign In
+
+                    </button>
+
+                </p>
+
+            </div>
+
+
+            <!--==================================================
+            FEATURE: FORGOT PASSWORD PANEL
+            ==================================================-->
+
+            <div class="auth-panel"
+                 id="forgotPanel">
+
+
+                <div class="auth-heading">
+
+                    <span class="heading-icon">
+
+                        <i class="fa-solid fa-key"></i>
+
+                    </span>
+
+                    <div>
+
+                        <h1>
+                            Reset Password
+                        </h1>
+
+                        <p>
+                            We'll send a password reset link to your email
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="auth-message"
+                     id="forgotMessage">
+
+                </div>
+
+
+                <form id="forgotForm"
+                      class="auth-form">
+
+
+                    <div class="form-group">
+
+                        <label for="forgotEmail">
+                            Email Address
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <i class="fa-regular fa-envelope"></i>
+
+                            <input
+                                type="email"
+                                id="forgotEmail"
+                                placeholder="Enter your account email"
+                                autocomplete="email"
+                                required>
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="primary-auth-button"
+                        id="forgotButton">
+
+                        <span class="button-text">
+                            Send Reset Link
+                        </span>
+
+                        <span class="button-loader">
+
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+
+                        </span>
+
+                        <i class="fa-solid fa-paper-plane button-arrow"></i>
+
+                    </button>
+
+
+                </form>
+
+
+                <p class="auth-switch">
+
+                    Remember your password?
+
+                    <button
+                        type="button"
+                        id="backToLoginButton">
+
+                        Back to Sign In
+
+                    </button>
+
+                </p>
+
+            </div>
+
+
+        </div>
+
+
+        <!--==================================================
+        FEATURE: SECURITY FOOTER
+        ==================================================-->
+
+        <div class="auth-security">
+
+            <span>
+
+                <i class="fa-solid fa-shield-halved"></i>
+
+                Secure Firebase Authentication
+
+            </span>
+
+            <span>
+
+                <i class="fa-solid fa-lock"></i>
+
+                Your data is protected
+
+            </span>
+
+        </div>
+
+
+        <a href="index.html"
+           class="back-home">
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            Back to SmartBazaar Pro 2
+
+        </a>
+
+
+    </section>
+
+</main>
+
+
+<!--==================================================
+FEATURE: AUTHENTICATION JAVASCRIPT
+==================================================-->
+
+<script
+    type="module"
+    src="admin-login.js">
+</script>
+
+
+</body>
+</html>
