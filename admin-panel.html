@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+          content="SmartBazaar Pro 2 Admin Panel">
+
+    <title>SmartBazaar Pro 2 — Admin Panel</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Admin Panel CSS -->
+    <link rel="stylesheet" href="admin-panel.css">
+
+</head>
+
+
+<body>
+
+
+<!--==================================================
+SMARTBAZAAR PRO 2
+ADMIN PANEL
+==================================================-->
+
+
+<!--==================================================
+FEATURE: ADMIN SIDEBAR
+==================================================-->
+
+<aside class="admin-sidebar"
+       id="adminSidebar">
+
+
+    <!-- LOGO -->
+
+    <div class="admin-logo">
+
+        <div class="admin-logo-icon">
+            <i class="fa-solid fa-store"></i>
+        </div>
+
+        <div class="admin-logo-text">
+
+            <strong>
+                SmartBazaar
+            </strong>
+
+            <span>
+                PRO 2
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- ADMIN PROFILE -->
+
+    <div class="admin-profile">
+
+        <div class="admin-profile-avatar">
+            <i class="fa-solid fa-user-shield"></i>
+        </div>
+
+        <div class="admin-profile-info">
+
+            <strong id="adminName">
+                Administrator
+            </strong>
+
+            <small id="adminEmail">
+                Loading...
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <!-- SIDEBAR NAVIGATION -->
+
+    <nav class="admin-navigation">
+
+
+        <a href="#"
+           class="admin-nav-item active"
+           data-section="dashboard">
+
+            <i class="fa-solid fa-gauge-high"></i>
+
+            <span>
+                Dashboard
+            </span>
+
+        </a>
+
+
+        <a href="#"
+           class="admin-nav-item"
+           data-section="banners">
+
+            <i class="fa-solid fa-images"></i>
+
+            <span>
+                Banners
+            </span>
+
+        </a>
+
+
+        <a href="#"
+           class="admin-nav-item"
+           data-section="products">
+
+            <i class="fa-solid fa-box-open"></i>
+
+            <span>
+                Products
+            </span>
+
+        </a>
+
+
+        <a href="#"
+           class="admin-nav-item"
+           data-section="categories">
+
+            <i class="fa-solid fa-layer-group"></i>
+
+            <span>
+                Categories
+            </span>
+
+        </a>
+
+
+        <a href="#"
+           class="admin-nav-item"
+           data-section="orders">
+
+            <i class="fa-solid fa-cart-shopping"></i>
+
+            <span>
+                Orders
+            </span>
+
+        </a>
+
+
+        <a href="#"
+           class="admin-nav-item"
+           data-section="users">
+
+            <i class="fa-solid fa-users"></i>
+
+            <span>
+                Users
+            </span>
+
+        </a>
+
+
+        <a href="#"
+           class="admin-nav-item"
+           data-section="analytics">
+
+            <i class="fa-solid fa-chart-line"></i>
+
+            <span>
+                Analytics
+            </span>
+
+        </a>
+
+
+        <a href="#"
+           class="admin-nav-item"
+           data-section="settings">
+
+            <i class="fa-solid fa-gear"></i>
+
+            <span>
+                Settings
+            </span>
+
+        </a>
+
+
+    </nav>
+
+
+    <!-- SIDEBAR FOOTER -->
+
+    <div class="admin-sidebar-footer">
+
+        <button
+            type="button"
+            id="viewWebsiteButton">
+
+            <i class="fa-solid fa-globe"></i>
+
+            <span>
+                View Website
+            </span>
+
+        </button>
+
+
+        <button
+            type="button"
+            id="logoutButton"
+            class="logout-button">
+
+            <i class="fa-solid fa-right-from-bracket"></i>
+
+            <span>
+                Logout
+            </span>
+
+        </button>
+
+    </div>
+
+
+</aside>
+
+
+
+<!--==================================================
+FEATURE: ADMIN MAIN AREA
+==================================================-->
+
+<div class="admin-main">
+
+
+    <!--==================================================
+    FEATURE: ADMIN TOP HEADER
+    ==================================================-->
+
+    <header class="admin-topbar">
+
+
+        <div class="topbar-left">
+
+            <button
+                type="button"
+                class="sidebar-toggle"
+                id="sidebarToggle">
+
+                <i class="fa-solid fa-bars"></i>
+
+            </button>
+
+
+            <div>
+
+                <h1 id="pageTitle">
+                    Dashboard
+                </h1>
+
+                <p id="pageSubtitle">
+                    Welcome back to SmartBazaar Pro 2
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="topbar-right">
+
+
+            <button
+                type="button"
+                class="topbar-icon-button"
+                id="notificationButton"
+                aria-label="Notifications">
+
+                <i class="fa-regular fa-bell"></i>
+
+                <span class="notification-dot"></span>
+
+            </button>
+
+
+            <div class="topbar-admin">
+
+                <div class="topbar-avatar">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+
+                <div>
+
+                    <strong>
+                        Admin
+                    </strong>
+
+                    <small>
+                        Super Admin
+                    </small>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </header>
+
+
+
+    <!--==================================================
+    FEATURE: ADMIN CONTENT
+    ==================================================-->
+
+    <main class="admin-content">
+
+
+        <!--==================================================
+        DASHBOARD SECTION
+        ==================================================-->
+
+        <section
+            class="admin-section active"
+            id="dashboardSection">
+
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="section-eyebrow">
+                        SMARTBAZAAR PRO 2
+                    </span>
+
+                    <h2>
+                        Store Overview
+                    </h2>
+
+                    <p>
+                        Manage your marketplace from one powerful control center.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- STAT CARDS -->
+
+            <div class="dashboard-stats">
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-box-open"></i>
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Products
+                        </span>
+
+                        <strong id="productCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                    <span class="stat-label">
+                        Total
+                    </span>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-images"></i>
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Banners
+                        </span>
+
+                        <strong id="bannerCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                    <span class="stat-label">
+                        Active
+                    </span>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Orders
+                        </span>
+
+                        <strong id="orderCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                    <span class="stat-label">
+                        Total
+                    </span>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Users
+                        </span>
+
+                        <strong id="userCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                    <span class="stat-label">
+                        Registered
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- QUICK ACTIONS -->
+
+            <div class="dashboard-grid">
+
+
+                <div class="admin-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h3>
+                                Quick Actions
+                            </h3>
+
+                            <p>
+                                Frequently used management tools
+                            </p>
+
+                        </div>
+
+                        <i class="fa-solid fa-bolt"></i>
+
+                    </div>
+
+
+                    <div class="quick-actions">
+
+
+                        <button
+                            type="button"
+                            data-section-action="banners">
+
+                            <i class="fa-solid fa-plus"></i>
+
+                            <span>
+                                Add Banner
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            data-section-action="products">
+
+                            <i class="fa-solid fa-box"></i>
+
+                            <span>
+                                Add Product
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            data-section-action="categories">
+
+                            <i class="fa-solid fa-folder-plus"></i>
+
+                            <span>
+                                Add Category
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            data-section-action="orders">
+
+                            <i class="fa-solid fa-receipt"></i>
+
+                            <span>
+                                View Orders
+                            </span>
+
+                        </button>
+
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="admin-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h3>
+                                System Status
+                            </h3>
+
+                            <p>
+                                SmartBazaar services
+                            </p>
+
+                        </div>
+
+                        <i class="fa-solid fa-server"></i>
+
+                    </div>
+
+
+                    <div class="system-status-list">
+
+
+                        <div class="status-row">
+
+                            <span>
+                                <i class="fa-solid fa-fire"></i>
+                                Firebase
+                            </span>
+
+                            <strong class="status-online">
+                                <i class="fa-solid fa-circle"></i>
+                                Connected
+                            </strong>
+
+                        </div>
+
+
+                        <div class="status-row">
+
+                            <span>
+                                <i class="fa-solid fa-cloud"></i>
+                                Cloudinary
+                            </span>
+
+                            <strong class="status-online">
+                                <i class="fa-solid fa-circle"></i>
+                                Ready
+                            </strong>
+
+                        </div>
+
+
+                        <div class="status-row">
+
+                            <span>
+                                <i class="fa-solid fa-shield-halved"></i>
+                                Admin Security
+                            </span>
+
+                            <strong class="status-online">
+                                <i class="fa-solid fa-circle"></i>
+                                Protected
+                            </strong>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!--==================================================
+        BANNERS SECTION
+        ==================================================-->
+
+        <section
+            class="admin-section"
+            id="bannersSection">
+
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="section-eyebrow">
+                        FEATURE: BANNER MANAGEMENT
+                    </span>
+
+                    <h2>
+                        Website Banners
+                    </h2>
+
+                    <p>
+                        Manage homepage banners and slider content.
+                    </p>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="primary-action"
+                    id="addBannerButton">
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    Add Banner
+
+                </button>
+
+            </div>
+
+
+            <div class="empty-management-card">
+
+                <div class="empty-icon">
+                    <i class="fa-solid fa-images"></i>
+                </div>
+
+                <h3>
+                    Banner Management
+                </h3>
+
+                <p>
+                    Your Banner Editor will be connected here.
+                </p>
+
+                <button
+                    type="button"
+                    class="primary-action"
+                    id="openBannerEditorButton">
+
+                    <i class="fa-solid fa-pen-to-square"></i>
+
+                    Open Banner Editor
+
+                </button>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!--==================================================
+        PRODUCTS SECTION
+        ==================================================-->
+
+        <section
+            class="admin-section"
+            id="productsSection">
+
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="section-eyebrow">
+                        PRODUCT MANAGEMENT
+                    </span>
+
+                    <h2>
+                        Products
+                    </h2>
+
+                    <p>
+                        Manage marketplace products.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="coming-soon-card">
+
+                <i class="fa-solid fa-box-open"></i>
+
+                <h3>
+                    Product Manager
+                </h3>
+
+                <p>
+                    Product management system will be added here.
+                </p>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!--==================================================
+        CATEGORIES SECTION
+        ==================================================-->
+
+        <section
+            class="admin-section"
+            id="categoriesSection">
+
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="section-eyebrow">
+                        CATEGORY MANAGEMENT
+                    </span>
+
+                    <h2>
+                        Categories
+                    </h2>
+
+                    <p>
+                        Organize your marketplace categories.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="coming-soon-card">
+
+                <i class="fa-solid fa-layer-group"></i>
+
+                <h3>
+                    Category Manager
+                </h3>
+
+                <p>
+                    Category management system will be added here.
+                </p>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!--==================================================
+        ORDERS SECTION
+        ==================================================-->
+
+        <section
+            class="admin-section"
+            id="ordersSection">
+
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="section-eyebrow">
+                        ORDER MANAGEMENT
+                    </span>
+
+                    <h2>
+                        Orders
+                    </h2>
+
+                    <p>
+                        Manage customer orders.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="coming-soon-card">
+
+                <i class="fa-solid fa-cart-shopping"></i>
+
+                <h3>
+                    Order Manager
+                </h3>
+
+                <p>
+                    Order management system will be added here.
+                </p>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!--==================================================
+        USERS SECTION
+        ==================================================-->
+
+        <section
+            class="admin-section"
+            id="usersSection">
+
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="section-eyebrow">
+                        USER MANAGEMENT
+                    </span>
+
+                    <h2>
+                        Users
+                    </h2>
+
+                    <p>
+                        Manage marketplace users.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="coming-soon-card">
+
+                <i class="fa-solid fa-users"></i>
+
+                <h3>
+                    User Manager
+                </h3>
+
+                <p>
+                    User management system will be added here.
+                </p>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!--==================================================
+        ANALYTICS SECTION
+        ==================================================-->
+
+        <section
+            class="admin-section"
+            id="analyticsSection">
+
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="section-eyebrow">
+                        STORE ANALYTICS
+                    </span>
+
+                    <h2>
+                        Analytics
+                    </h2>
+
+                    <p>
+                        Monitor marketplace performance.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="coming-soon-card">
+
+                <i class="fa-solid fa-chart-line"></i>
+
+                <h3>
+                    Analytics Dashboard
+                </h3>
+
+                <p>
+                    Advanced analytics will be added here.
+                </p>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!--==================================================
+        SETTINGS SECTION
+        ==================================================-->
+
+        <section
+            class="admin-section"
+            id="settingsSection">
+
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="section-eyebrow">
+                        ADMINISTRATION
+                    </span>
+
+                    <h2>
+                        Settings
+                    </h2>
+
+                    <p>
+                        Manage SmartBazaar Pro 2 settings.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="coming-soon-card">
+
+                <i class="fa-solid fa-gear"></i>
+
+                <h3>
+                    Admin Settings
+                </h3>
+
+                <p>
+                    System settings will be added here.
+                </p>
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+
+<!--==================================================
+FEATURE: ADMIN LOADING SCREEN
+==================================================-->
+
+<div class="admin-loading"
+     id="adminLoading">
+
+    <div class="loading-spinner"></div>
+
+    <p>
+        Verifying Admin Access...
+    </p>
+
+</div>
+
+
+
+<!--==================================================
+FEATURE: ADMIN TOAST
+==================================================-->
+
+<div class="admin-toast"
+     id="adminToast">
+
+    <i class="fa-solid fa-circle-check"></i>
+
+    <span id="adminToastMessage">
+        Success
+    </span>
+
+</div>
+
+
+
+<!--==================================================
+FEATURE: JAVASCRIPT
+==================================================-->
+
+<script type="module"
+        src="admin-panel.js"></script>
+
+
+</body>
+
+</html>
