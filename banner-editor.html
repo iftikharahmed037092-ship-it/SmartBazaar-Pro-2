@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="description"
+        content="SmartBazaar Pro 2 Banner Editor">
+
+    <title>SmartBazaar Pro 2 - Banner Editor</title>
+
+    <link
+        rel="stylesheet"
+        href="banner-editor.css">
+
+</head>
+
+
+<body>
+
+<!--==================================================
+SMARTBAZAAR PRO 2
+FEATURE: BANNER EDITOR
+==================================================-->
+
+<div class="banner-editor-page">
+
+
+    <!--==================================================
+    HEADER
+    ==================================================-->
+
+    <header class="editor-header">
+
+        <div>
+
+            <h1>
+                Banner Editor
+            </h1>
+
+            <p>
+                SmartBazaar Pro 2
+            </p>
+
+        </div>
+
+
+        <a
+            href="index.html"
+            class="back-button">
+
+            ← Back to Website
+
+        </a>
+
+    </header>
+
+
+
+    <!--==================================================
+    MAIN EDITOR
+    ==================================================-->
+
+    <main class="editor-container">
+
+
+        <!--==================================================
+        ADD / EDIT FORM
+        ==================================================-->
+
+        <section class="editor-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2 id="formTitle">
+                        Add New Banner
+                    </h2>
+
+                    <p>
+                        Create and manage your homepage banner
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <form id="bannerForm">
+
+
+                <!-- Hidden ID -->
+
+                <input
+                    type="hidden"
+                    id="bannerId">
+
+
+                <!-- Desktop Image -->
+
+                <div class="form-group">
+
+                    <label>
+                        Desktop Banner Image
+                    </label>
+
+                    <input
+                        type="file"
+                        id="desktopImage"
+                        accept="image/*">
+
+                    <div
+                        class="upload-status"
+                        id="desktopUploadStatus">
+                    </div>
+
+                    <img
+                        id="desktopPreview"
+                        class="image-preview"
+                        alt="Desktop Preview">
+
+                </div>
+
+
+
+                <!-- Mobile Image -->
+
+                <div class="form-group">
+
+                    <label>
+                        Mobile Banner Image
+                    </label>
+
+                    <input
+                        type="file"
+                        id="mobileImage"
+                        accept="image/*">
+
+                    <div
+                        class="upload-status"
+                        id="mobileUploadStatus">
+                    </div>
+
+                    <img
+                        id="mobilePreview"
+                        class="image-preview"
+                        alt="Mobile Preview">
+
+                </div>
+
+
+
+                <!-- Title -->
+
+                <div class="form-group">
+
+                    <label for="bannerTitle">
+                        Banner Title
+                    </label>
+
+                    <input
+                        type="text"
+                        id="bannerTitle"
+                        placeholder="Enter banner title">
+
+                </div>
+
+
+
+                <!-- Subtitle -->
+
+                <div class="form-group">
+
+                    <label for="bannerSubtitle">
+                        Subtitle
+                    </label>
+
+                    <textarea
+                        id="bannerSubtitle"
+                        placeholder="Enter banner description">
+                    </textarea>
+
+                </div>
+
+
+
+                <!-- Button Text -->
+
+                <div class="form-group">
+
+                    <label for="buttonText">
+                        Button Text
+                    </label>
+
+                    <input
+                        type="text"
+                        id="buttonText"
+                        placeholder="Shop Now">
+
+                </div>
+
+
+
+                <!-- Button Link -->
+
+                <div class="form-group">
+
+                    <label for="buttonLink">
+                        Button Link
+                    </label>
+
+                    <input
+                        type="text"
+                        id="buttonLink"
+                        placeholder="products.html">
+
+                </div>
+
+
+
+                <!-- Order -->
+
+                <div class="form-group">
+
+                    <label for="bannerOrder">
+                        Display Order
+                    </label>
+
+                    <input
+                        type="number"
+                        id="bannerOrder"
+                        value="1"
+                        min="0">
+
+                </div>
+
+
+
+                <!-- Active -->
+
+                <div class="switch-group">
+
+                    <label>
+                        Active Banner
+                    </label>
+
+                    <input
+                        type="checkbox"
+                        id="bannerActive"
+                        checked>
+
+                </div>
+
+
+
+                <!-- Dates -->
+
+                <div class="date-grid">
+
+                    <div class="form-group">
+
+                        <label for="startDate">
+                            Start Date
+                        </label>
+
+                        <input
+                            type="datetime-local"
+                            id="startDate">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="endDate">
+                            End Date
+                        </label>
+
+                        <input
+                            type="datetime-local"
+                            id="endDate">
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Actions -->
+
+                <div class="form-actions">
+
+                    <button
+                        type="submit"
+                        class="save-button"
+                        id="saveBannerButton">
+
+                        Save Banner
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="cancel-button"
+                        id="cancelEditButton">
+
+                        Clear
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+
+        <!--==================================================
+        BANNER LIST
+        ==================================================-->
+
+        <section class="banner-list-section">
+
+            <div class="list-header">
+
+                <div>
+
+                    <h2>
+                        All Banners
+                    </h2>
+
+                    <p id="bannerCount">
+                        0 banners
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="bannerList"
+                class="banner-list">
+
+                <div class="loading-message">
+                    Loading banners...
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script
+    type="module"
+    src="banner-editor.js">
+</script>
+
+</body>
+
+</html>
