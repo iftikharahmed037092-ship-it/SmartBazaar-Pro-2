@@ -5,159 +5,212 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="description"
-        content="SmartBazaar Pro 2 Banner Editor">
+    <title>SmartBazaar Pro 2 — Banner Editor</title>
 
-    <title>SmartBazaar Pro 2 - Banner Editor</title>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-    <link
-        rel="stylesheet"
-        href="banner-editor.css">
+    <link rel="stylesheet"
+          href="banner-editor.css">
 
 </head>
-
 
 <body>
 
 <!--==================================================
 SMARTBAZAAR PRO 2
-FEATURE: BANNER EDITOR
+FEATURE: BANNER EDITOR ADMIN PANEL
 ==================================================-->
 
-<div class="banner-editor-page">
+<header class="editor-header">
+
+    <div class="editor-brand">
+
+        <div class="brand-icon">
+            <i class="fa-solid fa-images"></i>
+        </div>
+
+        <div>
+            <h1>SmartBazaar Pro</h1>
+            <span>Banner Manager</span>
+        </div>
+
+    </div>
+
+
+    <div class="editor-header-actions">
+
+        <a href="index.html"
+           class="back-home">
+
+            <i class="fa-solid fa-house"></i>
+            Home
+
+        </a>
+
+        <button
+            type="button"
+            id="logoutButton"
+            class="logout-button">
+
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Logout
+
+        </button>
+
+    </div>
+
+</header>
+
+
+<!--==================================================
+FEATURE: ADMIN AUTH STATUS
+==================================================-->
+
+<section class="admin-status-section">
+
+    <div class="admin-status-card">
+
+        <div class="status-icon">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+
+        <div class="status-info">
+
+            <strong id="adminStatus">
+                Checking Admin Access...
+            </strong>
+
+            <span id="adminEmail">
+                Please wait
+            </span>
+
+        </div>
+
+        <div
+            class="status-badge"
+            id="statusBadge">
+
+            Checking
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<main class="editor-container">
 
 
     <!--==================================================
-    HEADER
+    FEATURE: BANNER FORM
     ==================================================-->
 
-    <header class="editor-header">
+    <section
+        class="banner-form-card"
+        id="bannerFormCard">
 
-        <div>
+        <div class="section-heading">
 
-            <h1>
-                Banner Editor
-            </h1>
+            <div>
 
-            <p>
-                SmartBazaar Pro 2
-            </p>
+                <span class="eyebrow">
+                    BANNER MANAGEMENT
+                </span>
+
+                <h2 id="formTitle">
+                    Add New Banner
+                </h2>
+
+                <p>
+                    Create and publish a professional homepage banner.
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                id="resetFormButton"
+                class="reset-button">
+
+                <i class="fa-solid fa-rotate-left"></i>
+                Reset
+
+            </button>
 
         </div>
 
 
-        <a
-            href="index.html"
-            class="back-button">
-
-            ← Back to Website
-
-        </a>
-
-    </header>
+        <form id="bannerForm">
 
 
+            <!-- IMAGE -->
 
-    <!--==================================================
-    MAIN EDITOR
-    ==================================================-->
+            <div class="form-group full-width">
 
-    <main class="editor-container">
+                <label>
+                    Banner Image
+                </label>
 
+                <div
+                    class="image-upload-area"
+                    id="imageUploadArea">
 
-        <!--==================================================
-        ADD / EDIT FORM
-        ==================================================-->
+                    <input
+                        type="file"
+                        id="bannerImage"
+                        accept="image/*">
 
-        <section class="editor-card">
+                    <div
+                        class="upload-placeholder"
+                        id="uploadPlaceholder">
 
-            <div class="card-header">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
 
-                <div>
+                        <strong>
+                            Upload Banner Image
+                        </strong>
 
-                    <h2 id="formTitle">
-                        Add New Banner
-                    </h2>
+                        <span>
+                            JPG, PNG, WEBP • Recommended 1920×600
+                        </span>
 
-                    <p>
-                        Create and manage your homepage banner
-                    </p>
+                    </div>
+
+                    <img
+                        id="imagePreview"
+                        class="image-preview"
+                        alt="Banner Preview">
 
                 </div>
+
+                <div
+                    class="upload-progress"
+                    id="uploadProgress">
+
+                    <div
+                        class="progress-bar"
+                        id="progressBar">
+                    </div>
+
+                </div>
+
+                <small
+                    class="upload-status"
+                    id="uploadStatus">
+                </small>
 
             </div>
 
 
-            <form id="bannerForm">
+            <!-- TITLE -->
 
+            <div class="form-grid">
 
-                <!-- Hidden ID -->
-
-                <input
-                    type="hidden"
-                    id="bannerId">
-
-
-                <!-- Desktop Image -->
-
-                <div class="form-group">
-
-                    <label>
-                        Desktop Banner Image
-                    </label>
-
-                    <input
-                        type="file"
-                        id="desktopImage"
-                        accept="image/*">
-
-                    <div
-                        class="upload-status"
-                        id="desktopUploadStatus">
-                    </div>
-
-                    <img
-                        id="desktopPreview"
-                        class="image-preview"
-                        alt="Desktop Preview">
-
-                </div>
-
-
-
-                <!-- Mobile Image -->
-
-                <div class="form-group">
-
-                    <label>
-                        Mobile Banner Image
-                    </label>
-
-                    <input
-                        type="file"
-                        id="mobileImage"
-                        accept="image/*">
-
-                    <div
-                        class="upload-status"
-                        id="mobileUploadStatus">
-                    </div>
-
-                    <img
-                        id="mobilePreview"
-                        class="image-preview"
-                        alt="Mobile Preview">
-
-                </div>
-
-
-
-                <!-- Title -->
 
                 <div class="form-group">
 
@@ -168,13 +221,11 @@ FEATURE: BANNER EDITOR
                     <input
                         type="text"
                         id="bannerTitle"
-                        placeholder="Enter banner title">
+                        placeholder="e.g. Mega Summer Sale"
+                        maxlength="100">
 
                 </div>
 
-
-
-                <!-- Subtitle -->
 
                 <div class="form-group">
 
@@ -182,16 +233,39 @@ FEATURE: BANNER EDITOR
                         Subtitle
                     </label>
 
-                    <textarea
+                    <input
+                        type="text"
                         id="bannerSubtitle"
-                        placeholder="Enter banner description">
-                    </textarea>
+                        placeholder="e.g. Up to 50% Off"
+                        maxlength="150">
 
                 </div>
 
 
+            </div>
 
-                <!-- Button Text -->
+
+            <!-- DESCRIPTION -->
+
+            <div class="form-group">
+
+                <label for="bannerDescription">
+                    Description
+                </label>
+
+                <textarea
+                    id="bannerDescription"
+                    rows="3"
+                    placeholder="Enter banner description...">
+                </textarea>
+
+            </div>
+
+
+            <!-- BUTTON -->
+
+            <div class="form-grid">
+
 
                 <div class="form-group">
 
@@ -207,25 +281,27 @@ FEATURE: BANNER EDITOR
                 </div>
 
 
-
-                <!-- Button Link -->
-
                 <div class="form-group">
 
                     <label for="buttonLink">
-                        Button Link
+                        Button / Banner Link
                     </label>
 
                     <input
-                        type="text"
+                        type="url"
                         id="buttonLink"
-                        placeholder="products.html">
+                        placeholder="https://example.com/products">
 
                 </div>
 
 
+            </div>
 
-                <!-- Order -->
+
+            <!-- SETTINGS -->
+
+            <div class="form-grid">
+
 
                 <div class="form-group">
 
@@ -236,137 +312,147 @@ FEATURE: BANNER EDITOR
                     <input
                         type="number"
                         id="bannerOrder"
-                        value="1"
-                        min="0">
+                        min="0"
+                        value="0">
 
                 </div>
 
 
-
-                <!-- Active -->
-
-                <div class="switch-group">
+                <div class="form-group">
 
                     <label>
-                        Active Banner
+                        Banner Status
                     </label>
 
-                    <input
-                        type="checkbox"
-                        id="bannerActive"
-                        checked>
-
-                </div>
-
-
-
-                <!-- Dates -->
-
-                <div class="date-grid">
-
-                    <div class="form-group">
-
-                        <label for="startDate">
-                            Start Date
-                        </label>
+                    <label class="switch-row">
 
                         <input
-                            type="datetime-local"
-                            id="startDate">
+                            type="checkbox"
+                            id="bannerActive"
+                            checked>
 
-                    </div>
+                        <span class="switch"></span>
 
+                        <span>
+                            Active Banner
+                        </span>
 
-                    <div class="form-group">
-
-                        <label for="endDate">
-                            End Date
-                        </label>
-
-                        <input
-                            type="datetime-local"
-                            id="endDate">
-
-                    </div>
+                    </label>
 
                 </div>
 
-
-
-                <!-- Actions -->
-
-                <div class="form-actions">
-
-                    <button
-                        type="submit"
-                        class="save-button"
-                        id="saveBannerButton">
-
-                        Save Banner
-
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="cancel-button"
-                        id="cancelEditButton">
-
-                        Clear
-
-                    </button>
-
-                </div>
-
-            </form>
-
-        </section>
-
-
-
-        <!--==================================================
-        BANNER LIST
-        ==================================================-->
-
-        <section class="banner-list-section">
-
-            <div class="list-header">
-
-                <div>
-
-                    <h2>
-                        All Banners
-                    </h2>
-
-                    <p id="bannerCount">
-                        0 banners
-                    </p>
-
-                </div>
 
             </div>
 
+
+            <!-- ACTIONS -->
+
+            <div class="form-actions">
+
+                <button
+                    type="submit"
+                    id="saveBannerButton"
+                    class="save-button">
+
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+
+                    Save Banner
+
+                </button>
+
+            </div>
+
+
+        </form>
+
+    </section>
+
+
+
+    <!--==================================================
+    FEATURE: EXISTING BANNERS
+    ==================================================-->
+
+    <section class="banners-section">
+
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="eyebrow">
+                    HOMEPAGE BANNERS
+                </span>
+
+                <h2>
+                    Your Banners
+                </h2>
+
+                <p>
+                    Manage all banners displayed on SmartBazaar Pro.
+                </p>
+
+            </div>
 
             <div
-                id="bannerList"
-                class="banner-list">
+                class="banner-count"
+                id="bannerCount">
 
-                <div class="loading-message">
-                    Loading banners...
-                </div>
+                0 Banners
 
             </div>
 
-        </section>
+        </div>
 
-    </main>
+
+        <div
+            class="banners-grid"
+            id="bannersGrid">
+
+            <div class="empty-state">
+
+                <i class="fa-solid fa-images"></i>
+
+                <h3>
+                    No Banners Yet
+                </h3>
+
+                <p>
+                    Create your first homepage banner.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!--==================================================
+FEATURE: TOAST
+==================================================-->
+
+<div
+    class="toast"
+    id="toast">
+
+    <i class="fa-solid fa-circle-check"></i>
+
+    <span id="toastMessage">
+        Done
+    </span>
 
 </div>
 
 
-<script
-    type="module"
-    src="banner-editor.js">
+<!--==================================================
+FEATURE: JAVASCRIPT
+==================================================-->
+
+<script type="module"
+        src="banner-editor.js">
 </script>
 
 </body>
