@@ -985,7 +985,7 @@ async function deleteBanner(id) {
         await remove(
             ref(
                 database,
-                `banners/${id}`
+                `smartbazaar_pro_2/banners/${id}`
             )
         );
 
