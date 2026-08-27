@@ -26,19 +26,27 @@ FEATURE: FIREBASE PROJECT CONFIG
 
 const firebaseConfig = {
 
-    apiKey: "AIzaSyC-hnn0DMRBLznCZTseQnN4Fq6f0SF_yis",
+    apiKey:
+        "AIzaSyC-hnn0DMRBLznCZTseQnN4Nq6f0SF_yis",
 
-    authDomain: "smart-bazaar-pro-2.firebaseapp.com",
+    authDomain:
+        "smart-bazaar-pro-2.firebaseapp.com",
 
-    projectId: "smart-bazaar-pro-2",
+    projectId:
+        "smart-bazaar-pro-2",
 
-    storageBucket: "smart-bazaar-pro-2.firebasestorage.app",
+    storageBucket:
+        "smart-bazaar-pro-2.firebasestorage.app",
 
-    messagingSenderId: "65764731299",
+    messagingSenderId:
+        "65764731299",
 
-    appId: "1:65764731299:web:367e07eadae6baf6bb1216",
+    appId:
+        "1:65764731299:web:367e07eadae6baf6bb1216",
 
-    measurementId: "G-9Q363TBVXP"
+    measurementId:
+        "G-9Q363TBVXP"
+
 };
 
 
@@ -46,28 +54,32 @@ const firebaseConfig = {
 FEATURE: INITIALIZE FIREBASE
 ==================================================*/
 
-const app = initializeApp(firebaseConfig);
+const app =
+    initializeApp(firebaseConfig);
 
 
 /*==================================================
 FEATURE: ANALYTICS
 ==================================================*/
 
-const analytics = getAnalytics(app);
+const analytics =
+    getAnalytics(app);
 
 
 /*==================================================
 FEATURE: REALTIME DATABASE
 ==================================================*/
 
-const database = getDatabase(app);
+const database =
+    getDatabase(app);
 
 
 /*==================================================
 FEATURE: AUTHENTICATION
 ==================================================*/
 
-const auth = getAuth(app);
+const auth =
+    getAuth(app);
 
 
 /*==================================================
