@@ -54,7 +54,7 @@ DATABASE LOCATION
 ==================================================*/
 
 const bannersRef =
-    ref(database, "banners");
+    ref(database, "smartbazaar_pro_2/banners");
 
 
 /*==================================================
@@ -560,7 +560,7 @@ bannerForm.addEventListener(
                 await update(
                     ref(
                         database,
-                        `banners/${editingBannerId}`
+                        `smartbazaar_pro_2/banners/${editingBannerId}`
                     ),
                     bannerData
                 );
