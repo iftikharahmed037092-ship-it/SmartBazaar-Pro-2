@@ -58,34 +58,50 @@ const ADMIN_EMAIL =
 
 
 /*==================================================
-FEATURE: ADMIN ACCESS CHECK
+FEATURE: FIREBASE BANNER PATH
+
+یہی path firebase-banner.js میں بھی استعمال ہو رہا ہے۔
 ==================================================*/
 
-onAuthStateChanged(auth, (user) => {
+const BANNER_DATABASE_PATH =
+    "smartbazaar_pro_2/banners";
 
-    if (!adminAddBannerButton) {
-        return;
+
+/*==================================================
+FEATURE: ADMIN ACCESS CHECK
+
+صرف مخصوص Admin email کو Add Banner button
+دکھایا جائے گا۔
+==================================================*/
+
+onAuthStateChanged(
+    auth,
+    (user) => {
+
+        if (!adminAddBannerButton) {
+            return;
+        }
+
+
+        if (
+            user &&
+            user.email &&
+            user.email.toLowerCase() ===
+            ADMIN_EMAIL.toLowerCase()
+        ) {
+
+            adminAddBannerButton.style.display =
+                "flex";
+
+        } else {
+
+            adminAddBannerButton.style.display =
+                "none";
+
+        }
+
     }
-
-
-    if (
-        user &&
-        user.email &&
-        user.email.toLowerCase() ===
-        ADMIN_EMAIL.toLowerCase()
-    ) {
-
-        adminAddBannerButton.style.display =
-            "flex";
-
-    } else {
-
-        adminAddBannerButton.style.display =
-            "none";
-
-    }
-
-});
+);
 
 
 /*==================================================
@@ -95,11 +111,15 @@ FEATURE: LOAD BANNERS FROM FIREBASE
 function loadBanners() {
 
     const bannersRef =
-        ref(database, "banners");
+        ref(
+            database,
+            BANNER_DATABASE_PATH
+        );
 
 
     onValue(
         bannersRef,
+
         (snapshot) => {
 
             const data =
@@ -109,25 +129,76 @@ function loadBanners() {
             banners = [];
 
 
+            /*==========================================
+            FEATURE: READ FIREBASE DATA
+            ==========================================*/
+
             if (data) {
 
                 Object.entries(data).forEach(
                     ([id, banner]) => {
 
                         if (
-                            banner &&
-                            banner.active !== false
+                            !banner ||
+                            banner.active === false
                         ) {
-
-                            banners.push({
-
-                                id: id,
-
-                                ...banner
-
-                            });
-
+                            return;
                         }
+
+
+                        /*==================================
+                        FEATURE: DATE CONTROL
+                        ==================================*/
+
+                        const now =
+                            Date.now();
+
+
+                        const startTime =
+                            banner.startDate
+                                ? new Date(
+                                    banner.startDate
+                                ).getTime()
+                                : null;
+
+
+                        const endTime =
+                            banner.endDate
+                                ? new Date(
+                                    banner.endDate
+                                ).getTime()
+                                : null;
+
+
+                        if (
+                            startTime &&
+                            !isNaN(startTime) &&
+                            now < startTime
+                        ) {
+                            return;
+                        }
+
+
+                        if (
+                            endTime &&
+                            !isNaN(endTime) &&
+                            now > endTime
+                        ) {
+                            return;
+                        }
+
+
+                        /*==================================
+                        FEATURE: ADD BANNER
+                        ==================================*/
+
+                        banners.push({
+
+                            id: id,
+
+                            ...banner
+
+                        });
 
                     }
                 );
@@ -141,18 +212,19 @@ function loadBanners() {
 
             banners.sort(
                 (a, b) =>
-                    (a.order || 0) -
-                    (b.order || 0)
+                    Number(a.order || 0) -
+                    Number(b.order || 0)
             );
 
 
             renderBanners();
 
         },
+
         (error) => {
 
             console.error(
-                "Banner loading error:",
+                "SmartBazaar Pro 2 Banner Loading Error:",
                 error
             );
 
@@ -173,30 +245,20 @@ function renderBanners() {
     }
 
 
+    stopAutoSlide();
+
+
     /*==============================================
-    REMOVE OLD SLIDES
+    REMOVE OLD DYNAMIC SLIDES
     ==============================================*/
 
     heroSlider
         .querySelectorAll(
-            ".hero-slide:not(#bannerLoadingSlide)"
+            ".hero-slide"
         )
         .forEach(
             slide => slide.remove()
         );
-
-
-    const loadingSlide =
-        document.getElementById(
-            "bannerLoadingSlide"
-        );
-
-
-    if (loadingSlide) {
-
-        loadingSlide.remove();
-
-    }
 
 
     /*==============================================
@@ -207,6 +269,7 @@ function renderBanners() {
 
         const emptySlide =
             document.createElement("div");
+
 
         emptySlide.className =
             "hero-slide active";
@@ -225,8 +288,11 @@ function renderBanners() {
         `;
 
 
-        heroSlider.prepend(
-            emptySlide
+        heroSlider.insertBefore(
+            emptySlide,
+            heroSlider.querySelector(
+                ".hero-slider-arrow"
+            )
         );
 
 
@@ -243,7 +309,7 @@ function renderBanners() {
 
 
     /*==============================================
-    CREATE BANNER SLIDES
+    FEATURE: CREATE DYNAMIC SLIDES
     ==============================================*/
 
     banners.forEach(
@@ -267,38 +333,80 @@ function renderBanners() {
 
 
             /*======================================
-            OPTIONAL CLICK LINK
+            FEATURE: BANNER LINK
             ======================================*/
 
             const link =
-                banner.link || "#";
+                banner.buttonLink ||
+                "#";
 
+
+            /*======================================
+            FEATURE: DESKTOP IMAGE
+            ======================================*/
+
+            const desktopImage =
+                banner.imageUrl ||
+                "";
+
+
+            /*======================================
+            FEATURE: MOBILE IMAGE
+            ======================================*/
+
+            const mobileImage =
+                banner.mobileImageUrl ||
+                desktopImage;
+
+
+            /*======================================
+            FEATURE: BANNER CONTENT
+            ======================================*/
 
             slide.innerHTML = `
 
                 <a
                     href="${escapeHtml(link)}"
                     class="banner-link"
-                    ${link === "#" ? "onclick='return false;'" : ""}
+                    ${link === "#"
+                        ? "onclick=\"return false;\""
+                        : ""}
                 >
 
-                    <img
-                        src="${escapeHtml(banner.imageUrl)}"
-                        alt="${escapeHtml(
-                            banner.title ||
-                            "SmartBazaar Banner"
-                        )}"
-                        loading="${
-                            index === 0
-                                ? "eager"
-                                : "lazy"
-                        }"
-                    >
+                    <picture>
+
+                        <source
+                            media="(max-width: 768px)"
+                            srcset="${escapeHtml(
+                                mobileImage
+                            )}"
+                        >
+
+                        <img
+                            src="${escapeHtml(
+                                desktopImage
+                            )}"
+                            alt="${escapeHtml(
+                                banner.title ||
+                                "SmartBazaar Pro Banner"
+                            )}"
+                            loading="${
+                                index === 0
+                                    ? "eager"
+                                    : "lazy"
+                            }"
+                        >
+
+                    </picture>
 
                 </a>
 
             `;
 
+
+            /*======================================
+            FEATURE: INSERT BEFORE ARROWS
+            ======================================*/
 
             heroSlider.insertBefore(
                 slide,
@@ -312,14 +420,19 @@ function renderBanners() {
 
 
     /*==============================================
-    RESET SLIDER
+    FEATURE: RESET SLIDER
     ==============================================*/
 
     currentSlide = 0;
 
+
     createDots();
 
-    showSlide(0);
+
+    showSlide(
+        0
+    );
+
 
     startAutoSlide();
 
@@ -377,9 +490,11 @@ function createDots() {
                     currentSlide =
                         index;
 
+
                     showSlide(
                         currentSlide
                     );
+
 
                     restartAutoSlide();
 
@@ -417,18 +532,16 @@ function showSlide(index) {
     }
 
 
-    if (
-        index < 0
-    ) {
+    if (index < 0) {
 
         index =
-            slides.length - 1;
+            banners.length - 1;
 
     }
 
 
     if (
-        index >= slides.length
+        index >= banners.length
     ) {
 
         index = 0;
@@ -484,7 +597,9 @@ function nextSlide() {
 
 
     currentSlide =
-        (currentSlide + 1) %
+        (
+            currentSlide + 1
+        ) %
         banners.length;
 
 
