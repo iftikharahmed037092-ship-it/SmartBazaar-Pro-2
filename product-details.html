@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="SmartBazaar Pro Product Details"
+    >
+
+    <title>Product Details | SmartBazaar Pro</title>
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+    <!-- Product Details CSS -->
+    <link
+        rel="stylesheet"
+        href="product-details.css"
+    >
+
+</head>
+
+
+<body>
+
+    <!-- =====================================================
+         SMARTBAZAAR PRO
+         FEATURE: PRODUCT DETAILS PAGE
+         ===================================================== -->
+
+    <main class="product-details-page">
+
+        <div class="product-details-container">
+
+            <!-- Back Button -->
+            <a
+                href="index.html"
+                class="back-button"
+            >
+                <i class="fa-solid fa-arrow-left"></i>
+                Back to Home
+            </a>
+
+
+            <!-- Product Details -->
+            <div
+                class="product-details"
+                id="productDetails"
+            >
+
+                <!-- Loading -->
+                <div
+                    class="product-details-loading"
+                    id="productDetailsLoading"
+                >
+
+                    <div class="loading-spinner"></div>
+
+                    <p>
+                        Loading product...
+                    </p>
+
+                </div>
+
+
+                <!-- Product Content -->
+                <div
+                    class="product-content"
+                    id="productContent"
+                    style="display:none;"
+                >
+
+                    <!-- =========================
+                         IMAGE AREA
+                         ========================= -->
+
+                    <div class="product-gallery">
+
+                        <div class="product-main-image-wrapper">
+
+                            <img
+                                id="productMainImage"
+                                class="product-main-image"
+                                src=""
+                                alt="Product"
+                            >
+
+                        </div>
+
+                        <div
+                            class="product-thumbnails"
+                            id="productThumbnails"
+                        ></div>
+
+                    </div>
+
+
+                    <!-- =========================
+                         PRODUCT INFORMATION
+                         ========================= -->
+
+                    <div class="product-information">
+
+                        <span
+                            class="product-category"
+                            id="productCategory"
+                        >
+                            Category
+                        </span>
+
+
+                        <h1
+                            class="product-name"
+                            id="productName"
+                        >
+                            Product Name
+                        </h1>
+
+
+                        <div class="product-rating">
+
+                            <div
+                                class="stars"
+                                id="productStars"
+                            >
+                                ★★★★★
+                            </div>
+
+                            <span id="productReviews">
+                                0 Reviews
+                            </span>
+
+                        </div>
+
+
+                        <!-- Price -->
+                        <div class="product-price-area">
+
+                            <span
+                                class="product-price"
+                                id="productPrice"
+                            >
+                                Rs. 0
+                            </span>
+
+                            <span
+                                class="product-old-price"
+                                id="productOldPrice"
+                            ></span>
+
+                            <span
+                                class="product-discount"
+                                id="productDiscount"
+                            ></span>
+
+                        </div>
+
+
+                        <!-- Stock -->
+                        <div
+                            class="product-stock"
+                            id="productStock"
+                        >
+                            In Stock
+                        </div>
+
+
+                        <!-- Short Description -->
+                        <p
+                            class="product-short-description"
+                            id="productShortDescription"
+                        >
+                            Product description
+                        </p>
+
+
+                        <!-- Quantity -->
+                        <div class="quantity-area">
+
+                            <span class="quantity-label">
+                                Quantity
+                            </span>
+
+                            <div class="quantity-control">
+
+                                <button
+                                    type="button"
+                                    id="decreaseQuantity"
+                                >
+                                    −
+                                </button>
+
+                                <input
+                                    type="number"
+                                    id="productQuantity"
+                                    value="1"
+                                    min="1"
+                                >
+
+                                <button
+                                    type="button"
+                                    id="increaseQuantity"
+                                >
+                                    +
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Buttons -->
+                        <div class="product-actions">
+
+                            <button
+                                type="button"
+                                class="add-cart-button"
+                                id="addToCartButton"
+                            >
+                                <i class="fa-solid fa-cart-shopping"></i>
+                                Add to Cart
+                            </button>
+
+
+                            <button
+                                type="button"
+                                class="buy-now-button"
+                                id="buyNowButton"
+                            >
+                                <i class="fa-solid fa-bolt"></i>
+                                Buy Now
+                            </button>
+
+                        </div>
+
+
+                        <!-- Wishlist -->
+                        <button
+                            type="button"
+                            class="wishlist-button"
+                            id="wishlistButton"
+                        >
+                            <i class="fa-regular fa-heart"></i>
+                            Add to Wishlist
+                        </button>
+
+
+                        <!-- Seller -->
+                        <div class="seller-box">
+
+                            <div class="seller-icon">
+                                <i class="fa-solid fa-store"></i>
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    Sold by
+                                </span>
+
+                                <strong id="sellerName">
+                                    SmartBazaar Seller
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     FULL DESCRIPTION
+                     ========================= -->
+
+                <div
+                    class="product-description-section"
+                    id="productDescriptionSection"
+                    style="display:none;"
+                >
+
+                    <h2>
+                        Product Description
+                    </h2>
+
+                    <div
+                        id="productDescription"
+                        class="product-description"
+                    ></div>
+
+                </div>
+
+
+                <!-- Error -->
+                <div
+                    class="product-error"
+                    id="productError"
+                    style="display:none;"
+                >
+
+                    <i class="fa-solid fa-circle-exclamation"></i>
+
+                    <h2>
+                        Product Not Found
+                    </h2>
+
+                    <p>
+                        This product may have been removed or is unavailable.
+                    </p>
+
+                    <a href="index.html">
+                        Return to Home
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- Product Details JavaScript -->
+    <script
+        type="module"
+        src="product-details.js"
+    ></script>
+
+</body>
+
+</html>
