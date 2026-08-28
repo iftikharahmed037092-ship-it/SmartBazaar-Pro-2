@@ -288,6 +288,12 @@ function openSection(sectionName) {
 
 
 /*==================================================
+SMARTBAZAAR PRO 2
+FEATURE: PRODUCT EDITOR NAVIGATION
+==================================================*/
+
+
+/*==================================================
 FEATURE: QUICK ACTIONS
 ==================================================*/
 
@@ -308,6 +314,26 @@ quickActionButtons.forEach(
                     button.dataset.sectionAction;
 
 
+                /*==================================================
+                FEATURE: ADD PRODUCT → PRODUCT DETAIL EDITOR
+                ==================================================*/
+
+                if (
+                    section === "products"
+                ) {
+
+                    window.location.href =
+                        "product-editor.html";
+
+                    return;
+
+                }
+
+
+                /*==================================================
+                FEATURE: OTHER QUICK ACTIONS
+                ==================================================*/
+
                 openSection(
                     section
                 );
@@ -317,7 +343,6 @@ quickActionButtons.forEach(
 
     }
 );
-
 
 /*==================================================
 FEATURE: SIDEBAR MOBILE TOGGLE
