@@ -7,7 +7,7 @@ import {
     getDatabase,
     ref,
     get
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
 
 
 import {
