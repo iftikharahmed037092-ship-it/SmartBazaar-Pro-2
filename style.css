@@ -3261,13 +3261,37 @@ SMARTBAZAAR PRO
 FEATURE: HIDE ADMIN BANNER BUTTON
 ==================================================*/
 
+/*==================================================
+SMARTBAZAAR PRO
+FEATURE: ADMIN BANNER BUTTON VISIBILITY
+==================================================*/
+
+/*
+DEFAULT:
+عام User کے لیے Add Banner Button hidden رہے گا۔
+JavaScript صرف verified Admin کے لیے اسے دکھائے گا۔
+*/
+
 .admin-add-banner-button,
 #adminAddBannerButton,
 button.admin-add-banner-button {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
+    display: none;
+}
+
+
+/*
+ADMIN:
+Verified Admin کے لیے JavaScript
+یہ class لگائے تو Button ظاہر ہوگا۔
+*/
+
+body.admin-user .admin-add-banner-button,
+body.admin-user #adminAddBannerButton,
+body.admin-user button.admin-add-banner-button {
+    display: inline-flex;
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
 }
 /*==================================================
 END OF SMARTBAZAAR PRO
