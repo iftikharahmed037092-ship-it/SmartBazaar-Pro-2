@@ -1159,97 +1159,50 @@ FEATURE: HERO BANNER / DYNAMIC BANNER SYSTEM
 
 <main>
 
-<!--==================================================
-SMARTBAZAAR PRO 2
-FEATURE: DYNAMIC HERO BANNER SYSTEM
-FIREBASE BANNER LOADER
-==================================================-->
-    
-    <section
-    class="hero-banner-section"
-    id="heroBannerSection">
+    <section class="hero">
 
-    <!--==================================================
-    FEATURE: ADMIN ADD BANNER BUTTON
-    ==================================================-->
+        <div class="container">
 
-    <a
-        href="banner-editor.html"
-        class="admin-add-banner-button"
-        id="adminAddBannerButton"
-        style="display:none;">
+            <div class="hero-center">
 
-        <i class="fa-solid fa-plus"></i>
+                <div class="hero-banner">
 
-        <span>Add Banner</span>
+                    <div class="slides"></div>
 
-    </a>
+                    <div class="banner-content">
 
+                        <span
+                            class="banner-tag"
+                            id="homeBannerBadge">
+                            SPECIAL OFFER
+                        </span>
 
-    <!--==================================================
-    FEATURE: DYNAMIC HERO SLIDER
-    ==================================================-->
+                        <h1 id="homeBannerTitle">
+                            Welcome To SmartBazaar Pro
+                        </h1>
 
-    <div
-        class="hero-slider"
-        id="heroSlider">
+                        <p id="homeBannerDescription">
+                            Shop Electronics, Fashion, Mobiles and Thousands of Products at Amazing Prices.
+                        </p>
 
-        <!--
-        Firebase سے banners یہاں JavaScript کے ذریعے
-        automatically load ہوں گے۔
-        -->
+                        <a
+                            href="#"
+                            class="banner-btn"
+                            id="homeBannerButton">
+                            Shop Now
+                        </a>
 
-        <div
-            class="hero-slide active"
-            id="bannerLoadingSlide">
+                    </div>
 
-            <div class="banner-image-placeholder">
+                    <div class="slider-dots"></div>
 
-                <span>
-                    Loading Banners...
-                </span>
+                </div>
 
             </div>
 
         </div>
 
-
-        <!-- PREVIOUS -->
-
-        <button
-            type="button"
-            class="hero-slider-arrow hero-prev"
-            id="heroPrev"
-            aria-label="Previous Banner">
-
-            <i class="fa-solid fa-chevron-left"></i>
-
-        </button>
-
-
-        <!-- NEXT -->
-
-        <button
-            type="button"
-            class="hero-slider-arrow hero-next"
-            id="heroNext"
-            aria-label="Next Banner">
-
-            <i class="fa-solid fa-chevron-right"></i>
-
-        </button>
-
-
-        <!-- DOTS -->
-
-        <div
-            class="hero-slider-dots"
-            id="heroSliderDots">
-        </div>
-
-    </div>
-
-</section>
+    </section>
 
 </main>
 
