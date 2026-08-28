@@ -55,9 +55,8 @@ FEATURE: FIREBASE DATABASE LOCATION
 const bannersRef =
     ref(
         database,
-        "banners"
+        "smartbazaar_pro_2/banners"
     );
-
 
 /*==================================================
 FEATURE: DOM ELEMENTS
