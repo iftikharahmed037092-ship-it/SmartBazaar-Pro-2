@@ -1004,9 +1004,9 @@ async function saveBanner(event) {
 
             await update(
                 ref(
-                    database,
-                    `banners/${editingBannerId}`
-                ),
+    database,
+    `smartbazaar_pro_2/banners/${editingBannerId}`
+),
                 bannerData
             );
 
