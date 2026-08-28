@@ -1,12 +1,12 @@
 /*==================================================
 SMARTBAZAAR PRO 2
 FEATURE: BANNER EDITOR JAVASCRIPT
-FIREBASE + CENTRAL CLOUDINARY CONFIG
+FIREBASE + CLOUDINARY
 ==================================================*/
 
 
 /*==================================================
-FEATURE: FIREBASE IMPORTS
+FIREBASE IMPORTS
 ==================================================*/
 
 import {
@@ -32,17 +32,17 @@ import {
 
 
 /*==================================================
-FEATURE: CENTRAL CLOUDINARY IMPORT
+CLOUDINARY CONFIG
 ==================================================*/
 
-import {
-    uploadToCloudinary,
-    CLOUDINARY_FOLDERS
-} from "./cloudinary-config.js";
+const CLOUDINARY_CLOUD_NAME = "jlrjn7lu";
+
+const CLOUDINARY_UPLOAD_PRESET =
+    "smartbazaar_pro_2_uploads";
 
 
 /*==================================================
-FEATURE: ADMIN CONFIGURATION
+ADMIN CONFIG
 ==================================================*/
 
 const ADMIN_EMAIL =
@@ -50,153 +50,100 @@ const ADMIN_EMAIL =
 
 
 /*==================================================
-FEATURE: FIREBASE DATABASE LOCATION
+DATABASE LOCATION
 ==================================================*/
 
 const bannersRef =
-    ref(
-        database,
-        "smartbazaar_pro_2/banners"
-    );
+    ref(database, "banners");
 
 
 /*==================================================
-FEATURE: DOM ELEMENTS
+DOM ELEMENTS
 ==================================================*/
 
 const bannerForm =
-    document.getElementById(
-        "bannerForm"
-    );
+    document.getElementById("bannerForm");
 
 const bannerImage =
-    document.getElementById(
-        "bannerImage"
-    );
+    document.getElementById("bannerImage");
 
 const imagePreview =
-    document.getElementById(
-        "imagePreview"
-    );
+    document.getElementById("imagePreview");
 
 const uploadPlaceholder =
-    document.getElementById(
-        "uploadPlaceholder"
-    );
+    document.getElementById("uploadPlaceholder");
 
 const uploadProgress =
-    document.getElementById(
-        "uploadProgress"
-    );
+    document.getElementById("uploadProgress");
 
 const progressBar =
-    document.getElementById(
-        "progressBar"
-    );
+    document.getElementById("progressBar");
 
 const uploadStatus =
-    document.getElementById(
-        "uploadStatus"
-    );
+    document.getElementById("uploadStatus");
 
 const bannersGrid =
-    document.getElementById(
-        "bannersGrid"
-    );
+    document.getElementById("bannersGrid");
 
 const bannerCount =
-    document.getElementById(
-        "bannerCount"
-    );
+    document.getElementById("bannerCount");
 
 const adminStatus =
-    document.getElementById(
-        "adminStatus"
-    );
+    document.getElementById("adminStatus");
 
 const adminEmail =
-    document.getElementById(
-        "adminEmail"
-    );
+    document.getElementById("adminEmail");
 
 const statusBadge =
-    document.getElementById(
-        "statusBadge"
-    );
+    document.getElementById("statusBadge");
 
 const logoutButton =
-    document.getElementById(
-        "logoutButton"
-    );
+    document.getElementById("logoutButton");
 
 const resetFormButton =
-    document.getElementById(
-        "resetFormButton"
-    );
+    document.getElementById("resetFormButton");
 
 const formTitle =
-    document.getElementById(
-        "formTitle"
-    );
+    document.getElementById("formTitle");
 
 const saveBannerButton =
-    document.getElementById(
-        "saveBannerButton"
-    );
+    document.getElementById("saveBannerButton");
 
 const toast =
-    document.getElementById(
-        "toast"
-    );
+    document.getElementById("toast");
 
 const toastMessage =
-    document.getElementById(
-        "toastMessage"
-    );
+    document.getElementById("toastMessage");
 
 
 /*==================================================
-FEATURE: FORM FIELDS
+FORM FIELDS
 ==================================================*/
 
 const bannerTitle =
-    document.getElementById(
-        "bannerTitle"
-    );
+    document.getElementById("bannerTitle");
 
 const bannerSubtitle =
-    document.getElementById(
-        "bannerSubtitle"
-    );
+    document.getElementById("bannerSubtitle");
 
 const bannerDescription =
-    document.getElementById(
-        "bannerDescription"
-    );
+    document.getElementById("bannerDescription");
 
 const buttonText =
-    document.getElementById(
-        "buttonText"
-    );
+    document.getElementById("buttonText");
 
 const buttonLink =
-    document.getElementById(
-        "buttonLink"
-    );
+    document.getElementById("buttonLink");
 
 const bannerOrder =
-    document.getElementById(
-        "bannerOrder"
-    );
+    document.getElementById("bannerOrder");
 
 const bannerActive =
-    document.getElementById(
-        "bannerActive"
-    );
+    document.getElementById("bannerActive");
 
 
 /*==================================================
-FEATURE: STATE
+STATE
 ==================================================*/
 
 let currentUser = null;
@@ -212,133 +159,85 @@ let allBanners = [];
 FEATURE: ADMIN AUTHENTICATION
 ==================================================*/
 
-onAuthStateChanged(
-    auth,
-    async (user) => {
+onAuthStateChanged(auth, async (user) => {
 
-        currentUser = user;
+    currentUser = user;
 
+    if (!user) {
 
-        if (!user) {
+        showNotAuthorized(
+            "Please login first."
+        );
 
-            showNotAuthorized(
-                "Please login first."
-            );
-
-            return;
-
-        }
-
-
-        adminEmail.textContent =
-            user.email || "Unknown";
-
-
-        const userEmail =
-            user.email
-                ? user.email.toLowerCase()
-                : "";
-
-
-        const adminEmailLower =
-            ADMIN_EMAIL.toLowerCase();
-
-
-        if (
-            userEmail ===
-            adminEmailLower
-        ) {
-
-            adminStatus.textContent =
-                "Admin Access Granted";
-
-
-            statusBadge.textContent =
-                "ADMIN";
-
-
-            statusBadge.style.background =
-                "#e7f7ed";
-
-
-            statusBadge.style.color =
-                "#198754";
-
-
-            bannerForm.style.display =
-                "";
-
-
-            document.querySelector(
-                ".banners-section"
-            ).style.display =
-                "";
-
-
-            await loadBanners();
-
-        }
-
-        else {
-
-            showNotAuthorized(
-                "This account is not authorized as Admin."
-            );
-
-        }
+        return;
 
     }
-);
+
+
+    adminEmail.textContent =
+        user.email || "Unknown";
+
+
+    if (
+        user.email &&
+        user.email.toLowerCase() ===
+        ADMIN_EMAIL.toLowerCase()
+    ) {
+
+        adminStatus.textContent =
+            "Admin Access Granted";
+
+        statusBadge.textContent =
+            "ADMIN";
+
+        statusBadge.style.background =
+            "#e7f7ed";
+
+        statusBadge.style.color =
+            "#198754";
+
+        await loadBanners();
+
+    } else {
+
+        showNotAuthorized(
+            "This account is not authorized as Admin."
+        );
+
+    }
+
+});
 
 
 /*==================================================
-FEATURE: UNAUTHORIZED STATE
+UNAUTHORIZED STATE
 ==================================================*/
 
-function showNotAuthorized(
-    message
-) {
+function showNotAuthorized(message) {
 
     adminStatus.textContent =
         "Access Denied";
 
-
     adminEmail.textContent =
         message;
-
 
     statusBadge.textContent =
         "DENIED";
 
-
     statusBadge.style.background =
         "#fff0f0";
-
 
     statusBadge.style.color =
         "#d43c3c";
 
 
-    if (bannerForm) {
+    bannerForm.style.display =
+        "none";
 
-        bannerForm.style.display =
-            "none";
-
-    }
-
-
-    const bannersSection =
-        document.querySelector(
-            ".banners-section"
-        );
-
-
-    if (bannersSection) {
-
-        bannersSection.style.display =
-            "none";
-
-    }
+    document.querySelector(
+        ".banners-section"
+    ).style.display =
+        "none";
 
 }
 
@@ -354,28 +253,16 @@ bannerImage.addEventListener(
         const file =
             bannerImage.files[0];
 
-
-        if (!file) {
-
-            return;
-
-        }
+        if (!file) return;
 
 
-        if (
-            !file.type.startsWith(
-                "image/"
-            )
-        ) {
+        if (!file.type.startsWith("image/")) {
 
             showToast(
                 "Please select an image file."
             );
 
-
-            bannerImage.value =
-                "";
-
+            bannerImage.value = "";
 
             return;
 
@@ -392,10 +279,8 @@ bannerImage.addEventListener(
                 imagePreview.src =
                     event.target.result;
 
-
                 imagePreview.style.display =
                     "block";
-
 
                 uploadPlaceholder.style.display =
                     "none";
@@ -403,31 +288,17 @@ bannerImage.addEventListener(
             };
 
 
-        reader.onerror =
-            () => {
-
-                showToast(
-                    "Unable to preview image."
-                );
-
-            };
-
-
-        reader.readAsDataURL(
-            file
-        );
+        reader.readAsDataURL(file);
 
     }
 );
 
 
 /*==================================================
-FEATURE: CLOUDINARY BANNER UPLOAD
+FEATURE: CLOUDINARY IMAGE UPLOAD
 ==================================================*/
 
-async function uploadBannerImage(
-    file
-) {
+async function uploadImageToCloudinary(file) {
 
     if (!file) {
 
@@ -439,72 +310,133 @@ async function uploadBannerImage(
     uploadProgress.style.display =
         "block";
 
-
     progressBar.style.width =
-        "15%";
-
+        "0%";
 
     uploadStatus.textContent =
-        "Uploading banner image...";
+        "Uploading image to Cloudinary...";
 
 
-    try {
+    const formData =
+        new FormData();
 
-        /*
-        Central Cloudinary function استعمال کیا جا رہا ہے۔
-        */
 
-        const result =
-            await uploadToCloudinary(
-                file,
-                CLOUDINARY_FOLDERS.BANNERS
+    formData.append(
+        "file",
+        file
+    );
+
+
+    formData.append(
+        "upload_preset",
+        CLOUDINARY_UPLOAD_PRESET
+    );
+
+
+    const cloudinaryUrl =
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+
+
+    return new Promise(
+        (resolve, reject) => {
+
+            const xhr =
+                new XMLHttpRequest();
+
+
+            xhr.open(
+                "POST",
+                cloudinaryUrl
             );
 
 
-        if (
-            !result ||
-            !result.url
-        ) {
+            xhr.upload.onprogress =
+                (event) => {
 
-            throw new Error(
-                "Cloudinary did not return an image URL."
-            );
+                    if (event.lengthComputable) {
+
+                        const percent =
+                            Math.round(
+                                (
+                                    event.loaded /
+                                    event.total
+                                ) * 100
+                            );
+
+
+                        progressBar.style.width =
+                            `${percent}%`;
+
+                        uploadStatus.textContent =
+                            `Uploading image... ${percent}%`;
+
+                    }
+
+                };
+
+
+            xhr.onload =
+                () => {
+
+                    if (
+                        xhr.status >= 200 &&
+                        xhr.status < 300
+                    ) {
+
+                        try {
+
+                            const response =
+                                JSON.parse(
+                                    xhr.responseText
+                                );
+
+
+                            uploadStatus.textContent =
+                                "Image uploaded successfully.";
+
+                            progressBar.style.width =
+                                "100%";
+
+
+                            resolve(
+                                response.secure_url
+                            );
+
+                        } catch (error) {
+
+                            reject(error);
+
+                        }
+
+                    } else {
+
+                        reject(
+                            new Error(
+                                "Cloudinary upload failed."
+                            )
+                        );
+
+                    }
+
+                };
+
+
+            xhr.onerror =
+                () => {
+
+                    reject(
+                        new Error(
+                            "Network error during upload."
+                        )
+                    );
+
+                };
+
+
+            xhr.send(formData);
 
         }
-
-
-        progressBar.style.width =
-            "100%";
-
-
-        uploadStatus.textContent =
-            "Image uploaded successfully.";
-
-
-        return result.url;
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Cloudinary Banner Upload Error:",
-            error
-        );
-
-
-        progressBar.style.width =
-            "0%";
-
-
-        uploadStatus.textContent =
-            error.message ||
-            "Cloudinary upload failed.";
-
-
-        throw error;
-
-    }
+    );
 
 }
 
@@ -520,10 +452,6 @@ bannerForm.addEventListener(
         event.preventDefault();
 
 
-        /*------------------------------------------
-        AUTH CHECK
-        ------------------------------------------*/
-
         if (!currentUser) {
 
             showToast(
@@ -534,10 +462,6 @@ bannerForm.addEventListener(
 
         }
 
-
-        /*------------------------------------------
-        ADMIN CHECK
-        ------------------------------------------*/
 
         if (
             currentUser.email?.toLowerCase() !==
@@ -555,10 +479,6 @@ bannerForm.addEventListener(
 
         try {
 
-            /*--------------------------------------
-            BUTTON LOADING
-            --------------------------------------*/
-
             saveBannerButton.disabled =
                 true;
 
@@ -567,10 +487,6 @@ bannerForm.addEventListener(
                 `<i class="fa-solid fa-spinner fa-spin"></i>
                  Saving...`;
 
-
-            /*--------------------------------------
-            SELECTED IMAGE
-            --------------------------------------*/
 
             const selectedFile =
                 bannerImage.files[0];
@@ -588,10 +504,6 @@ bannerForm.addEventListener(
             }
 
 
-            /*--------------------------------------
-            IMAGE URL
-            --------------------------------------*/
-
             let imageUrl =
                 currentImageUrl;
 
@@ -599,16 +511,12 @@ bannerForm.addEventListener(
             if (selectedFile) {
 
                 imageUrl =
-                    await uploadBannerImage(
+                    await uploadImageToCloudinary(
                         selectedFile
                     );
 
             }
 
-
-            /*--------------------------------------
-            BANNER DATA
-            --------------------------------------*/
 
             const bannerData = {
 
@@ -647,16 +555,12 @@ bannerForm.addEventListener(
             };
 
 
-            /*--------------------------------------
-            EDIT EXISTING BANNER
-            --------------------------------------*/
-
             if (editingBannerId) {
 
                 await update(
                     ref(
                         database,
-                        `smartbazaar_pro_2/banners/${editingBannerId}`
+                        `banners/${editingBannerId}`
                     ),
                     bannerData
                 );
@@ -666,14 +570,7 @@ bannerForm.addEventListener(
                     "Banner updated successfully."
                 );
 
-            }
-
-
-            /*--------------------------------------
-            ADD NEW BANNER
-            --------------------------------------*/
-
-            else {
+            } else {
 
                 bannerData.createdAt =
                     Date.now();
@@ -684,9 +581,7 @@ bannerForm.addEventListener(
 
 
                 const newBannerRef =
-                    push(
-                        bannersRef
-                    );
+                    push(bannersRef);
 
 
                 await set(
@@ -702,22 +597,12 @@ bannerForm.addEventListener(
             }
 
 
-            /*--------------------------------------
-            RESET AFTER SAVE
-            --------------------------------------*/
-
             resetForm();
-
-
-            /*--------------------------------------
-            RELOAD BANNERS
-            --------------------------------------*/
 
             await loadBanners();
 
-        }
 
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "Banner Save Error:",
@@ -730,9 +615,7 @@ bannerForm.addEventListener(
                 "Unable to save banner."
             );
 
-        }
-
-        finally {
+        } finally {
 
             saveBannerButton.disabled =
                 false;
@@ -749,7 +632,7 @@ bannerForm.addEventListener(
 
 
 /*==================================================
-FEATURE: LOAD BANNERS
+FEATURE: LOAD BANNERS FROM FIREBASE
 ==================================================*/
 
 async function loadBanners() {
@@ -757,33 +640,24 @@ async function loadBanners() {
     try {
 
         const snapshot =
-            await get(
-                bannersRef
-            );
+            await get(bannersRef);
 
 
         allBanners = [];
 
 
-        if (
-            snapshot.exists()
-        ) {
+        if (snapshot.exists()) {
 
             const data =
                 snapshot.val();
 
 
-            Object.entries(
-                data
-            ).forEach(
+            Object.entries(data).forEach(
                 ([id, banner]) => {
 
                     allBanners.push({
-
                         id,
-
                         ...banner
-
                     });
 
                 }
@@ -792,31 +666,17 @@ async function loadBanners() {
         }
 
 
-        /*--------------------------------------
-        SORT BY DISPLAY ORDER
-        --------------------------------------*/
-
         allBanners.sort(
-            (a, b) => {
-
-                return (
-                    Number(
-                        a.order || 0
-                    ) -
-                    Number(
-                        b.order || 0
-                    )
-                );
-
-            }
+            (a, b) =>
+                Number(a.order || 0) -
+                Number(b.order || 0)
         );
 
 
         renderBanners();
 
-    }
 
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "Load Banner Error:",
@@ -847,9 +707,7 @@ function renderBanners() {
         }`;
 
 
-    if (
-        !allBanners.length
-    ) {
+    if (!allBanners.length) {
 
         bannersGrid.innerHTML = `
 
@@ -875,107 +733,98 @@ function renderBanners() {
 
 
     bannersGrid.innerHTML =
-        allBanners
-            .map(
-                (banner) => {
+        allBanners.map(
+            (banner) => {
 
-                    const title =
-                        escapeHTML(
-                            banner.title ||
-                            "Untitled Banner"
-                        );
-
-
-                    const subtitle =
-                        escapeHTML(
-                            banner.subtitle ||
-                            ""
-                        );
+                const title =
+                    escapeHTML(
+                        banner.title ||
+                        "Untitled Banner"
+                    );
 
 
-                    const imageUrl =
-                        escapeAttribute(
-                            banner.imageUrl ||
-                            ""
-                        );
+                const subtitle =
+                    escapeHTML(
+                        banner.subtitle ||
+                        ""
+                    );
 
 
-                    return `
+                return `
 
-                        <article
-                            class="banner-card"
-                            data-id="${escapeAttribute(banner.id)}">
+                    <article
+                        class="banner-card"
+                        data-id="${banner.id}">
 
-                            <img
-                                class="banner-card-image"
-                                src="${imageUrl}"
-                                alt="${title}"
-                                loading="lazy">
+                        <img
+                            class="banner-card-image"
+                            src="${banner.imageUrl}"
+                            alt="${title}"
+                            loading="lazy">
 
-                            <div class="banner-card-body">
+                        <div class="banner-card-body">
 
-                                <div class="banner-card-title">
-                                    ${title}
-                                </div>
+                            <div class="banner-card-title">
+                                ${title}
+                            </div>
 
-                                <div class="banner-card-subtitle">
-                                    ${subtitle}
-                                </div>
+                            <div class="banner-card-subtitle">
+                                ${subtitle}
+                            </div>
 
-                                <div class="banner-card-meta">
+                            <div class="banner-card-meta">
 
-                                    <span
-                                        class="banner-status ${
-                                            banner.active
-                                                ? "active"
-                                                : "inactive"
-                                        }">
+                                <span
+                                    class="banner-status ${
+                                        banner.active
+                                            ? "active"
+                                            : "inactive"
+                                    }">
 
-                                        ${
-                                            banner.active
-                                                ? "ACTIVE"
-                                                : "INACTIVE"
-                                        }
+                                    ${
+                                        banner.active
+                                            ? "ACTIVE"
+                                            : "INACTIVE"
+                                    }
 
-                                    </span>
+                                </span>
 
-                                    <div class="banner-actions">
+                                <div class="banner-actions">
 
-                                        <button
-                                            type="button"
-                                            class="edit-banner"
-                                            data-action="edit"
-                                            data-id="${escapeAttribute(banner.id)}"
-                                            title="Edit Banner">
+                                    <button
+                                        type="button"
+                                        class="edit-banner"
+                                        data-action="edit"
+                                        data-id="${banner.id}"
+                                        title="Edit Banner">
 
-                                            <i class="fa-solid fa-pen"></i>
+                                        <i class="fa-solid fa-pen"></i>
 
-                                        </button>
+                                    </button>
 
-                                        <button
-                                            type="button"
-                                            class="delete-banner"
-                                            data-action="delete"
-                                            data-id="${escapeAttribute(banner.id)}"
-                                            title="Delete Banner">
+                                    <button
+                                        type="button"
+                                        class="delete-banner"
+                                        data-action="delete"
+                                        data-id="${banner.id}"
+                                        title="Delete Banner">
 
-                                            <i class="fa-solid fa-trash"></i>
+                                        <i class="fa-solid fa-trash"></i>
 
-                                        </button>
-
-                                    </div>
+                                    </button>
 
                                 </div>
 
                             </div>
 
-                        </article>
+                        </div>
 
-                    `;
+                    </article>
 
-                }
-            )
-            .join("");
+                `;
+
+            }
+        ).join("");
 
 }
 
@@ -994,11 +843,7 @@ bannersGrid.addEventListener(
             );
 
 
-        if (!button) {
-
-            return;
-
-        }
+        if (!button) return;
 
 
         const id =
@@ -1009,18 +854,14 @@ bannersGrid.addEventListener(
             button.dataset.action;
 
 
-        if (
-            action === "edit"
-        ) {
+        if (action === "edit") {
 
             editBanner(id);
 
         }
 
 
-        if (
-            action === "delete"
-        ) {
+        if (action === "delete") {
 
             await deleteBanner(id);
 
@@ -1043,15 +884,7 @@ function editBanner(id) {
         );
 
 
-    if (!banner) {
-
-        showToast(
-            "Banner not found."
-        );
-
-        return;
-
-    }
+    if (!banner) return;
 
 
     editingBannerId =
@@ -1090,17 +923,13 @@ function editBanner(id) {
         banner.active !== false;
 
 
-    if (
-        currentImageUrl
-    ) {
+    if (currentImageUrl) {
 
         imagePreview.src =
             currentImageUrl;
 
-
         imagePreview.style.display =
             "block";
-
 
         uploadPlaceholder.style.display =
             "none";
@@ -1118,9 +947,7 @@ function editBanner(id) {
 
 
     document
-        .getElementById(
-            "bannerFormCard"
-        )
+        .getElementById("bannerFormCard")
         .scrollIntoView({
             behavior: "smooth"
         });
@@ -1141,11 +968,7 @@ async function deleteBanner(id) {
         );
 
 
-    if (!banner) {
-
-        return;
-
-    }
+    if (!banner) return;
 
 
     const confirmed =
@@ -1154,11 +977,7 @@ async function deleteBanner(id) {
         );
 
 
-    if (!confirmed) {
-
-        return;
-
-    }
+    if (!confirmed) return;
 
 
     try {
@@ -1166,7 +985,7 @@ async function deleteBanner(id) {
         await remove(
             ref(
                 database,
-                `smartbazaar_pro_2/banners/${id}`
+                `banners/${id}`
             )
         );
 
@@ -1187,9 +1006,8 @@ async function deleteBanner(id) {
 
         await loadBanners();
 
-    }
 
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "Delete Banner Error:",
@@ -1198,7 +1016,6 @@ async function deleteBanner(id) {
 
 
         showToast(
-            error.message ||
             "Unable to delete banner."
         );
 
@@ -1239,7 +1056,6 @@ function resetForm() {
     imagePreview.src =
         "";
 
-
     imagePreview.style.display =
         "none";
 
@@ -1271,10 +1087,6 @@ function resetForm() {
 }
 
 
-/*==================================================
-FEATURE: RESET BUTTON
-==================================================*/
-
 resetFormButton.addEventListener(
     "click",
     resetForm
@@ -1291,23 +1103,14 @@ logoutButton.addEventListener(
 
         try {
 
-            await signOut(
-                auth
-            );
-
+            await signOut(auth);
 
             window.location.href =
                 "index.html";
 
-        }
+        } catch (error) {
 
-        catch (error) {
-
-            console.error(
-                "Logout Error:",
-                error
-            );
-
+            console.error(error);
 
             showToast(
                 "Logout failed."
@@ -1323,9 +1126,7 @@ logoutButton.addEventListener(
 FEATURE: TOAST MESSAGE
 ==================================================*/
 
-function showToast(
-    message
-) {
+function showToast(message) {
 
     toastMessage.textContent =
         message;
@@ -1354,73 +1155,28 @@ function showToast(
 FEATURE: HTML ESCAPE
 ==================================================*/
 
-function escapeHTML(
-    value
-) {
+function escapeHTML(value) {
 
     return String(value)
-
         .replace(
             /&/g,
             "&amp;"
         )
-
         .replace(
             /</g,
             "&lt;"
         )
-
         .replace(
             />/g,
             "&gt;"
         )
-
         .replace(
             /"/g,
             "&quot;"
         )
-
         .replace(
             /'/g,
             "&#039;"
-        );
-
-}
-
-
-/*==================================================
-FEATURE: ATTRIBUTE ESCAPE
-==================================================*/
-
-function escapeAttribute(
-    value
-) {
-
-    return String(value)
-
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-
-        .replace(
-            /'/g,
-            "&#039;"
-        )
-
-        .replace(
-            /</g,
-            "&lt;"
-        )
-
-        .replace(
-            />/g,
-            "&gt;"
         );
 
 }
