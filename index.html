@@ -1159,87 +1159,97 @@ FEATURE: HERO BANNER / DYNAMIC BANNER SYSTEM
 
 <main>
 
-    <section
-        class="hero-banner-section"
-        id="heroBannerSection">
+<!--==================================================
+SMARTBAZAAR PRO 2
+FEATURE: DYNAMIC HERO BANNER SYSTEM
+FIREBASE BANNER LOADER
+==================================================--><main><section
+    class="hero-banner-section"
+    id="heroBannerSection">
 
-        <!--==================================================
-        FEATURE: ADMIN ADD BANNER BUTTON
-        صرف Admin کو دکھایا جائے گا
-        ==================================================-->
+    <!--==================================================
+    FEATURE: ADMIN ADD BANNER BUTTON
+    ==================================================-->
 
-        <a
-            href="banner-editor.html"
-            class="admin-add-banner-button"
-            id="adminAddBannerButton"
-            style="display: none;">
+    <a
+        href="banner-editor.html"
+        class="admin-add-banner-button"
+        id="adminAddBannerButton"
+        style="display:none;">
 
-            <i class="fa-solid fa-plus"></i>
+        <i class="fa-solid fa-plus"></i>
 
-            <span>Add Banner</span>
+        <span>Add Banner</span>
 
-        </a>
+    </a>
 
 
-        <!--==================================================
-        FEATURE: DYNAMIC HERO SLIDER
-        ==================================================-->
+    <!--==================================================
+    FEATURE: DYNAMIC HERO SLIDER
+    ==================================================-->
+
+    <div
+        class="hero-slider"
+        id="heroSlider">
+
+        <!--
+        Firebase سے banners یہاں JavaScript کے ذریعے
+        automatically load ہوں گے۔
+        -->
 
         <div
-            class="hero-slider"
-            id="heroSlider">
+            class="hero-slide active"
+            id="bannerLoadingSlide">
 
-            <div
-                class="hero-slide active"
-                id="bannerLoadingSlide">
+            <div class="banner-image-placeholder">
 
-                <div class="banner-image-placeholder">
+                <span>
+                    Loading Banners...
+                </span>
 
-                    <span>
-                        Loading Banners...
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- PREVIOUS -->
-
-            <button
-                type="button"
-                class="hero-slider-arrow hero-prev"
-                id="heroPrev"
-                aria-label="Previous Banner">
-
-                <i class="fa-solid fa-chevron-left"></i>
-
-            </button>
-
-
-            <!-- NEXT -->
-
-            <button
-                type="button"
-                class="hero-slider-arrow hero-next"
-                id="heroNext"
-                aria-label="Next Banner">
-
-                <i class="fa-solid fa-chevron-right"></i>
-
-            </button>
-
-
-            <!-- DOTS -->
-
-            <div
-                class="hero-slider-dots"
-                id="heroSliderDots">
             </div>
 
         </div>
 
-    </section>
+
+        <!-- PREVIOUS -->
+
+        <button
+            type="button"
+            class="hero-slider-arrow hero-prev"
+            id="heroPrev"
+            aria-label="Previous Banner">
+
+            <i class="fa-solid fa-chevron-left"></i>
+
+        </button>
+
+
+        <!-- NEXT -->
+
+        <button
+            type="button"
+            class="hero-slider-arrow hero-next"
+            id="heroNext"
+            aria-label="Next Banner">
+
+            <i class="fa-solid fa-chevron-right"></i>
+
+        </button>
+
+
+        <!-- DOTS -->
+
+        <div
+            class="hero-slider-dots"
+            id="heroSliderDots">
+        </div>
+
+    </div>
+
+</section>
+
+</main>
 
 </main>
 
