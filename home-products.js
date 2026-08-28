@@ -609,9 +609,7 @@ function openProductDetail(
     ==================================================*/
 
     window.location.href =
-        `product-detail.html?id=${encodeURIComponent(product.productId)}`;
-
-}
+    `product-details.html?id=${encodeURIComponent(product.productId)}`;
 
 
 /*==================================================
