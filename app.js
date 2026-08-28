@@ -34,1878 +34,2038 @@ const ADMIN_EMAIL =
 
 
 /*==================================================
-DATABASE
+FEATURE: CORRECT FIREBASE BANNER PATH
+IMPORTANT:
+یہ path firebase-banner.js کے path کے بالکل برابر ہے۔
 ==================================================*/
 
+const BANNER_DATABASE_PATH =
+    "smartbazaar_pro_2/banners";
+
+
 const bannersRef =
-    ref(database, "banners");
+    ref(
+        database,
+        BANNER_DATABASE_PATH
+    );
+
+
+/*==================================================
+FEATURE: GLOBAL HERO STATE
+==================================================*/
+
+let banners = [];
+
+let currentSlide = 0;
+
+let autoSlideTimer = null;
+
+let heroInitialized = false;
+
+
+/*==================================================
+FEATURE: SAFE HTML
+==================================================*/
+
+function escapeHTML(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/*==================================================
+FEATURE: SAFE URL
+==================================================*/
+
+function safeURL(value) {
+
+    const url =
+        String(value ?? "").trim();
+
+
+    if (!url) {
+        return "#";
+    }
+
+
+    const lower =
+        url.toLowerCase();
+
+
+    if (
+        lower.startsWith("javascript:") ||
+        lower.startsWith("data:") ||
+        lower.startsWith("vbscript:")
+    ) {
+
+        return "#";
+
+    }
+
+
+    return url;
+
+}
+
+
+/*==================================================
+FEATURE: ADMIN ACCESS
+==================================================*/
+
+function initializeAdminAccess() {
+
+    const addBannerButton =
+        document.getElementById(
+            "adminAddBannerButton"
+        );
+
+
+    if (!addBannerButton) {
+        return;
+    }
+
+
+    onAuthStateChanged(
+        auth,
+        function (user) {
+
+            if (
+                user &&
+                user.email &&
+                user.email.toLowerCase() ===
+                ADMIN_EMAIL.toLowerCase()
+            ) {
+
+                addBannerButton.style.display =
+                    "flex";
+
+            } else {
+
+                addBannerButton.style.display =
+                    "none";
+
+            }
+
+        }
+    );
+
+}
 
 
 /*==================================================
 FEATURE: HEADER / MENU SYSTEM
 ==================================================*/
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
+function initializeHeader() {
 
 
-        /*==================================================
-        HEADER ELEMENTS
-        ==================================================*/
+    /*==================================================
+    HEADER ELEMENTS
+    ==================================================*/
 
-        const desktopMenuButton =
-            document.getElementById(
-                "desktopMenuButton"
-            );
+    const desktopMenuButton =
+        document.getElementById(
+            "desktopMenuButton"
+        );
 
-        const allCategoriesButton =
-            document.getElementById(
-                "allCategoriesButton"
-            );
+    const allCategoriesButton =
+        document.getElementById(
+            "allCategoriesButton"
+        );
 
-        const megaMenu =
-            document.getElementById(
-                "megaMenu"
-            );
+    const megaMenu =
+        document.getElementById(
+            "megaMenu"
+        );
 
-        const mobileMenuButton =
-            document.getElementById(
-                "mobileMenuButton"
-            );
+    const mobileMenuButton =
+        document.getElementById(
+            "mobileMenuButton"
+        );
 
-        const closeMobileMenu =
-            document.getElementById(
-                "closeMobileMenu"
-            );
+    const closeMobileMenu =
+        document.getElementById(
+            "closeMobileMenu"
+        );
 
-        const mobileMenuDrawer =
-            document.getElementById(
-                "mobileMenuDrawer"
-            );
+    const mobileMenuDrawer =
+        document.getElementById(
+            "mobileMenuDrawer"
+        );
 
-        const mobileMenuOverlay =
-            document.getElementById(
-                "mobileMenuOverlay"
-            );
+    const mobileMenuOverlay =
+        document.getElementById(
+            "mobileMenuOverlay"
+        );
 
-        const bottomCategoriesButton =
-            document.getElementById(
-                "bottomCategoriesButton"
-            );
+    const bottomCategoriesButton =
+        document.getElementById(
+            "bottomCategoriesButton"
+        );
 
 
-        /*==================================================
-        FEATURE: DESKTOP MEGA MENU
-        ==================================================*/
+    /*==================================================
+    FEATURE: DESKTOP MEGA MENU
+    ==================================================*/
 
-        function openMegaMenu() {
+    function openMegaMenu() {
 
-            if (!megaMenu) return;
+        if (!megaMenu) {
+            return;
+        }
 
-            megaMenu.classList.add(
+
+        megaMenu.classList.add(
+            "mega-menu-open"
+        );
+
+
+        allCategoriesButton?.setAttribute(
+            "aria-expanded",
+            "true"
+        );
+
+    }
+
+
+    function closeMegaMenu() {
+
+        if (!megaMenu) {
+            return;
+        }
+
+
+        megaMenu.classList.remove(
+            "mega-menu-open"
+        );
+
+
+        allCategoriesButton?.setAttribute(
+            "aria-expanded",
+            "false"
+        );
+
+    }
+
+
+    function toggleMegaMenu() {
+
+        if (!megaMenu) {
+            return;
+        }
+
+
+        if (
+            megaMenu.classList.contains(
                 "mega-menu-open"
-            );
+            )
+        ) {
 
-            if (allCategoriesButton) {
+            closeMegaMenu();
 
-                allCategoriesButton.setAttribute(
-                    "aria-expanded",
-                    "true"
+        } else {
+
+            openMegaMenu();
+
+        }
+
+    }
+
+
+    allCategoriesButton?.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            toggleMegaMenu();
+
+        }
+    );
+
+
+    desktopMenuButton?.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            toggleMegaMenu();
+
+        }
+    );
+
+
+    /*==================================================
+    FEATURE: MOBILE DRAWER
+    ==================================================*/
+
+    function openMobileDrawer() {
+
+        mobileMenuDrawer?.classList.add(
+            "mobile-drawer-open"
+        );
+
+        mobileMenuOverlay?.classList.add(
+            "mobile-overlay-open"
+        );
+
+        document.body.style.overflow =
+            "hidden";
+
+    }
+
+
+    function closeMobileDrawer() {
+
+        mobileMenuDrawer?.classList.remove(
+            "mobile-drawer-open"
+        );
+
+        mobileMenuOverlay?.classList.remove(
+            "mobile-overlay-open"
+        );
+
+        document.body.style.overflow =
+            "";
+
+    }
+
+
+    mobileMenuButton?.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            openMobileDrawer();
+
+        }
+    );
+
+
+    closeMobileMenu?.addEventListener(
+        "click",
+        closeMobileDrawer
+    );
+
+
+    mobileMenuOverlay?.addEventListener(
+        "click",
+        closeMobileDrawer
+    );
+
+
+    bottomCategoriesButton?.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            openMobileDrawer();
+
+        }
+    );
+
+
+    /*==================================================
+    FEATURE: MOBILE CATEGORY
+    ==================================================*/
+
+    const mobileCategoryLinks =
+        document.querySelectorAll(
+            ".mobile-category-scroll a"
+        );
+
+
+    mobileCategoryLinks.forEach(
+        function (link, index) {
+
+            if (index === 0) {
+
+                link.addEventListener(
+                    "click",
+                    function (event) {
+
+                        event.preventDefault();
+
+                        openMobileDrawer();
+
+                    }
                 );
 
             }
 
         }
+    );
 
 
-        function closeMegaMenu() {
+    /*==================================================
+    FEATURE: MOBILE CATEGORY SCROLL
+    ==================================================*/
 
-            if (!megaMenu) return;
-
-            megaMenu.classList.remove(
-                "mega-menu-open"
-            );
-
-            if (allCategoriesButton) {
-
-                allCategoriesButton.setAttribute(
-                    "aria-expanded",
-                    "false"
-                );
-
-            }
-
-        }
+    const mobileCategoryScroll =
+        document.querySelector(
+            ".mobile-category-scroll"
+        );
 
 
-        function toggleMegaMenu() {
-
-            if (!megaMenu) return;
+    mobileCategoryScroll?.addEventListener(
+        "wheel",
+        function (event) {
 
             if (
+                Math.abs(event.deltaY) >
+                Math.abs(event.deltaX)
+            ) {
+
+                event.preventDefault();
+
+                mobileCategoryScroll.scrollLeft +=
+                    event.deltaY;
+
+            }
+
+        },
+        {
+            passive: false
+        }
+    );
+
+
+    /*==================================================
+    FEATURE: DESKTOP CATEGORY SCROLL
+    ==================================================*/
+
+    const navigationLinks =
+        document.querySelector(
+            ".navigation-links"
+        );
+
+
+    navigationLinks?.addEventListener(
+        "wheel",
+        function (event) {
+
+            if (
+                Math.abs(event.deltaY) >
+                Math.abs(event.deltaX)
+            ) {
+
+                event.preventDefault();
+
+                navigationLinks.scrollLeft +=
+                    event.deltaY;
+
+            }
+
+        },
+        {
+            passive: false
+        }
+    );
+
+
+    /*==================================================
+    FEATURE: OUTSIDE CLICK
+    ==================================================*/
+
+    document.addEventListener(
+        "click",
+        function (event) {
+
+            if (
+                megaMenu &&
                 megaMenu.classList.contains(
                     "mega-menu-open"
                 )
             ) {
 
-                closeMegaMenu();
-
-            } else {
-
-                openMegaMenu();
-
-            }
-
-        }
-
-
-        if (allCategoriesButton) {
-
-            allCategoriesButton.addEventListener(
-                "click",
-                function (event) {
-
-                    event.preventDefault();
-
-                    event.stopPropagation();
-
-                    toggleMegaMenu();
-
-                }
-            );
-
-        }
-
-
-        if (desktopMenuButton) {
-
-            desktopMenuButton.addEventListener(
-                "click",
-                function (event) {
-
-                    event.preventDefault();
-
-                    event.stopPropagation();
-
-                    toggleMegaMenu();
-
-                }
-            );
-
-        }
-
-
-        /*==================================================
-        FEATURE: MOBILE DRAWER
-        ==================================================*/
-
-        function openMobileDrawer() {
-
-            if (mobileMenuDrawer) {
-
-                mobileMenuDrawer.classList.add(
-                    "mobile-drawer-open"
-                );
-
-            }
-
-            if (mobileMenuOverlay) {
-
-                mobileMenuOverlay.classList.add(
-                    "mobile-overlay-open"
-                );
-
-            }
-
-            document.body.style.overflow =
-                "hidden";
-
-        }
-
-
-        function closeMobileDrawer() {
-
-            if (mobileMenuDrawer) {
-
-                mobileMenuDrawer.classList.remove(
-                    "mobile-drawer-open"
-                );
-
-            }
-
-            if (mobileMenuOverlay) {
-
-                mobileMenuOverlay.classList.remove(
-                    "mobile-overlay-open"
-                );
-
-            }
-
-            document.body.style.overflow =
-                "";
-
-        }
-
-
-        if (mobileMenuButton) {
-
-            mobileMenuButton.addEventListener(
-                "click",
-                function (event) {
-
-                    event.preventDefault();
-
-                    event.stopPropagation();
-
-                    openMobileDrawer();
-
-                }
-            );
-
-        }
-
-
-        if (closeMobileMenu) {
-
-            closeMobileMenu.addEventListener(
-                "click",
-                function () {
-
-                    closeMobileDrawer();
-
-                }
-            );
-
-        }
-
-
-        if (mobileMenuOverlay) {
-
-            mobileMenuOverlay.addEventListener(
-                "click",
-                function () {
-
-                    closeMobileDrawer();
-
-                }
-            );
-
-        }
-
-
-        if (bottomCategoriesButton) {
-
-            bottomCategoriesButton.addEventListener(
-                "click",
-                function (event) {
-
-                    event.preventDefault();
-
-                    openMobileDrawer();
-
-                }
-            );
-
-        }
-
-
-        /*==================================================
-        FEATURE: MOBILE ALL CATEGORY
-        ==================================================*/
-
-        const mobileCategoryLinks =
-            document.querySelectorAll(
-                ".mobile-category-scroll a"
-            );
-
-
-        mobileCategoryLinks.forEach(
-            function (link, index) {
-
-                if (index === 0) {
-
-                    link.addEventListener(
-                        "click",
-                        function (event) {
-
-                            event.preventDefault();
-
-                            openMobileDrawer();
-
-                        }
+                const clickedMega =
+                    megaMenu.contains(
+                        event.target
                     );
 
-                }
+                const clickedAll =
+                    allCategoriesButton?.contains(
+                        event.target
+                    );
 
-            }
-        );
+                const clickedMenu =
+                    desktopMenuButton?.contains(
+                        event.target
+                    );
 
-
-        /*==================================================
-        FEATURE: MOBILE CATEGORY SCROLL
-        ==================================================*/
-
-        const mobileCategoryScroll =
-            document.querySelector(
-                ".mobile-category-scroll"
-            );
-
-
-        if (mobileCategoryScroll) {
-
-            mobileCategoryScroll.addEventListener(
-                "wheel",
-                function (event) {
-
-                    if (
-                        Math.abs(event.deltaY) >
-                        Math.abs(event.deltaX)
-                    ) {
-
-                        event.preventDefault();
-
-                        mobileCategoryScroll.scrollLeft +=
-                            event.deltaY;
-
-                    }
-
-                },
-                {
-                    passive: false
-                }
-            );
-
-        }
-
-
-        /*==================================================
-        FEATURE: DESKTOP CATEGORY SCROLL
-        ==================================================*/
-
-        const navigationLinks =
-            document.querySelector(
-                ".navigation-links"
-            );
-
-
-        if (navigationLinks) {
-
-            navigationLinks.addEventListener(
-                "wheel",
-                function (event) {
-
-                    if (
-                        Math.abs(event.deltaY) >
-                        Math.abs(event.deltaX)
-                    ) {
-
-                        event.preventDefault();
-
-                        navigationLinks.scrollLeft +=
-                            event.deltaY;
-
-                    }
-
-                },
-                {
-                    passive: false
-                }
-            );
-
-        }
-
-
-        /*==================================================
-        FEATURE: OUTSIDE CLICK
-        ==================================================*/
-
-        document.addEventListener(
-            "click",
-            function (event) {
 
                 if (
-                    megaMenu &&
-                    megaMenu.classList.contains(
-                        "mega-menu-open"
-                    )
-                ) {
-
-                    const clickedMega =
-                        megaMenu.contains(
-                            event.target
-                        );
-
-                    const clickedAll =
-                        allCategoriesButton &&
-                        allCategoriesButton.contains(
-                            event.target
-                        );
-
-                    const clickedMenu =
-                        desktopMenuButton &&
-                        desktopMenuButton.contains(
-                            event.target
-                        );
-
-
-                    if (
-                        !clickedMega &&
-                        !clickedAll &&
-                        !clickedMenu
-                    ) {
-
-                        closeMegaMenu();
-
-                    }
-
-                }
-
-            }
-        );
-
-
-        /*==================================================
-        FEATURE: ESCAPE KEY
-        ==================================================*/
-
-        document.addEventListener(
-            "keydown",
-            function (event) {
-
-                if (
-                    event.key === "Escape"
+                    !clickedMega &&
+                    !clickedAll &&
+                    !clickedMenu
                 ) {
 
                     closeMegaMenu();
 
-                    closeMobileDrawer();
-
                 }
 
             }
+
+        }
+    );
+
+
+    /*==================================================
+    FEATURE: ESCAPE
+    ==================================================*/
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                closeMegaMenu();
+
+                closeMobileDrawer();
+
+            }
+
+        }
+    );
+
+
+    /*==================================================
+    FEATURE: ACCOUNT DROPDOWN
+    ==================================================*/
+
+    const accountButton =
+        document.querySelector(
+            ".account-button"
+        );
+
+    const headerAccount =
+        document.querySelector(
+            ".header-account"
         );
 
 
-        /*==================================================
-        FEATURE: ACCOUNT DROPDOWN
-        ==================================================*/
+    accountButton?.addEventListener(
+        "click",
+        function (event) {
 
-        const accountButton =
-            document.querySelector(
-                ".account-button"
-            );
+            event.preventDefault();
 
-        const headerAccount =
-            document.querySelector(
-                ".header-account"
-            );
+            event.stopPropagation();
 
-
-        if (
-            accountButton &&
-            headerAccount
-        ) {
-
-            accountButton.addEventListener(
-                "click",
-                function (event) {
-
-                    event.preventDefault();
-
-                    event.stopPropagation();
-
-                    headerAccount.classList.toggle(
-                        "account-open"
-                    );
-
-                }
+            headerAccount?.classList.toggle(
+                "account-open"
             );
 
         }
+    );
 
 
-        /*==================================================
-        FEATURE: CART DROPDOWN
-        ==================================================*/
+    /*==================================================
+    FEATURE: CART DROPDOWN
+    ==================================================*/
 
-        const cartButton =
-            document.querySelector(
-                ".cart-button"
-            );
+    const cartButton =
+        document.querySelector(
+            ".cart-button"
+        );
 
-        const headerCart =
-            document.querySelector(
-                ".header-cart"
-            );
+    const headerCart =
+        document.querySelector(
+            ".header-cart"
+        );
 
 
-        if (
-            cartButton &&
-            headerCart
-        ) {
+    cartButton?.addEventListener(
+        "click",
+        function (event) {
 
-            cartButton.addEventListener(
-                "click",
-                function (event) {
+            event.preventDefault();
 
-                    event.preventDefault();
+            event.stopPropagation();
 
-                    event.stopPropagation();
-
-                    headerCart.classList.toggle(
-                        "cart-open"
-                    );
-
-                }
+            headerCart?.classList.toggle(
+                "cart-open"
             );
 
         }
+    );
 
 
-        /*==================================================
-        FEATURE: SEARCH
-        ==================================================*/
+    /*==================================================
+    FEATURE: SEARCH
+    ==================================================*/
 
-        const desktopSearchForm =
-            document.getElementById(
-                "desktopSearchForm"
-            );
+    const desktopSearchForm =
+        document.getElementById(
+            "desktopSearchForm"
+        );
 
-        const desktopSearchInput =
-            document.getElementById(
-                "desktopSearchInput"
-            );
-
-
-        if (desktopSearchForm) {
-
-            desktopSearchForm.addEventListener(
-                "submit",
-                function (event) {
-
-                    event.preventDefault();
-
-                    const query =
-                        desktopSearchInput
-                            ? desktopSearchInput.value.trim()
-                            : "";
+    const desktopSearchInput =
+        document.getElementById(
+            "desktopSearchInput"
+        );
 
 
-                    if (!query) {
+    desktopSearchForm?.addEventListener(
+        "submit",
+        function (event) {
 
-                        if (desktopSearchInput) {
+            event.preventDefault();
 
-                            desktopSearchInput.focus();
-
-                        }
-
-                        return;
-
-                    }
+            const query =
+                desktopSearchInput?.value.trim() ||
+                "";
 
 
-                    console.log(
-                        "SmartBazaar Search:",
-                        query
-                    );
+            if (!query) {
 
-                }
-            );
+                desktopSearchInput?.focus();
 
-        }
-
-
-        /*==================================================
-        FEATURE: MOBILE SEARCH
-        ==================================================*/
-
-        const mobileSearchForm =
-            document.getElementById(
-                "mobileSearchForm"
-            );
-
-        const mobileSearchInput =
-            document.getElementById(
-                "mobileSearchInput"
-            );
-
-
-        if (mobileSearchForm) {
-
-            mobileSearchForm.addEventListener(
-                "submit",
-                function (event) {
-
-                    event.preventDefault();
-
-                    const query =
-                        mobileSearchInput
-                            ? mobileSearchInput.value.trim()
-                            : "";
-
-
-                    if (!query) {
-
-                        if (mobileSearchInput) {
-
-                            mobileSearchInput.focus();
-
-                        }
-
-                        return;
-
-                    }
-
-
-                    console.log(
-                        "SmartBazaar Mobile Search:",
-                        query
-                    );
-
-                }
-            );
-
-        }
-
-
-        /*==================================================
-        FEATURE: CART COUNT
-        ==================================================*/
-
-        function updateCartCount() {
-
-            let cart = [];
-
-
-            try {
-
-                cart =
-                    JSON.parse(
-                        localStorage.getItem(
-                            "smartBazaarCart"
-                        )
-                    ) || [];
-
-            } catch (error) {
-
-                cart = [];
+                return;
 
             }
 
 
-            let total = 0;
+            console.log(
+                "SmartBazaar Search:",
+                query
+            );
+
+        }
+    );
 
 
-            if (Array.isArray(cart)) {
+    /*==================================================
+    FEATURE: MOBILE SEARCH
+    ==================================================*/
 
-                cart.forEach(
-                    function (item) {
+    const mobileSearchForm =
+        document.getElementById(
+            "mobileSearchForm"
+        );
 
-                        total += Number(
-                            item.quantity || 1
+    const mobileSearchInput =
+        document.getElementById(
+            "mobileSearchInput"
+        );
+
+
+    mobileSearchForm?.addEventListener(
+        "submit",
+        function (event) {
+
+            event.preventDefault();
+
+            const query =
+                mobileSearchInput?.value.trim() ||
+                "";
+
+
+            if (!query) {
+
+                mobileSearchInput?.focus();
+
+                return;
+
+            }
+
+
+            console.log(
+                "SmartBazaar Mobile Search:",
+                query
+            );
+
+        }
+    );
+
+
+    /*==================================================
+    FEATURE: CART COUNT
+    ==================================================*/
+
+    function updateCartCount() {
+
+        let cart = [];
+
+
+        try {
+
+            cart =
+                JSON.parse(
+                    localStorage.getItem(
+                        "smartBazaarCart"
+                    )
+                ) || [];
+
+        } catch (error) {
+
+            cart = [];
+
+        }
+
+
+        let total = 0;
+
+
+        if (Array.isArray(cart)) {
+
+            cart.forEach(
+                function (item) {
+
+                    total += Number(
+                        item?.quantity || 1
+                    );
+
+                }
+            );
+
+        }
+
+
+        const desktopCartCount =
+            document.getElementById(
+                "cartCount"
+            );
+
+        const mobileCartCount =
+            document.getElementById(
+                "mobileCartCount"
+            );
+
+
+        if (desktopCartCount) {
+
+            desktopCartCount.textContent =
+                total;
+
+        }
+
+
+        if (mobileCartCount) {
+
+            mobileCartCount.textContent =
+                total;
+
+        }
+
+    }
+
+
+    updateCartCount();
+
+
+    /*==================================================
+    FEATURE: CLOSE ACCOUNT + CART
+    ==================================================*/
+
+    document.addEventListener(
+        "click",
+        function (event) {
+
+            if (
+                headerAccount &&
+                !headerAccount.contains(
+                    event.target
+                )
+            ) {
+
+                headerAccount.classList.remove(
+                    "account-open"
+                );
+
+            }
+
+
+            if (
+                headerCart &&
+                !headerCart.contains(
+                    event.target
+                )
+            ) {
+
+                headerCart.classList.remove(
+                    "cart-open"
+                );
+
+            }
+
+        }
+    );
+
+
+    console.log(
+        "✓ SmartBazaar Pro 2 Header Loaded"
+    );
+
+}
+
+
+/*==================================================
+FEATURE: GET BANNER IMAGE
+SUPPORTS DESKTOP + MOBILE IMAGE
+==================================================*/
+
+function getBannerImage(banner) {
+
+    return (
+        banner.imageUrl ||
+        banner.desktopImageUrl ||
+        banner.image ||
+        ""
+    );
+
+}
+
+
+function getMobileBannerImage(banner) {
+
+    return (
+        banner.mobileImageUrl ||
+        banner.mobileImage ||
+        getBannerImage(banner)
+    );
+
+}
+
+
+/*==================================================
+FEATURE: CHECK BANNER DATE
+==================================================*/
+
+function isBannerWithinSchedule(banner) {
+
+    const now =
+        Date.now();
+
+
+    if (banner.startDate) {
+
+        const start =
+            new Date(
+                banner.startDate
+            ).getTime();
+
+
+        if (
+            !Number.isNaN(start) &&
+            now < start
+        ) {
+
+            return false;
+
+        }
+
+    }
+
+
+    if (banner.endDate) {
+
+        const end =
+            new Date(
+                banner.endDate
+            ).getTime();
+
+
+        if (
+            !Number.isNaN(end) &&
+            now > end
+        ) {
+
+            return false;
+
+        }
+
+    }
+
+
+    return true;
+
+}
+
+
+/*==================================================
+FEATURE: LOAD DYNAMIC BANNERS
+==================================================*/
+
+async function loadDynamicBanners() {
+
+    const heroSlider =
+        document.getElementById(
+            "heroSlider"
+        );
+
+
+    if (!heroSlider) {
+
+        console.warn(
+            "SmartBazaar Pro 2: #heroSlider not found."
+        );
+
+        return;
+
+    }
+
+
+    console.log(
+        "SmartBazaar Pro 2: Loading banners..."
+    );
+
+
+    try {
+
+        const snapshot =
+            await get(
+                bannersRef
+            );
+
+
+        console.log(
+            "SmartBazaar Pro 2: Firebase snapshot exists =",
+            snapshot.exists()
+        );
+
+
+        banners = [];
+
+
+        if (
+            snapshot.exists()
+        ) {
+
+            const data =
+                snapshot.val();
+
+
+            console.log(
+                "SmartBazaar Pro 2: Firebase banner data =",
+                data
+            );
+
+
+            Object.entries(
+                data
+            ).forEach(
+                function (
+                    [id, banner]
+                ) {
+
+                    if (!banner) {
+                        return;
+                    }
+
+
+                    /*==========================================
+                    ACTIVE CONTROL
+                    ==========================================*/
+
+                    if (
+                        banner.active === false
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    /*
+                    اگر active true ہے تو شامل ہوگا۔
+                    اگر active field موجود نہیں تو بھی banner
+                    کو reject نہیں کیا جائے گا۔
+                    */
+
+
+                    /*==========================================
+                    IMAGE CONTROL
+                    ==========================================*/
+
+                    const imageUrl =
+                        getBannerImage(
+                            banner
                         );
 
+
+                    if (!imageUrl) {
+
+                        console.warn(
+                            "Banner skipped because imageUrl is missing:",
+                            id
+                        );
+
+                        return;
+
                     }
-                );
-
-            }
 
 
-            const desktopCartCount =
-                document.getElementById(
-                    "cartCount"
-                );
+                    /*==========================================
+                    DATE CONTROL
+                    ==========================================*/
 
-            const mobileCartCount =
-                document.getElementById(
-                    "mobileCartCount"
-                );
+                    if (
+                        !isBannerWithinSchedule(
+                            banner
+                        )
+                    ) {
 
+                        return;
 
-            if (desktopCartCount) {
-
-                desktopCartCount.textContent =
-                    total;
-
-            }
+                    }
 
 
-            if (mobileCartCount) {
+                    banners.push({
 
-                mobileCartCount.textContent =
-                    total;
+                        id:
+                            id,
 
-            }
+                        title:
+                            banner.title || "",
+
+                        subtitle:
+                            banner.subtitle || "",
+
+                        description:
+                            banner.description || "",
+
+                        buttonText:
+                            banner.buttonText || "",
+
+                        buttonLink:
+                            banner.buttonLink || "",
+
+                        imageUrl:
+                            imageUrl,
+
+                        mobileImageUrl:
+                            getMobileBannerImage(
+                                banner
+                            ),
+
+                        order:
+                            Number(
+                                banner.order || 0
+                            ),
+
+                        createdAt:
+                            Number(
+                                banner.createdAt || 0
+                            )
+
+                    });
+
+                }
+            );
 
         }
 
 
-        updateCartCount();
-
-
         /*==================================================
-        FEATURE: CLOSE ACCOUNT/CART OUTSIDE
+        SORT
         ==================================================*/
 
-        document.addEventListener(
-            "click",
-            function (event) {
+        banners.sort(
+            function (a, b) {
+
+                const orderDifference =
+                    a.order -
+                    b.order;
+
 
                 if (
-                    headerAccount &&
-                    !headerAccount.contains(
-                        event.target
-                    )
+                    orderDifference !== 0
                 ) {
 
-                    headerAccount.classList.remove(
-                        "account-open"
-                    );
+                    return orderDifference;
 
                 }
 
 
-                if (
-                    headerCart &&
-                    !headerCart.contains(
-                        event.target
-                    )
-                ) {
-
-                    headerCart.classList.remove(
-                        "cart-open"
-                    );
-
-                }
+                return (
+                    a.createdAt -
+                    b.createdAt
+                );
 
             }
         );
 
 
         console.log(
-            "✓ SmartBazaar Pro Header Loaded"
+            "SmartBazaar Pro 2: Final banners =",
+            banners
+        );
+
+
+        renderBanners();
+
+
+    } catch (error) {
+
+        console.error(
+            "SmartBazaar Pro 2: Firebase Banner Error:",
+            error
+        );
+
+
+        showBannerError(
+            error
         );
 
     }
-);
+
+}
 
 
 /*==================================================
-SMARTBAZAAR PRO 2
-FEATURE: DYNAMIC HERO BANNER SYSTEM
-FIREBASE REALTIME DATABASE
+FEATURE: RENDER BANNERS
 ==================================================*/
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
+function renderBanners() {
+
+    const heroSlider =
+        document.getElementById(
+            "heroSlider"
+        );
 
 
-        /*==================================================
-        HERO ELEMENTS
-        ==================================================*/
-
-        const heroSection =
-            document.getElementById(
-                "heroBannerSection"
-            );
-
-        const heroSlider =
-            document.getElementById(
-                "heroSlider"
-            );
-
-        const addBannerButton =
-            document.getElementById(
-                "adminAddBannerButton"
-            );
+    if (!heroSlider) {
+        return;
+    }
 
 
-        /*==================================================
-        SAFETY CHECK
-        ==================================================*/
+    stopAutoSlide();
 
-        if (!heroSlider) {
 
-            console.warn(
-                "Hero slider element not found."
-            );
+    /*==================================================
+    NO BANNERS
+    ==================================================*/
+
+    if (
+        !banners.length
+    ) {
+
+        heroSlider.innerHTML = `
+
+            <div
+                class="hero-slide active"
+                id="bannerEmptySlide">
+
+                <div
+                    class="banner-image-placeholder">
+
+                    <span>
+                        No Banners Available
+                    </span>
+
+                </div>
+
+            </div>
+
+            <button
+                type="button"
+                class="hero-slider-arrow hero-prev"
+                id="heroPrev"
+                aria-label="Previous Banner">
+
+                <i class="fa-solid fa-chevron-left"></i>
+
+            </button>
+
+            <button
+                type="button"
+                class="hero-slider-arrow hero-next"
+                id="heroNext"
+                aria-label="Next Banner">
+
+                <i class="fa-solid fa-chevron-right"></i>
+
+            </button>
+
+            <div
+                class="hero-slider-dots"
+                id="heroSliderDots">
+            </div>
+
+        `;
+
+
+        currentSlide = 0;
+
+        return;
+
+    }
+
+
+    /*==================================================
+    CREATE SLIDES
+    ==================================================*/
+
+    const slidesHTML =
+        banners.map(
+            function (
+                banner,
+                index
+            ) {
+
+                const imageUrl =
+                    escapeHTML(
+                        banner.imageUrl
+                    );
+
+                const mobileImageUrl =
+                    escapeHTML(
+                        banner.mobileImageUrl
+                    );
+
+                const title =
+                    escapeHTML(
+                        banner.title
+                    );
+
+                const subtitle =
+                    escapeHTML(
+                        banner.subtitle
+                    );
+
+                const description =
+                    escapeHTML(
+                        banner.description
+                    );
+
+                const buttonText =
+                    escapeHTML(
+                        banner.buttonText
+                    );
+
+                const buttonLink =
+                    escapeHTML(
+                        safeURL(
+                            banner.buttonLink
+                        )
+                    );
+
+
+                return `
+
+                    <div
+                        class="hero-slide ${
+                            index === 0
+                                ? "active"
+                                : ""
+                        }"
+                        data-slide-index="${index}">
+
+                        <a
+                            class="hero-banner-link"
+                            href="${buttonLink}"
+                            ${
+                                buttonLink === "#"
+                                    ? 'onclick="return false;"'
+                                    : ""
+                            }
+                        >
+
+                            <picture>
+
+                                <source
+                                    media="(max-width: 768px)"
+                                    srcset="${mobileImageUrl}"
+                                >
+
+                                <img
+                                    class="hero-banner-image"
+                                    src="${imageUrl}"
+                                    alt="${
+                                        title ||
+                                        "SmartBazaar Pro Banner"
+                                    }"
+                                    loading="${
+                                        index === 0
+                                            ? "eager"
+                                            : "lazy"
+                                    }"
+                                    draggable="false"
+                                >
+
+                            </picture>
+
+
+                            ${
+                                title ||
+                                subtitle ||
+                                description ||
+                                buttonText
+                                    ? `
+
+                                        <div
+                                            class="hero-banner-overlay">
+
+                                            ${
+                                                title
+                                                    ? `
+                                                        <h2>
+                                                            ${title}
+                                                        </h2>
+                                                      `
+                                                    : ""
+                                            }
+
+                                            ${
+                                                subtitle
+                                                    ? `
+                                                        <h3>
+                                                            ${subtitle}
+                                                        </h3>
+                                                      `
+                                                    : ""
+                                            }
+
+                                            ${
+                                                description
+                                                    ? `
+                                                        <p>
+                                                            ${description}
+                                                        </p>
+                                                      `
+                                                    : ""
+                                            }
+
+                                            ${
+                                                buttonText
+                                                    ? `
+                                                        <span
+                                                            class="hero-banner-button">
+
+                                                            ${buttonText}
+
+                                                        </span>
+                                                      `
+                                                    : ""
+                                            }
+
+                                        </div>
+
+                                      `
+                                    : ""
+                            }
+
+                        </a>
+
+                    </div>
+
+                `;
+
+            }
+        ).join("");
+
+
+    /*==================================================
+    DOTS
+    ==================================================*/
+
+    const dotsHTML =
+        banners.map(
+            function (
+                banner,
+                index
+            ) {
+
+                return `
+
+                    <button
+                        type="button"
+                        class="hero-dot ${
+                            index === 0
+                                ? "active"
+                                : ""
+                        }"
+                        data-slide="${index}"
+                        aria-label="Banner ${
+                            index + 1
+                        }">
+                    </button>
+
+                `;
+
+            }
+        ).join("");
+
+
+    /*==================================================
+    BUILD HERO
+    ==================================================*/
+
+    heroSlider.innerHTML = `
+
+        ${slidesHTML}
+
+
+        <button
+            type="button"
+            class="hero-slider-arrow hero-prev"
+            id="heroPrev"
+            aria-label="Previous Banner">
+
+            <i class="fa-solid fa-chevron-left"></i>
+
+        </button>
+
+
+        <button
+            type="button"
+            class="hero-slider-arrow hero-next"
+            id="heroNext"
+            aria-label="Next Banner">
+
+            <i class="fa-solid fa-chevron-right"></i>
+
+        </button>
+
+
+        <div
+            class="hero-slider-dots"
+            id="heroSliderDots">
+
+            ${dotsHTML}
+
+        </div>
+
+    `;
+
+
+    initializeHeroSlider();
+
+}
+
+
+/*==================================================
+FEATURE: ERROR DISPLAY
+==================================================*/
+
+function showBannerError(error) {
+
+    const heroSlider =
+        document.getElementById(
+            "heroSlider"
+        );
+
+
+    if (!heroSlider) {
+        return;
+    }
+
+
+    console.error(
+        "SmartBazaar Pro 2 Banner Error:",
+        error
+    );
+
+
+    heroSlider.innerHTML = `
+
+        <div
+            class="hero-slide active">
+
+            <div
+                class="banner-image-placeholder">
+
+                <span>
+                    Unable to load banners.
+                </span>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/*==================================================
+FEATURE: STOP AUTO SLIDE
+==================================================*/
+
+function stopAutoSlide() {
+
+    if (
+        autoSlideTimer !== null
+    ) {
+
+        clearInterval(
+            autoSlideTimer
+        );
+
+        autoSlideTimer =
+            null;
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: INITIALIZE HERO SLIDER
+==================================================*/
+
+function initializeHeroSlider() {
+
+    const heroSlider =
+        document.getElementById(
+            "heroSlider"
+        );
+
+
+    if (!heroSlider) {
+        return;
+    }
+
+
+    const slides =
+        heroSlider.querySelectorAll(
+            ".hero-slide"
+        );
+
+    const dots =
+        heroSlider.querySelectorAll(
+            ".hero-dot"
+        );
+
+    const prevButton =
+        document.getElementById(
+            "heroPrev"
+        );
+
+    const nextButton =
+        document.getElementById(
+            "heroNext"
+        );
+
+
+    if (
+        !slides.length
+    ) {
+
+        return;
+
+    }
+
+
+    currentSlide = 0;
+
+    heroInitialized = true;
+
+
+    /*==================================================
+    FEATURE: SHOW SLIDE
+    ==================================================*/
+
+    function showSlide(index) {
+
+        if (
+            index < 0
+        ) {
+
+            index =
+                slides.length - 1;
+
+        }
+
+
+        if (
+            index >= slides.length
+        ) {
+
+            index = 0;
+
+        }
+
+
+        slides.forEach(
+            function (
+                slide,
+                slideIndex
+            ) {
+
+                slide.classList.toggle(
+                    "active",
+                    slideIndex === index
+                );
+
+                slide.classList.toggle(
+                    "previous",
+                    slideIndex < index
+                );
+
+            }
+        );
+
+
+        dots.forEach(
+            function (
+                dot,
+                dotIndex
+            ) {
+
+                dot.classList.toggle(
+                    "active",
+                    dotIndex === index
+                );
+
+            }
+        );
+
+
+        currentSlide =
+            index;
+
+    }
+
+
+    /*==================================================
+    FEATURE: NEXT
+    ==================================================*/
+
+    function nextSlide() {
+
+        if (
+            slides.length <= 1
+        ) {
 
             return;
 
         }
 
 
-        /*==================================================
-        SLIDER STATE
-        ==================================================*/
+        showSlide(
+            currentSlide + 1
+        );
 
-        let banners = [];
-
-        let currentSlide = 0;
-
-        let autoSlideTimer = null;
-
-        let touchStartX = 0;
-
-        let touchEndX = 0;
-
-        let mouseStartX = 0;
-
-        let mouseEndX = 0;
-
-        let isDragging = false;
+    }
 
 
-        /*==================================================
-        FEATURE: LOAD BANNERS FROM FIREBASE
-        ==================================================*/
+    /*==================================================
+    FEATURE: PREVIOUS
+    ==================================================*/
 
-        async function loadDynamicBanners() {
+    function previousSlide() {
 
-            try {
+        if (
+            slides.length <= 1
+        ) {
 
-                console.log(
-                    "Loading banners from Firebase..."
-                );
-
-
-                const snapshot =
-                    await get(
-                        bannersRef
-                    );
-
-
-                banners = [];
-
-
-                if (
-                    snapshot.exists()
-                ) {
-
-                    const data =
-                        snapshot.val();
-
-
-                    Object.entries(
-                        data
-                    ).forEach(
-                        function (
-                            [id, banner]
-                        ) {
-
-                            if (
-                                banner &&
-                                banner.active === true &&
-                                banner.imageUrl
-                            ) {
-
-                                banners.push({
-
-                                    id:
-                                        id,
-
-                                    title:
-                                        banner.title || "",
-
-                                    subtitle:
-                                        banner.subtitle || "",
-
-                                    description:
-                                        banner.description || "",
-
-                                    buttonText:
-                                        banner.buttonText || "",
-
-                                    buttonLink:
-                                        banner.buttonLink || "#",
-
-                                    imageUrl:
-                                        banner.imageUrl,
-
-                                    order:
-                                        Number(
-                                            banner.order || 0
-                                        )
-
-                                });
-
-                            }
-
-                        }
-                    );
-
-                }
-
-
-                /*==================================================
-                SORT BY ORDER
-                ==================================================*/
-
-                banners.sort(
-                    function (a, b) {
-
-                        return (
-                            a.order -
-                            b.order
-                        );
-
-                    }
-                );
-
-
-                console.log(
-                    "Active banners loaded:",
-                    banners.length
-                );
-
-
-                /*==================================================
-                RENDER
-                ==================================================*/
-
-                renderBanners();
-
-
-            } catch (error) {
-
-                console.error(
-                    "Firebase Banner Load Error:",
-                    error
-                );
-
-
-                showBannerError();
-
-            }
+            return;
 
         }
 
 
-        /*==================================================
-        FEATURE: ESCAPE HTML
-        ==================================================*/
+        showSlide(
+            currentSlide - 1
+        );
 
-        function escapeHTML(value) {
+    }
 
-            return String(value)
-                .replace(
-                    /&/g,
-                    "&amp;"
-                )
-                .replace(
-                    /</g,
-                    "&lt;"
-                )
-                .replace(
-                    />/g,
-                    "&gt;"
-                )
-                .replace(
-                    /"/g,
-                    "&quot;"
-                )
-                .replace(
-                    /'/g,
-                    "&#039;"
-                );
+
+    /*==================================================
+    FEATURE: AUTO SLIDE
+    7 SECONDS
+    ==================================================*/
+
+    function startAutoSlide() {
+
+        stopAutoSlide();
+
+
+        if (
+            slides.length <= 1
+        ) {
+
+            return;
 
         }
 
 
-        /*==================================================
-        FEATURE: SAFE LINK
-        ==================================================*/
+        autoSlideTimer =
+            setInterval(
+                function () {
 
-        function safeLink(value) {
+                    nextSlide();
 
-            const link =
-                String(
-                    value || "#"
-                ).trim();
-
-
-            if (
-                link.toLowerCase()
-                    .startsWith(
-                        "javascript:"
-                    )
-            ) {
-
-                return "#";
-
-            }
-
-
-            return escapeHTML(
-                link
+                },
+                7000
             );
 
+    }
+
+
+    /*==================================================
+    FEATURE: BUTTONS
+    ==================================================*/
+
+    nextButton?.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            nextSlide();
+
+            startAutoSlide();
+
         }
+    );
 
 
-        /*==================================================
-        FEATURE: RENDER BANNERS
-        ==================================================*/
+    prevButton?.addEventListener(
+        "click",
+        function (event) {
 
-        function renderBanners() {
+            event.preventDefault();
 
-            if (!banners.length) {
+            event.stopPropagation();
 
-                heroSlider.innerHTML = `
+            previousSlide();
 
-                    <div class="hero-slide active">
+            startAutoSlide();
 
-                        <div class="banner-image-placeholder">
-
-                            <span>
-                                No active banners available.
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                `;
-
-                return;
-
-            }
+        }
+    );
 
 
-            /*==================================================
-            CREATE SLIDES
-            ==================================================*/
+    /*==================================================
+    FEATURE: DOTS
+    ==================================================*/
 
-            const slidesHTML =
-                banners.map(
-                    function (banner, index) {
+    dots.forEach(
+        function (dot) {
 
-                        const title =
-                            escapeHTML(
-                                banner.title
-                            );
+            dot.addEventListener(
+                "click",
+                function (event) {
 
-                        const subtitle =
-                            escapeHTML(
-                                banner.subtitle
-                            );
+                    event.preventDefault();
 
-                        const description =
-                            escapeHTML(
-                                banner.description
-                            );
-
-                        const buttonText =
-                            escapeHTML(
-                                banner.buttonText
-                            );
-
-                        const imageUrl =
-                            escapeHTML(
-                                banner.imageUrl
-                            );
-
-                        const link =
-                            safeLink(
-                                banner.buttonLink
-                            );
+                    event.stopPropagation();
 
 
-                        return `
-
-                            <div
-                                class="hero-slide ${
-                                    index === 0
-                                        ? "active"
-                                        : ""
-                                }"
-                                data-slide-index="${index}">
-
-                                <img
-                                    class="hero-banner-image"
-                                    src="${imageUrl}"
-                                    alt="${title || "SmartBazaar Banner"}"
-                                    loading="${
-                                        index === 0
-                                            ? "eager"
-                                            : "lazy"
-                                    }">
-
-                                <div class="hero-banner-overlay">
-
-                                    ${
-                                        title
-                                            ? `
-                                                <h2>
-                                                    ${title}
-                                                </h2>
-                                              `
-                                            : ""
-                                    }
-
-                                    ${
-                                        subtitle
-                                            ? `
-                                                <h3>
-                                                    ${subtitle}
-                                                </h3>
-                                              `
-                                            : ""
-                                    }
-
-                                    ${
-                                        description
-                                            ? `
-                                                <p>
-                                                    ${description}
-                                                </p>
-                                              `
-                                            : ""
-                                    }
-
-                                    ${
-                                        buttonText
-                                            ? `
-                                                <a
-                                                    href="${link}"
-                                                    class="hero-banner-button">
-
-                                                    ${buttonText}
-
-                                                </a>
-                                              `
-                                            : ""
-                                    }
-
-                                </div>
-
-                            </div>
-
-                        `;
-
-                    }
-                ).join("");
+                    const index =
+                        Number(
+                            dot.dataset.slide
+                        );
 
 
-            /*==================================================
-            DOTS
-            ==================================================*/
-
-            const dotsHTML =
-                banners.map(
-                    function (
-                        banner,
+                    showSlide(
                         index
-                    ) {
-
-                        return `
-
-                            <button
-                                type="button"
-                                class="hero-dot ${
-                                    index === 0
-                                        ? "active"
-                                        : ""
-                                }"
-                                data-slide="${index}"
-                                aria-label="Go to banner ${
-                                    index + 1
-                                }">
-
-                            </button>
-
-                        `;
-
-                    }
-                ).join("");
-
-
-            /*==================================================
-            REBUILD SLIDER
-            ==================================================*/
-
-            heroSlider.innerHTML = `
-
-                ${slidesHTML}
-
-                <button
-                    type="button"
-                    class="hero-slider-arrow hero-prev"
-                    id="heroPrev"
-                    aria-label="Previous Banner">
-
-                    <i class="fa-solid fa-chevron-left"></i>
-
-                </button>
-
-
-                <button
-                    type="button"
-                    class="hero-slider-arrow hero-next"
-                    id="heroNext"
-                    aria-label="Next Banner">
-
-                    <i class="fa-solid fa-chevron-right"></i>
-
-                </button>
-
-
-                <div
-                    class="hero-slider-dots"
-                    id="heroSliderDots">
-
-                    ${dotsHTML}
-
-                </div>
-
-            `;
-
-
-            /*==================================================
-            INITIALIZE SLIDER
-            ==================================================*/
-
-            initializeSlider();
-
-        }
-
-
-        /*==================================================
-        FEATURE: ERROR STATE
-        ==================================================*/
-
-        function showBannerError() {
-
-            heroSlider.innerHTML = `
-
-                <div class="hero-slide active">
-
-                    <div class="banner-image-placeholder">
-
-                        <span>
-                            Unable to load banners.
-                        </span>
-
-                    </div>
-
-                </div>
-
-            `;
-
-        }
-
-
-        /*==================================================
-        FEATURE: INITIALIZE SLIDER
-        ==================================================*/
-
-        function initializeSlider() {
-
-            const slides =
-                heroSlider.querySelectorAll(
-                    ".hero-slide"
-                );
-
-            const dots =
-                heroSlider.querySelectorAll(
-                    ".hero-dot"
-                );
-
-            const prevButton =
-                document.getElementById(
-                    "heroPrev"
-                );
-
-            const nextButton =
-                document.getElementById(
-                    "heroNext"
-                );
-
-
-            if (
-                slides.length === 0
-            ) {
-
-                return;
-
-            }
-
-
-            currentSlide = 0;
-
-
-            /*==================================================
-            SHOW SLIDE
-            ==================================================*/
-
-            function showSlide(index) {
-
-                if (
-                    index >=
-                    slides.length
-                ) {
-
-                    index = 0;
-
-                }
-
-
-                if (index < 0) {
-
-                    index =
-                        slides.length - 1;
-
-                }
-
-
-                slides.forEach(
-                    function (
-                        slide,
-                        i
-                    ) {
-
-                        slide.classList.remove(
-                            "active",
-                            "previous"
-                        );
-
-
-                        if (
-                            i < index
-                        ) {
-
-                            slide.classList.add(
-                                "previous"
-                            );
-
-                        }
-
-                    }
-                );
-
-
-                slides[index].classList.add(
-                    "active"
-                );
-
-
-                dots.forEach(
-                    function (
-                        dot,
-                        i
-                    ) {
-
-                        dot.classList.toggle(
-                            "active",
-                            i === index
-                        );
-
-                    }
-                );
-
-
-                currentSlide =
-                    index;
-
-            }
-
-
-            /*==================================================
-            NEXT
-            ==================================================*/
-
-            function nextSlide() {
-
-                if (
-                    slides.length <= 1
-                ) {
-
-                    return;
-
-                }
-
-
-                showSlide(
-                    currentSlide + 1
-                );
-
-            }
-
-
-            /*==================================================
-            PREVIOUS
-            ==================================================*/
-
-            function previousSlide() {
-
-                if (
-                    slides.length <= 1
-                ) {
-
-                    return;
-
-                }
-
-
-                showSlide(
-                    currentSlide - 1
-                );
-
-            }
-
-
-            /*==================================================
-            AUTO SLIDER
-            ==================================================*/
-
-            function stopAutoSlide() {
-
-                if (
-                    autoSlideTimer
-                ) {
-
-                    clearInterval(
-                        autoSlideTimer
                     );
 
-                    autoSlideTimer =
-                        null;
-
-                }
-
-            }
-
-
-            function startAutoSlide() {
-
-                stopAutoSlide();
-
-
-                if (
-                    slides.length <= 1
-                ) {
-
-                    return;
-
-                }
-
-
-                autoSlideTimer =
-                    setInterval(
-                        function () {
-
-                            nextSlide();
-
-                        },
-                        5000
-                    );
-
-            }
-
-
-            function restartAutoSlide() {
-
-                stopAutoSlide();
-
-                startAutoSlide();
-
-            }
-
-
-            /*==================================================
-            NEXT BUTTON
-            ==================================================*/
-
-            if (nextButton) {
-
-                nextButton.addEventListener(
-                    "click",
-                    function (event) {
-
-                        event.preventDefault();
-
-                        nextSlide();
-
-                        restartAutoSlide();
-
-                    }
-                );
-
-            }
-
-
-            /*==================================================
-            PREVIOUS BUTTON
-            ==================================================*/
-
-            if (prevButton) {
-
-                prevButton.addEventListener(
-                    "click",
-                    function (event) {
-
-                        event.preventDefault();
-
-                        previousSlide();
-
-                        restartAutoSlide();
-
-                    }
-                );
-
-            }
-
-
-            /*==================================================
-            DOTS
-            ==================================================*/
-
-            dots.forEach(
-                function (
-                    dot
-                ) {
-
-                    dot.addEventListener(
-                        "click",
-                        function () {
-
-                            const index =
-                                Number(
-                                    dot.dataset.slide
-                                );
-
-
-                            showSlide(
-                                index
-                            );
-
-                            restartAutoSlide();
-
-                        }
-                    );
-
-                }
-            );
-
-
-            /*==================================================
-            MOUSE HOVER
-            ==================================================*/
-
-            heroSlider.addEventListener(
-                "mouseenter",
-                function () {
-
-                    stopAutoSlide();
-
-                }
-            );
-
-
-            heroSlider.addEventListener(
-                "mouseleave",
-                function () {
 
                     startAutoSlide();
 
                 }
             );
 
-
-            /*==================================================
-            TOUCH START
-            ==================================================*/
-
-            heroSlider.addEventListener(
-                "touchstart",
-                function (event) {
-
-                    if (
-                        !event.touches.length
-                    ) {
-
-                        return;
-
-                    }
+        }
+    );
 
 
-                    touchStartX =
-                        event.touches[0]
-                            .clientX;
+    /*==================================================
+    FEATURE: PAUSE ON DESKTOP HOVER
+    ==================================================*/
 
-                },
-                {
-                    passive: true
-                }
-            );
+    heroSlider.addEventListener(
+        "mouseenter",
+        function () {
 
+            if (
+                window.innerWidth > 768
+            ) {
 
-            /*==================================================
-            TOUCH END
-            ==================================================*/
+                stopAutoSlide();
 
-            heroSlider.addEventListener(
-                "touchend",
-                function (event) {
+            }
 
-                    if (
-                        !event.changedTouches.length
-                    ) {
-
-                        return;
-
-                    }
+        }
+    );
 
 
-                    touchEndX =
-                        event.changedTouches[0]
-                            .clientX;
+    heroSlider.addEventListener(
+        "mouseleave",
+        function () {
+
+            if (
+                window.innerWidth > 768
+            ) {
+
+                startAutoSlide();
+
+            }
+
+        }
+    );
 
 
-                    const distance =
-                        touchEndX -
-                        touchStartX;
+    /*==================================================
+    FEATURE: TOUCH SWIPE
+    ==================================================*/
+
+    let touchStartX = 0;
+
+    let touchStartY = 0;
 
 
-                    if (
-                        Math.abs(distance) >=
-                        50
-                    ) {
+    heroSlider.addEventListener(
+        "touchstart",
+        function (event) {
 
-                        if (
-                            distance < 0
-                        ) {
-
-                            nextSlide();
-
-                        } else {
-
-                            previousSlide();
-
-                        }
+            if (
+                !event.touches.length
+            ) {
+                return;
+            }
 
 
-                        restartAutoSlide();
+            touchStartX =
+                event.touches[0].clientX;
 
-                    }
-
-                },
-                {
-                    passive: true
-                }
-            );
+            touchStartY =
+                event.touches[0].clientY;
 
 
-            /*==================================================
-            MOUSE DRAG START
-            ==================================================*/
+            stopAutoSlide();
 
-            heroSlider.addEventListener(
-                "mousedown",
-                function (event) {
-
-                    isDragging =
-                        true;
-
-                    mouseStartX =
-                        event.clientX;
-
-                    mouseEndX =
-                        event.clientX;
-
-                    heroSlider.style.cursor =
-                        "grabbing";
-
-                    stopAutoSlide();
-
-                }
-            );
+        },
+        {
+            passive: true
+        }
+    );
 
 
-            /*==================================================
-            MOUSE DRAG MOVE
-            ==================================================*/
+    heroSlider.addEventListener(
+        "touchend",
+        function (event) {
 
-            heroSlider.addEventListener(
-                "mousemove",
-                function (event) {
-
-                    if (
-                        !isDragging
-                    ) {
-
-                        return;
-
-                    }
+            if (
+                !event.changedTouches.length
+            ) {
+                return;
+            }
 
 
-                    mouseEndX =
-                        event.clientX;
+            const touchEndX =
+                event.changedTouches[0].clientX;
+
+            const touchEndY =
+                event.changedTouches[0].clientY;
+
+
+            const distanceX =
+                touchEndX -
+                touchStartX;
+
+            const distanceY =
+                touchEndY -
+                touchStartY;
+
+
+            if (
+                Math.abs(distanceX) >
+                50 &&
+                Math.abs(distanceX) >
+                Math.abs(distanceY)
+            ) {
+
+                if (
+                    distanceX < 0
+                ) {
+
+                    nextSlide();
+
+                } else {
+
+                    previousSlide();
 
                 }
-            );
 
+            }
 
-            /*==================================================
-            MOUSE DRAG END
-            ==================================================*/
-
-            heroSlider.addEventListener(
-                "mouseup",
-                function () {
-
-                    if (
-                        !isDragging
-                    ) {
-
-                        return;
-
-                    }
-
-
-                    isDragging =
-                        false;
-
-                    heroSlider.style.cursor =
-                        "default";
-
-
-                    const distance =
-                        mouseEndX -
-                        mouseStartX;
-
-
-                    if (
-                        Math.abs(distance) >=
-                        50
-                    ) {
-
-                        if (
-                            distance < 0
-                        ) {
-
-                            nextSlide();
-
-                        } else {
-
-                            previousSlide();
-
-                        }
-
-                    }
-
-
-                    restartAutoSlide();
-
-                }
-            );
-
-
-            /*==================================================
-            MOUSE DRAG CANCEL
-            ==================================================*/
-
-            heroSlider.addEventListener(
-                "mouseleave",
-                function () {
-
-                    if (
-                        isDragging
-                    ) {
-
-                        isDragging =
-                            false;
-
-                        heroSlider.style.cursor =
-                            "default";
-
-                        startAutoSlide();
-
-                    }
-
-                }
-            );
-
-
-            /*==================================================
-            KEYBOARD CONTROL
-            ==================================================*/
-
-            document.addEventListener(
-                "keydown",
-                function (event) {
-
-                    if (
-                        event.key ===
-                        "ArrowRight"
-                    ) {
-
-                        nextSlide();
-
-                        restartAutoSlide();
-
-                    }
-
-
-                    if (
-                        event.key ===
-                        "ArrowLeft"
-                    ) {
-
-                        previousSlide();
-
-                        restartAutoSlide();
-
-                    }
-
-                }
-            );
-
-
-            /*==================================================
-            INITIAL SLIDE
-            ==================================================*/
-
-            showSlide(0);
 
             startAutoSlide();
+
+        },
+        {
+            passive: true
+        }
+    );
+
+
+    /*==================================================
+    FEATURE: MOUSE DRAG
+    ==================================================*/
+
+    let mouseStartX = 0;
+
+    let mouseEndX = 0;
+
+    let isDragging = false;
+
+
+    heroSlider.addEventListener(
+        "mousedown",
+        function (event) {
+
+            if (
+                event.button !== 0
+            ) {
+                return;
+            }
+
+
+            isDragging =
+                true;
+
+            mouseStartX =
+                event.clientX;
+
+            mouseEndX =
+                event.clientX;
+
+
+            heroSlider.classList.add(
+                "is-dragging"
+            );
+
+
+            stopAutoSlide();
+
+        }
+    );
+
+
+    heroSlider.addEventListener(
+        "mousemove",
+        function (event) {
+
+            if (
+                !isDragging
+            ) {
+                return;
+            }
+
+
+            mouseEndX =
+                event.clientX;
+
+        }
+    );
+
+
+    function finishMouseDrag() {
+
+        if (
+            !isDragging
+        ) {
+            return;
+        }
+
+
+        isDragging =
+            false;
+
+
+        heroSlider.classList.remove(
+            "is-dragging"
+        );
+
+
+        const distance =
+            mouseEndX -
+            mouseStartX;
+
+
+        if (
+            Math.abs(distance) >=
+            50
+        ) {
+
+            if (
+                distance < 0
+            ) {
+
+                nextSlide();
+
+            } else {
+
+                previousSlide();
+
+            }
 
         }
 
 
-        /*==================================================
-        FEATURE: ADMIN ADD BANNER BUTTON
-        ==================================================*/
+        startAutoSlide();
 
-        onAuthStateChanged(
-            auth,
-            function (user) {
+    }
+
+
+    heroSlider.addEventListener(
+        "mouseup",
+        finishMouseDrag
+    );
+
+
+    heroSlider.addEventListener(
+        "mouseleave",
+        finishMouseDrag
+    );
+
+
+    /*==================================================
+    FEATURE: KEYBOARD
+    ==================================================*/
+
+    if (
+        !heroSlider.dataset.keyboardBound
+    ) {
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
 
                 if (
-                    !addBannerButton
+                    event.key === "ArrowRight"
                 ) {
 
-                    return;
+                    nextSlide();
+
+                    startAutoSlide();
 
                 }
 
 
                 if (
-                    user &&
-                    user.email &&
-                    user.email.toLowerCase() ===
-                    ADMIN_EMAIL.toLowerCase()
+                    event.key === "ArrowLeft"
                 ) {
 
-                    addBannerButton.style.display =
-                        "flex";
+                    previousSlide();
 
-                } else {
-
-                    addBannerButton.style.display =
-                        "none";
+                    startAutoSlide();
 
                 }
 
@@ -1913,9 +2073,49 @@ document.addEventListener(
         );
 
 
-        /*==================================================
-        LOAD FIREBASE BANNERS
-        ==================================================*/
+        heroSlider.dataset.keyboardBound =
+            "true";
+
+    }
+
+
+    /*==================================================
+    INITIAL SLIDE
+    ==================================================*/
+
+    showSlide(
+        0
+    );
+
+
+    startAutoSlide();
+
+
+    console.log(
+        "✓ SmartBazaar Pro 2 Hero Slider Initialized:",
+        slides.length,
+        "banner(s)"
+    );
+
+}
+
+
+/*==================================================
+FEATURE: INITIALIZE APP
+==================================================*/
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        console.log(
+            "✓ SmartBazaar Pro 2 App Starting..."
+        );
+
+
+        initializeHeader();
+
+        initializeAdminAccess();
 
         loadDynamicBanners();
 
