@@ -1,37 +1,60 @@
-/* =========================================================
-   SMARTBAZAAR PRO
-   FEATURE: PRODUCT DETAIL EDITOR
-   ========================================================= */
+/*==================================================
+SMARTBAZAAR PRO 2
+FEATURE: PRODUCT DETAIL EDITOR
+==================================================*/
 
 
-/* =========================================================
-   FIREBASE IMPORTS
-   ========================================================= */
-
-import {
-    getDatabase,
-    ref,
-    push,
-    set
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
+/*==================================================
+FEATURE: FIREBASE IMPORT
+==================================================*/
 
 import {
-    app
+    database,
+    auth
 } from "./firebase-config.js";
 
 
-/* =========================================================
-   FIREBASE DATABASE
-   ========================================================= */
+/*==================================================
+FEATURE: FIREBASE DATABASE METHODS
+==================================================*/
 
-const db =
-    getDatabase(app);
+import {
+    ref,
+    push,
+    set
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
 
 
-/* =========================================================
-   DOM ELEMENTS
-   ========================================================= */
+/*==================================================
+FEATURE: FIREBASE AUTH METHODS
+==================================================*/
+
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
+
+/*==================================================
+FEATURE: CLOUDINARY IMPORT
+==================================================*/
+
+import {
+    uploadToCloudinary,
+    CLOUDINARY_FOLDERS
+} from "./cloudinary-config.js";
+
+
+/*==================================================
+FEATURE: ADMIN EMAIL
+==================================================*/
+
+const ADMIN_EMAIL =
+    "iftikharahmed037092@gmail.com";
+
+
+/*==================================================
+FEATURE: DOM ELEMENTS
+==================================================*/
 
 const productForm =
     document.getElementById(
@@ -45,25 +68,19 @@ const saveProductButton =
     );
 
 
-const cancelButton =
+const clearButton =
     document.getElementById(
-        "cancelButton"
+        "clearButton"
     );
 
 
-const saveMessage =
-    document.getElementById(
-        "saveMessage"
-    );
-
-
-const mainImage =
+const mainImageInput =
     document.getElementById(
         "mainImage"
     );
 
 
-const galleryImages =
+const galleryImagesInput =
     document.getElementById(
         "galleryImages"
     );
@@ -81,16 +98,110 @@ const galleryPreview =
     );
 
 
-/* =========================================================
-   MAIN IMAGE PREVIEW
-   ========================================================= */
+const editorMessage =
+    document.getElementById(
+        "editorMessage"
+    );
 
-mainImage.addEventListener(
+
+const editorStatusDot =
+    document.getElementById(
+        "editorStatusDot"
+    );
+
+
+const editorStatusText =
+    document.getElementById(
+        "editorStatusText"
+    );
+
+
+const previewPrice =
+    document.getElementById(
+        "previewPrice"
+    );
+
+
+const previewOldPrice =
+    document.getElementById(
+        "previewOldPrice"
+    );
+
+
+const previewDiscount =
+    document.getElementById(
+        "previewDiscount"
+    );
+
+
+const shortDescription =
+    document.getElementById(
+        "shortDescription"
+    );
+
+
+const shortDescriptionCount =
+    document.getElementById(
+        "shortDescriptionCount"
+    );
+
+
+/*==================================================
+FEATURE: ADMIN ACCESS CONTROL
+==================================================*/
+
+onAuthStateChanged(
+    auth,
+    (user) => {
+
+        if (!user) {
+
+            window.location.href =
+                "admin-login.html";
+
+            return;
+
+        }
+
+
+        const loggedInEmail =
+            user.email
+                ? user.email.toLowerCase()
+                : "";
+
+
+        if (
+            loggedInEmail !==
+            ADMIN_EMAIL.toLowerCase()
+        ) {
+
+            window.location.href =
+                "admin-login.html";
+
+            return;
+
+        }
+
+
+        setEditorStatus(
+            "Ready",
+            true
+        );
+
+    }
+);
+
+
+/*==================================================
+FEATURE: MAIN IMAGE PREVIEW
+==================================================*/
+
+mainImageInput.addEventListener(
     "change",
     () => {
 
         const file =
-            mainImage.files[0];
+            mainImageInput.files[0];
 
 
         mainImagePreview.innerHTML =
@@ -101,6 +212,25 @@ mainImage.addEventListener(
 
             mainImagePreview.style.display =
                 "none";
+
+            return;
+
+        }
+
+
+        if (
+            !file.type.startsWith(
+                "image/"
+            )
+        ) {
+
+            showMessage(
+                "Please select a valid image file.",
+                "error"
+            );
+
+            mainImageInput.value =
+                "";
 
             return;
 
@@ -135,11 +265,11 @@ mainImage.addEventListener(
 );
 
 
-/* =========================================================
-   GALLERY PREVIEW
-   ========================================================= */
+/*==================================================
+FEATURE: GALLERY PREVIEW
+==================================================*/
 
-galleryImages.addEventListener(
+galleryImagesInput.addEventListener(
     "change",
     () => {
 
@@ -149,12 +279,23 @@ galleryImages.addEventListener(
 
         const files =
             Array.from(
-                galleryImages.files
+                galleryImagesInput.files
             );
 
 
         files.forEach(
-            file => {
+            (file) => {
+
+                if (
+                    !file.type.startsWith(
+                        "image/"
+                    )
+                ) {
+
+                    return;
+
+                }
+
 
                 const wrapper =
                     document.createElement(
@@ -198,13 +339,119 @@ galleryImages.addEventListener(
 );
 
 
-/* =========================================================
-   FORM SUBMIT
-   ========================================================= */
+/*==================================================
+FEATURE: PRICE PREVIEW
+==================================================*/
+
+const priceInput =
+    document.getElementById(
+        "productPrice"
+    );
+
+
+const oldPriceInput =
+    document.getElementById(
+        "productOldPrice"
+    );
+
+
+priceInput.addEventListener(
+    "input",
+    updatePricePreview
+);
+
+
+oldPriceInput.addEventListener(
+    "input",
+    updatePricePreview
+);
+
+
+function updatePricePreview() {
+
+    const price =
+        Number(
+            priceInput.value
+        ) || 0;
+
+
+    const oldPrice =
+        Number(
+            oldPriceInput.value
+        ) || 0;
+
+
+    previewPrice.textContent =
+        formatPrice(
+            price
+        );
+
+
+    previewOldPrice.textContent =
+        "";
+
+
+    previewDiscount.textContent =
+        "";
+
+
+    if (
+        oldPrice > price
+        &&
+        oldPrice > 0
+    ) {
+
+        previewOldPrice.textContent =
+            formatPrice(
+                oldPrice
+            );
+
+
+        const discount =
+            Math.round(
+                (
+                    (
+                        oldPrice -
+                        price
+                    )
+                    /
+                    oldPrice
+                )
+                *
+                100
+            );
+
+
+        previewDiscount.textContent =
+            `-${discount}%`;
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: SHORT DESCRIPTION COUNTER
+==================================================*/
+
+shortDescription.addEventListener(
+    "input",
+    () => {
+
+        shortDescriptionCount.textContent =
+            shortDescription.value.length;
+
+    }
+);
+
+
+/*==================================================
+FEATURE: SAVE PRODUCT
+==================================================*/
 
 productForm.addEventListener(
     "submit",
-    async event => {
+    async (event) => {
 
         event.preventDefault();
 
@@ -212,41 +459,73 @@ productForm.addEventListener(
         hideMessage();
 
 
-        const productName =
+        const currentUser =
+            auth.currentUser;
+
+
+        if (!currentUser) {
+
+            showMessage(
+                "Please login as administrator first.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (
+            currentUser.email.toLowerCase()
+            !==
+            ADMIN_EMAIL.toLowerCase()
+        ) {
+
+            showMessage(
+                "You are not authorized to add products.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        /*==================================================
+        READ FORM DATA
+        ==================================================*/
+
+        const name =
             document.getElementById(
                 "productName"
             ).value.trim();
 
 
-        const productCategory =
+        const category =
             document.getElementById(
                 "productCategory"
             ).value.trim();
 
 
-        const productBrand =
+        const brand =
             document.getElementById(
                 "productBrand"
             ).value.trim();
 
 
-        const productPrice =
+        const price =
             Number(
-                document.getElementById(
-                    "productPrice"
-                ).value
+                priceInput.value
             );
 
 
-        const productOldPrice =
+        const oldPrice =
             Number(
-                document.getElementById(
-                    "productOldPrice"
-                ).value
+                oldPriceInput.value
             ) || 0;
 
 
-        const productStock =
+        const stock =
             Number(
                 document.getElementById(
                     "productStock"
@@ -254,13 +533,11 @@ productForm.addEventListener(
             );
 
 
-        const shortDescription =
-            document.getElementById(
-                "shortDescription"
-            ).value.trim();
+        const shortDescriptionValue =
+            shortDescription.value.trim();
 
 
-        const fullDescription =
+        const description =
             document.getElementById(
                 "fullDescription"
             ).value.trim();
@@ -272,22 +549,32 @@ productForm.addEventListener(
             ).value.trim();
 
 
-        /* =================================================
-           BASIC VALIDATION
-           ================================================= */
+        const published =
+            document.getElementById(
+                "productPublished"
+            ).checked;
 
-        if (
-            !productName
-            ||
-            !productCategory
-            ||
-            productPrice < 0
-            ||
-            productStock < 0
-        ) {
+
+        /*==================================================
+        VALIDATION
+        ==================================================*/
+
+        if (!name) {
 
             showMessage(
-                "Please fill all required fields correctly.",
+                "Please enter the product name.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (!category) {
+
+            showMessage(
+                "Please enter the product category.",
                 "error"
             );
 
@@ -297,7 +584,39 @@ productForm.addEventListener(
 
 
         if (
-            !mainImage.files[0]
+            !Number.isFinite(price)
+            ||
+            price < 0
+        ) {
+
+            showMessage(
+                "Please enter a valid selling price.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (
+            !Number.isInteger(stock)
+            ||
+            stock < 0
+        ) {
+
+            showMessage(
+                "Please enter a valid stock quantity.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (
+            !mainImageInput.files[0]
         ) {
 
             showMessage(
@@ -310,9 +629,9 @@ productForm.addEventListener(
         }
 
 
-        /* =================================================
-           DISABLE BUTTON
-           ================================================= */
+        /*==================================================
+        DISABLE SAVE BUTTON
+        ==================================================*/
 
         saveProductButton.disabled =
             true;
@@ -321,25 +640,37 @@ productForm.addEventListener(
         saveProductButton.innerHTML =
             `
                 <i class="fa-solid fa-spinner fa-spin"></i>
-                Saving...
+                Uploading...
             `;
+
+
+        setEditorStatus(
+            "Uploading",
+            false
+        );
 
 
         try {
 
-            /* =============================================
-               UPLOAD MAIN IMAGE
-               ============================================= */
 
-            const mainImageUrl =
+            /*==================================================
+            FEATURE: MAIN IMAGE UPLOAD
+            ==================================================*/
+
+            const mainUpload =
                 await uploadToCloudinary(
-                    mainImage.files[0]
+                    mainImageInput.files[0],
+                    CLOUDINARY_FOLDERS.PRODUCTS
                 );
 
 
-            /* =============================================
-               UPLOAD GALLERY
-               ============================================= */
+            const mainImageUrl =
+                mainUpload.url;
+
+
+            /*==================================================
+            FEATURE: GALLERY IMAGE UPLOAD
+            ==================================================*/
 
             const galleryUrls =
                 [];
@@ -347,31 +678,40 @@ productForm.addEventListener(
 
             const galleryFiles =
                 Array.from(
-                    galleryImages.files
+                    galleryImagesInput.files
                 );
 
 
             for (
-                const file
-                of galleryFiles
+                let index = 0;
+                index < galleryFiles.length;
+                index++
             ) {
 
-                const url =
+                saveProductButton.innerHTML =
+                    `
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                        Uploading Image ${index + 1}/${galleryFiles.length}...
+                    `;
+
+
+                const galleryUpload =
                     await uploadToCloudinary(
-                        file
+                        galleryFiles[index],
+                        CLOUDINARY_FOLDERS.PRODUCTS
                     );
 
 
                 galleryUrls.push(
-                    url
+                    galleryUpload.url
                 );
 
             }
 
 
-            /* =============================================
-               ALL IMAGES
-               ============================================= */
+            /*==================================================
+            FEATURE: COMPLETE IMAGE ARRAY
+            ==================================================*/
 
             const images = [
                 mainImageUrl,
@@ -379,30 +719,29 @@ productForm.addEventListener(
             ];
 
 
-            /* =============================================
-               DISCOUNT
-               ============================================= */
+            /*==================================================
+            FEATURE: DISCOUNT CALCULATION
+            ==================================================*/
 
             let discount =
                 0;
 
 
             if (
-                productOldPrice > productPrice
+                oldPrice > price
                 &&
-                productOldPrice > 0
+                oldPrice > 0
             ) {
 
                 discount =
                     Math.round(
                         (
                             (
-                                productOldPrice
-                                -
-                                productPrice
+                                oldPrice -
+                                price
                             )
                             /
-                            productOldPrice
+                            oldPrice
                         )
                         *
                         100
@@ -411,72 +750,13 @@ productForm.addEventListener(
             }
 
 
-            /* =============================================
-               PRODUCT OBJECT
-               ============================================= */
-
-            const product = {
-
-                name:
-                    productName,
-
-                category:
-                    productCategory,
-
-                brand:
-                    productBrand,
-
-                price:
-                    productPrice,
-
-                oldPrice:
-                    productOldPrice,
-
-                discount:
-                    discount,
-
-                stock:
-                    productStock,
-
-                shortDescription:
-                    shortDescription,
-
-                description:
-                    fullDescription,
-
-                images:
-                    images,
-
-                image:
-                    mainImageUrl,
-
-                sellerName:
-                    sellerName
-                    ||
-                    "SmartBazaar Seller",
-
-                rating:
-                    0,
-
-                reviews:
-                    0,
-
-                createdAt:
-                    Date.now(),
-
-                updatedAt:
-                    Date.now()
-
-            };
-
-
-            /* =============================================
-               CREATE FIREBASE PRODUCT ID
-               ============================================= */
+            /*==================================================
+            FEATURE: PRODUCT ID
+            ==================================================*/
 
             const productsRef =
                 ref(
-                    db,
+                    database,
                     "products"
                 );
 
@@ -491,25 +771,119 @@ productForm.addEventListener(
                 newProductRef.key;
 
 
-            /* =============================================
-               SAVE PRODUCT
-               ============================================= */
+            /*==================================================
+            FEATURE: PRODUCT DATA
+            ==================================================*/
 
-            await set(
-                newProductRef,
-                product
+            const productData = {
+
+                productId:
+                    productId,
+
+                name:
+                    name,
+
+                category:
+                    category,
+
+                brand:
+                    brand,
+
+                price:
+                    price,
+
+                oldPrice:
+                    oldPrice,
+
+                discount:
+                    discount,
+
+                stock:
+                    stock,
+
+                shortDescription:
+                    shortDescriptionValue,
+
+                description:
+                    description,
+
+                image:
+                    mainImageUrl,
+
+                images:
+                    images,
+
+                sellerName:
+                    sellerName
+                    ||
+                    "SmartBazaar Seller",
+
+                rating:
+                    0,
+
+                reviews:
+                    0,
+
+                published:
+                    published,
+
+                createdBy:
+                    currentUser.uid,
+
+                sellerId:
+                    currentUser.uid,
+
+                createdAt:
+                    Date.now(),
+
+                updatedAt:
+                    Date.now()
+
+            };
+
+
+            /*==================================================
+            FEATURE: SAVE TO FIREBASE
+            ==================================================*/
+
+            saveProductButton.innerHTML =
+                `
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    Saving Product...
+                `;
+
+
+            setEditorStatus(
+                "Saving",
+                false
             );
 
 
-            /* =============================================
-               SUCCESS
-               ============================================= */
+            await set(
+                newProductRef,
+                productData
+            );
+
+
+            /*==================================================
+            FEATURE: SUCCESS
+            ==================================================*/
 
             showMessage(
                 `Product saved successfully. Product ID: ${productId}`,
                 "success"
             );
 
+
+            setEditorStatus(
+                "Saved",
+                true
+            );
+
+
+            /*==================================================
+            FEATURE: RESET FORM
+            ==================================================*/
 
             productForm.reset();
 
@@ -525,20 +899,38 @@ productForm.addEventListener(
                 "";
 
 
-        } catch (error) {
+            shortDescriptionCount.textContent =
+                "0";
+
+
+            updatePricePreview();
+
+
+        }
+
+        catch (error) {
 
             console.error(
-                "Product save error:",
+                "Product Editor Error:",
                 error
             );
 
 
             showMessage(
-                "Product could not be saved. Please try again.",
+                error.message ||
+                "Unable to save product. Please try again.",
                 "error"
             );
 
-        } finally {
+
+            setEditorStatus(
+                "Error",
+                false
+            );
+
+        }
+
+        finally {
 
             saveProductButton.disabled =
                 false;
@@ -556,96 +948,26 @@ productForm.addEventListener(
 );
 
 
-/* =========================================================
-   CLOUDINARY UPLOAD
-   ========================================================= */
+/*==================================================
+FEATURE: CLEAR FORM
+==================================================*/
 
-async function uploadToCloudinary(
-    file
-) {
-
-    /*
-        Your existing Cloudinary configuration.
-        If cloudinary-config.js already exports these values,
-        we can later import them directly.
-    */
-
-
-    const cloudName =
-        "jlrjn7lu";
-
-
-    const uploadPreset =
-        "smartbazaar_uploads";
-
-
-    const formData =
-        new FormData();
-
-
-    formData.append(
-        "file",
-        file
-    );
-
-
-    formData.append(
-        "upload_preset",
-        uploadPreset
-    );
-
-
-    const response =
-        await fetch(
-            `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-            {
-                method:
-                    "POST",
-
-                body:
-                    formData
-            }
-        );
-
-
-    if (
-        !response.ok
-    ) {
-
-        throw new Error(
-            "Cloudinary upload failed."
-        );
-
-    }
-
-
-    const data =
-        await response.json();
-
-
-    if (
-        !data.secure_url
-    ) {
-
-        throw new Error(
-            "Cloudinary did not return an image URL."
-        );
-
-    }
-
-
-    return data.secure_url;
-
-}
-
-
-/* =========================================================
-   CLEAR FORM
-   ========================================================= */
-
-cancelButton.addEventListener(
+clearButton.addEventListener(
     "click",
     () => {
+
+        const confirmed =
+            confirm(
+                "Clear all product information?"
+            );
+
+
+        if (!confirmed) {
+
+            return;
+
+        }
+
 
         productForm.reset();
 
@@ -661,30 +983,84 @@ cancelButton.addEventListener(
             "";
 
 
+        shortDescriptionCount.textContent =
+            "0";
+
+
+        updatePricePreview();
+
+
         hideMessage();
+
+
+        setEditorStatus(
+            "Ready",
+            true
+        );
 
     }
 );
 
 
-/* =========================================================
-   SUCCESS / ERROR MESSAGE
-   ========================================================= */
+/*==================================================
+FEATURE: PRICE FORMAT
+==================================================*/
+
+function formatPrice(
+    value
+) {
+
+    return (
+        "Rs. "
+        +
+        Number(value)
+            .toLocaleString(
+                "en-PK"
+            )
+    );
+
+}
+
+
+/*==================================================
+FEATURE: EDITOR STATUS
+==================================================*/
+
+function setEditorStatus(
+    text,
+    online
+) {
+
+    editorStatusText.textContent =
+        text;
+
+
+    editorStatusDot.style.background =
+        online
+            ? "#2e7d32"
+            : "#f39c12";
+
+}
+
+
+/*==================================================
+FEATURE: SHOW MESSAGE
+==================================================*/
 
 function showMessage(
     message,
     type
 ) {
 
-    saveMessage.textContent =
+    editorMessage.textContent =
         message;
 
 
-    saveMessage.className =
-        `save-message ${type}`;
+    editorMessage.className =
+        `editor-message ${type}`;
 
 
-    saveMessage.scrollIntoView({
+    editorMessage.scrollIntoView({
         behavior:
             "smooth",
 
@@ -695,12 +1071,16 @@ function showMessage(
 }
 
 
+/*==================================================
+FEATURE: HIDE MESSAGE
+==================================================*/
+
 function hideMessage() {
 
-    saveMessage.textContent =
+    editorMessage.textContent =
         "";
 
-    saveMessage.className =
-        "save-message";
+    editorMessage.className =
+        "editor-message";
 
 }
