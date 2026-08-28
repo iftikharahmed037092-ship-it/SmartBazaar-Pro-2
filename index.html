@@ -1159,27 +1159,198 @@ FEATURE: HERO BANNER / DYNAMIC BANNER SYSTEM
 
 <main>
 
-<section class="hero-banner-section">
-    <div class="hero-slider">
+<!--==================================================
+SMARTBAZAAR PRO 2
+FEATURE: HERO BANNER / SLIDER SYSTEM
+==================================================-->
 
-        <a class="admin-add-banner-button">
+<section class="hero-banner-section">
+
+    <!--==================================================
+    FEATURE: HERO SLIDER
+    ==================================================-->
+    <div class="hero-slider" id="heroSlider">
+
+
+        <!--==================================================
+        FEATURE: ADMIN ADD BANNER BUTTON
+        صرف Admin کے لیے JavaScript سے show کیا جائے گا
+        ==================================================-->
+        <a
+            href="banner-editor.html"
+            class="admin-add-banner-button"
+            id="adminAddBannerButton"
+            aria-label="Add Banner"
+        >
             <i class="fas fa-plus"></i>
             <span>Add Banner</span>
         </a>
 
+
+        <!--==================================================
+        FEATURE: BANNER SLIDE 1
+        ==================================================-->
         <div class="hero-slide active">
+
             <picture>
-                <source ...>
-                <img ...>
+                <img
+                    src="https://via.placeholder.com/1600x420?text=SmartBazaar+Banner+1"
+                    alt="SmartBazaar Banner 1"
+                    loading="eager"
+                >
             </picture>
 
             <div class="banner-content">
-                ...
+
+                <h2>
+                    Welcome to SmartBazaar
+                </h2>
+
+                <p>
+                    Discover amazing products from trusted sellers.
+                </p>
+
+                <a
+                    href="#products"
+                    class="banner-button"
+                >
+                    Shop Now
+                </a>
+
             </div>
+
         </div>
 
-        ...
+
+        <!--==================================================
+        FEATURE: BANNER SLIDE 2
+        ==================================================-->
+        <div class="hero-slide">
+
+            <picture>
+                <img
+                    src="https://via.placeholder.com/1600x420?text=SmartBazaar+Banner+2"
+                    alt="SmartBazaar Banner 2"
+                    loading="lazy"
+                >
+            </picture>
+
+            <div class="banner-content">
+
+                <h2>
+                    Best Deals
+                </h2>
+
+                <p>
+                    Find premium products at amazing prices.
+                </p>
+
+                <a
+                    href="#products"
+                    class="banner-button"
+                >
+                    Explore Deals
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!--==================================================
+        FEATURE: BANNER SLIDE 3
+        ==================================================-->
+        <div class="hero-slide">
+
+            <picture>
+                <img
+                    src="https://via.placeholder.com/1600x420?text=SmartBazaar+Banner+3"
+                    alt="SmartBazaar Banner 3"
+                    loading="lazy"
+                >
+            </picture>
+
+            <div class="banner-content">
+
+                <h2>
+                    Become a Seller
+                </h2>
+
+                <p>
+                    Start selling your products on SmartBazaar.
+                </p>
+
+                <a
+                    href="seller.html"
+                    class="banner-button"
+                >
+                    Start Selling
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!--==================================================
+        FEATURE: PREVIOUS ARROW
+        ==================================================-->
+        <button
+            type="button"
+            class="hero-slider-arrow hero-prev"
+            id="heroPrev"
+            aria-label="Previous Banner"
+        >
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+
+        <!--==================================================
+        FEATURE: NEXT ARROW
+        ==================================================-->
+        <button
+            type="button"
+            class="hero-slider-arrow hero-next"
+            id="heroNext"
+            aria-label="Next Banner"
+        >
+            <i class="fas fa-chevron-right"></i>
+        </button>
+
+
+        <!--==================================================
+        FEATURE: SLIDER DOTS
+        ==================================================-->
+        <div
+            class="hero-slider-dots"
+            id="heroSliderDots"
+        >
+
+            <button
+                type="button"
+                class="hero-dot active"
+                data-slide="0"
+                aria-label="Go to Banner 1"
+            ></button>
+
+            <button
+                type="button"
+                class="hero-dot"
+                data-slide="1"
+                aria-label="Go to Banner 2"
+            ></button>
+
+            <button
+                type="button"
+                class="hero-dot"
+                data-slide="2"
+                aria-label="Go to Banner 3"
+            ></button>
+
+        </div>
+
     </div>
+
 </section>
 </main>
 
