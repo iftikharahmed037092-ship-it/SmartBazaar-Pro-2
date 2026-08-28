@@ -1,18 +1,10 @@
 /*==================================================
 SMARTBAZAAR PRO
-FINAL PREMIUM HEADER + HERO CSS
-MASTER FEATURE SYSTEM
-VERSION: FINAL CLEAN
+FINAL PREMIUM HEADER CSS
+FEATURE: HEADER SYSTEM
 ==================================================*/
 
-
-/*==================================================
-FEATURE: GLOBAL RESET
-==================================================*/
-
-*,
-*::before,
-*::after {
+* {
     box-sizing: border-box;
 }
 
@@ -25,37 +17,10 @@ html {
 body {
     margin: 0;
     padding: 0;
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
+    font-family: Arial, Helvetica, sans-serif;
     color: #1f2937;
-
-    background:
-        linear-gradient(
-            135deg,
-            #f8fafc,
-            #eef2ff
-        );
-
+    background: linear-gradient(135deg, #f8fafc, #eef2ff);
     overflow-x: hidden;
-}
-
-img {
-    max-width: 100%;
-}
-
-button,
-input,
-select,
-textarea {
-    font: inherit;
-}
-
-button {
-    cursor: pointer;
 }
 
 
@@ -66,13 +31,11 @@ FEATURE: TOP UTILITY BAR
 .top-utility-bar {
     width: 100%;
     min-height: 38px;
-
     padding: 0 25px;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     gap: 20px;
 
     color: #ffffff;
@@ -92,7 +55,6 @@ FEATURE: TOP UTILITY BAR
 .top-bar-right {
     display: flex;
     align-items: center;
-
     gap: 20px;
 }
 
@@ -102,27 +64,21 @@ FEATURE: TOP UTILITY BAR
 
 .top-bar-left i {
     margin-right: 5px;
-
     color: #a7f3d0;
 }
 
 .top-bar-right a {
     color: #ffffff;
-
     text-decoration: none;
-
     white-space: nowrap;
 }
 
 .top-bar-right button {
-    padding: 0;
-
     border: 0;
     outline: 0;
-
     background: transparent;
-
     color: #ffffff;
+    cursor: pointer;
 }
 
 
@@ -132,13 +88,12 @@ FEATURE: MAIN DESKTOP HEADER
 
 .main-header {
     position: relative;
-
     z-index: 100;
 
     width: 100%;
 
     background:
-        rgba(255, 255, 255, 0.94);
+        rgba(255, 255, 255, 0.92);
 
     border-bottom:
         1px solid rgba(99, 102, 241, 0.10);
@@ -151,7 +106,7 @@ FEATURE: MAIN DESKTOP HEADER
 
 
 /*==================================================
-FEATURE: HEADER GLASS REFLECTION
+FEATURE: GLASS REFLECTION
 ==================================================*/
 
 .main-header::after,
@@ -172,9 +127,9 @@ FEATURE: HEADER GLASS REFLECTION
         linear-gradient(
             105deg,
             transparent 0%,
-            rgba(255, 255, 255, 0.03) 25%,
-            rgba(255, 255, 255, 0.65) 50%,
-            rgba(255, 255, 255, 0.03) 75%,
+            rgba(255,255,255,0.03) 25%,
+            rgba(255,255,255,0.65) 50%,
+            rgba(255,255,255,0.03) 75%,
             transparent 100%
         );
 
@@ -212,7 +167,6 @@ FEATURE: HEADER CONTAINER
     min-height: 78px;
 
     margin: 0 auto;
-
     padding: 10px 25px;
 
     display: flex;
@@ -244,6 +198,8 @@ FEATURE: DESKTOP MENU BUTTON
             #7c3aed
         );
 
+    cursor: pointer;
+
     font-size: 17px;
 
     box-shadow:
@@ -263,7 +219,7 @@ FEATURE: DESKTOP MENU BUTTON
 
 
 /*==================================================
-FEATURE: DESKTOP LOGO
+FEATURE: LOGO
 ==================================================*/
 
 .site-logo {
@@ -274,9 +230,9 @@ FEATURE: DESKTOP LOGO
 
     flex: 0 0 auto;
 
-    color: #111827;
-
     text-decoration: none;
+
+    color: #111827;
 
     font-size: 20px;
     font-weight: 800;
@@ -287,8 +243,6 @@ FEATURE: DESKTOP LOGO
 .logo-icon {
     width: 43px;
     height: 43px;
-
-    flex: 0 0 43px;
 
     display: grid;
     place-items: center;
@@ -311,7 +265,7 @@ FEATURE: DESKTOP LOGO
 
 
 /*==================================================
-FEATURE: DESKTOP SEARCH SYSTEM
+FEATURE: SEARCH SYSTEM
 ==================================================*/
 
 .header-search {
@@ -343,8 +297,7 @@ FEATURE: DESKTOP SEARCH SYSTEM
 }
 
 .header-search:focus-within {
-    border-color:
-        rgba(124, 58, 237, 0.45);
+    border-color: rgba(124, 58, 237, 0.45);
 
     box-shadow:
         0 8px 28px rgba(124, 58, 237, 0.15);
@@ -352,7 +305,6 @@ FEATURE: DESKTOP SEARCH SYSTEM
 
 .search-category {
     height: 100%;
-
     flex: 0 0 auto;
 }
 
@@ -362,13 +314,13 @@ FEATURE: DESKTOP SEARCH SYSTEM
     padding: 0 12px;
 
     border: 0;
-
-    border-right:
-        1px solid #e5e7eb;
+    border-right: 1px solid #e5e7eb;
 
     background: #f8fafc;
 
     color: #374151;
+
+    cursor: pointer;
 
     font-size: 12px;
     font-weight: 700;
@@ -405,10 +357,11 @@ FEATURE: DESKTOP SEARCH SYSTEM
     flex: 0 0 38px;
 
     border: 0;
-
     background: transparent;
 
     color: #64748b;
+
+    cursor: pointer;
 }
 
 .voice-search-button:hover,
@@ -432,6 +385,8 @@ FEATURE: DESKTOP SEARCH SYSTEM
             #10b981,
             #7c3aed
         );
+
+    cursor: pointer;
 }
 
 
@@ -442,7 +397,6 @@ FEATURE: LOCATION
 .header-location {
     display: flex;
     align-items: center;
-
     gap: 8px;
 
     flex: 0 0 auto;
@@ -454,11 +408,12 @@ FEATURE: LOCATION
     background: transparent;
 
     color: #374151;
+
+    cursor: pointer;
 }
 
 .header-location > i {
     color: #7c3aed;
-
     font-size: 20px;
 }
 
@@ -472,7 +427,6 @@ FEATURE: LOCATION
 .account-button small,
 .cart-info small {
     color: #64748b;
-
     font-size: 10px;
 }
 
@@ -480,7 +434,6 @@ FEATURE: LOCATION
 .account-button strong,
 .cart-info strong {
     color: #111827;
-
     font-size: 12px;
 }
 
@@ -491,26 +444,24 @@ FEATURE: ACCOUNT
 
 .header-account {
     position: relative;
-
     flex: 0 0 auto;
 }
 
 .account-button {
     display: flex;
     align-items: center;
-
     gap: 7px;
 
     padding: 5px;
 
     border: 0;
-
     background: transparent;
+
+    cursor: pointer;
 }
 
 .account-button > i:first-child {
     color: #7c3aed;
-
     font-size: 21px;
 }
 
@@ -531,76 +482,60 @@ FEATURE: ACCOUNT DROPDOWN
     top: calc(100% + 12px);
     right: 0;
 
-    z-index: 5000;
-
     width: 270px;
 
     padding: 12px;
-
-    border:
-        1px solid rgba(99, 102, 241, 0.12);
 
     border-radius: 18px;
 
     background:
         rgba(255, 255, 255, 0.98);
 
+    border:
+        1px solid rgba(99, 102, 241, 0.12);
+
     box-shadow:
         0 18px 45px rgba(15, 23, 42, 0.16);
 
     opacity: 0;
     visibility: hidden;
-    pointer-events: none;
 
     transform: translateY(-8px);
 
-    transition:
-        opacity 0.25s ease,
-        visibility 0.25s ease,
-        transform 0.25s ease;
+    transition: 0.25s ease;
 }
 
 .header-account:hover .account-dropdown,
 .header-account.account-open .account-dropdown {
     opacity: 1;
-
     visibility: visible;
-
-    pointer-events: auto;
-
     transform: translateY(0);
 }
 
 .account-dropdown-header {
     padding: 8px 9px 12px;
-
-    border-bottom:
-        1px solid #eef2f7;
+    border-bottom: 1px solid #eef2f7;
 }
 
 .account-dropdown-header strong {
     color: #312e81;
-
     font-size: 14px;
 }
 
 .account-dropdown-header p {
     margin: 5px 0 0;
-
     color: #64748b;
-
     font-size: 11px;
 }
 
 .account-dropdown > a {
     display: flex;
     align-items: center;
-
     gap: 10px;
 
-    margin-top: 3px;
-
     padding: 10px;
+
+    margin-top: 3px;
 
     border-radius: 10px;
 
@@ -610,20 +545,16 @@ FEATURE: ACCOUNT DROPDOWN
 
     font-size: 12px;
 
-    transition:
-        color 0.2s ease,
-        background 0.2s ease;
+    transition: 0.2s ease;
 }
 
 .account-dropdown > a:hover {
     color: #7c3aed;
-
     background: #f5f3ff;
 }
 
 .account-dropdown > a i {
     width: 18px;
-
     color: #7c3aed;
 }
 
@@ -652,13 +583,11 @@ FEATURE: ACCOUNT DROPDOWN
 
 .login-button {
     color: #7c3aed;
-
     background: #f5f3ff;
 }
 
 .register-button {
     color: #ffffff;
-
     background:
         linear-gradient(
             135deg,
@@ -672,89 +601,47 @@ FEATURE: ACCOUNT DROPDOWN
 FEATURE: WISHLIST
 ==================================================*/
 
-.header-action.wishlist-action {
+.header-action {
     position: relative;
 
-    width: 46px;
-    height: 46px;
-
-    flex: 0 0 46px;
-
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
 
-    border-radius: 14px;
+    gap: 3px;
+
+    flex: 0 0 auto;
 
     color: #374151;
 
     text-decoration: none;
 
-    transition:
-        transform 0.25s ease,
-        background 0.25s ease,
-        box-shadow 0.25s ease;
+    font-size: 11px;
 }
 
-.header-action.wishlist-action:hover {
-    transform: translateY(-2px);
-
-    background:
-        rgba(126, 87, 194, 0.10);
-
-    box-shadow:
-        0 8px 20px rgba(126, 87, 194, 0.15);
-}
-
-.header-action.wishlist-action .action-label {
-    display: none;
-}
-
-.header-action.wishlist-action .action-icon {
+.action-icon {
     position: relative;
-
-    width: 42px;
-    height: 42px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
-.header-action.wishlist-action .action-icon > i {
-    color: #e91e63;
-
+.action-icon i {
+    color: #db2777;
     font-size: 21px;
-
-    transition:
-        transform 0.25s ease,
-        color 0.25s ease;
 }
 
-.header-action.wishlist-action:hover
-.action-icon > i {
-    color: #d81b60;
-
-    transform: scale(1.12);
-}
-
-.header-action.wishlist-action .action-badge {
+.action-badge,
+.cart-badge {
     position: absolute;
 
-    top: 1px;
-    right: -1px;
+    top: -9px;
+    right: -10px;
 
-    min-width: 17px;
-    height: 17px;
+    min-width: 18px;
+    height: 18px;
 
     padding: 0 4px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border:
-        2px solid #ffffff;
+    display: grid;
+    place-items: center;
 
     border-radius: 50%;
 
@@ -763,12 +650,9 @@ FEATURE: WISHLIST
     background:
         linear-gradient(
             135deg,
-            #ff4081,
-            #e91e63
+            #ef4444,
+            #db2777
         );
-
-    box-shadow:
-        0 3px 8px rgba(233, 30, 99, 0.30);
 
     font-size: 9px;
     font-weight: 800;
@@ -781,108 +665,35 @@ FEATURE: CART
 
 .header-cart {
     position: relative;
-
     flex: 0 0 auto;
 }
 
-.header-cart .cart-info {
-    display: none;
-}
-
-.header-cart .cart-button {
-    width: 46px;
-    height: 46px;
-
-    padding: 0;
-
+.cart-button {
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 8px;
+
+    padding: 5px;
 
     border: 0;
-
-    border-radius: 14px;
-
     background: transparent;
 
-    transition:
-        transform 0.25s ease,
-        background 0.25s ease,
-        box-shadow 0.25s ease;
+    cursor: pointer;
 }
 
-.header-cart .cart-button:hover {
-    transform: translateY(-2px);
-
-    background:
-        rgba(46, 125, 50, 0.10);
-
-    box-shadow:
-        0 8px 20px rgba(46, 125, 50, 0.15);
-}
-
-.header-cart .cart-icon {
+.cart-icon {
     position: relative;
+}
 
-    width: 42px;
-    height: 42px;
+.cart-icon i {
+    color: #10b981;
+    font-size: 22px;
+}
 
+.cart-info {
     display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.header-cart .cart-icon > i {
-    color: #2e7d32;
-
-    font-size: 21px;
-
-    transition:
-        transform 0.25s ease,
-        color 0.25s ease;
-}
-
-.header-cart .cart-button:hover
-.cart-icon > i {
-    color: #1b5e20;
-
-    transform: scale(1.12);
-}
-
-.header-cart .cart-badge {
-    position: absolute;
-
-    top: 0;
-    right: -2px;
-
-    min-width: 17px;
-    height: 17px;
-
-    padding: 0 4px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border:
-        2px solid #ffffff;
-
-    border-radius: 50%;
-
-    color: #ffffff;
-
-    background:
-        linear-gradient(
-            135deg,
-            #ff5252,
-            #e53935
-        );
-
-    box-shadow:
-        0 3px 8px rgba(229, 57, 53, 0.30);
-
-    font-size: 9px;
-    font-weight: 800;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 
@@ -896,43 +707,33 @@ FEATURE: MINI CART
     top: calc(100% + 12px);
     right: 0;
 
-    z-index: 5000;
-
     width: 285px;
 
     padding: 14px;
-
-    border:
-        1px solid rgba(99, 102, 241, 0.12);
 
     border-radius: 18px;
 
     background:
         rgba(255, 255, 255, 0.98);
 
+    border:
+        1px solid rgba(99, 102, 241, 0.12);
+
     box-shadow:
         0 18px 45px rgba(15, 23, 42, 0.16);
 
     opacity: 0;
     visibility: hidden;
-    pointer-events: none;
 
     transform: translateY(-8px);
 
-    transition:
-        opacity 0.25s ease,
-        visibility 0.25s ease,
-        transform 0.25s ease;
+    transition: 0.25s ease;
 }
 
 .header-cart:hover .mini-cart,
 .header-cart.cart-open .mini-cart {
     opacity: 1;
-
     visibility: visible;
-
-    pointer-events: auto;
-
     transform: translateY(0);
 }
 
@@ -942,8 +743,7 @@ FEATURE: MINI CART
 
     padding-bottom: 10px;
 
-    border-bottom:
-        1px solid #eef2f7;
+    border-bottom: 1px solid #eef2f7;
 }
 
 .mini-cart-header strong {
@@ -952,46 +752,38 @@ FEATURE: MINI CART
 
 .mini-cart-header span {
     color: #64748b;
-
     font-size: 11px;
 }
 
 .mini-cart-empty {
     padding: 25px 10px;
-
     text-align: center;
 }
 
 .mini-cart-empty i {
     color: #a78bfa;
-
     font-size: 30px;
 }
 
 .mini-cart-empty p {
     margin: 8px 0 4px;
-
     font-size: 13px;
     font-weight: 700;
 }
 
 .mini-cart-empty small {
     color: #94a3b8;
-
     font-size: 11px;
 }
 
 .mini-cart-footer {
+    border-top: 1px solid #eef2f7;
     padding-top: 12px;
-
-    border-top:
-        1px solid #eef2f7;
 }
 
 .mini-cart-total {
     display: flex;
     justify-content: space-between;
-
     margin-bottom: 10px;
 }
 
@@ -1023,13 +815,11 @@ FEATURE: MINI CART
 
 .view-cart-button {
     color: #7c3aed;
-
     background: #f5f3ff;
 }
 
 .checkout-button {
     color: #ffffff;
-
     background:
         linear-gradient(
             135deg,
@@ -1045,7 +835,6 @@ FEATURE: DESKTOP NAVIGATION
 
 .desktop-navigation {
     position: relative;
-
     z-index: 90;
 
     width: 100%;
@@ -1090,13 +879,11 @@ FEATURE: ALL CATEGORIES BUTTON
 
     display: flex;
     align-items: center;
-
     gap: 7px;
 
     padding: 0 13px;
 
     border: 0;
-
     border-radius: 12px;
 
     color: #ffffff;
@@ -1109,30 +896,29 @@ FEATURE: ALL CATEGORIES BUTTON
             #db2777
         );
 
+    cursor: pointer;
+
     font-size: 12px;
     font-weight: 700;
 
     box-shadow:
         0 6px 17px rgba(124, 58, 237, 0.20);
 
-    transition:
-        transform 0.25s ease,
-        box-shadow 0.25s ease;
+    transition: 0.25s ease;
 }
 
 .all-categories-button:hover {
     transform: translateY(-2px);
-
-    box-shadow:
-        0 10px 24px rgba(124, 58, 237, 0.26);
 }
 
 
 /*==================================================
-FEATURE: DESKTOP CATEGORY HORIZONTAL SCROLL
+FEATURE: DESKTOP CATEGORY / PAGE SCROLL
 ==================================================*/
 
 .navigation-links {
+    position: relative;
+
     flex: 1 1 auto;
 
     min-width: 0;
@@ -1147,13 +933,29 @@ FEATURE: DESKTOP CATEGORY HORIZONTAL SCROLL
 
     white-space: nowrap;
 
-    padding: 2px 3px;
-
     scrollbar-width: none;
 
     -webkit-overflow-scrolling: touch;
 
-    scroll-behavior: smooth;
+    padding: 2px 3px;
+
+    mask-image:
+        linear-gradient(
+            to right,
+            transparent 0,
+            black 15px,
+            black calc(100% - 35px),
+            transparent 100%
+        );
+
+    -webkit-mask-image:
+        linear-gradient(
+            to right,
+            transparent 0,
+            black 15px,
+            black calc(100% - 35px),
+            transparent 100%
+        );
 }
 
 .navigation-links::-webkit-scrollbar {
@@ -1163,20 +965,25 @@ FEATURE: DESKTOP CATEGORY HORIZONTAL SCROLL
 .navigation-links a {
     flex: 0 0 auto;
 
-    height: 38px;
-
-    padding: 0 12px;
-
     display: inline-flex;
     align-items: center;
     justify-content: center;
 
-    border:
-        1px solid rgba(99, 102, 241, 0.08);
+    height: 38px;
+
+    padding: 0 12px;
 
     border-radius: 11px;
 
     color: #374151;
+
+    text-decoration: none;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    border:
+        1px solid rgba(99, 102, 241, 0.08);
 
     background:
         linear-gradient(
@@ -1185,59 +992,29 @@ FEATURE: DESKTOP CATEGORY HORIZONTAL SCROLL
             #f5f3ff
         );
 
-    text-decoration: none;
-
-    font-size: 11px;
-    font-weight: 700;
-
     transition:
         transform 0.2s ease,
         box-shadow 0.2s ease;
 }
 
 .navigation-links a:nth-child(2) {
-    background:
-        linear-gradient(
-            135deg,
-            #fff7ed,
-            #fef3c7
-        );
+    background: linear-gradient(135deg, #fff7ed, #fef3c7);
 }
 
 .navigation-links a:nth-child(3) {
-    background:
-        linear-gradient(
-            135deg,
-            #f0fdf4,
-            #dcfce7
-        );
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
 }
 
 .navigation-links a:nth-child(4) {
-    background:
-        linear-gradient(
-            135deg,
-            #fdf2f8,
-            #fce7f3
-        );
+    background: linear-gradient(135deg, #fdf2f8, #fce7f3);
 }
 
 .navigation-links a:nth-child(5) {
-    background:
-        linear-gradient(
-            135deg,
-            #eff6ff,
-            #dbeafe
-        );
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
 }
 
 .navigation-links a:nth-child(6) {
-    background:
-        linear-gradient(
-            135deg,
-            #f5f3ff,
-            #ede9fe
-        );
+    background: linear-gradient(135deg, #f5f3ff, #ede9fe);
 }
 
 .navigation-links a:hover {
@@ -1259,13 +1036,9 @@ FEATURE: SELLER BUTTON
 
     display: inline-flex;
     align-items: center;
-
     gap: 6px;
 
     padding: 0 11px;
-
-    border:
-        1px solid rgba(124, 58, 237, 0.08);
 
     border-radius: 11px;
 
@@ -1277,6 +1050,9 @@ FEATURE: SELLER BUTTON
             #f5f3ff,
             #fae8ff
         );
+
+    border:
+        1px solid rgba(124, 58, 237, 0.08);
 
     text-decoration: none;
 
@@ -1294,7 +1070,7 @@ FEATURE: MEGA MENU
 .mega-menu {
     position: absolute;
 
-    top: 100%;
+    top: 0;
     left: 0;
     right: 0;
 
@@ -1306,7 +1082,6 @@ FEATURE: MEGA MENU
         rgba(255, 255, 255, 0.98);
 
     backdrop-filter: blur(22px);
-
     -webkit-backdrop-filter: blur(22px);
 
     border-bottom:
@@ -1329,9 +1104,7 @@ FEATURE: MEGA MENU
 
 .mega-menu.mega-menu-open {
     opacity: 1;
-
     visibility: visible;
-
     pointer-events: auto;
 
     transform: translateY(0);
@@ -1354,9 +1127,6 @@ FEATURE: MEGA MENU
 .mega-menu-column {
     padding: 15px;
 
-    border:
-        1px solid rgba(99, 102, 241, 0.08);
-
     border-radius: 17px;
 
     background:
@@ -1365,6 +1135,9 @@ FEATURE: MEGA MENU
             #f8fafc,
             #eef2ff
         );
+
+    border:
+        1px solid rgba(99, 102, 241, 0.08);
 
     box-shadow:
         0 6px 18px rgba(15, 23, 42, 0.05);
@@ -1421,7 +1194,6 @@ FEATURE: MEGA MENU
 
 .mega-menu-column h3 i {
     margin-right: 5px;
-
     color: #7c3aed;
 }
 
@@ -1440,20 +1212,14 @@ FEATURE: MEGA MENU
 
     font-size: 11px;
 
-    transition:
-        color 0.2s ease,
-        background 0.2s ease,
-        transform 0.2s ease;
+    transition: 0.2s ease;
 }
 
 .mega-menu-column a:hover {
     color: #7c3aed;
+    background: rgba(255,255,255,0.70);
 
-    background:
-        rgba(255, 255, 255, 0.70);
-
-    transform:
-        translateX(4px);
+    transform: translateX(4px);
 }
 
 
@@ -1465,13 +1231,12 @@ FEATURE: MOBILE HEADER
     display: none;
 
     position: relative;
-
     z-index: 200;
 
     width: 100%;
 
     background:
-        rgba(255, 255, 255, 0.96);
+        rgba(255, 255, 255, 0.95);
 
     border-bottom:
         1px solid rgba(99, 102, 241, 0.10);
@@ -1486,7 +1251,6 @@ FEATURE: MOBILE TOP BAR
 
 .mobile-top-bar {
     width: 100%;
-
     overflow: hidden;
 
     color: #ffffff;
@@ -1518,7 +1282,6 @@ FEATURE: MOBILE TOP BAR
 .mobile-top-scroll span {
     display: inline-flex;
     align-items: center;
-
     gap: 5px;
 }
 
@@ -1547,7 +1310,6 @@ FEATURE: MOBILE MAIN HEADER
     flex: 0 0 40px;
 
     border: 0;
-
     border-radius: 12px;
 
     color: #ffffff;
@@ -1558,6 +1320,8 @@ FEATURE: MOBILE MAIN HEADER
             #10b981,
             #7c3aed
         );
+
+    cursor: pointer;
 
     font-size: 16px;
 }
@@ -1658,12 +1422,12 @@ FEATURE: MOBILE SEARCH
 
     padding: 0 10px;
 
-    border:
-        1px solid rgba(99, 102, 241, 0.12);
-
     border-radius: 13px;
 
     background: #ffffff;
+
+    border:
+        1px solid rgba(99, 102, 241, 0.12);
 
     box-shadow:
         0 5px 16px rgba(15, 23, 42, 0.06);
@@ -1691,18 +1455,18 @@ FEATURE: MOBILE SEARCH
 .mobile-search-box button {
     width: 27px;
 
-    padding: 0;
-
     border: 0;
 
     background: transparent;
 
     color: #64748b;
+
+    cursor: pointer;
 }
 
 
 /*==================================================
-FEATURE: MOBILE CATEGORY HORIZONTAL SCROLL
+FEATURE: MOBILE CATEGORY SCROLL
 ==================================================*/
 
 .mobile-category-navigation {
@@ -1720,6 +1484,8 @@ FEATURE: MOBILE CATEGORY HORIZONTAL SCROLL
 }
 
 .mobile-category-scroll {
+    position: relative;
+
     display: flex;
     align-items: center;
 
@@ -1739,6 +1505,22 @@ FEATURE: MOBILE CATEGORY HORIZONTAL SCROLL
     -webkit-overflow-scrolling: touch;
 
     scroll-behavior: smooth;
+
+    mask-image:
+        linear-gradient(
+            to right,
+            black 0%,
+            black calc(100% - 25px),
+            transparent 100%
+        );
+
+    -webkit-mask-image:
+        linear-gradient(
+            to right,
+            black 0%,
+            black calc(100% - 25px),
+            transparent 100%
+        );
 }
 
 .mobile-category-scroll::-webkit-scrollbar {
@@ -1756,10 +1538,10 @@ FEATURE: MOBILE CATEGORY HORIZONTAL SCROLL
     align-items: center;
     justify-content: center;
 
+    border-radius: 11px;
+
     border:
         1px solid rgba(99, 102, 241, 0.08);
-
-    border-radius: 11px;
 
     color: #374151;
 
@@ -1780,48 +1562,23 @@ FEATURE: MOBILE CATEGORY HORIZONTAL SCROLL
 }
 
 .mobile-category-scroll a:nth-child(2) {
-    background:
-        linear-gradient(
-            135deg,
-            #eff6ff,
-            #dbeafe
-        );
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
 }
 
 .mobile-category-scroll a:nth-child(3) {
-    background:
-        linear-gradient(
-            135deg,
-            #fdf2f8,
-            #fce7f3
-        );
+    background: linear-gradient(135deg, #fdf2f8, #fce7f3);
 }
 
 .mobile-category-scroll a:nth-child(4) {
-    background:
-        linear-gradient(
-            135deg,
-            #f0fdf4,
-            #dcfce7
-        );
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
 }
 
 .mobile-category-scroll a:nth-child(5) {
-    background:
-        linear-gradient(
-            135deg,
-            #fff7ed,
-            #fef3c7
-        );
+    background: linear-gradient(135deg, #fff7ed, #fef3c7);
 }
 
 .mobile-category-scroll a:nth-child(6) {
-    background:
-        linear-gradient(
-            135deg,
-            #f5f3ff,
-            #ede9fe
-        );
+    background: linear-gradient(135deg, #f5f3ff, #ede9fe);
 }
 
 .mobile-category-scroll a.active {
@@ -1840,7 +1597,7 @@ FEATURE: MOBILE CATEGORY HORIZONTAL SCROLL
 
 
 /*==================================================
-FEATURE: MOBILE MENU OVERLAY
+FEATURE: MOBILE DRAWER OVERLAY
 ==================================================*/
 
 .mobile-menu-overlay {
@@ -1854,21 +1611,16 @@ FEATURE: MOBILE MENU OVERLAY
         rgba(15, 23, 42, 0.50);
 
     backdrop-filter: blur(3px);
-
     -webkit-backdrop-filter: blur(3px);
 
     opacity: 0;
-
     visibility: hidden;
 
-    transition:
-        opacity 0.30s ease,
-        visibility 0.30s ease;
+    transition: 0.30s ease;
 }
 
 .mobile-menu-overlay.mobile-overlay-open {
     opacity: 1;
-
     visibility: visible;
 }
 
@@ -1883,10 +1635,10 @@ FEATURE: MOBILE DRAWER
     top: 0;
     left: 0;
 
-    z-index: 9999;
-
     width: min(86vw, 360px);
     height: 100dvh;
+
+    z-index: 9999;
 
     overflow-y: auto;
 
@@ -1896,20 +1648,17 @@ FEATURE: MOBILE DRAWER
     box-shadow:
         15px 0 45px rgba(15, 23, 42, 0.20);
 
-    transform:
-        translateX(-105%);
+    transform: translateX(-105%);
 
     visibility: hidden;
 
     transition:
-        transform 0.38s cubic-bezier(.22, 1, .36, 1),
+        transform 0.38s cubic-bezier(.22,1,.36,1),
         visibility 0.38s ease;
 }
 
 .mobile-menu-drawer.mobile-drawer-open {
-    transform:
-        translateX(0);
-
+    transform: translateX(0);
     visibility: visible;
 }
 
@@ -1947,13 +1696,14 @@ FEATURE: DRAWER HEADER
     height: 35px;
 
     border: 0;
-
     border-radius: 50%;
 
     color: #ffffff;
 
     background:
-        rgba(255, 255, 255, 0.18);
+        rgba(255,255,255,0.18);
+
+    cursor: pointer;
 }
 
 
@@ -2011,7 +1761,6 @@ FEATURE: DRAWER ACCOUNT
 
 .mobile-drawer-account small {
     color: #64748b;
-
     font-size: 10px;
 }
 
@@ -2055,10 +1804,7 @@ FEATURE: DRAWER LINKS
     font-size: 12px;
     font-weight: 700;
 
-    transition:
-        color 0.2s ease,
-        transform 0.2s ease,
-        background 0.2s ease;
+    transition: 0.2s ease;
 }
 
 .mobile-drawer-links a:nth-child(even) {
@@ -2073,8 +1819,7 @@ FEATURE: DRAWER LINKS
 .mobile-drawer-links a:hover {
     color: #7c3aed;
 
-    transform:
-        translateX(4px);
+    transform: translateX(4px);
 }
 
 .mobile-drawer-links i {
@@ -2139,643 +1884,7 @@ FEATURE: MOBILE BOTTOM NAVIGATION
 
 
 /*==================================================
-FEATURE: HERO BANNER SYSTEM
-SUPPORTS BOTH STRUCTURES:
-
-1. .hero-slider + .hero-slide
-2. .hero-banner + .slide
-
-==================================================*/
-
-.hero-banner-section,
-.hero {
-    width: 100%;
-
-    background:
-        #f5f7fb;
-}
-
-
-/*==================================================
-FEATURE: HERO SECTION
-==================================================*/
-
-.hero-banner-section {
-    position: relative;
-
-    padding:
-        20px 20px 30px;
-}
-
-.hero {
-    padding:
-        20px 0;
-}
-
-.hero .container {
-    width: 100%;
-    max-width: 1400px;
-
-    margin: 0 auto;
-
-    padding: 0 20px;
-}
-
-.hero-center {
-    width: 100%;
-}
-
-
-/*==================================================
-FEATURE: HERO SLIDER
-==================================================*/
-
-.hero-slider,
-.hero-banner {
-    position: relative;
-
-    width: 100%;
-
-    max-width: 1600px;
-
-    height: 420px;
-
-    margin: 0 auto;
-
-    overflow: hidden;
-
-    border-radius: 18px;
-
-    background:
-        #e9e9e9;
-
-    box-shadow:
-        0 15px 45px rgba(15, 23, 42, 0.10);
-
-    touch-action: pan-y;
-
-    user-select: none;
-}
-
-
-/*==================================================
-FEATURE: SLIDES CONTAINER
-==================================================*/
-
-.slides {
-    position: absolute;
-
-    inset: 0;
-
-    width: 100%;
-    height: 100%;
-}
-
-
-/*==================================================
-FEATURE: HERO SLIDES
-==================================================*/
-
-.hero-slide,
-.slide {
-    position: absolute;
-
-    inset: 0;
-
-    width: 100%;
-    height: 100%;
-
-    opacity: 0;
-
-    visibility: hidden;
-
-    pointer-events: none;
-
-    transition:
-        opacity 0.60s ease,
-        visibility 0.60s ease;
-}
-
-.hero-slide.active,
-.slide.active {
-    opacity: 1;
-
-    visibility: visible;
-
-    pointer-events: auto;
-
-    z-index: 2;
-}
-
-
-/*==================================================
-FEATURE: HERO PICTURE
-==================================================*/
-
-.hero-slide picture {
-    display: block;
-
-    width: 100%;
-    height: 100%;
-}
-
-
-/*==================================================
-FEATURE: HERO IMAGES
-==================================================*/
-
-.hero-slide img,
-.slide img {
-    display: block;
-
-    width: 100%;
-    height: 100%;
-
-    object-fit: cover;
-
-    object-position: center center;
-
-    user-select: none;
-
-    pointer-events: none;
-}
-
-
-/*==================================================
-FEATURE: HERO IMAGE PLACEHOLDER
-==================================================*/
-
-.banner-image-placeholder {
-    position: relative;
-
-    width: 100%;
-    height: 100%;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    overflow: hidden;
-
-    background:
-        linear-gradient(
-            135deg,
-            #eef1f7,
-            #e2e6ef,
-            #edf2f7
-        );
-
-    color: #777777;
-
-    font-size: 18px;
-    font-weight: 700;
-}
-
-.banner-image-placeholder::before {
-    content: "";
-
-    position: absolute;
-
-    top: -50%;
-    left: -35%;
-
-    width: 25%;
-    height: 200%;
-
-    background:
-        linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.45),
-            transparent
-        );
-
-    transform:
-        rotate(20deg);
-
-    animation:
-        bannerReflection
-        5s ease-in-out infinite;
-
-    pointer-events: none;
-}
-
-.banner-image-placeholder span {
-    position: relative;
-
-    z-index: 2;
-
-    padding:
-        12px 22px;
-
-    border-radius: 50px;
-
-    background:
-        rgba(255, 255, 255, 0.65);
-
-    backdrop-filter:
-        blur(10px);
-
-    -webkit-backdrop-filter:
-        blur(10px);
-
-    color: #555555;
-
-    font-size: 18px;
-    font-weight: 700;
-
-    box-shadow:
-        0 8px 25px rgba(0, 0, 0, 0.08);
-}
-
-@keyframes bannerReflection {
-
-    0% {
-        left: -35%;
-    }
-
-    45% {
-        left: 120%;
-    }
-
-    100% {
-        left: 120%;
-    }
-}
-
-
-/*==================================================
-FEATURE: HERO DARK OVERLAY
-==================================================*/
-
-.hero-banner::after {
-    content: "";
-
-    position: absolute;
-
-    inset: 0;
-
-    z-index: 5;
-
-    pointer-events: none;
-
-    background:
-        linear-gradient(
-            90deg,
-            rgba(0, 0, 0, 0.55),
-            rgba(0, 0, 0, 0.15),
-            rgba(0, 0, 0, 0)
-        );
-}
-
-
-/*==================================================
-FEATURE: BANNER CONTENT
-==================================================*/
-
-.banner-content {
-    position: absolute;
-
-    top: 50%;
-    left: 7%;
-
-    z-index: 10;
-
-    max-width: 520px;
-
-    transform:
-        translateY(-50%);
-
-    color: #ffffff;
-
-    pointer-events: none;
-}
-
-.banner-content h1,
-.banner-content h2 {
-    margin:
-        0 0 12px;
-
-    font-size:
-        clamp(30px, 4vw, 54px);
-
-    line-height: 1.1;
-
-    font-weight: 800;
-
-    text-shadow:
-        0 3px 12px rgba(0, 0, 0, 0.35);
-}
-
-.banner-content p {
-    margin:
-        0 0 22px;
-
-    max-width: 500px;
-
-    font-size: 16px;
-
-    line-height: 1.6;
-
-    font-weight: 400;
-
-    text-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.35);
-}
-
-.banner-content a {
-    pointer-events: auto;
-}
-
-
-/*==================================================
-FEATURE: BANNER TAG
-==================================================*/
-
-.banner-tag {
-    display: inline-flex;
-
-    align-items: center;
-    justify-content: center;
-
-    padding:
-        7px 15px;
-
-    margin-bottom: 14px;
-
-    border:
-        1px solid rgba(255, 255, 255, 0.35);
-
-    border-radius: 30px;
-
-    background:
-        rgba(255, 255, 255, 0.18);
-
-    backdrop-filter:
-        blur(8px);
-
-    -webkit-backdrop-filter:
-        blur(8px);
-
-    font-size: 13px;
-    font-weight: 700;
-
-    letter-spacing: 0.5px;
-}
-
-
-/*==================================================
-FEATURE: BANNER BUTTON
-SUPPORTS:
-.banner-btn
-.banner-button
-==================================================*/
-
-.banner-btn,
-.banner-button {
-    display: inline-flex;
-
-    align-items: center;
-    justify-content: center;
-
-    padding:
-        12px 24px;
-
-    border-radius: 9px;
-
-    background: #ffffff;
-
-    color: #1a237e;
-
-    text-decoration: none;
-
-    font-size: 14px;
-    font-weight: 700;
-
-    pointer-events: auto;
-
-    transition:
-        transform 0.25s ease,
-        box-shadow 0.25s ease;
-}
-
-.banner-btn:hover,
-.banner-button:hover {
-    transform:
-        translateY(-2px);
-
-    box-shadow:
-        0 8px 20px rgba(0, 0, 0, 0.22);
-}
-
-
-/*==================================================
-FEATURE: HERO SLIDER ARROWS
-==================================================*/
-
-.hero-slider-arrow {
-    position: absolute;
-
-    top: 50%;
-
-    z-index: 20;
-
-    width: 44px;
-    height: 44px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 0;
-
-    border: 0;
-
-    border-radius: 50%;
-
-    background:
-        rgba(255, 255, 255, 0.88);
-
-    backdrop-filter:
-        blur(12px);
-
-    -webkit-backdrop-filter:
-        blur(12px);
-
-    color: #1a237e;
-
-    font-size: 17px;
-
-    cursor: pointer;
-
-    transform:
-        translateY(-50%);
-
-    box-shadow:
-        0 6px 18px rgba(0, 0, 0, 0.15);
-
-    transition:
-        transform 0.2s ease,
-        background 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-.hero-slider-arrow:hover {
-    background: #ffffff;
-
-    transform:
-        translateY(-50%)
-        scale(1.08);
-
-    box-shadow:
-        0 10px 25px rgba(0, 0, 0, 0.20);
-}
-
-.hero-prev {
-    left: 18px;
-}
-
-.hero-next {
-    right: 18px;
-}
-
-
-/*==================================================
-FEATURE: HERO DOTS
-SUPPORTS:
-.hero-slider-dots + .hero-dot
-.slider-dots + .slider-dot
-==================================================*/
-
-.hero-slider-dots,
-.slider-dots {
-    position: absolute;
-
-    left: 50%;
-    bottom: 16px;
-
-    z-index: 20;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    gap: 7px;
-
-    transform:
-        translateX(-50%);
-
-    padding:
-        6px 9px;
-
-    border-radius: 30px;
-
-    background:
-        rgba(0, 0, 0, 0.12);
-
-    backdrop-filter:
-        blur(8px);
-
-    -webkit-backdrop-filter:
-        blur(8px);
-}
-
-.hero-dot,
-.slider-dot {
-    width: 9px;
-    height: 9px;
-
-    padding: 0;
-
-    border: 0;
-
-    border-radius: 50%;
-
-    background:
-        rgba(255, 255, 255, 0.65);
-
-    cursor: pointer;
-
-    transition:
-        width 0.25s ease,
-        background 0.25s ease,
-        border-radius 0.25s ease;
-}
-
-.hero-dot.active,
-.slider-dot.active {
-    width: 25px;
-
-    border-radius: 10px;
-
-    background: #ffffff;
-}
-
-
-/*==================================================
-FEATURE: ADMIN ADD BANNER BUTTON
-==================================================*/
-
-.admin-add-banner-button {
-    position: absolute;
-
-    top: 32px;
-    right: 35px;
-
-    z-index: 50;
-
-    display: none;
-
-    align-items: center;
-    justify-content: center;
-
-    gap: 8px;
-
-    padding:
-        11px 18px;
-
-    border: 0;
-
-    border-radius: 12px;
-
-    color: #ffffff;
-
-    background:
-        linear-gradient(
-            135deg,
-            #1a237e,
-            #5e35b1,
-            #8e24aa
-        );
-
-    text-decoration: none;
-
-    font-size: 14px;
-    font-weight: 700;
-
-    box-shadow:
-        0 8px 20px rgba(0, 0, 0, 0.20);
-
-    transition:
-        transform 0.25s ease,
-        box-shadow 0.25s ease;
-}
-
-.admin-add-banner-button:hover {
-    transform:
-        translateY(-2px);
-
-    box-shadow:
-        0 12px 28px rgba(0, 0, 0, 0.25);
-}
-
-.admin-add-banner-button i {
-    font-size: 15px;
-}
-
-
-/*==================================================
-FEATURE: TABLET HEADER
+FEATURE: TABLET
 ==================================================*/
 
 @media (max-width: 1100px) {
@@ -2783,7 +1892,6 @@ FEATURE: TABLET HEADER
     .header-container {
         padding-left: 15px;
         padding-right: 15px;
-
         gap: 9px;
     }
 
@@ -2801,56 +1909,7 @@ FEATURE: TABLET HEADER
         grid-template-columns:
             repeat(3, minmax(0, 1fr));
     }
-}
 
-
-/*==================================================
-FEATURE: TABLET HERO
-==================================================*/
-
-@media (max-width: 992px) {
-
-    .hero {
-        padding:
-            15px 0;
-    }
-
-    .hero .container {
-        padding:
-            0 15px;
-    }
-
-    .hero-banner-section {
-        padding:
-            15px 15px 25px;
-    }
-
-    .hero-slider,
-    .hero-banner {
-        height: 350px;
-
-        border-radius: 14px;
-    }
-
-    .banner-content {
-        left: 6%;
-
-        max-width: 440px;
-    }
-
-    .banner-content h1,
-    .banner-content h2 {
-        font-size: 38px;
-    }
-
-    .banner-content p {
-        font-size: 14px;
-    }
-
-    .admin-add-banner-button {
-        top: 25px;
-        right: 25px;
-    }
 }
 
 
@@ -2860,9 +1919,7 @@ FEATURE: MOBILE
 
 @media (max-width: 768px) {
 
-    /*----------------------------------------------
-    HIDE DESKTOP HEADER
-    ----------------------------------------------*/
+    /* HIDE DESKTOP */
 
     .top-utility-bar,
     .main-header,
@@ -2872,18 +1929,14 @@ FEATURE: MOBILE
     }
 
 
-    /*----------------------------------------------
-    SHOW MOBILE HEADER
-    ----------------------------------------------*/
+    /* SHOW MOBILE */
 
     .mobile-header {
         display: block !important;
     }
 
 
-    /*----------------------------------------------
-    MOBILE BOTTOM NAVIGATION
-    ----------------------------------------------*/
+    /* BOTTOM NAV */
 
     .mobile-bottom-navigation {
         position: fixed;
@@ -2901,25 +1954,20 @@ FEATURE: MOBILE
         align-items: stretch;
 
         background:
-            rgba(255, 255, 255, 0.96);
+            rgba(255,255,255,0.96);
 
-        backdrop-filter:
-            blur(20px);
-
-        -webkit-backdrop-filter:
-            blur(20px);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
 
         border-top:
-            1px solid rgba(99, 102, 241, 0.10);
+            1px solid rgba(99,102,241,0.10);
 
         box-shadow:
-            0 -8px 25px rgba(15, 23, 42, 0.09);
+            0 -8px 25px rgba(15,23,42,0.09);
     }
 
     .bottom-nav-item {
         flex: 1;
-
-        min-width: 0;
 
         display: flex;
         flex-direction: column;
@@ -2936,6 +1984,8 @@ FEATURE: MOBILE
 
         text-decoration: none;
 
+        cursor: pointer;
+
         font-size: 10px;
         font-weight: 600;
     }
@@ -2951,126 +2001,6 @@ FEATURE: MOBILE
     body {
         padding-bottom: 62px;
     }
-
-
-    /*----------------------------------------------
-    MOBILE HERO
-    ----------------------------------------------*/
-
-    .hero-banner-section {
-        padding:
-            10px 10px 20px;
-    }
-
-    .hero {
-        padding:
-            10px 0;
-    }
-
-    .hero .container {
-        padding:
-            0 10px;
-    }
-
-    .hero-slider,
-    .hero-banner {
-        height: 230px;
-
-        border-radius: 12px;
-    }
-
-    .banner-content {
-        left: 20px;
-        right: 20px;
-
-        max-width: none;
-    }
-
-    .banner-content h1,
-    .banner-content h2 {
-        margin-bottom: 6px;
-
-        font-size: 25px;
-
-        line-height: 1.15;
-    }
-
-    .banner-content p {
-        margin-bottom: 10px;
-
-        max-width: 90%;
-
-        font-size: 11px;
-
-        line-height: 1.4;
-    }
-
-    .banner-tag {
-        padding:
-            5px 10px;
-
-        margin-bottom: 7px;
-
-        font-size: 10px;
-    }
-
-    .banner-btn,
-    .banner-button {
-        padding:
-            8px 15px;
-
-        font-size: 11px;
-
-        border-radius: 6px;
-    }
-
-    .hero-slider-arrow {
-        width: 34px;
-        height: 34px;
-
-        font-size: 13px;
-    }
-
-    .hero-prev {
-        left: 8px;
-    }
-
-    .hero-next {
-        right: 8px;
-    }
-
-    .hero-slider-dots,
-    .slider-dots {
-        bottom: 8px;
-
-        gap: 6px;
-
-        padding:
-            5px 8px;
-    }
-
-    .hero-dot,
-    .slider-dot {
-        width: 7px;
-        height: 7px;
-    }
-
-    .hero-dot.active,
-    .slider-dot.active {
-        width: 18px;
-    }
-
-    .admin-add-banner-button {
-        top: 18px;
-        right: 18px;
-
-        padding:
-            8px 12px;
-
-        border-radius: 9px;
-
-        font-size: 12px;
-    }
 }
 
 
@@ -3078,7 +2008,7 @@ FEATURE: MOBILE
 FEATURE: SMALL MOBILE
 ==================================================*/
 
-@media (max-width: 480px) {
+@media (max-width: 430px) {
 
     .mobile-main-header {
         height: 57px;
@@ -3091,15 +2021,11 @@ FEATURE: SMALL MOBILE
     .mobile-logo-icon {
         width: 33px;
         height: 33px;
-
-        flex-basis: 33px;
     }
 
     .mobile-menu-button {
         width: 38px;
         height: 38px;
-
-        flex-basis: 38px;
     }
 
     .mobile-category-scroll {
@@ -3108,192 +2034,1381 @@ FEATURE: SMALL MOBILE
 
     .mobile-category-scroll a {
         height: 32px;
-
-        padding:
-            0 10px;
-
+        padding: 0 10px;
         font-size: 10px;
     }
 
+}
 
-    /*----------------------------------------------
-    SMALL MOBILE HERO
-    ----------------------------------------------*/
 
-    .hero-slider,
-    .hero-banner {
-        height: 190px;
+/*==================================================
+FEATURE: HEADER - ICON ONLY WISHLIST & CART
+==================================================*/
 
-        border-radius: 10px;
-    }
+/* Wishlist text hide */
+.header-action.wishlist-action .action-label {
+    display: none;
+}
 
-    .banner-content {
-        left: 15px;
-        right: 15px;
-    }
+/* Cart text hide */
+.header-cart .cart-info {
+    display: none;
+}
 
-    .banner-tag {
-        padding:
-            4px 8px;
 
-        font-size: 9px;
-    }
+/*==================================================
+WISHLIST ICON
+==================================================*/
 
-    .banner-content h1,
-    .banner-content h2 {
-        font-size: 20px;
-    }
+.header-action.wishlist-action {
+    width: 46px;
+    height: 46px;
 
-    .banner-content p {
-        margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-        font-size: 9px;
-    }
+    position: relative;
 
-    .banner-btn,
-    .banner-button {
-        padding:
-            7px 12px;
+    text-decoration: none;
 
-        font-size: 10px;
-    }
+    border-radius: 14px;
 
-    .slider-dots,
-    .hero-slider-dots {
-        bottom: 7px;
-    }
+    transition:
+        transform 0.25s ease,
+        background 0.25s ease,
+        box-shadow 0.25s ease;
+}
 
-    .admin-add-banner-button span {
+.header-action.wishlist-action:hover {
+    transform: translateY(-2px);
+
+    background: rgba(126, 87, 194, 0.10);
+
+    box-shadow:
+        0 8px 20px rgba(126, 87, 194, 0.15);
+}
+
+
+/* Wishlist icon */
+
+.header-action.wishlist-action .action-icon {
+    position: relative;
+
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-action.wishlist-action .action-icon > i {
+    font-size: 21px;
+
+    color: #e91e63;
+
+    transition:
+        transform 0.25s ease,
+        color 0.25s ease;
+}
+
+.header-action.wishlist-action:hover .action-icon > i {
+    transform: scale(1.12);
+    color: #d81b60;
+}
+
+
+/*==================================================
+WISHLIST BADGE
+==================================================*/
+
+.header-action.wishlist-action .action-badge {
+    position: absolute;
+
+    top: 1px;
+    right: -1px;
+
+    min-width: 17px;
+    height: 17px;
+
+    padding: 0 4px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: linear-gradient(
+        135deg,
+        #ff4081,
+        #e91e63
+    );
+
+    color: #ffffff;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    border: 2px solid #ffffff;
+
+    box-shadow:
+        0 3px 8px rgba(233, 30, 99, 0.30);
+}
+
+
+/*==================================================
+CART ICON ONLY
+==================================================*/
+
+.header-cart {
+    position: relative;
+}
+
+.header-cart .cart-button {
+    width: 46px;
+    height: 46px;
+
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    background: transparent;
+
+    cursor: pointer;
+
+    border-radius: 14px;
+
+    transition:
+        transform 0.25s ease,
+        background 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.header-cart .cart-button:hover {
+    transform: translateY(-2px);
+
+    background: rgba(46, 125, 50, 0.10);
+
+    box-shadow:
+        0 8px 20px rgba(46, 125, 50, 0.15);
+}
+
+
+/* Cart icon */
+
+.header-cart .cart-icon {
+    position: relative;
+
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-cart .cart-icon > i {
+    font-size: 21px;
+
+    color: #2e7d32;
+
+    transition:
+        transform 0.25s ease,
+        color 0.25s ease;
+}
+
+.header-cart .cart-button:hover .cart-icon > i {
+    transform: scale(1.12);
+    color: #1b5e20;
+}
+
+
+/*==================================================
+CART BADGE
+==================================================*/
+
+.header-cart .cart-badge {
+    position: absolute;
+
+    top: 0;
+    right: -2px;
+
+    min-width: 17px;
+    height: 17px;
+
+    padding: 0 4px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: linear-gradient(
+        135deg,
+        #ff5252,
+        #e53935
+    );
+
+    color: #ffffff;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    border: 2px solid #ffffff;
+
+    box-shadow:
+        0 3px 8px rgba(229, 57, 53, 0.30);
+}
+
+
+/*==================================================
+MOBILE SAFETY
+==================================================*/
+
+@media (max-width: 768px) {
+
+    .header-action.wishlist-action .action-label,
+    .header-cart .cart-info {
         display: none;
     }
 
+}
+/*==================================================
+SMARTBAZAAR PRO
+FEATURE: HERO BANNER / SLIDER SYSTEM
+==================================================*/
+
+.hero-banner-section {
+    width: 100%;
+    padding: 18px 20px 30px;
+    background: #f5f7fb;
+}
+
+
+/*==================================================
+FEATURE: HERO SLIDER CONTAINER
+==================================================*/
+
+.hero-slider {
+    position: relative;
+
+    width: 100%;
+    max-width: 1500px;
+
+    height: 420px;
+
+    margin: 0 auto;
+
+    overflow: hidden;
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eef2ff,
+            #fdf4ff
+        );
+
+    box-shadow:
+        0 15px 45px rgba(0, 0, 0, 0.10);
+
+    touch-action: pan-y;
+
+    user-select: none;
+}
+
+
+/*==================================================
+FEATURE: SLIDES
+==================================================*/
+
+.hero-slide {
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    transform: translateX(100%);
+
+    transition:
+        transform 0.55s ease,
+        opacity 0.55s ease,
+        visibility 0.55s ease;
+}
+
+
+.hero-slide.active {
+    opacity: 1;
+
+    visibility: visible;
+
+    transform: translateX(0);
+}
+
+
+.hero-slide.previous {
+    transform: translateX(-100%);
+}
+
+
+/*==================================================
+FEATURE: BANNER IMAGE PLACEHOLDER
+==================================================*/
+
+.banner-image-placeholder {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #e8f5e9,
+            #ede7f6,
+            #e3f2fd
+        );
+
+    position: relative;
+
+    overflow: hidden;
+}
+
+
+/*==================================================
+FEATURE: GLASS REFLECTION
+==================================================*/
+
+.banner-image-placeholder::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: -50%;
+
+    left: -30%;
+
+    width: 25%;
+
+    height: 200%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,0.45),
+            transparent
+        );
+
+    transform: rotate(20deg);
+
+    animation:
+        bannerReflection 5s ease-in-out infinite;
+
+    pointer-events: none;
+}
+
+
+@keyframes bannerReflection {
+
+    0% {
+        left: -35%;
+    }
+
+    45% {
+        left: 120%;
+    }
+
+    100% {
+        left: 120%;
+    }
+
+}
+
+
+/*==================================================
+FEATURE: PLACEHOLDER TEXT
+==================================================*/
+
+.banner-image-placeholder span {
+
+    padding: 12px 22px;
+
+    border-radius: 50px;
+
+    background:
+        rgba(255,255,255,0.65);
+
+    backdrop-filter: blur(10px);
+
+    -webkit-backdrop-filter: blur(10px);
+
+    color: #555;
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,0.08);
+}
+
+
+/*==================================================
+FEATURE: SLIDER ARROWS
+==================================================*/
+
+.hero-slider-arrow {
+
+    position: absolute;
+
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    width: 46px;
+    height: 46px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,0.88);
+
+    backdrop-filter: blur(12px);
+
+    -webkit-backdrop-filter: blur(12px);
+
+    color: #333;
+
+    font-size: 17px;
+
+    cursor: pointer;
+
+    z-index: 10;
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,0.15);
+
+    transition:
+        transform 0.25s ease,
+        background 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+.hero-slider-arrow:hover {
+
+    transform:
+        translateY(-50%)
+        scale(1.10);
+
+    background: #ffffff;
+
+    box-shadow:
+        0 12px 30px rgba(0,0,0,0.20);
+}
+
+
+.hero-prev {
+    left: 18px;
+}
+
+
+.hero-next {
+    right: 18px;
+}
+
+
+/*==================================================
+FEATURE: SLIDER DOTS
+==================================================*/
+
+.hero-slider-dots {
+
+    position: absolute;
+
+    left: 50%;
+
+    bottom: 18px;
+
+    transform: translateX(-50%);
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 8px 13px;
+
+    border-radius: 30px;
+
+    background:
+        rgba(255,255,255,0.70);
+
+    backdrop-filter: blur(10px);
+
+    -webkit-backdrop-filter: blur(10px);
+
+    z-index: 10;
+}
+
+
+.hero-dot {
+
+    width: 8px;
+    height: 8px;
+
+    padding: 0;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: #bdbdbd;
+
+    cursor: pointer;
+
+    transition:
+        width 0.25s ease,
+        background 0.25s ease;
+}
+
+
+.hero-dot.active {
+
+    width: 24px;
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #2e7d32,
+            #7b1fa2
+        );
+}
+
+
+/*==================================================
+FEATURE: TABLET
+==================================================*/
+
+@media (max-width: 900px) {
+
+    .hero-banner-section {
+        padding: 14px;
+    }
+
+    .hero-slider {
+        height: 330px;
+
+        border-radius: 18px;
+    }
+
+}
+
+
+/*==================================================
+FEATURE: MOBILE
+==================================================*/
+
+@media (max-width: 600px) {
+
+    .hero-banner-section {
+        padding: 10px;
+    }
+
+    .hero-slider {
+
+        height: 210px;
+
+        border-radius: 15px;
+    }
+
+
+    .hero-slider-arrow {
+
+        width: 36px;
+        height: 36px;
+
+        font-size: 13px;
+    }
+
+
+    .hero-prev {
+        left: 10px;
+    }
+
+
+    .hero-next {
+        right: 10px;
+    }
+
+
+    .hero-slider-dots {
+
+        bottom: 10px;
+
+        gap: 6px;
+
+        padding: 6px 10px;
+    }
+
+
+    .hero-dot {
+
+        width: 6px;
+        height: 6px;
+    }
+
+
+    .hero-dot.active {
+
+        width: 18px;
+    }
+
+
+    .banner-image-placeholder span {
+
+        font-size: 13px;
+
+        padding: 8px 15px;
+    }
+
+}
+
+
+/*==================================================
+FEATURE: SMALL MOBILE
+==================================================*/
+
+@media (max-width: 380px) {
+
+    .hero-slider {
+        height: 180px;
+    }
+
+}
+/*==================================================
+SMARTBAZAAR PRO 2
+FEATURE: HERO BANNER / SLIDER SYSTEM
+==================================================*/
+
+
+/*==================================================
+FEATURE: HERO BANNER SECTION
+==================================================*/
+
+.hero-banner-section {
+
+    position: relative;
+
+    width: 100%;
+
+    padding: 20px 20px 0;
+
+}
+
+
+/*==================================================
+FEATURE: HERO SLIDER
+==================================================*/
+
+.hero-slider {
+
+    position: relative;
+
+    width: 100%;
+
+    max-width: 1600px;
+
+    height: 420px;
+
+    margin: 0 auto;
+
+    overflow: hidden;
+
+    border-radius: 18px;
+
+    background: #f1f3f6;
+
+}
+
+
+/*==================================================
+FEATURE: HERO SLIDES
+==================================================*/
+
+.hero-slide {
+
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    transition:
+        opacity 0.6s ease,
+        visibility 0.6s ease;
+
+}
+
+
+/* ACTIVE SLIDE */
+
+.hero-slide.active {
+
+    opacity: 1;
+
+    visibility: visible;
+
+    z-index: 1;
+
+}
+
+
+/*==================================================
+FEATURE: BANNER IMAGE
+==================================================*/
+
+.hero-slide picture {
+
+    display: block;
+
+    width: 100%;
+
+    height: 100%;
+
+}
+
+
+.hero-slide img {
+
+    display: block;
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: cover;
+
+}
+
+
+/*==================================================
+FEATURE: BANNER LOADING PLACEHOLDER
+==================================================*/
+
+.banner-image-placeholder {
+
+    width: 100%;
+
+    height: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eef1f7,
+            #e2e6ef
+        );
+
+    color: #777;
+
+    font-size: 20px;
+
+    font-weight: 700;
+
+}
+
+
+/*==================================================
+FEATURE: ADMIN ADD BANNER BUTTON
+ØµØ±Ù Admin Ú©Û’ Ù„ÛŒÛ’
+==================================================*/
+
+.admin-add-banner-button {
+
+    position: absolute;
+
+    top: 32px;
+
+    right: 35px;
+
+    z-index: 50;
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 11px 18px;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #1A237E,
+            #5E35B1,
+            #8E24AA
+        );
+
+    color: #ffffff;
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    box-shadow:
+        0 8px 20px
+        rgba(0, 0, 0, 0.20);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+
+}
+
+
+/*==================================================
+FEATURE: ADMIN BUTTON HOVER
+==================================================*/
+
+.admin-add-banner-button:hover {
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 12px 28px
+        rgba(0, 0, 0, 0.25);
+
+}
+
+
+/*==================================================
+FEATURE: ADMIN PLUS ICON
+==================================================*/
+
+.admin-add-banner-button i {
+
+    font-size: 15px;
+
+}
+
+
+/*==================================================
+FEATURE: BANNER CONTENT
+==================================================*/
+
+.banner-content {
+
+    position: absolute;
+
+    left: 7%;
+
+    top: 50%;
+
+    transform:
+        translateY(-50%);
+
+    z-index: 5;
+
+    max-width: 480px;
+
+    color: #ffffff;
+
+}
+
+
+/*==================================================
+FEATURE: BANNER TITLE
+==================================================*/
+
+.banner-content h2 {
+
+    margin: 0 0 12px;
+
+    font-size: 42px;
+
+    line-height: 1.15;
+
+    font-weight: 800;
+
+}
+
+
+/*==================================================
+FEATURE: BANNER SUBTITLE
+==================================================*/
+
+.banner-content p {
+
+    margin: 0 0 22px;
+
+    font-size: 17px;
+
+    line-height: 1.6;
+
+}
+
+
+/*==================================================
+FEATURE: BANNER BUTTON
+==================================================*/
+
+.banner-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 12px 24px;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+
+    color: #1A237E;
+
+    text-decoration: none;
+
+    font-weight: 700;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+.banner-button:hover {
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 8px 20px
+        rgba(0,0,0,0.20);
+
+}
+
+
+/*==================================================
+FEATURE: SLIDER ARROWS
+==================================================*/
+
+.hero-slider-arrow {
+
+    position: absolute;
+
+    top: 50%;
+
+    transform:
+        translateY(-50%);
+
+    z-index: 20;
+
+    width: 44px;
+
+    height: 44px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,0.88);
+
+    color: #1A237E;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 15px
+        rgba(0,0,0,0.15);
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+
+}
+
+
+.hero-slider-arrow:hover {
+
+    background: #ffffff;
+
+    transform:
+        translateY(-50%) scale(1.08);
+
+}
+
+
+.hero-prev {
+
+    left: 18px;
+
+}
+
+
+.hero-next {
+
+    right: 18px;
+
+}
+
+
+/*==================================================
+FEATURE: SLIDER DOTS
+==================================================*/
+
+.hero-slider-dots {
+
+    position: absolute;
+
+    bottom: 16px;
+
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    z-index: 20;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+}
+
+
+.hero-dot {
+
+    width: 9px;
+
+    height: 9px;
+
+    padding: 0;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,0.65);
+
+    cursor: pointer;
+
+    transition:
+        width 0.25s ease,
+        border-radius 0.25s ease;
+
+}
+
+
+.hero-dot.active {
+
+    width: 25px;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+
+}
+
+
+/*==================================================
+FEATURE: TABLET
+==================================================*/
+
+@media (max-width: 900px) {
+
+    .hero-banner-section {
+
+        padding:
+            15px 15px 0;
+
+    }
+
+
+    .hero-slider {
+
+        height: 330px;
+
+        border-radius: 15px;
+
+    }
+
+
+    .banner-content {
+
+        left: 6%;
+
+        max-width: 380px;
+
+    }
+
+
+    .banner-content h2 {
+
+        font-size: 32px;
+
+    }
+
+
+    .banner-content p {
+
+        font-size: 15px;
+
+    }
+
+
     .admin-add-banner-button {
+
+        top: 25px;
+
+        right: 25px;
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: MOBILE
+==================================================*/
+
+@media (max-width: 768px) {
+
+    .hero-banner-section {
+
+        padding:
+            10px 10px 0;
+
+    }
+
+
+    .hero-slider {
+
+        height: 210px;
+
+        border-radius: 12px;
+
+    }
+
+
+    .banner-content {
+
+        left: 5%;
+
+        max-width: 55%;
+
+    }
+
+
+    .banner-content h2 {
+
+        font-size: 22px;
+
+        margin-bottom: 6px;
+
+    }
+
+
+    .banner-content p {
+
+        font-size: 12px;
+
+        line-height: 1.4;
+
+        margin-bottom: 10px;
+
+    }
+
+
+    .banner-button {
+
+        padding:
+            8px 14px;
+
+        font-size:
+            12px;
+
+    }
+
+
+    .hero-slider-arrow {
+
         width: 34px;
+
+        height: 34px;
+
+    }
+
+
+    .hero-prev {
+
+        left: 8px;
+
+    }
+
+
+    .hero-next {
+
+        right: 8px;
+
+    }
+
+
+    .hero-slider-dots {
+
+        bottom: 8px;
+
+    }
+
+
+    .admin-add-banner-button {
+
+        top: 18px;
+
+        right: 18px;
+
+        padding:
+            8px 12px;
+
+        border-radius:
+            9px;
+
+        font-size:
+            12px;
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: SMALL MOBILE
+==================================================*/
+
+@media (max-width: 480px) {
+
+    .hero-slider {
+
+        height: 180px;
+
+    }
+
+
+    .banner-content {
+
+        max-width: 60%;
+
+    }
+
+
+    .banner-content h2 {
+
+        font-size: 18px;
+
+    }
+
+
+    .banner-content p {
+
+        font-size: 10px;
+
+    }
+
+
+    .banner-button {
+
+        padding:
+            6px 10px;
+
+        font-size:
+            10px;
+
+    }
+
+
+    .admin-add-banner-button span {
+
+        display: none;
+
+    }
+
+
+    .admin-add-banner-button {
+
+        width: 34px;
+
         height: 34px;
 
         padding: 0;
 
         border-radius: 50%;
+
     }
+
 
     .admin-add-banner-button i {
+
         font-size: 14px;
+
     }
+
 }
-
-
-/*==================================================
-FEATURE: EXTRA SMALL MOBILE
-==================================================*/
-
-@media (max-width: 380px) {
-
-    .hero-slider,
-    .hero-banner {
-        height: 165px;
-    }
-
-    .banner-content h1,
-    .banner-content h2 {
-        font-size: 16px;
-    }
-
-    .banner-content p {
-        font-size: 9px;
-    }
-
-    .banner-btn,
-    .banner-button {
-        padding:
-            5px 9px;
-
-        font-size: 9px;
-    }
-}
-
-
-/*==================================================
-FEATURE: TOUCH DEVICE SAFETY
-==================================================*/
-
-@media (hover: none) {
-
-    .navigation-links a:hover,
-    .mobile-drawer-links a:hover,
-    .header-action.wishlist-action:hover,
-    .header-cart .cart-button:hover,
-    .hero-slider-arrow:hover,
-    .banner-btn:hover,
-    .banner-button:hover,
-    .menu-button:hover,
-    .all-categories-button:hover,
-    .admin-add-banner-button:hover {
-        transform: none;
-    }
-}
-
-
-/*==================================================
-FEATURE: REDUCED MOTION ACCESSIBILITY
-==================================================*/
-
-@media (prefers-reduced-motion: reduce) {
-
-    html {
-        scroll-behavior: auto;
-    }
-
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-
-        animation-iteration-count: 1 !important;
-
-        transition-duration: 0.01ms !important;
-
-        scroll-behavior: auto !important;
-    }
-}
-
-/*==================================================
-SMARTBAZAAR PRO
-FEATURE: HIDE ADMIN BANNER BUTTON
-==================================================*/
-
-/*==================================================
-SMARTBAZAAR PRO
-FEATURE: ADMIN BANNER BUTTON VISIBILITY
-==================================================*/
-
-/*
-DEFAULT:
-عام User کے لیے Add Banner Button hidden رہے گا۔
-JavaScript صرف verified Admin کے لیے اسے دکھائے گا۔
-*/
-
-.admin-add-banner-button,
-#adminAddBannerButton,
-button.admin-add-banner-button {
-    display: none;
-}
-
-
-/*
-ADMIN:
-Verified Admin کے لیے JavaScript
-یہ class لگائے تو Button ظاہر ہوگا۔
-*/
-
-body.admin-user .admin-add-banner-button,
-body.admin-user #adminAddBannerButton,
-body.admin-user button.admin-add-banner-button {
-    display: inline-flex;
-    visibility: visible;
-    opacity: 1;
-    pointer-events: auto;
-}
-/*==================================================
-END OF SMARTBAZAAR PRO
-FINAL PREMIUM HEADER + HERO CSS
-==================================================*/
