@@ -1,8 +1,22 @@
 /*==================================================
 SMARTBAZAAR PRO 2
-HOME BANNERS JAVASCRIPT
-FEATURE: DYNAMIC HERO BANNER SYSTEM
-FIREBASE REALTIME DATABASE
+HOME-BANNERS.JS
+FEATURE: COMPLETE DYNAMIC HERO BANNER SYSTEM
+
+FEATURES:
+- Firebase Realtime Database
+- Dynamic Banner Loading
+- Desktop + Mobile Images
+- Active / Inactive Control
+- Start / End Date
+- Banner Order
+- Slider
+- Previous / Next
+- Dots
+- Auto Slide
+- Touch Swipe
+- Mouse Drag
+- Admin Add Banner Button
 ==================================================*/
 
 
@@ -11,7 +25,8 @@ FIREBASE IMPORTS
 ==================================================*/
 
 import {
-    database
+    database,
+    auth
 } from "./firebase-config.js";
 
 import {
@@ -19,9 +34,21 @@ import {
     get
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
 
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
 
 /*==================================================
-FEATURE: FIREBASE BANNER PATH
+FEATURE: ADMIN CONFIG
+==================================================*/
+
+const ADMIN_EMAIL =
+    "iftikharahmed037092@gmail.com";
+
+
+/*==================================================
+FEATURE: FIREBASE BANNER DATABASE PATH
 ==================================================*/
 
 const BANNER_DATABASE_PATH =
@@ -36,7 +63,7 @@ const bannersRef =
 
 
 /*==================================================
-FEATURE: BANNER STATE
+FEATURE: GLOBAL BANNER STATE
 ==================================================*/
 
 let banners = [];
@@ -45,23 +72,64 @@ let currentSlide = 0;
 
 let autoSlideTimer = null;
 
+let heroSliderInitialized = false;
+
 
 /*==================================================
-FEATURE: DOM READY
+FEATURE: SAFE HTML
 ==================================================*/
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
+function escapeHTML(value) {
 
-        loadHomeBanners();
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 
-    }
-);
+}
 
 
 /*==================================================
-FEATURE: GET BANNER IMAGE
+FEATURE: SAFE URL
+==================================================*/
+
+function safeURL(value) {
+
+    const url =
+        String(value ?? "").trim();
+
+
+    if (!url) {
+
+        return "#";
+
+    }
+
+
+    const lower =
+        url.toLowerCase();
+
+
+    if (
+        lower.startsWith("javascript:") ||
+        lower.startsWith("data:") ||
+        lower.startsWith("vbscript:")
+    ) {
+
+        return "#";
+
+    }
+
+
+    return url;
+
+}
+
+
+/*==================================================
+FEATURE: GET DESKTOP IMAGE
 ==================================================*/
 
 function getBannerImage(banner) {
@@ -101,6 +169,10 @@ function isBannerWithinSchedule(banner) {
         Date.now();
 
 
+    /*==================================================
+    START DATE
+    ==================================================*/
+
     if (banner.startDate) {
 
         const start =
@@ -120,6 +192,10 @@ function isBannerWithinSchedule(banner) {
 
     }
 
+
+    /*==================================================
+    END DATE
+    ==================================================*/
 
     if (banner.endDate) {
 
@@ -147,61 +223,88 @@ function isBannerWithinSchedule(banner) {
 
 
 /*==================================================
-FEATURE: SAFE URL
+FEATURE: ADMIN ADD BANNER BUTTON
 ==================================================*/
 
-function safeURL(value) {
+function initializeAdminBannerAccess() {
 
-    const url =
-        String(value ?? "").trim();
-
-
-    if (!url) {
-        return "#";
-    }
+    const addBannerButton =
+        document.getElementById(
+            "adminAddBannerButton"
+        );
 
 
-    const lower =
-        url.toLowerCase();
+    if (!addBannerButton) {
 
+        console.warn(
+            "SmartBazaar Pro 2: #adminAddBannerButton not found."
+        );
 
-    if (
-        lower.startsWith("javascript:") ||
-        lower.startsWith("data:") ||
-        lower.startsWith("vbscript:")
-    ) {
-
-        return "#";
+        return;
 
     }
 
 
-    return url;
+    /*==================================================
+    DEFAULT HIDDEN
+    ==================================================*/
+
+    addBannerButton.style.display =
+        "none";
+
+
+    /*==================================================
+    FIREBASE AUTH CHECK
+    ==================================================*/
+
+    onAuthStateChanged(
+        auth,
+        function (user) {
+
+            if (
+                user &&
+                user.email &&
+                user.email.toLowerCase() ===
+                ADMIN_EMAIL.toLowerCase()
+            ) {
+
+                addBannerButton.style.display =
+                    "flex";
+
+
+                console.log(
+                    "✓ SmartBazaar Pro 2: Admin banner button enabled."
+                );
+
+            } else {
+
+                addBannerButton.style.display =
+                    "none";
+
+
+                console.log(
+                    "SmartBazaar Pro 2: Normal user - banner button hidden."
+                );
+
+            }
+
+        }
+    );
 
 }
 
 
 /*==================================================
-FEATURE: ESCAPE HTML
-==================================================*/
-
-function escapeHTML(value) {
-
-    return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-}
-
-
-/*==================================================
-FEATURE: LOAD HOME BANNERS
+FEATURE: LOAD BANNERS FROM FIREBASE
 ==================================================*/
 
 async function loadHomeBanners() {
+
+    const heroBanner =
+        document.querySelector(
+            ".hero-banner"
+        );
+
 
     const slidesContainer =
         document.querySelector(
@@ -215,10 +318,13 @@ async function loadHomeBanners() {
         );
 
 
-    if (!slidesContainer) {
+    if (
+        !heroBanner ||
+        !slidesContainer
+    ) {
 
         console.error(
-            "SmartBazaar Pro 2: .slides container not found."
+            "SmartBazaar Pro 2: Hero banner HTML not found."
         );
 
         return;
@@ -226,12 +332,12 @@ async function loadHomeBanners() {
     }
 
 
+    console.log(
+        "SmartBazaar Pro 2: Loading home banners..."
+    );
+
+
     try {
-
-        console.log(
-            "SmartBazaar Pro 2: Loading home banners..."
-        );
-
 
         const snapshot =
             await get(
@@ -239,11 +345,17 @@ async function loadHomeBanners() {
             );
 
 
+        console.log(
+            "SmartBazaar Pro 2: Firebase snapshot exists =",
+            snapshot.exists()
+        );
+
+
         banners = [];
 
 
         /*==================================================
-        FEATURE: FIREBASE DATA
+        NO FIREBASE DATA
         ==================================================*/
 
         if (
@@ -254,6 +366,16 @@ async function loadHomeBanners() {
                 snapshot.val();
 
 
+            console.log(
+                "SmartBazaar Pro 2: Firebase banner data =",
+                data
+            );
+
+
+            /*==================================================
+            READ BANNERS
+            ==================================================*/
+
             Object.entries(
                 data
             ).forEach(
@@ -262,11 +384,15 @@ async function loadHomeBanners() {
                 ) {
 
                     if (!banner) {
+
                         return;
+
                     }
 
 
-                    /* ACTIVE */
+                    /*==================================================
+                    ACTIVE CONTROL
+                    ==================================================*/
 
                     if (
                         banner.active === false
@@ -277,7 +403,9 @@ async function loadHomeBanners() {
                     }
 
 
-                    /* IMAGE */
+                    /*==================================================
+                    IMAGE
+                    ==================================================*/
 
                     const imageUrl =
                         getBannerImage(
@@ -288,7 +416,7 @@ async function loadHomeBanners() {
                     if (!imageUrl) {
 
                         console.warn(
-                            "Banner skipped. Image missing:",
+                            "SmartBazaar Pro 2: Banner skipped - image missing:",
                             id
                         );
 
@@ -297,7 +425,9 @@ async function loadHomeBanners() {
                     }
 
 
-                    /* DATE */
+                    /*==================================================
+                    DATE
+                    ==================================================*/
 
                     if (
                         !isBannerWithinSchedule(
@@ -309,6 +439,10 @@ async function loadHomeBanners() {
 
                     }
 
+
+                    /*==================================================
+                    ADD BANNER
+                    ==================================================*/
 
                     banners.push({
 
@@ -329,11 +463,6 @@ async function loadHomeBanners() {
 
                         buttonLink:
                             banner.buttonLink || "",
-
-                        badge:
-                            banner.badge ||
-                            banner.tag ||
-                            "SPECIAL OFFER",
 
                         imageUrl:
                             imageUrl,
@@ -362,11 +491,14 @@ async function loadHomeBanners() {
 
 
         /*==================================================
-        FEATURE: SORT BANNERS
+        SORT BANNERS
         ==================================================*/
 
         banners.sort(
-            function (a, b) {
+            function (
+                a,
+                b
+            ) {
 
                 const orderDifference =
                     a.order -
@@ -392,10 +524,14 @@ async function loadHomeBanners() {
 
 
         console.log(
-            "SmartBazaar Pro 2: Loaded banners:",
+            "SmartBazaar Pro 2: Final banners:",
             banners
         );
 
+
+        /*==================================================
+        RENDER
+        ==================================================*/
 
         renderHomeBanners();
 
@@ -416,7 +552,7 @@ async function loadHomeBanners() {
 
 
 /*==================================================
-FEATURE: RENDER HOME BANNERS
+FEATURE: RENDER BANNERS
 ==================================================*/
 
 function renderHomeBanners() {
@@ -433,14 +569,12 @@ function renderHomeBanners() {
         );
 
 
-    const bannerContent =
-        document.querySelector(
-            ".hero-banner .banner-content"
-        );
+    if (
+        !slidesContainer
+    ) {
 
-
-    if (!slidesContainer) {
         return;
+
     }
 
 
@@ -448,7 +582,23 @@ function renderHomeBanners() {
 
 
     /*==================================================
-    FEATURE: NO BANNERS
+    CLEAR OLD CONTENT
+    ==================================================*/
+
+    slidesContainer.innerHTML =
+        "";
+
+
+    if (dotsContainer) {
+
+        dotsContainer.innerHTML =
+            "";
+
+    }
+
+
+    /*==================================================
+    NO BANNERS
     ==================================================*/
 
     if (
@@ -457,9 +607,11 @@ function renderHomeBanners() {
 
         slidesContainer.innerHTML = `
 
-            <div class="slide active">
+            <div
+                class="banner-slide active">
 
-                <div class="banner-image-placeholder">
+                <div
+                    class="banner-image-placeholder">
 
                     <span>
                         No Banners Available
@@ -472,14 +624,9 @@ function renderHomeBanners() {
         `;
 
 
-        if (dotsContainer) {
+        currentSlide =
+            0;
 
-            dotsContainer.innerHTML = "";
-
-        }
-
-
-        updateBannerContent(null);
 
         return;
 
@@ -487,234 +634,318 @@ function renderHomeBanners() {
 
 
     /*==================================================
-    FEATURE: CREATE SLIDES
+    CREATE SLIDES
     ==================================================*/
 
-    slidesContainer.innerHTML =
-        banners.map(
-            function (
-                banner,
-                index
+    banners.forEach(
+        function (
+            banner,
+            index
+        ) {
+
+            const imageUrl =
+                escapeHTML(
+                    banner.imageUrl
+                );
+
+
+            const mobileImageUrl =
+                escapeHTML(
+                    banner.mobileImageUrl
+                );
+
+
+            const title =
+                escapeHTML(
+                    banner.title
+                );
+
+
+            const subtitle =
+                escapeHTML(
+                    banner.subtitle
+                );
+
+
+            const description =
+                escapeHTML(
+                    banner.description
+                );
+
+
+            const buttonText =
+                escapeHTML(
+                    banner.buttonText
+                );
+
+
+            const buttonLink =
+                escapeHTML(
+                    safeURL(
+                        banner.buttonLink
+                    )
+                );
+
+
+            const slide =
+                document.createElement(
+                    "div"
+                );
+
+
+            slide.className =
+                "banner-slide";
+
+
+            if (
+                index === 0
             ) {
 
-                const imageUrl =
-                    escapeHTML(
-                        banner.imageUrl
-                    );
-
-
-                const mobileImageUrl =
-                    escapeHTML(
-                        banner.mobileImageUrl
-                    );
-
-
-                const safeLink =
-                    escapeHTML(
-                        safeURL(
-                            banner.buttonLink
-                        )
-                    );
-
-
-                return `
-
-                    <div
-                        class="slide ${
-                            index === 0
-                                ? "active"
-                                : ""
-                        }"
-                        data-index="${index}">
-
-                        <a
-                            href="${safeLink}"
-                            class="banner-slide-link"
-                            ${
-                                safeLink === "#"
-                                    ? 'onclick="return false;"'
-                                    : ""
-                            }
-                        >
-
-                            <picture>
-
-                                <source
-                                    media="(max-width: 768px)"
-                                    srcset="${mobileImageUrl}"
-                                >
-
-                                <img
-                                    src="${imageUrl}"
-                                    alt="${escapeHTML(
-                                        banner.title ||
-                                        "SmartBazaar Pro Banner"
-                                    )}"
-                                    draggable="false"
-                                    loading="${
-                                        index === 0
-                                            ? "eager"
-                                            : "lazy"
-                                    }"
-                                >
-
-                            </picture>
-
-                        </a>
-
-                    </div>
-
-                `;
+                slide.classList.add(
+                    "active"
+                );
 
             }
-        ).join("");
 
 
-    /*==================================================
-    FEATURE: CREATE DOTS
-    ==================================================*/
+            slide.dataset.slideIndex =
+                index;
 
-    if (dotsContainer) {
 
-        dotsContainer.innerHTML =
-            banners.map(
-                function (
-                    banner,
-                    index
+            slide.innerHTML = `
+
+                <a
+                    href="${buttonLink}"
+                    class="home-banner-link"
+                    ${
+                        buttonLink === "#"
+                            ? 'onclick="return false;"'
+                            : ""
+                    }>
+
+                    <picture>
+
+                        <source
+                            media="(max-width: 768px)"
+                            srcset="${mobileImageUrl}">
+
+                        <img
+                            src="${imageUrl}"
+                            alt="${
+                                title ||
+                                "SmartBazaar Pro Banner"
+                            }"
+                            class="home-banner-image"
+                            loading="${
+                                index === 0
+                                    ? "eager"
+                                    : "lazy"
+                            }"
+                            draggable="false">
+
+                    </picture>
+
+
+                    ${
+                        title ||
+                        subtitle ||
+                        description ||
+                        buttonText
+                            ? `
+
+                                <div
+                                    class="home-banner-content">
+
+                                    ${
+                                        title
+                                            ? `
+                                                <span
+                                                    class="banner-tag">
+
+                                                    ${title}
+
+                                                </span>
+                                              `
+                                            : ""
+                                    }
+
+
+                                    ${
+                                        subtitle
+                                            ? `
+                                                <h2>
+
+                                                    ${subtitle}
+
+                                                </h2>
+                                              `
+                                            : ""
+                                    }
+
+
+                                    ${
+                                        description
+                                            ? `
+                                                <p>
+
+                                                    ${description}
+
+                                                </p>
+                                              `
+                                            : ""
+                                    }
+
+
+                                    ${
+                                        buttonText
+                                            ? `
+                                                <span
+                                                    class="banner-btn">
+
+                                                    ${buttonText}
+
+                                                </span>
+                                              `
+                                            : ""
+                                    }
+
+                                </div>
+
+                              `
+                            : ""
+                    }
+
+                </a>
+
+            `;
+
+
+            slidesContainer.appendChild(
+                slide
+            );
+
+
+            /*==================================================
+            DOT
+            ==================================================*/
+
+            if (
+                dotsContainer
+            ) {
+
+                const dot =
+                    document.createElement(
+                        "button"
+                    );
+
+
+                dot.type =
+                    "button";
+
+
+                dot.className =
+                    "slider-dot";
+
+
+                if (
+                    index === 0
                 ) {
 
-                    return `
-
-                        <button
-                            type="button"
-                            class="slider-dot ${
-                                index === 0
-                                    ? "active"
-                                    : ""
-                            }"
-                            data-slide="${index}"
-                            aria-label="Banner ${
-                                index + 1
-                            }">
-                        </button>
-
-                    `;
+                    dot.classList.add(
+                        "active"
+                    );
 
                 }
-            ).join("");
-
-    }
 
 
-    /*==================================================
-    FEATURE: INITIAL CONTENT
-    ==================================================*/
+                dot.dataset.slide =
+                    index;
 
-    updateBannerContent(
-        banners[0]
+
+                dot.setAttribute(
+                    "aria-label",
+                    `Go to banner ${index + 1}`
+                );
+
+
+                dotsContainer.appendChild(
+                    dot
+                );
+
+            }
+
+        }
     );
 
 
     /*==================================================
-    FEATURE: INITIALIZE SLIDER
+    INITIALIZE SLIDER
     ==================================================*/
 
-    initializeSlider();
+    initializeHomeBannerSlider();
 
 }
 
 
 /*==================================================
-FEATURE: UPDATE BANNER CONTENT
+FEATURE: SHOW ERROR
 ==================================================*/
 
-function updateBannerContent(banner) {
+function showBannerError() {
 
-    if (!banner) {
+    const slidesContainer =
+        document.querySelector(
+            ".hero-banner .slides"
+        );
+
+
+    if (
+        !slidesContainer
+    ) {
+
         return;
-    }
-
-
-    const badge =
-        document.getElementById(
-            "homeBannerBadge"
-        );
-
-
-    const title =
-        document.getElementById(
-            "homeBannerTitle"
-        );
-
-
-    const description =
-        document.getElementById(
-            "homeBannerDescription"
-        );
-
-
-    const button =
-        document.getElementById(
-            "homeBannerButton"
-        );
-
-
-    if (badge) {
-
-        badge.textContent =
-            banner.badge ||
-            "SPECIAL OFFER";
 
     }
 
 
-    if (title) {
+    slidesContainer.innerHTML = `
 
-        title.textContent =
-            banner.title || "";
+        <div
+            class="banner-slide active">
 
-    }
+            <div
+                class="banner-image-placeholder">
 
+                <span>
+                    Unable to load banners.
+                </span>
 
-    if (description) {
+            </div>
 
-        description.textContent =
-            banner.description || "";
+        </div>
 
-    }
+    `;
 
-
-    if (button) {
-
-        button.textContent =
-            banner.buttonText ||
-            "Shop Now";
+}
 
 
-        const link =
-            safeURL(
-                banner.buttonLink
-            );
+/*==================================================
+FEATURE: STOP AUTO SLIDE
+==================================================*/
+
+function stopAutoSlide() {
+
+    if (
+        autoSlideTimer !== null
+    ) {
+
+        clearInterval(
+            autoSlideTimer
+        );
 
 
-        button.href =
-            link;
-
-
-        if (link === "#") {
-
-            button.onclick =
-                function () {
-
-                    return false;
-
-                };
-
-        } else {
-
-            button.onclick = null;
-
-        }
+        autoSlideTimer =
+            null;
 
     }
 
@@ -725,11 +956,17 @@ function updateBannerContent(banner) {
 FEATURE: INITIALIZE SLIDER
 ==================================================*/
 
-function initializeSlider() {
+function initializeHomeBannerSlider() {
+
+    const heroBanner =
+        document.querySelector(
+            ".hero-banner"
+        );
+
 
     const slides =
         document.querySelectorAll(
-            ".hero-banner .slide"
+            ".hero-banner .banner-slide"
         );
 
 
@@ -740,6 +977,7 @@ function initializeSlider() {
 
 
     if (
+        !heroBanner ||
         !slides.length
     ) {
 
@@ -748,11 +986,16 @@ function initializeSlider() {
     }
 
 
-    currentSlide = 0;
+    currentSlide =
+        0;
+
+
+    heroSliderInitialized =
+        true;
 
 
     /*==================================================
-    FEATURE: SHOW SLIDE
+    SHOW SLIDE
     ==================================================*/
 
     function showSlide(index) {
@@ -771,7 +1014,8 @@ function initializeSlider() {
             index >= slides.length
         ) {
 
-            index = 0;
+            index =
+                0;
 
         }
 
@@ -809,16 +1053,11 @@ function initializeSlider() {
         currentSlide =
             index;
 
-
-        updateBannerContent(
-            banners[index]
-        );
-
     }
 
 
     /*==================================================
-    FEATURE: NEXT
+    NEXT
     ==================================================*/
 
     function nextSlide() {
@@ -840,7 +1079,7 @@ function initializeSlider() {
 
 
     /*==================================================
-    FEATURE: PREVIOUS
+    PREVIOUS
     ==================================================*/
 
     function previousSlide() {
@@ -862,7 +1101,7 @@ function initializeSlider() {
 
 
     /*==================================================
-    FEATURE: AUTO SLIDE
+    AUTO SLIDE
     7 SECONDS
     ==================================================*/
 
@@ -894,7 +1133,133 @@ function initializeSlider() {
 
 
     /*==================================================
-    FEATURE: DOT CLICK
+    FEATURE: CREATE ARROWS
+    ==================================================
+
+    آپ کی نئی HTML میں arrows نہیں تھے،
+    اس لیے JavaScript خود بنائے گا۔
+    ==================================================*/
+
+    let previousButton =
+        heroBanner.querySelector(
+            ".home-banner-prev"
+        );
+
+
+    let nextButton =
+        heroBanner.querySelector(
+            ".home-banner-next"
+        );
+
+
+    if (
+        !previousButton
+    ) {
+
+        previousButton =
+            document.createElement(
+                "button"
+            );
+
+
+        previousButton.type =
+            "button";
+
+
+        previousButton.className =
+            "home-banner-prev";
+
+
+        previousButton.setAttribute(
+            "aria-label",
+            "Previous Banner"
+        );
+
+
+        previousButton.innerHTML =
+            '<i class="fa-solid fa-chevron-left"></i>';
+
+
+        heroBanner.appendChild(
+            previousButton
+        );
+
+    }
+
+
+    if (
+        !nextButton
+    ) {
+
+        nextButton =
+            document.createElement(
+                "button"
+            );
+
+
+        nextButton.type =
+            "button";
+
+
+        nextButton.className =
+            "home-banner-next";
+
+
+        nextButton.setAttribute(
+            "aria-label",
+            "Next Banner"
+        );
+
+
+        nextButton.innerHTML =
+            '<i class="fa-solid fa-chevron-right"></i>';
+
+
+        heroBanner.appendChild(
+            nextButton
+        );
+
+    }
+
+
+    /*==================================================
+    ARROW EVENTS
+    ==================================================*/
+
+    nextButton.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            nextSlide();
+
+            startAutoSlide();
+
+        }
+    );
+
+
+    previousButton.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            previousSlide();
+
+            startAutoSlide();
+
+        }
+    );
+
+
+    /*==================================================
+    DOT EVENTS
     ==================================================*/
 
     dots.forEach(
@@ -902,7 +1267,12 @@ function initializeSlider() {
 
             dot.addEventListener(
                 "click",
-                function () {
+                function (event) {
+
+                    event.preventDefault();
+
+                    event.stopPropagation();
+
 
                     const index =
                         Number(
@@ -925,16 +1295,10 @@ function initializeSlider() {
 
 
     /*==================================================
-    FEATURE: DESKTOP PAUSE
+    PAUSE ON DESKTOP HOVER
     ==================================================*/
 
-    const heroBanner =
-        document.querySelector(
-            ".hero-banner"
-        );
-
-
-    heroBanner?.addEventListener(
+    heroBanner.addEventListener(
         "mouseenter",
         function () {
 
@@ -950,7 +1314,7 @@ function initializeSlider() {
     );
 
 
-    heroBanner?.addEventListener(
+    heroBanner.addEventListener(
         "mouseleave",
         function () {
 
@@ -967,27 +1331,33 @@ function initializeSlider() {
 
 
     /*==================================================
-    FEATURE: TOUCH SWIPE
+    TOUCH SWIPE
     ==================================================*/
 
-    let touchStartX = 0;
+    let touchStartX =
+        0;
 
-    let touchStartY = 0;
+
+    let touchStartY =
+        0;
 
 
-    heroBanner?.addEventListener(
+    heroBanner.addEventListener(
         "touchstart",
         function (event) {
 
             if (
                 !event.touches.length
             ) {
+
                 return;
+
             }
 
 
             touchStartX =
                 event.touches[0].clientX;
+
 
             touchStartY =
                 event.touches[0].clientY;
@@ -1002,19 +1372,22 @@ function initializeSlider() {
     );
 
 
-    heroBanner?.addEventListener(
+    heroBanner.addEventListener(
         "touchend",
         function (event) {
 
             if (
                 !event.changedTouches.length
             ) {
+
                 return;
+
             }
 
 
             const touchEndX =
                 event.changedTouches[0].clientX;
+
 
             const touchEndY =
                 event.changedTouches[0].clientY;
@@ -1023,6 +1396,7 @@ function initializeSlider() {
             const distanceX =
                 touchEndX -
                 touchStartX;
+
 
             const distanceY =
                 touchEndY -
@@ -1060,16 +1434,195 @@ function initializeSlider() {
 
 
     /*==================================================
-    FEATURE: START
+    MOUSE DRAG
     ==================================================*/
 
-    showSlide(0);
+    let mouseStartX =
+        0;
+
+
+    let mouseEndX =
+        0;
+
+
+    let isDragging =
+        false;
+
+
+    heroBanner.addEventListener(
+        "mousedown",
+        function (event) {
+
+            if (
+                event.button !== 0
+            ) {
+
+                return;
+
+            }
+
+
+            isDragging =
+                true;
+
+
+            mouseStartX =
+                event.clientX;
+
+
+            mouseEndX =
+                event.clientX;
+
+
+            heroBanner.classList.add(
+                "is-dragging"
+            );
+
+
+            stopAutoSlide();
+
+        }
+    );
+
+
+    heroBanner.addEventListener(
+        "mousemove",
+        function (event) {
+
+            if (
+                !isDragging
+            ) {
+
+                return;
+
+            }
+
+
+            mouseEndX =
+                event.clientX;
+
+        }
+    );
+
+
+    function finishMouseDrag() {
+
+        if (
+            !isDragging
+        ) {
+
+            return;
+
+        }
+
+
+        isDragging =
+            false;
+
+
+        heroBanner.classList.remove(
+            "is-dragging"
+        );
+
+
+        const distance =
+            mouseEndX -
+            mouseStartX;
+
+
+        if (
+            Math.abs(distance) >= 50
+        ) {
+
+            if (
+                distance < 0
+            ) {
+
+                nextSlide();
+
+            } else {
+
+                previousSlide();
+
+            }
+
+        }
+
+
+        startAutoSlide();
+
+    }
+
+
+    heroBanner.addEventListener(
+        "mouseup",
+        finishMouseDrag
+    );
+
+
+    heroBanner.addEventListener(
+        "mouseleave",
+        finishMouseDrag
+    );
+
+
+    /*==================================================
+    KEYBOARD
+    ==================================================*/
+
+    if (
+        !heroBanner.dataset.keyboardBound
+    ) {
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key === "ArrowRight"
+                ) {
+
+                    nextSlide();
+
+                    startAutoSlide();
+
+                }
+
+
+                if (
+                    event.key === "ArrowLeft"
+                ) {
+
+                    previousSlide();
+
+                    startAutoSlide();
+
+                }
+
+            }
+        );
+
+
+        heroBanner.dataset.keyboardBound =
+            "true";
+
+    }
+
+
+    /*==================================================
+    INITIAL SLIDE
+    ==================================================*/
+
+    showSlide(
+        0
+    );
+
 
     startAutoSlide();
 
 
     console.log(
-        "✓ SmartBazaar Pro 2 Home Banner Slider Ready:",
+        "✓ SmartBazaar Pro 2 Home Banner Slider Initialized:",
         slides.length,
         "banner(s)"
     );
@@ -1078,59 +1631,30 @@ function initializeSlider() {
 
 
 /*==================================================
-FEATURE: STOP AUTO SLIDE
+FEATURE: START HOME BANNER SYSTEM
 ==================================================*/
 
-function stopAutoSlide() {
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
 
-    if (
-        autoSlideTimer !== null
-    ) {
-
-        clearInterval(
-            autoSlideTimer
+        console.log(
+            "✓ SmartBazaar Pro 2 Home Banners Starting..."
         );
 
 
-        autoSlideTimer =
-            null;
+        /*==================================================
+        ADMIN PLUS BUTTON
+        ==================================================*/
+
+        initializeAdminBannerAccess();
+
+
+        /*==================================================
+        LOAD FIREBASE BANNERS
+        ==================================================*/
+
+        loadHomeBanners();
 
     }
-
-}
-
-
-/*==================================================
-FEATURE: ERROR
-==================================================*/
-
-function showBannerError() {
-
-    const slidesContainer =
-        document.querySelector(
-            ".hero-banner .slides"
-        );
-
-
-    if (!slidesContainer) {
-        return;
-    }
-
-
-    slidesContainer.innerHTML = `
-
-        <div class="slide active">
-
-            <div class="banner-image-placeholder">
-
-                <span>
-                    Unable to load banners.
-                </span>
-
-            </div>
-
-        </div>
-
-    `;
-
-}
+);
