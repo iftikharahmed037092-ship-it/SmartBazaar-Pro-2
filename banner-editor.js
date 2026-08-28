@@ -425,9 +425,13 @@ bannerImage.addEventListener(
 FEATURE: CLOUDINARY BANNER UPLOAD
 ==================================================*/
 
-async function uploadBannerImage(
-    file
-) {
+/*==================================================
+SMARTBAZAAR PRO 2
+FEATURE: BANNER IMAGE UPLOAD
+CENTRAL CLOUDINARY CONFIG
+==================================================*/
+
+async function uploadBannerImage(file) {
 
     if (!file) {
 
@@ -436,30 +440,81 @@ async function uploadBannerImage(
     }
 
 
+    /*==================================================
+    FEATURE: SHOW UPLOAD PROGRESS
+    ==================================================*/
+
     uploadProgress.style.display =
         "block";
 
-
     progressBar.style.width =
-        "15%";
-
+        "10%";
 
     uploadStatus.textContent =
-        "Uploading banner image...";
+        "Preparing image upload...";
 
 
     try {
 
-        /*
-        Central Cloudinary function استعمال کیا جا رہا ہے۔
-        */
+        /*==================================================
+        FEATURE: UPLOAD TIMEOUT
+        Prevent endless Saving spinner
+        ==================================================*/
 
-        const result =
-            await uploadToCloudinary(
+        const timeoutPromise =
+            new Promise(
+                (_, reject) => {
+
+                    setTimeout(
+                        () => {
+
+                            reject(
+                                new Error(
+                                    "Cloudinary upload timed out. Please check the Upload Preset and internet connection."
+                                )
+                            );
+
+                        },
+                        30000
+                    );
+
+                }
+            );
+
+
+        /*==================================================
+        FEATURE: CLOUDINARY UPLOAD
+        ==================================================*/
+
+        uploadStatus.textContent =
+            "Uploading image to Cloudinary...";
+
+
+        progressBar.style.width =
+            "25%";
+
+
+        const uploadPromise =
+            uploadToCloudinary(
                 file,
                 CLOUDINARY_FOLDERS.BANNERS
             );
 
+
+        /*==================================================
+        FEATURE: WAIT FOR UPLOAD OR TIMEOUT
+        ==================================================*/
+
+        const result =
+            await Promise.race([
+                uploadPromise,
+                timeoutPromise
+            ]);
+
+
+        /*==================================================
+        FEATURE: VALIDATE CLOUDINARY RESPONSE
+        ==================================================*/
 
         if (
             !result ||
@@ -467,11 +522,15 @@ async function uploadBannerImage(
         ) {
 
             throw new Error(
-                "Cloudinary did not return an image URL."
+                "Cloudinary uploaded the file but no image URL was returned."
             );
 
         }
 
+
+        /*==================================================
+        FEATURE: SUCCESS
+        ==================================================*/
 
         progressBar.style.width =
             "100%";
@@ -488,7 +547,7 @@ async function uploadBannerImage(
     catch (error) {
 
         console.error(
-            "Cloudinary Banner Upload Error:",
+            "BANNER CLOUDINARY ERROR:",
             error
         );
 
