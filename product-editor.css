@@ -1,7 +1,8 @@
 /* =========================================================
-   SMARTBAZAAR PRO
+   SMARTBAZAAR PRO 2
    FEATURE: PRODUCT DETAIL EDITOR CSS
    ========================================================= */
+
 
 * {
     box-sizing: border-box;
@@ -15,6 +16,7 @@ html {
 
 body {
     margin: 0;
+
     padding: 0;
 
     font-family:
@@ -22,9 +24,11 @@ body {
         Helvetica,
         sans-serif;
 
-    background: #f4f6f8;
+    background:
+        #f4f6f8;
 
-    color: #222;
+    color:
+        #202124;
 }
 
 
@@ -37,11 +41,12 @@ body {
 
     min-height: 100vh;
 
-    padding: 35px 18px 60px;
+    padding:
+        30px 18px 60px;
 }
 
 
-.editor-container {
+.product-editor-container {
     width: 100%;
 
     max-width: 1100px;
@@ -54,7 +59,7 @@ body {
    HEADER
    ========================================================= */
 
-.editor-header {
+.product-editor-header {
     display: flex;
 
     align-items: center;
@@ -67,265 +72,412 @@ body {
 }
 
 
-.editor-eyebrow {
-    display: block;
+.editor-header-left {
+    display: flex;
 
-    margin-bottom: 7px;
+    align-items: flex-start;
 
-    color: #2e7d32;
-
-    font-size: 12px;
-
-    font-weight: 800;
-
-    letter-spacing: 1.5px;
+    gap: 18px;
 }
 
 
-.editor-heading h1 {
-    margin: 0;
-
-    font-size: 32px;
-}
-
-
-.editor-heading p {
-    margin: 8px 0 0;
-
-    color: #777;
-
-    font-size: 15px;
-}
-
-
-.back-home-button {
+.back-admin-button {
     display: inline-flex;
 
     align-items: center;
 
     gap: 8px;
 
-    padding: 11px 17px;
+    padding:
+        11px 15px;
 
-    background: #ffffff;
+    background:
+        #ffffff;
 
-    color: #333;
+    color:
+        #333;
 
-    border-radius: 10px;
+    border:
+        1px solid #e1e5e9;
 
-    text-decoration: none;
+    border-radius:
+        10px;
+
+    text-decoration:
+        none;
+
+    font-size:
+        14px;
+
+    font-weight:
+        700;
+
+    white-space:
+        nowrap;
+
+    transition:
+        0.25s ease;
+}
+
+
+.back-admin-button:hover {
+    transform:
+        translateY(-2px);
 
     box-shadow:
-        0 5px 18px rgba(0, 0, 0, 0.06);
-
-    white-space: nowrap;
-
-    transition: 0.25s ease;
+        0 6px 18px rgba(0,0,0,0.07);
 }
 
 
-.back-home-button:hover {
-    transform: translateY(-2px);
-}
-
-
-/* =========================================================
-   SAVE MESSAGE
-   ========================================================= */
-
-.save-message {
-    display: none;
-
-    padding: 13px 16px;
-
-    margin-bottom: 18px;
-
-    border-radius: 10px;
-
-    font-size: 14px;
-
-    font-weight: 600;
-}
-
-
-.save-message.success {
+.editor-eyebrow {
     display: block;
 
-    background: #eaf7ec;
+    margin-bottom: 5px;
 
-    color: #2e7d32;
+    color:
+        #2e7d32;
+
+    font-size:
+        11px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        1.5px;
 }
 
 
-.save-message.error {
-    display: block;
+.editor-title-area h1 {
+    margin:
+        0;
 
-    background: #fff0f0;
+    font-size:
+        31px;
 
-    color: #c62828;
+    line-height:
+        1.2;
 }
 
 
-/* =========================================================
-   EDITOR CARD
-   ========================================================= */
+.editor-title-area p {
+    margin:
+        7px 0 0;
 
-.editor-card {
-    background: #ffffff;
+    color:
+        #777;
 
-    border-radius: 18px;
-
-    padding: 25px;
-
-    margin-bottom: 20px;
-
-    box-shadow:
-        0 8px 30px rgba(0, 0, 0, 0.06);
+    font-size:
+        14px;
 }
 
 
-.card-heading {
-    display: flex;
-
-    align-items: flex-start;
-
-    gap: 14px;
-
-    margin-bottom: 25px;
-}
-
-
-.card-icon {
-    width: 44px;
-    height: 44px;
-
-    flex: 0 0 44px;
-
+.editor-status {
     display: flex;
 
     align-items: center;
-    justify-content: center;
 
-    border-radius: 12px;
+    gap: 8px;
 
-    background: #eaf5eb;
+    padding:
+        9px 13px;
 
-    color: #2e7d32;
+    background:
+        #ffffff;
 
-    font-size: 18px;
+    border:
+        1px solid #e1e5e9;
+
+    border-radius:
+        20px;
+
+    color:
+        #555;
+
+    font-size:
+        13px;
+
+    font-weight:
+        700;
+
+    white-space:
+        nowrap;
 }
 
 
-.card-heading h2 {
-    margin: 0;
+.status-dot {
+    width:
+        8px;
 
-    font-size: 19px;
-}
+    height:
+        8px;
 
+    border-radius:
+        50%;
 
-.card-heading p {
-    margin: 5px 0 0;
-
-    color: #888;
-
-    font-size: 13px;
+    background:
+        #2e7d32;
 }
 
 
 /* =========================================================
-   FORM GRID
+   MESSAGE
+   ========================================================= */
+
+.editor-message {
+    display:
+        none;
+
+    padding:
+        13px 16px;
+
+    margin-bottom:
+        18px;
+
+    border-radius:
+        10px;
+
+    font-size:
+        14px;
+
+    font-weight:
+        700;
+}
+
+
+.editor-message.success {
+    display:
+        block;
+
+    background:
+        #e9f7ec;
+
+    color:
+        #2e7d32;
+}
+
+
+.editor-message.error {
+    display:
+        block;
+
+    background:
+        #fff0f0;
+
+    color:
+        #c62828;
+}
+
+
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.editor-card {
+    padding:
+        26px;
+
+    margin-bottom:
+        20px;
+
+    background:
+        #ffffff;
+
+    border-radius:
+        18px;
+
+    box-shadow:
+        0 7px 28px rgba(0,0,0,0.055);
+}
+
+
+.card-title {
+    display:
+        flex;
+
+    align-items:
+        flex-start;
+
+    gap:
+        13px;
+
+    margin-bottom:
+        25px;
+}
+
+
+.card-title-icon {
+    width:
+        44px;
+
+    height:
+        44px;
+
+    flex:
+        0 0 44px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        12px;
+
+    background:
+        #eaf5eb;
+
+    color:
+        #2e7d32;
+
+    font-size:
+        18px;
+}
+
+
+.card-title h2 {
+    margin:
+        0;
+
+    font-size:
+        19px;
+}
+
+
+.card-title p {
+    margin:
+        5px 0 0;
+
+    color:
+        #888;
+
+    font-size:
+        13px;
+}
+
+
+/* =========================================================
+   FORM
    ========================================================= */
 
 .form-grid {
-    display: grid;
+    display:
+        grid;
 
     grid-template-columns:
         repeat(2, minmax(0, 1fr));
 
-    gap: 20px;
+    gap:
+        20px;
 }
 
 
 .form-group {
-    display: flex;
+    position:
+        relative;
 
-    flex-direction: column;
+    display:
+        flex;
 
-    min-width: 0;
+    flex-direction:
+        column;
+
+    min-width:
+        0;
+
+    margin-bottom:
+        20px;
+}
+
+
+.form-grid .form-group {
+    margin-bottom:
+        0;
 }
 
 
 .form-group.full-width {
-    grid-column: 1 / -1;
+    grid-column:
+        1 / -1;
 }
 
 
 .form-group label,
-.upload-label {
-    margin-bottom: 8px;
+.upload-section-title {
+    margin-bottom:
+        8px;
 
-    font-size: 14px;
+    color:
+        #333;
 
-    font-weight: 700;
+    font-size:
+        14px;
 
-    color: #333;
+    font-weight:
+        700;
 }
 
 
-.form-group label span,
-.upload-label span {
-    color: #d32f2f;
+.required {
+    color:
+        #d32f2f;
 }
 
 
 .form-group input,
 .form-group textarea {
-    width: 100%;
+    width:
+        100%;
 
-    padding: 13px 14px;
+    padding:
+        13px 14px;
 
-    border: 1px solid #dfe3e8;
+    border:
+        1px solid #dce1e5;
 
-    border-radius: 10px;
+    border-radius:
+        10px;
 
-    outline: none;
+    outline:
+        none;
 
-    background: #ffffff;
+    background:
+        #ffffff;
 
-    color: #222;
+    color:
+        #222;
 
-    font-family: inherit;
+    font-family:
+        inherit;
 
-    font-size: 15px;
+    font-size:
+        15px;
 
     transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
+        0.2s ease;
 }
 
 
 .form-group textarea {
-    resize: vertical;
+    resize:
+        vertical;
 
-    line-height: 1.6;
+    line-height:
+        1.65;
 }
 
 
 .form-group input:focus,
 .form-group textarea:focus {
-    border-color: #2e7d32;
+    border-color:
+        #2e7d32;
 
     box-shadow:
-        0 0 0 3px rgba(46, 125, 50, 0.10);
-}
-
-
-.form-group small {
-    margin-top: 6px;
-
-    color: #999;
-
-    font-size: 12px;
+        0 0 0 3px rgba(46,125,50,0.10);
 }
 
 
@@ -333,44 +485,167 @@ body {
    PRICE INPUT
    ========================================================= */
 
-.input-with-prefix {
-    display: flex;
+.input-prefix {
+    display:
+        flex;
 
-    align-items: center;
+    align-items:
+        center;
 
-    overflow: hidden;
+    overflow:
+        hidden;
 
-    border: 1px solid #dfe3e8;
+    border:
+        1px solid #dce1e5;
 
-    border-radius: 10px;
+    border-radius:
+        10px;
 
-    background: #fff;
+    background:
+        #ffffff;
 }
 
 
-.input-with-prefix:focus-within {
-    border-color: #2e7d32;
+.input-prefix:focus-within {
+    border-color:
+        #2e7d32;
 
     box-shadow:
-        0 0 0 3px rgba(46, 125, 50, 0.10);
+        0 0 0 3px rgba(46,125,50,0.10);
 }
 
 
-.input-with-prefix span {
-    padding-left: 14px;
+.input-prefix span {
+    padding-left:
+        14px;
 
-    color: #777;
+    color:
+        #777;
 
-    font-weight: 700;
+    font-weight:
+        700;
 }
 
 
-.input-with-prefix input {
-    border: 0;
+.input-prefix input {
+    border:
+        0;
 
-    box-shadow: none;
+    border-radius:
+        0;
 
-    border-radius: 0;
+    box-shadow:
+        none;
+}
+
+
+.input-prefix input:focus {
+    box-shadow:
+        none;
+}
+
+
+/* =========================================================
+   PRICE PREVIEW
+   ========================================================= */
+
+.price-preview {
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    flex-wrap:
+        wrap;
+
+    gap:
+        12px;
+
+    margin-top:
+        20px;
+
+    padding:
+        14px 16px;
+
+    background:
+        #f7faf7;
+
+    border:
+        1px solid #e4eee5;
+
+    border-radius:
+        11px;
+}
+
+
+.price-preview > span:first-child {
+    color:
+        #777;
+
+    font-size:
+        13px;
+}
+
+
+.price-preview strong {
+    color:
+        #2e7d32;
+
+    font-size:
+        21px;
+}
+
+
+.preview-old-price {
+    color:
+        #999;
+
+    text-decoration:
+        line-through;
+
+    font-size:
+        14px;
+}
+
+
+.preview-discount {
+    padding:
+        4px 8px;
+
+    background:
+        #fff0f0;
+
+    color:
+        #d32f2f;
+
+    border-radius:
+        6px;
+
+    font-size:
+        12px;
+
+    font-weight:
+        800;
+}
+
+
+/* =========================================================
+   CHARACTER COUNT
+   ========================================================= */
+
+.character-count {
+    align-self:
+        flex-end;
+
+    margin-top:
+        5px;
+
+    color:
+        #999;
+
+    font-size:
+        11px;
 }
 
 
@@ -378,139 +653,317 @@ body {
    IMAGE UPLOAD
    ========================================================= */
 
-.image-upload-section {
-    margin-bottom: 28px;
+.upload-section {
+    margin-bottom:
+        28px;
 }
 
 
-.image-upload-section:last-child {
-    margin-bottom: 0;
-}
-
-
-.upload-label {
-    display: block;
+.upload-section:last-child {
+    margin-bottom:
+        0;
 }
 
 
 .upload-box {
-    min-height: 150px;
+    min-height:
+        150px;
 
-    display: flex;
+    display:
+        flex;
 
-    flex-direction: column;
+    flex-direction:
+        column;
 
-    align-items: center;
-    justify-content: center;
+    align-items:
+        center;
 
-    gap: 7px;
+    justify-content:
+        center;
 
-    padding: 25px;
+    gap:
+        7px;
 
-    border: 2px dashed #d8dde2;
+    padding:
+        25px;
 
-    border-radius: 14px;
+    border:
+        2px dashed #d7dde1;
 
-    background: #fafbfc;
+    border-radius:
+        14px;
 
-    cursor: pointer;
+    background:
+        #fafbfc;
 
-    text-align: center;
+    cursor:
+        pointer;
 
-    transition: 0.25s ease;
+    text-align:
+        center;
+
+    transition:
+        0.25s ease;
 }
 
 
 .upload-box:hover {
-    border-color: #2e7d32;
+    border-color:
+        #2e7d32;
 
-    background: #f7fbf7;
+    background:
+        #f7fbf7;
 }
 
 
 .upload-box i {
-    font-size: 32px;
+    margin-bottom:
+        4px;
 
-    color: #2e7d32;
+    color:
+        #2e7d32;
 
-    margin-bottom: 5px;
+    font-size:
+        32px;
 }
 
 
 .upload-box strong {
-    font-size: 15px;
+    font-size:
+        15px;
 }
 
 
 .upload-box span {
-    color: #999;
+    color:
+        #999;
 
-    font-size: 12px;
+    font-size:
+        12px;
 }
 
 
 /* =========================================================
-   IMAGE PREVIEWS
+   MAIN IMAGE PREVIEW
    ========================================================= */
 
 .main-image-preview {
-    display: none;
+    display:
+        none;
 
-    margin-top: 15px;
+    width:
+        190px;
 
-    width: 180px;
-    height: 180px;
+    height:
+        190px;
 
-    overflow: hidden;
+    margin-top:
+        15px;
 
-    border-radius: 14px;
+    overflow:
+        hidden;
 
-    border: 1px solid #e1e5e9;
+    border:
+        1px solid #e0e4e7;
 
-    background: #f7f7f7;
+    border-radius:
+        14px;
+
+    background:
+        #f7f8f9;
 }
 
 
 .main-image-preview img {
-    width: 100%;
-    height: 100%;
+    width:
+        100%;
 
-    object-fit: contain;
+    height:
+        100%;
+
+    object-fit:
+        contain;
 }
 
 
+/* =========================================================
+   GALLERY PREVIEW
+   ========================================================= */
+
 .gallery-preview {
-    display: grid;
+    display:
+        grid;
 
     grid-template-columns:
         repeat(auto-fill, minmax(120px, 1fr));
 
-    gap: 12px;
+    gap:
+        12px;
 
-    margin-top: 15px;
+    margin-top:
+        15px;
 }
 
 
 .gallery-image {
-    position: relative;
+    height:
+        120px;
 
-    height: 120px;
+    overflow:
+        hidden;
 
-    overflow: hidden;
+    border:
+        1px solid #e0e4e7;
 
-    border-radius: 12px;
+    border-radius:
+        12px;
 
-    border: 1px solid #e1e5e9;
-
-    background: #f7f7f7;
+    background:
+        #f7f8f9;
 }
 
 
 .gallery-image img {
-    width: 100%;
-    height: 100%;
+    width:
+        100%;
 
-    object-fit: cover;
+    height:
+        100%;
+
+    object-fit:
+        cover;
+}
+
+
+/* =========================================================
+   PUBLISH TOGGLE
+   ========================================================= */
+
+.publish-toggle {
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        13px;
+
+    padding:
+        16px;
+
+    border:
+        1px solid #e2e6e9;
+
+    border-radius:
+        13px;
+
+    cursor:
+        pointer;
+}
+
+
+.publish-toggle input {
+    display:
+        none;
+}
+
+
+.toggle-slider {
+    position:
+        relative;
+
+    width:
+        48px;
+
+    height:
+        26px;
+
+    flex:
+        0 0 48px;
+
+    border-radius:
+        20px;
+
+    background:
+        #cfd4d8;
+
+    transition:
+        0.25s ease;
+}
+
+
+.toggle-slider::after {
+    content:
+        "";
+
+    position:
+        absolute;
+
+    top:
+        3px;
+
+    left:
+        3px;
+
+    width:
+        20px;
+
+    height:
+        20px;
+
+    border-radius:
+        50%;
+
+    background:
+        #ffffff;
+
+    box-shadow:
+        0 2px 5px rgba(0,0,0,0.15);
+
+    transition:
+        0.25s ease;
+}
+
+
+.publish-toggle input:checked
+~ .toggle-slider {
+    background:
+        #2e7d32;
+}
+
+
+.publish-toggle input:checked
+~ .toggle-slider::after {
+    transform:
+        translateX(22px);
+}
+
+
+.toggle-content {
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        4px;
+}
+
+
+.toggle-content strong {
+    font-size:
+        14px;
+}
+
+
+.toggle-content small {
+    color:
+        #888;
+
+    font-size:
+        12px;
 }
 
 
@@ -519,69 +972,92 @@ body {
    ========================================================= */
 
 .editor-actions {
-    display: flex;
+    display:
+        flex;
 
-    align-items: center;
+    align-items:
+        center;
 
-    justify-content: flex-end;
+    justify-content:
+        flex-end;
 
-    gap: 12px;
+    gap:
+        12px;
 
-    padding: 5px 0;
+    padding:
+        3px 0;
 }
 
 
 .editor-actions button {
-    min-height: 50px;
+    min-height:
+        50px;
 
-    padding: 0 22px;
+    padding:
+        0 22px;
 
-    border: 0;
+    border-radius:
+        11px;
 
-    border-radius: 11px;
+    cursor:
+        pointer;
 
-    cursor: pointer;
+    font-family:
+        inherit;
 
-    font-family: inherit;
+    font-size:
+        15px;
 
-    font-size: 15px;
+    font-weight:
+        700;
 
-    font-weight: 700;
-
-    transition: 0.25s ease;
+    transition:
+        0.25s ease;
 }
 
 
-.cancel-button {
-    background: #ffffff;
+.clear-button {
+    border:
+        1px solid #d9dde0;
 
-    color: #555;
+    background:
+        #ffffff;
 
-    border: 1px solid #ddd !important;
+    color:
+        #555;
 }
 
 
 .save-product-button {
-    background: #2e7d32;
+    border:
+        0;
 
-    color: #ffffff;
+    background:
+        #2e7d32;
+
+    color:
+        #ffffff;
 
     box-shadow:
-        0 6px 18px rgba(46, 125, 50, 0.20);
+        0 7px 20px rgba(46,125,50,0.20);
 }
 
 
 .editor-actions button:hover {
-    transform: translateY(-2px);
+    transform:
+        translateY(-2px);
 }
 
 
 .save-product-button:disabled {
-    opacity: 0.65;
+    opacity:
+        0.65;
 
-    cursor: not-allowed;
+    cursor:
+        not-allowed;
 
-    transform: none;
+    transform:
+        none;
 }
 
 
@@ -589,59 +1065,86 @@ body {
    MOBILE
    ========================================================= */
 
-@media (max-width: 700px) {
+@media (max-width: 720px) {
 
     .product-editor-page {
         padding:
-            20px 12px 40px;
+            18px 11px 40px;
     }
 
 
-    .editor-header {
-        align-items: flex-start;
+    .product-editor-header {
+        flex-direction:
+            column;
 
-        flex-direction: column;
+        align-items:
+            stretch;
     }
 
 
-    .editor-heading h1 {
-        font-size: 26px;
+    .editor-header-left {
+        flex-direction:
+            column;
     }
 
 
-    .back-home-button {
-        width: 100%;
-
-        justify-content: center;
+    .back-admin-button {
+        width:
+            fit-content;
     }
 
 
-    .editor-card {
-        padding: 18px;
+    .editor-title-area h1 {
+        font-size:
+            26px;
+    }
 
-        border-radius: 15px;
+
+    .editor-status {
+        width:
+            fit-content;
     }
 
 
     .form-grid {
-        grid-template-columns: 1fr;
-
-        gap: 17px;
+        grid-template-columns:
+            1fr;
     }
 
 
     .form-group.full-width {
-        grid-column: auto;
+        grid-column:
+            auto;
+    }
+
+
+    .editor-card {
+        padding:
+            19px;
+
+        border-radius:
+            15px;
     }
 
 
     .editor-actions {
-        flex-direction: column-reverse;
+        flex-direction:
+            column-reverse;
     }
 
 
     .editor-actions button {
-        width: 100%;
+        width:
+            100%;
+    }
+
+
+    .main-image-preview {
+        width:
+            160px;
+
+        height:
+            160px;
     }
 
 }
