@@ -1,60 +1,42 @@
 /*==================================================
 SMARTBAZAAR PRO 2
-FEATURE: HOME DYNAMIC BANNER SYSTEM
-FINAL REPLACEMENT VERSION
+HOME BANNERS JAVASCRIPT
+FEATURE: DYNAMIC HERO BANNER SYSTEM
+FIREBASE REALTIME DATABASE
+==================================================*/
+
+
+/*==================================================
+FIREBASE IMPORTS
 ==================================================*/
 
 import {
-    database,
-    auth
+    database
 } from "./firebase-config.js";
 
 import {
     ref,
-    onValue
+    get
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
 
-import {
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-
 
 /*==================================================
-FEATURE: DOM ELEMENTS
+FEATURE: FIREBASE BANNER PATH
 ==================================================*/
-
-const heroSlider =
-    document.getElementById("heroSlider");
-
-const heroSliderDots =
-    document.getElementById("heroSliderDots");
-
-const adminAddBannerButton =
-    document.getElementById("adminAddBannerButton");
-
-const heroPrev =
-    document.getElementById("heroPrev");
-
-const heroNext =
-    document.getElementById("heroNext");
-
-
-/*==================================================
-FEATURE: CONFIGURATION
-==================================================*/
-
-const ADMIN_EMAIL =
-    "iftikharahmed037092@gmail.com";
 
 const BANNER_DATABASE_PATH =
     "smartbazaar_pro_2/banners";
 
-const AUTO_SLIDE_TIME =
-    7000;
+
+const bannersRef =
+    ref(
+        database,
+        BANNER_DATABASE_PATH
+    );
 
 
 /*==================================================
-FEATURE: SLIDER STATE
+FEATURE: BANNER STATE
 ==================================================*/
 
 let banners = [];
@@ -65,378 +47,71 @@ let autoSlideTimer = null;
 
 
 /*==================================================
-FEATURE: INITIAL CHECK
+FEATURE: DOM READY
 ==================================================*/
 
-if (!heroSlider) {
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
 
-    console.error(
-        "SmartBazaar Pro 2: #heroSlider not found."
-    );
-
-}
-
-
-/*==================================================
-FEATURE: ADMIN ACCESS
-==================================================*/
-
-if (auth && adminAddBannerButton) {
-
-    onAuthStateChanged(
-        auth,
-        (user) => {
-
-            const isAdmin =
-                user &&
-                user.email &&
-                user.email.toLowerCase() ===
-                ADMIN_EMAIL.toLowerCase();
-
-
-            adminAddBannerButton.style.display =
-                isAdmin ? "flex" : "none";
-
-        }
-    );
-
-}
-
-
-/*==================================================
-FEATURE: LOAD BANNERS
-FIREBASE REALTIME LISTENER
-==================================================*/
-
-function loadBanners() {
-
-    if (!database) {
-
-        showBannerMessage(
-            "Firebase Database Not Available"
-        );
-
-        return;
+        loadHomeBanners();
 
     }
+);
 
 
-    const bannersRef =
-        ref(
-            database,
-            BANNER_DATABASE_PATH
-        );
+/*==================================================
+FEATURE: GET BANNER IMAGE
+==================================================*/
 
+function getBannerImage(banner) {
 
-    onValue(
-
-        bannersRef,
-
-        (snapshot) => {
-
-            try {
-
-                const data =
-                    snapshot.val();
-
-
-                console.log(
-                    "SmartBazaar Pro 2 Firebase Banner Data:",
-                    data
-                );
-
-
-                banners = [];
-
-
-                /*==========================================
-                FEATURE: CHECK DATA
-                ==========================================*/
-
-                if (
-                    !data ||
-                    typeof data !== "object"
-                ) {
-
-                    renderBanners();
-
-                    return;
-
-                }
-
-
-                /*==========================================
-                FEATURE: READ BANNERS
-                ==========================================*/
-
-                Object.entries(data).forEach(
-                    ([id, banner]) => {
-
-                        if (
-                            !banner ||
-                            typeof banner !== "object"
-                        ) {
-
-                            return;
-
-                        }
-
-
-                        /*==================================
-                        FEATURE: NORMALIZE DATA
-                        ==================================*/
-
-                        const normalizedBanner = {
-
-                            id:
-
-                                banner.id ||
-                                id,
-
-                            imageUrl:
-
-                                String(
-                                    banner.imageUrl ||
-                                    ""
-                                ).trim(),
-
-                            mobileImageUrl:
-
-                                String(
-                                    banner.mobileImageUrl ||
-                                    ""
-                                ).trim(),
-
-                            title:
-
-                                String(
-                                    banner.title ||
-                                    ""
-                                ).trim(),
-
-                            subtitle:
-
-                                String(
-                                    banner.subtitle ||
-                                    ""
-                                ).trim(),
-
-                            buttonText:
-
-                                String(
-                                    banner.buttonText ||
-                                    ""
-                                ).trim(),
-
-                            buttonLink:
-
-                                String(
-                                    banner.buttonLink ||
-                                    ""
-                                ).trim(),
-
-                            order:
-
-                                Number(
-                                    banner.order || 0
-                                ),
-
-                            active:
-
-                                banner.active !== false,
-
-                            startDate:
-
-                                String(
-                                    banner.startDate ||
-                                    ""
-                                ).trim(),
-
-                            endDate:
-
-                                String(
-                                    banner.endDate ||
-                                    ""
-                                ).trim(),
-
-                            createdAt:
-
-                                banner.createdAt ||
-                                0,
-
-                            updatedAt:
-
-                                banner.updatedAt ||
-                                0
-
-                        };
-
-
-                        /*==================================
-                        FEATURE: IMAGE VALIDATION
-                        ==================================*/
-
-                        if (
-                            !normalizedBanner.imageUrl &&
-                            !normalizedBanner.mobileImageUrl
-                        ) {
-
-                            console.warn(
-                                "SmartBazaar Pro 2: Banner skipped because no image URL exists:",
-                                normalizedBanner
-                            );
-
-                            return;
-
-                        }
-
-
-                        /*==================================
-                        FEATURE: ACTIVE STATUS
-                        ==================================*/
-
-                        if (
-                            normalizedBanner.active !== true
-                        ) {
-
-                            return;
-
-                        }
-
-
-                        /*==================================
-                        FEATURE: DATE FILTER
-                        ==================================*/
-
-                        if (
-                            !isBannerWithinDateRange(
-                                normalizedBanner
-                            )
-                        ) {
-
-                            return;
-
-                        }
-
-
-                        /*==================================
-                        FEATURE: ADD VALID BANNER
-                        ==================================*/
-
-                        banners.push(
-                            normalizedBanner
-                        );
-
-                    }
-                );
-
-
-                /*==========================================
-                FEATURE: SORT BY ORDER
-                ==========================================*/
-
-                banners.sort(
-                    (a, b) => {
-
-                        const orderA =
-                            Number(a.order || 0);
-
-                        const orderB =
-                            Number(b.order || 0);
-
-
-                        if (
-                            orderA !== orderB
-                        ) {
-
-                            return (
-                                orderA -
-                                orderB
-                            );
-
-                        }
-
-
-                        return (
-                            Number(a.createdAt || 0) -
-                            Number(b.createdAt || 0)
-                        );
-
-                    }
-                );
-
-
-                /*==========================================
-                FEATURE: RENDER
-                ==========================================*/
-
-                renderBanners();
-
-
-            } catch (error) {
-
-                console.error(
-                    "SmartBazaar Pro 2 Banner Render Error:",
-                    error
-                );
-
-
-                showBannerMessage(
-                    "Unable to Load Banners"
-                );
-
-            }
-
-        },
-
-        (error) => {
-
-            console.error(
-                "SmartBazaar Pro 2 Firebase Banner Error:",
-                error
-            );
-
-
-            showBannerMessage(
-                "Unable to Load Banners"
-            );
-
-        }
-
+    return (
+        banner.imageUrl ||
+        banner.desktopImageUrl ||
+        banner.image ||
+        ""
     );
 
 }
 
 
 /*==================================================
-FEATURE: DATE CONTROL
+FEATURE: GET MOBILE IMAGE
 ==================================================*/
 
-function isBannerWithinDateRange(
-    banner
-) {
+function getMobileBannerImage(banner) {
+
+    return (
+        banner.mobileImageUrl ||
+        banner.mobileImage ||
+        getBannerImage(banner)
+    );
+
+}
+
+
+/*==================================================
+FEATURE: CHECK BANNER SCHEDULE
+==================================================*/
+
+function isBannerWithinSchedule(banner) {
 
     const now =
         Date.now();
 
 
-    /*==============================================
-    START DATE
-    ==============================================*/
+    if (banner.startDate) {
 
-    if (
-        banner.startDate
-    ) {
-
-        const startTime =
-            parseBannerDate(
+        const start =
+            new Date(
                 banner.startDate
-            );
+            ).getTime();
 
 
         if (
-            startTime !== null &&
-            now < startTime
+            !Number.isNaN(start) &&
+            now < start
         ) {
 
             return false;
@@ -446,23 +121,17 @@ function isBannerWithinDateRange(
     }
 
 
-    /*==============================================
-    END DATE
-    ==============================================*/
+    if (banner.endDate) {
 
-    if (
-        banner.endDate
-    ) {
-
-        const endTime =
-            parseBannerDate(
+        const end =
+            new Date(
                 banner.endDate
-            );
+            ).getTime();
 
 
         if (
-            endTime !== null &&
-            now > endTime
+            !Number.isNaN(end) &&
+            now > end
         ) {
 
             return false;
@@ -478,48 +147,299 @@ function isBannerWithinDateRange(
 
 
 /*==================================================
-FEATURE: SAFE DATE PARSER
+FEATURE: SAFE URL
 ==================================================*/
 
-function parseBannerDate(
-    value
-) {
+function safeURL(value) {
 
-    if (!value) {
-        return null;
+    const url =
+        String(value ?? "").trim();
+
+
+    if (!url) {
+        return "#";
     }
 
 
-    const time =
-        new Date(value).getTime();
+    const lower =
+        url.toLowerCase();
 
 
     if (
-        Number.isNaN(time)
+        lower.startsWith("javascript:") ||
+        lower.startsWith("data:") ||
+        lower.startsWith("vbscript:")
     ) {
 
-        console.warn(
-            "SmartBazaar Pro 2: Invalid banner date:",
-            value
-        );
-
-        return null;
+        return "#";
 
     }
 
 
-    return time;
+    return url;
 
 }
 
 
 /*==================================================
-FEATURE: RENDER BANNERS
+FEATURE: ESCAPE HTML
 ==================================================*/
 
-function renderBanners() {
+function escapeHTML(value) {
 
-    if (!heroSlider) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/*==================================================
+FEATURE: LOAD HOME BANNERS
+==================================================*/
+
+async function loadHomeBanners() {
+
+    const slidesContainer =
+        document.querySelector(
+            ".hero-banner .slides"
+        );
+
+
+    const dotsContainer =
+        document.querySelector(
+            ".hero-banner .slider-dots"
+        );
+
+
+    if (!slidesContainer) {
+
+        console.error(
+            "SmartBazaar Pro 2: .slides container not found."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        console.log(
+            "SmartBazaar Pro 2: Loading home banners..."
+        );
+
+
+        const snapshot =
+            await get(
+                bannersRef
+            );
+
+
+        banners = [];
+
+
+        /*==================================================
+        FEATURE: FIREBASE DATA
+        ==================================================*/
+
+        if (
+            snapshot.exists()
+        ) {
+
+            const data =
+                snapshot.val();
+
+
+            Object.entries(
+                data
+            ).forEach(
+                function (
+                    [id, banner]
+                ) {
+
+                    if (!banner) {
+                        return;
+                    }
+
+
+                    /* ACTIVE */
+
+                    if (
+                        banner.active === false
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    /* IMAGE */
+
+                    const imageUrl =
+                        getBannerImage(
+                            banner
+                        );
+
+
+                    if (!imageUrl) {
+
+                        console.warn(
+                            "Banner skipped. Image missing:",
+                            id
+                        );
+
+                        return;
+
+                    }
+
+
+                    /* DATE */
+
+                    if (
+                        !isBannerWithinSchedule(
+                            banner
+                        )
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    banners.push({
+
+                        id:
+                            id,
+
+                        title:
+                            banner.title || "",
+
+                        subtitle:
+                            banner.subtitle || "",
+
+                        description:
+                            banner.description || "",
+
+                        buttonText:
+                            banner.buttonText || "",
+
+                        buttonLink:
+                            banner.buttonLink || "",
+
+                        badge:
+                            banner.badge ||
+                            banner.tag ||
+                            "SPECIAL OFFER",
+
+                        imageUrl:
+                            imageUrl,
+
+                        mobileImageUrl:
+                            getMobileBannerImage(
+                                banner
+                            ),
+
+                        order:
+                            Number(
+                                banner.order || 0
+                            ),
+
+                        createdAt:
+                            Number(
+                                banner.createdAt || 0
+                            )
+
+                    });
+
+                }
+            );
+
+        }
+
+
+        /*==================================================
+        FEATURE: SORT BANNERS
+        ==================================================*/
+
+        banners.sort(
+            function (a, b) {
+
+                const orderDifference =
+                    a.order -
+                    b.order;
+
+
+                if (
+                    orderDifference !== 0
+                ) {
+
+                    return orderDifference;
+
+                }
+
+
+                return (
+                    a.createdAt -
+                    b.createdAt
+                );
+
+            }
+        );
+
+
+        console.log(
+            "SmartBazaar Pro 2: Loaded banners:",
+            banners
+        );
+
+
+        renderHomeBanners();
+
+
+    } catch (error) {
+
+        console.error(
+            "SmartBazaar Pro 2: Banner loading error:",
+            error
+        );
+
+
+        showBannerError();
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: RENDER HOME BANNERS
+==================================================*/
+
+function renderHomeBanners() {
+
+    const slidesContainer =
+        document.querySelector(
+            ".hero-banner .slides"
+        );
+
+
+    const dotsContainer =
+        document.querySelector(
+            ".hero-banner .slider-dots"
+        );
+
+
+    const bannerContent =
+        document.querySelector(
+            ".hero-banner .banner-content"
+        );
+
+
+    if (!slidesContainer) {
         return;
     }
 
@@ -527,254 +447,502 @@ function renderBanners() {
     stopAutoSlide();
 
 
-    /*==============================================
-    FEATURE: REMOVE OLD DYNAMIC SLIDES
-    ==============================================*/
-
-    heroSlider
-        .querySelectorAll(
-            ".hero-slide"
-        )
-        .forEach(
-            slide => slide.remove()
-        );
-
-
-    /*==============================================
-    FEATURE: RESET DOTS
-    ==============================================*/
-
-    if (heroSliderDots) {
-
-        heroSliderDots.innerHTML =
-            "";
-
-    }
-
-
-    /*==============================================
+    /*==================================================
     FEATURE: NO BANNERS
-    ==============================================*/
+    ==================================================*/
 
     if (
-        banners.length === 0
+        !banners.length
     ) {
 
-        currentSlide = 0;
+        slidesContainer.innerHTML = `
+
+            <div class="slide active">
+
+                <div class="banner-image-placeholder">
+
+                    <span>
+                        No Banners Available
+                    </span>
+
+                </div>
+
+            </div>
+
+        `;
 
 
-        showBannerMessage(
-            "No Banners Available"
-        );
+        if (dotsContainer) {
 
+            dotsContainer.innerHTML = "";
+
+        }
+
+
+        updateBannerContent(null);
 
         return;
 
     }
 
 
-    /*==============================================
+    /*==================================================
     FEATURE: CREATE SLIDES
-    ==============================================*/
+    ==================================================*/
 
-    banners.forEach(
-        (banner, index) => {
-
-            const slide =
-                document.createElement(
-                    "div"
-                );
-
-
-            slide.className =
-                "hero-slide";
-
-
-            if (
-                index === 0
+    slidesContainer.innerHTML =
+        banners.map(
+            function (
+                banner,
+                index
             ) {
 
-                slide.classList.add(
-                    "active"
-                );
-
-            }
-
-
-            /*======================================
-            FEATURE: IMAGE SELECTION
-            ======================================*/
-
-            const desktopImage =
-                banner.imageUrl ||
-                banner.mobileImageUrl ||
-                "";
+                const imageUrl =
+                    escapeHTML(
+                        banner.imageUrl
+                    );
 
 
-            const mobileImage =
-                banner.mobileImageUrl ||
-                banner.imageUrl ||
-                "";
+                const mobileImageUrl =
+                    escapeHTML(
+                        banner.mobileImageUrl
+                    );
 
 
-            /*======================================
-            FEATURE: LINK
-            ======================================*/
-
-            const link =
-                sanitizeUrl(
-                    banner.buttonLink
-                );
+                const safeLink =
+                    escapeHTML(
+                        safeURL(
+                            banner.buttonLink
+                        )
+                    );
 
 
-            const hasLink =
-                Boolean(link);
+                return `
 
+                    <div
+                        class="slide ${
+                            index === 0
+                                ? "active"
+                                : ""
+                        }"
+                        data-index="${index}">
 
-            /*======================================
-            FEATURE: IMAGE ALT
-            ======================================*/
-
-            const altText =
-                banner.title ||
-                "SmartBazaar Pro Banner";
-
-
-            /*======================================
-            FEATURE: BUILD HTML
-            ======================================*/
-
-            slide.innerHTML = `
-
-                ${
-                    hasLink
-                        ? `
-                            <a
-                                href="${escapeHtml(link)}"
-                                class="banner-link"
-                            >
-                        `
-                        : `
-                            <div class="banner-link">
-                        `
-                }
-
-                    <picture>
-
-                        <source
-                            media="(max-width: 768px)"
-                            srcset="${escapeHtml(
-                                mobileImage
-                            )}"
+                        <a
+                            href="${safeLink}"
+                            class="banner-slide-link"
+                            ${
+                                safeLink === "#"
+                                    ? 'onclick="return false;"'
+                                    : ""
+                            }
                         >
 
-                        <img
-                            src="${escapeHtml(
-                                desktopImage
-                            )}"
-                            alt="${escapeHtml(
-                                altText
-                            )}"
-                            loading="${
+                            <picture>
+
+                                <source
+                                    media="(max-width: 768px)"
+                                    srcset="${mobileImageUrl}"
+                                >
+
+                                <img
+                                    src="${imageUrl}"
+                                    alt="${escapeHTML(
+                                        banner.title ||
+                                        "SmartBazaar Pro Banner"
+                                    )}"
+                                    draggable="false"
+                                    loading="${
+                                        index === 0
+                                            ? "eager"
+                                            : "lazy"
+                                    }"
+                                >
+
+                            </picture>
+
+                        </a>
+
+                    </div>
+
+                `;
+
+            }
+        ).join("");
+
+
+    /*==================================================
+    FEATURE: CREATE DOTS
+    ==================================================*/
+
+    if (dotsContainer) {
+
+        dotsContainer.innerHTML =
+            banners.map(
+                function (
+                    banner,
+                    index
+                ) {
+
+                    return `
+
+                        <button
+                            type="button"
+                            class="slider-dot ${
                                 index === 0
-                                    ? "eager"
-                                    : "lazy"
+                                    ? "active"
+                                    : ""
                             }"
-                            decoding="async"
-                        >
+                            data-slide="${index}"
+                            aria-label="Banner ${
+                                index + 1
+                            }">
+                        </button>
 
-                    </picture>
+                    `;
 
-                ${
-                    hasLink
-                        ? "</a>"
-                        : "</div>"
                 }
+            ).join("");
 
-            `;
-
-
-            /*======================================
-            FEATURE: INSERT SLIDE
-            ======================================*/
-
-            const firstArrow =
-                heroSlider.querySelector(
-                    ".hero-slider-arrow"
-                );
+    }
 
 
-            if (firstArrow) {
+    /*==================================================
+    FEATURE: INITIAL CONTENT
+    ==================================================*/
 
-                heroSlider.insertBefore(
-                    slide,
-                    firstArrow
-                );
+    updateBannerContent(
+        banners[0]
+    );
 
-            } else {
 
-                heroSlider.appendChild(
-                    slide
+    /*==================================================
+    FEATURE: INITIALIZE SLIDER
+    ==================================================*/
+
+    initializeSlider();
+
+}
+
+
+/*==================================================
+FEATURE: UPDATE BANNER CONTENT
+==================================================*/
+
+function updateBannerContent(banner) {
+
+    if (!banner) {
+        return;
+    }
+
+
+    const badge =
+        document.getElementById(
+            "homeBannerBadge"
+        );
+
+
+    const title =
+        document.getElementById(
+            "homeBannerTitle"
+        );
+
+
+    const description =
+        document.getElementById(
+            "homeBannerDescription"
+        );
+
+
+    const button =
+        document.getElementById(
+            "homeBannerButton"
+        );
+
+
+    if (badge) {
+
+        badge.textContent =
+            banner.badge ||
+            "SPECIAL OFFER";
+
+    }
+
+
+    if (title) {
+
+        title.textContent =
+            banner.title || "";
+
+    }
+
+
+    if (description) {
+
+        description.textContent =
+            banner.description || "";
+
+    }
+
+
+    if (button) {
+
+        button.textContent =
+            banner.buttonText ||
+            "Shop Now";
+
+
+        const link =
+            safeURL(
+                banner.buttonLink
+            );
+
+
+        button.href =
+            link;
+
+
+        if (link === "#") {
+
+            button.onclick =
+                function () {
+
+                    return false;
+
+                };
+
+        } else {
+
+            button.onclick = null;
+
+        }
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: INITIALIZE SLIDER
+==================================================*/
+
+function initializeSlider() {
+
+    const slides =
+        document.querySelectorAll(
+            ".hero-banner .slide"
+        );
+
+
+    const dots =
+        document.querySelectorAll(
+            ".hero-banner .slider-dot"
+        );
+
+
+    if (
+        !slides.length
+    ) {
+
+        return;
+
+    }
+
+
+    currentSlide = 0;
+
+
+    /*==================================================
+    FEATURE: SHOW SLIDE
+    ==================================================*/
+
+    function showSlide(index) {
+
+        if (
+            index < 0
+        ) {
+
+            index =
+                slides.length - 1;
+
+        }
+
+
+        if (
+            index >= slides.length
+        ) {
+
+            index = 0;
+
+        }
+
+
+        slides.forEach(
+            function (
+                slide,
+                slideIndex
+            ) {
+
+                slide.classList.toggle(
+                    "active",
+                    slideIndex === index
                 );
 
             }
+        );
 
 
-            /*======================================
-            FEATURE: IMAGE ERROR HANDLING
-            ======================================*/
+        dots.forEach(
+            function (
+                dot,
+                dotIndex
+            ) {
 
-            const image =
-                slide.querySelector(
-                    "img"
+                dot.classList.toggle(
+                    "active",
+                    dotIndex === index
                 );
 
+            }
+        );
 
-            if (image) {
 
-                image.addEventListener(
-                    "error",
-                    () => {
+        currentSlide =
+            index;
 
-                        console.error(
-                            "SmartBazaar Pro 2: Banner image failed:",
-                            image.src
+
+        updateBannerContent(
+            banners[index]
+        );
+
+    }
+
+
+    /*==================================================
+    FEATURE: NEXT
+    ==================================================*/
+
+    function nextSlide() {
+
+        if (
+            slides.length <= 1
+        ) {
+
+            return;
+
+        }
+
+
+        showSlide(
+            currentSlide + 1
+        );
+
+    }
+
+
+    /*==================================================
+    FEATURE: PREVIOUS
+    ==================================================*/
+
+    function previousSlide() {
+
+        if (
+            slides.length <= 1
+        ) {
+
+            return;
+
+        }
+
+
+        showSlide(
+            currentSlide - 1
+        );
+
+    }
+
+
+    /*==================================================
+    FEATURE: AUTO SLIDE
+    7 SECONDS
+    ==================================================*/
+
+    function startAutoSlide() {
+
+        stopAutoSlide();
+
+
+        if (
+            slides.length <= 1
+        ) {
+
+            return;
+
+        }
+
+
+        autoSlideTimer =
+            setInterval(
+                function () {
+
+                    nextSlide();
+
+                },
+                7000
+            );
+
+    }
+
+
+    /*==================================================
+    FEATURE: DOT CLICK
+    ==================================================*/
+
+    dots.forEach(
+        function (dot) {
+
+            dot.addEventListener(
+                "click",
+                function () {
+
+                    const index =
+                        Number(
+                            dot.dataset.slide
                         );
 
 
-                        image.style.display =
-                            "none";
+                    showSlide(
+                        index
+                    );
 
 
-                        const fallback =
-                            document.createElement(
-                                "div"
-                            );
+                    startAutoSlide();
+
+                }
+            );
+
+        }
+    );
 
 
-                        fallback.className =
-                            "banner-image-placeholder";
+    /*==================================================
+    FEATURE: DESKTOP PAUSE
+    ==================================================*/
+
+    const heroBanner =
+        document.querySelector(
+            ".hero-banner"
+        );
 
 
-                        fallback.innerHTML = `
+    heroBanner?.addEventListener(
+        "mouseenter",
+        function () {
 
-                            <span>
-                                Banner Image Unavailable
-                            </span>
+            if (
+                window.innerWidth > 768
+            ) {
 
-                        `;
-
-
-                        slide
-                            .querySelector(
-                                ".banner-link"
-                            )
-                            ?.appendChild(
-                                fallback
-                            );
-
-                    }
-                );
+                stopAutoSlide();
 
             }
 
@@ -782,410 +950,129 @@ function renderBanners() {
     );
 
 
-    /*==============================================
-    FEATURE: CREATE DOTS
-    ==============================================*/
+    heroBanner?.addEventListener(
+        "mouseleave",
+        function () {
 
-    createDots();
+            if (
+                window.innerWidth > 768
+            ) {
 
+                startAutoSlide();
 
-    /*==============================================
-    FEATURE: SHOW FIRST SLIDE
-    ==============================================*/
+            }
 
-    currentSlide = 0;
-
-
-    showSlide(
-        currentSlide
+        }
     );
 
 
-    /*==============================================
-    FEATURE: START AUTO SLIDER
-    ==============================================*/
+    /*==================================================
+    FEATURE: TOUCH SWIPE
+    ==================================================*/
+
+    let touchStartX = 0;
+
+    let touchStartY = 0;
+
+
+    heroBanner?.addEventListener(
+        "touchstart",
+        function (event) {
+
+            if (
+                !event.touches.length
+            ) {
+                return;
+            }
+
+
+            touchStartX =
+                event.touches[0].clientX;
+
+            touchStartY =
+                event.touches[0].clientY;
+
+
+            stopAutoSlide();
+
+        },
+        {
+            passive: true
+        }
+    );
+
+
+    heroBanner?.addEventListener(
+        "touchend",
+        function (event) {
+
+            if (
+                !event.changedTouches.length
+            ) {
+                return;
+            }
+
+
+            const touchEndX =
+                event.changedTouches[0].clientX;
+
+            const touchEndY =
+                event.changedTouches[0].clientY;
+
+
+            const distanceX =
+                touchEndX -
+                touchStartX;
+
+            const distanceY =
+                touchEndY -
+                touchStartY;
+
+
+            if (
+                Math.abs(distanceX) > 50 &&
+                Math.abs(distanceX) >
+                Math.abs(distanceY)
+            ) {
+
+                if (
+                    distanceX < 0
+                ) {
+
+                    nextSlide();
+
+                } else {
+
+                    previousSlide();
+
+                }
+
+            }
+
+
+            startAutoSlide();
+
+        },
+        {
+            passive: true
+        }
+    );
+
+
+    /*==================================================
+    FEATURE: START
+    ==================================================*/
+
+    showSlide(0);
 
     startAutoSlide();
 
 
-    /*==============================================
-    FEATURE: ARROW VISIBILITY
-    ==============================================*/
-
-    updateArrowVisibility();
-
-}
-
-
-/*==================================================
-FEATURE: EMPTY / ERROR MESSAGE
-==================================================*/
-
-function showBannerMessage(
-    message
-) {
-
-    if (!heroSlider) {
-        return;
-    }
-
-
-    heroSlider
-        .querySelectorAll(
-            ".hero-slide"
-        )
-        .forEach(
-            slide => slide.remove()
-        );
-
-
-    currentSlide = 0;
-
-
-    const slide =
-        document.createElement(
-            "div"
-        );
-
-
-    slide.className =
-        "hero-slide active";
-
-
-    slide.innerHTML = `
-
-        <div
-            class="banner-image-placeholder"
-        >
-
-            <span>
-                ${escapeHtml(message)}
-            </span>
-
-        </div>
-
-    `;
-
-
-    const firstArrow =
-        heroSlider.querySelector(
-            ".hero-slider-arrow"
-        );
-
-
-    if (firstArrow) {
-
-        heroSlider.insertBefore(
-            slide,
-            firstArrow
-        );
-
-    } else {
-
-        heroSlider.appendChild(
-            slide
-        );
-
-    }
-
-
-    if (heroSliderDots) {
-
-        heroSliderDots.innerHTML =
-            "";
-
-    }
-
-
-    updateArrowVisibility();
-
-}
-
-
-/*==================================================
-FEATURE: CREATE DOTS
-==================================================*/
-
-function createDots() {
-
-    if (!heroSliderDots) {
-        return;
-    }
-
-
-    heroSliderDots.innerHTML =
-        "";
-
-
-    banners.forEach(
-        (_, index) => {
-
-            const dot =
-                document.createElement(
-                    "button"
-                );
-
-
-            dot.type =
-                "button";
-
-
-            dot.className =
-                "hero-dot";
-
-
-            dot.setAttribute(
-                "aria-label",
-                `Go to Banner ${index + 1}`
-            );
-
-
-            dot.setAttribute(
-                "aria-current",
-                index === 0
-                    ? "true"
-                    : "false"
-            );
-
-
-            if (
-                index === 0
-            ) {
-
-                dot.classList.add(
-                    "active"
-                );
-
-            }
-
-
-            dot.addEventListener(
-                "click",
-                () => {
-
-                    currentSlide =
-                        index;
-
-
-                    showSlide(
-                        currentSlide
-                    );
-
-
-                    restartAutoSlide();
-
-                }
-            );
-
-
-            heroSliderDots.appendChild(
-                dot
-            );
-
-        }
+    console.log(
+        "✓ SmartBazaar Pro 2 Home Banner Slider Ready:",
+        slides.length,
+        "banner(s)"
     );
-
-}
-
-
-/*==================================================
-FEATURE: SHOW SLIDE
-==================================================*/
-
-function showSlide(
-    index
-) {
-
-    if (!heroSlider) {
-        return;
-    }
-
-
-    const slides =
-        heroSlider.querySelectorAll(
-            ".hero-slide"
-        );
-
-
-    if (
-        slides.length === 0 ||
-        banners.length === 0
-    ) {
-
-        return;
-
-    }
-
-
-    /*==============================================
-    FEATURE: NORMALIZE INDEX
-    ==============================================*/
-
-    if (
-        index < 0
-    ) {
-
-        index =
-            banners.length - 1;
-
-    }
-
-
-    if (
-        index >= banners.length
-    ) {
-
-        index = 0;
-
-    }
-
-
-    currentSlide =
-        index;
-
-
-    /*==============================================
-    FEATURE: ACTIVE SLIDE
-    ==============================================*/
-
-    slides.forEach(
-        (slide, slideIndex) => {
-
-            slide.classList.toggle(
-                "active",
-                slideIndex === currentSlide
-            );
-
-        }
-    );
-
-
-    /*==============================================
-    FEATURE: ACTIVE DOT
-    ==============================================*/
-
-    if (heroSliderDots) {
-
-        heroSliderDots
-            .querySelectorAll(
-                ".hero-dot"
-            )
-            .forEach(
-                (dot, dotIndex) => {
-
-                    const active =
-                        dotIndex ===
-                        currentSlide;
-
-
-                    dot.classList.toggle(
-                        "active",
-                        active
-                    );
-
-
-                    dot.setAttribute(
-                        "aria-current",
-                        active
-                            ? "true"
-                            : "false"
-                    );
-
-                }
-            );
-
-    }
-
-}
-
-
-/*==================================================
-FEATURE: NEXT SLIDE
-==================================================*/
-
-function nextSlide() {
-
-    if (
-        banners.length <= 1
-    ) {
-
-        return;
-
-    }
-
-
-    const nextIndex =
-        (
-            currentSlide + 1
-        ) %
-        banners.length;
-
-
-    showSlide(
-        nextIndex
-    );
-
-}
-
-
-/*==================================================
-FEATURE: PREVIOUS SLIDE
-==================================================*/
-
-function previousSlide() {
-
-    if (
-        banners.length <= 1
-    ) {
-
-        return;
-
-    }
-
-
-    const previousIndex =
-        (
-            currentSlide -
-            1 +
-            banners.length
-        ) %
-        banners.length;
-
-
-    showSlide(
-        previousIndex
-    );
-
-}
-
-
-/*==================================================
-FEATURE: START AUTO SLIDE
-==================================================*/
-
-function startAutoSlide() {
-
-    stopAutoSlide();
-
-
-    if (
-        banners.length <= 1
-    ) {
-
-        return;
-
-    }
-
-
-    autoSlideTimer =
-        setInterval(
-            () => {
-
-                nextSlide();
-
-            },
-            AUTO_SLIDE_TIME
-        );
 
 }
 
@@ -1214,232 +1101,36 @@ function stopAutoSlide() {
 
 
 /*==================================================
-FEATURE: RESTART AUTO SLIDE
+FEATURE: ERROR
 ==================================================*/
 
-function restartAutoSlide() {
+function showBannerError() {
 
-    startAutoSlide();
-
-}
-
-
-/*==================================================
-FEATURE: ARROW EVENTS
-==================================================*/
-
-heroNext?.addEventListener(
-    "click",
-    (event) => {
-
-        event.preventDefault();
-
-
-        nextSlide();
-
-
-        restartAutoSlide();
-
-    }
-);
-
-
-heroPrev?.addEventListener(
-    "click",
-    (event) => {
-
-        event.preventDefault();
-
-
-        previousSlide();
-
-
-        restartAutoSlide();
-
-    }
-);
-
-
-/*==================================================
-FEATURE: ARROW VISIBILITY
-==================================================*/
-
-function updateArrowVisibility() {
-
-    const shouldShow =
-        banners.length > 1;
-
-
-    if (heroPrev) {
-
-        heroPrev.style.display =
-            shouldShow
-                ? "flex"
-                : "none";
-
-    }
-
-
-    if (heroNext) {
-
-        heroNext.style.display =
-            shouldShow
-                ? "flex"
-                : "none";
-
-    }
-
-}
-
-
-/*==================================================
-FEATURE: SAFE URL
-==================================================*/
-
-function sanitizeUrl(
-    value
-) {
-
-    if (!value) {
-        return "";
-    }
-
-
-    const url =
-        String(value).trim();
-
-
-    if (
-        url === "#" ||
-        url === "javascript:void(0)"
-    ) {
-
-        return "";
-
-    }
-
-
-    /*==============================================
-    ALLOW NORMAL WEB LINKS
-    ==============================================*/
-
-    if (
-        url.startsWith("/") ||
-        url.startsWith("./") ||
-        url.startsWith("../") ||
-        url.startsWith("#") ||
-        url.startsWith("https://") ||
-        url.startsWith("http://") ||
-        url.startsWith("mailto:")
-    ) {
-
-        return url;
-
-    }
-
-
-    return "";
-
-}
-
-
-/*==================================================
-FEATURE: ESCAPE HTML
-==================================================*/
-
-function escapeHtml(
-    value
-) {
-
-    return String(
-        value ?? ""
-    )
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
+    const slidesContainer =
+        document.querySelector(
+            ".hero-banner .slides"
         );
 
-}
 
-
-/*==================================================
-FEATURE: PAUSE ON HOVER
-DESKTOP UX
-==================================================*/
-
-if (heroSlider) {
-
-    heroSlider.addEventListener(
-        "mouseenter",
-        () => {
-
-            stopAutoSlide();
-
-        }
-    );
-
-
-    heroSlider.addEventListener(
-        "mouseleave",
-        () => {
-
-            startAutoSlide();
-
-        }
-    );
-
-}
-
-
-/*==================================================
-FEATURE: VISIBILITY CONTROL
-STOP SLIDER WHEN TAB HIDDEN
-==================================================*/
-
-document.addEventListener(
-    "visibilitychange",
-    () => {
-
-        if (
-            document.hidden
-        ) {
-
-            stopAutoSlide();
-
-        } else {
-
-            startAutoSlide();
-
-        }
-
+    if (!slidesContainer) {
+        return;
     }
-);
 
 
-/*==================================================
-FEATURE: INITIALIZE
-==================================================*/
+    slidesContainer.innerHTML = `
 
-loadBanners();
+        <div class="slide active">
 
+            <div class="banner-image-placeholder">
 
-/*==================================================
-SMARTBAZAAR PRO 2
-END OF FINAL HOME BANNER SYSTEM
-==================================================*/
+                <span>
+                    Unable to load banners.
+                </span>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
