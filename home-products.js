@@ -611,7 +611,7 @@ function openProductDetail(
     window.location.href =
     `product-details.html?id=${encodeURIComponent(product.productId)}`;
 
-
+} 
 /*==================================================
 FEATURE: EMPTY PRODUCTS
 ==================================================*/
