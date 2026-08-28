@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="SmartBazaar Pro Product Detail Editor"
+    >
+
+    <title>Product Detail Editor | SmartBazaar Pro</title>
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+    <!-- Product Editor CSS -->
+    <link
+        rel="stylesheet"
+        href="product-editor.css"
+    >
+
+</head>
+
+
+<body>
+
+    <!-- =====================================================
+         SMARTBAZAAR PRO
+         FEATURE: PRODUCT DETAIL EDITOR
+         ===================================================== -->
+
+    <main class="product-editor-page">
+
+        <div class="editor-container">
+
+            <!-- =================================================
+                 EDITOR HEADER
+                 ================================================= -->
+
+            <header class="editor-header">
+
+                <div class="editor-heading">
+
+                    <span class="editor-eyebrow">
+                        SMARTBAZAAR PRO
+                    </span>
+
+                    <h1>
+                        Product Detail Editor
+                    </h1>
+
+                    <p>
+                        Create and manage your product information.
+                    </p>
+
+                </div>
+
+
+                <a
+                    href="index.html"
+                    class="back-home-button"
+                >
+                    <i class="fa-solid fa-house"></i>
+                    Home
+                </a>
+
+            </header>
+
+
+            <!-- =================================================
+                 SAVE STATUS
+                 ================================================= -->
+
+            <div
+                class="save-message"
+                id="saveMessage"
+            ></div>
+
+
+            <!-- =================================================
+                 PRODUCT FORM
+                 ================================================= -->
+
+            <form
+                id="productForm"
+                class="product-form"
+            >
+
+                <!-- =================================================
+                     BASIC INFORMATION
+                     ================================================= -->
+
+                <section class="editor-card">
+
+                    <div class="card-heading">
+
+                        <div class="card-icon">
+                            <i class="fa-solid fa-box"></i>
+                        </div>
+
+                        <div>
+
+                            <h2>
+                                Basic Product Information
+                            </h2>
+
+                            <p>
+                                Enter the main information about your product.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <!-- Product Name -->
+                        <div class="form-group full-width">
+
+                            <label for="productName">
+                                Product Name
+                                <span>*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                id="productName"
+                                name="productName"
+                                placeholder="Enter product name"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- Category -->
+                        <div class="form-group">
+
+                            <label for="productCategory">
+                                Category
+                                <span>*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                id="productCategory"
+                                name="productCategory"
+                                placeholder="e.g. Electronics"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- Brand -->
+                        <div class="form-group">
+
+                            <label for="productBrand">
+                                Brand
+                            </label>
+
+                            <input
+                                type="text"
+                                id="productBrand"
+                                name="productBrand"
+                                placeholder="Enter brand name"
+                            >
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     PRICING & INVENTORY
+                     ================================================= -->
+
+                <section class="editor-card">
+
+                    <div class="card-heading">
+
+                        <div class="card-icon">
+                            <i class="fa-solid fa-tag"></i>
+                        </div>
+
+                        <div>
+
+                            <h2>
+                                Pricing & Inventory
+                            </h2>
+
+                            <p>
+                                Set price, discount and stock information.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <!-- Price -->
+                        <div class="form-group">
+
+                            <label for="productPrice">
+                                Selling Price
+                                <span>*</span>
+                            </label>
+
+                            <div class="input-with-prefix">
+
+                                <span>
+                                    Rs.
+                                </span>
+
+                                <input
+                                    type="number"
+                                    id="productPrice"
+                                    name="productPrice"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="0"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Old Price -->
+                        <div class="form-group">
+
+                            <label for="productOldPrice">
+                                Original / Old Price
+                            </label>
+
+                            <div class="input-with-prefix">
+
+                                <span>
+                                    Rs.
+                                </span>
+
+                                <input
+                                    type="number"
+                                    id="productOldPrice"
+                                    name="productOldPrice"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="0"
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Stock -->
+                        <div class="form-group">
+
+                            <label for="productStock">
+                                Stock Quantity
+                                <span>*</span>
+                            </label>
+
+                            <input
+                                type="number"
+                                id="productStock"
+                                name="productStock"
+                                min="0"
+                                step="1"
+                                placeholder="0"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     PRODUCT DESCRIPTION
+                     ================================================= -->
+
+                <section class="editor-card">
+
+                    <div class="card-heading">
+
+                        <div class="card-icon">
+                            <i class="fa-solid fa-align-left"></i>
+                        </div>
+
+                        <div>
+
+                            <h2>
+                                Product Description
+                            </h2>
+
+                            <p>
+                                Add a short and detailed description.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <!-- Short Description -->
+                        <div class="form-group full-width">
+
+                            <label for="shortDescription">
+                                Short Description
+                            </label>
+
+                            <textarea
+                                id="shortDescription"
+                                name="shortDescription"
+                                rows="4"
+                                maxlength="300"
+                                placeholder="Write a short product description..."
+                            ></textarea>
+
+                            <small>
+                                Maximum 300 characters.
+                            </small>
+
+                        </div>
+
+
+                        <!-- Full Description -->
+                        <div class="form-group full-width">
+
+                            <label for="fullDescription">
+                                Full Product Description
+                            </label>
+
+                            <textarea
+                                id="fullDescription"
+                                name="fullDescription"
+                                rows="8"
+                                placeholder="Write complete product details..."
+                            ></textarea>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     PRODUCT IMAGES
+                     ================================================= -->
+
+                <section class="editor-card">
+
+                    <div class="card-heading">
+
+                        <div class="card-icon">
+                            <i class="fa-solid fa-images"></i>
+                        </div>
+
+                        <div>
+
+                            <h2>
+                                Product Images
+                            </h2>
+
+                            <p>
+                                Upload a main image and additional gallery images.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Main Image -->
+                    <div class="image-upload-section">
+
+                        <label class="upload-label">
+                            Main Product Image
+                            <span>*</span>
+                        </label>
+
+
+                        <label
+                            for="mainImage"
+                            class="upload-box"
+                        >
+
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+
+                            <strong>
+                                Choose Main Image
+                            </strong>
+
+                            <span>
+                                JPG, PNG or WEBP
+                            </span>
+
+                        </label>
+
+
+                        <input
+                            type="file"
+                            id="mainImage"
+                            accept="image/*"
+                            hidden
+                        >
+
+
+                        <div
+                            class="main-image-preview"
+                            id="mainImagePreview"
+                        ></div>
+
+                    </div>
+
+
+                    <!-- Gallery -->
+                    <div class="image-upload-section">
+
+                        <label class="upload-label">
+                            Product Gallery
+                        </label>
+
+
+                        <label
+                            for="galleryImages"
+                            class="upload-box"
+                        >
+
+                            <i class="fa-solid fa-photo-film"></i>
+
+                            <strong>
+                                Choose Gallery Images
+                            </strong>
+
+                            <span>
+                                You can select multiple images
+                            </span>
+
+                        </label>
+
+
+                        <input
+                            type="file"
+                            id="galleryImages"
+                            accept="image/*"
+                            multiple
+                            hidden
+                        >
+
+
+                        <div
+                            class="gallery-preview"
+                            id="galleryPreview"
+                        ></div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     SELLER INFORMATION
+                     ================================================= -->
+
+                <section class="editor-card">
+
+                    <div class="card-heading">
+
+                        <div class="card-icon">
+                            <i class="fa-solid fa-store"></i>
+                        </div>
+
+                        <div>
+
+                            <h2>
+                                Seller Information
+                            </h2>
+
+                            <p>
+                                Information about the product seller.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+
+                            <label for="sellerName">
+                                Seller Name
+                            </label>
+
+                            <input
+                                type="text"
+                                id="sellerName"
+                                name="sellerName"
+                                placeholder="Seller / Store name"
+                            >
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     FORM ACTIONS
+                     ================================================= -->
+
+                <section class="editor-actions">
+
+                    <button
+                        type="button"
+                        class="cancel-button"
+                        id="cancelButton"
+                    >
+                        <i class="fa-solid fa-xmark"></i>
+                        Clear
+                    </button>
+
+
+                    <button
+                        type="submit"
+                        class="save-product-button"
+                        id="saveProductButton"
+                    >
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        Save Product
+                    </button>
+
+                </section>
+
+            </form>
+
+        </div>
+
+    </main>
+
+
+    <!-- Product Editor JavaScript -->
+    <script
+        type="module"
+        src="product-editor.js"
+    ></script>
+
+</body>
+
+</html>
