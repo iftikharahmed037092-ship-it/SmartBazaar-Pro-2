@@ -65,58 +65,94 @@ FEATURE: DOM ELEMENTS
 ==================================================*/
 
 const bannerForm =
-    document.getElementById("bannerForm");
+    document.getElementById(
+        "bannerForm"
+    );
 
 const bannerImage =
-    document.getElementById("bannerImage");
+    document.getElementById(
+        "bannerImage"
+    );
 
 const imagePreview =
-    document.getElementById("imagePreview");
+    document.getElementById(
+        "imagePreview"
+    );
 
 const uploadPlaceholder =
-    document.getElementById("uploadPlaceholder");
+    document.getElementById(
+        "uploadPlaceholder"
+    );
 
 const uploadProgress =
-    document.getElementById("uploadProgress");
+    document.getElementById(
+        "uploadProgress"
+    );
 
 const progressBar =
-    document.getElementById("progressBar");
+    document.getElementById(
+        "progressBar"
+    );
 
 const uploadStatus =
-    document.getElementById("uploadStatus");
+    document.getElementById(
+        "uploadStatus"
+    );
 
 const bannersGrid =
-    document.getElementById("bannersGrid");
+    document.getElementById(
+        "bannersGrid"
+    );
 
 const bannerCount =
-    document.getElementById("bannerCount");
+    document.getElementById(
+        "bannerCount"
+    );
 
 const adminStatus =
-    document.getElementById("adminStatus");
+    document.getElementById(
+        "adminStatus"
+    );
 
 const adminEmail =
-    document.getElementById("adminEmail");
+    document.getElementById(
+        "adminEmail"
+    );
 
 const statusBadge =
-    document.getElementById("statusBadge");
+    document.getElementById(
+        "statusBadge"
+    );
 
 const logoutButton =
-    document.getElementById("logoutButton");
+    document.getElementById(
+        "logoutButton"
+    );
 
 const resetFormButton =
-    document.getElementById("resetFormButton");
+    document.getElementById(
+        "resetFormButton"
+    );
 
 const formTitle =
-    document.getElementById("formTitle");
+    document.getElementById(
+        "formTitle"
+    );
 
 const saveBannerButton =
-    document.getElementById("saveBannerButton");
+    document.getElementById(
+        "saveBannerButton"
+    );
 
 const toast =
-    document.getElementById("toast");
+    document.getElementById(
+        "toast"
+    );
 
 const toastMessage =
-    document.getElementById("toastMessage");
+    document.getElementById(
+        "toastMessage"
+    );
 
 
 /*==================================================
@@ -124,25 +160,39 @@ FEATURE: FORM FIELDS
 ==================================================*/
 
 const bannerTitle =
-    document.getElementById("bannerTitle");
+    document.getElementById(
+        "bannerTitle"
+    );
 
 const bannerSubtitle =
-    document.getElementById("bannerSubtitle");
+    document.getElementById(
+        "bannerSubtitle"
+    );
 
 const bannerDescription =
-    document.getElementById("bannerDescription");
+    document.getElementById(
+        "bannerDescription"
+    );
 
 const buttonText =
-    document.getElementById("buttonText");
+    document.getElementById(
+        "buttonText"
+    );
 
 const buttonLink =
-    document.getElementById("buttonLink");
+    document.getElementById(
+        "buttonLink"
+    );
 
 const bannerOrder =
-    document.getElementById("bannerOrder");
+    document.getElementById(
+        "bannerOrder"
+    );
 
 const bannerActive =
-    document.getElementById("bannerActive");
+    document.getElementById(
+        "bannerActive"
+    );
 
 
 /*==================================================
@@ -159,74 +209,6 @@ let allBanners = [];
 
 
 /*==================================================
-FEATURE: CHECK REQUIRED ELEMENTS
-==================================================*/
-
-function checkElements() {
-
-    const requiredElements = [
-
-        bannerForm,
-        bannerImage,
-        imagePreview,
-        uploadPlaceholder,
-        uploadProgress,
-        progressBar,
-        uploadStatus,
-        bannersGrid,
-        bannerCount,
-        adminStatus,
-        adminEmail,
-        statusBadge,
-        logoutButton,
-        resetFormButton,
-        formTitle,
-        saveBannerButton,
-        toast,
-        toastMessage,
-        bannerTitle,
-        bannerSubtitle,
-        bannerDescription,
-        buttonText,
-        buttonLink,
-        bannerOrder,
-        bannerActive
-
-    ];
-
-
-    const missing =
-        requiredElements.some(
-            element => !element
-        );
-
-
-    if (missing) {
-
-        console.error(
-            "Banner Editor Error: One or more HTML elements are missing."
-        );
-
-        return false;
-
-    }
-
-
-    return true;
-
-}
-
-
-if (!checkElements()) {
-
-    throw new Error(
-        "Banner Editor could not start because required HTML elements are missing."
-    );
-
-}
-
-
-/*==================================================
 FEATURE: ADMIN AUTHENTICATION
 ==================================================*/
 
@@ -234,8 +216,7 @@ onAuthStateChanged(
     auth,
     async (user) => {
 
-        currentUser =
-            user;
+        currentUser = user;
 
 
         if (!user) {
@@ -254,9 +235,9 @@ onAuthStateChanged(
 
 
         const userEmail =
-            (
-                user.email || ""
-            ).toLowerCase();
+            user.email
+                ? user.email.toLowerCase()
+                : "";
 
 
         const adminEmailLower =
@@ -288,18 +269,10 @@ onAuthStateChanged(
                 "";
 
 
-            const bannersSection =
-                document.querySelector(
-                    ".banners-section"
-                );
-
-
-            if (bannersSection) {
-
-                bannersSection.style.display =
-                    "";
-
-            }
+            document.querySelector(
+                ".banners-section"
+            ).style.display =
+                "";
 
 
             await loadBanners();
@@ -346,8 +319,12 @@ function showNotAuthorized(
         "#d43c3c";
 
 
-    bannerForm.style.display =
-        "none";
+    if (bannerForm) {
+
+        bannerForm.style.display =
+            "none";
+
+    }
 
 
     const bannersSection =
@@ -368,23 +345,15 @@ function showNotAuthorized(
 
 /*==================================================
 FEATURE: IMAGE PREVIEW
-IMPORTANT:
-IMAGE MUST PREVIEW IMMEDIATELY
-WHEN USER SELECTS FILE.
 ==================================================*/
 
 bannerImage.addEventListener(
     "change",
-    function () {
+    () => {
 
         const file =
-            this.files &&
-            this.files[0];
+            bannerImage.files[0];
 
-
-        /*------------------------------------------
-        NO FILE
-        ------------------------------------------*/
 
         if (!file) {
 
@@ -393,61 +362,18 @@ bannerImage.addEventListener(
         }
 
 
-        /*------------------------------------------
-        IMAGE TYPE CHECK
-        ------------------------------------------*/
-
         if (
-            !file.type ||
-            !file.type.startsWith("image/")
+            !file.type.startsWith(
+                "image/"
+            )
         ) {
 
             showToast(
-                "Please select a valid image file."
+                "Please select an image file."
             );
 
 
-            this.value =
-                "";
-
-
-            imagePreview.removeAttribute(
-                "src"
-            );
-
-
-            imagePreview.style.display =
-                "none";
-
-
-            uploadPlaceholder.style.display =
-                "flex";
-
-
-            return;
-
-        }
-
-
-        /*------------------------------------------
-        FILE SIZE CHECK
-        ------------------------------------------*/
-
-        const maxSize =
-            10 * 1024 * 1024;
-
-
-        if (
-            file.size >
-            maxSize
-        ) {
-
-            showToast(
-                "Image must be smaller than 10 MB."
-            );
-
-
-            this.value =
+            bannerImage.value =
                 "";
 
 
@@ -456,57 +382,39 @@ bannerImage.addEventListener(
         }
 
 
-        /*------------------------------------------
-        SHOW PREVIEW
-        ------------------------------------------*/
-
-        const objectUrl =
-            URL.createObjectURL(
-                file
-            );
+        const reader =
+            new FileReader();
 
 
-        imagePreview.onload =
-            function () {
+        reader.onload =
+            (event) => {
 
-                URL.revokeObjectURL(
-                    objectUrl
+                imagePreview.src =
+                    event.target.result;
+
+
+                imagePreview.style.display =
+                    "block";
+
+
+                uploadPlaceholder.style.display =
+                    "none";
+
+            };
+
+
+        reader.onerror =
+            () => {
+
+                showToast(
+                    "Unable to preview image."
                 );
 
             };
 
 
-        imagePreview.src =
-            objectUrl;
-
-
-        imagePreview.style.display =
-            "block";
-
-
-        uploadPlaceholder.style.display =
-            "none";
-
-
-        /*------------------------------------------
-        RESET OLD UPLOAD STATUS
-        ------------------------------------------*/
-
-        uploadProgress.style.display =
-            "none";
-
-
-        progressBar.style.width =
-            "0%";
-
-
-        uploadStatus.textContent =
-            "Image selected. Click Save Banner to upload.";
-
-
-        console.log(
-            "Banner image selected:",
-            file.name
+        reader.readAsDataURL(
+            file
         );
 
     }
@@ -514,7 +422,7 @@ bannerImage.addEventListener(
 
 
 /*==================================================
-FEATURE: CLOUDINARY BANNER IMAGE UPLOAD
+FEATURE: CLOUDINARY BANNER UPLOAD
 ==================================================*/
 
 async function uploadBannerImage(
@@ -533,26 +441,18 @@ async function uploadBannerImage(
 
 
     progressBar.style.width =
-        "10%";
+        "15%";
 
 
     uploadStatus.textContent =
-        "Preparing image upload...";
+        "Uploading banner image...";
 
 
     try {
 
-        /*------------------------------------------
-        CLOUDINARY UPLOAD
-        ------------------------------------------*/
-
-        progressBar.style.width =
-            "25%";
-
-
-        uploadStatus.textContent =
-            "Uploading image to Cloudinary...";
-
+        /*
+        Central Cloudinary function استعمال کیا جا رہا ہے۔
+        */
 
         const result =
             await uploadToCloudinary(
@@ -560,10 +460,6 @@ async function uploadBannerImage(
                 CLOUDINARY_FOLDERS.BANNERS
             );
 
-
-        /*------------------------------------------
-        VALIDATE RESULT
-        ------------------------------------------*/
 
         if (
             !result ||
@@ -577,20 +473,12 @@ async function uploadBannerImage(
         }
 
 
-        /*------------------------------------------
-        SUCCESS
-        ------------------------------------------*/
-
         progressBar.style.width =
             "100%";
 
 
         uploadStatus.textContent =
             "Image uploaded successfully.";
-
-
-        currentImageUrl =
-            result.url;
 
 
         return result.url;
@@ -627,7 +515,7 @@ FEATURE: SAVE BANNER
 
 bannerForm.addEventListener(
     "submit",
-    async function (event) {
+    async (event) => {
 
         event.preventDefault();
 
@@ -652,28 +540,13 @@ bannerForm.addEventListener(
         ------------------------------------------*/
 
         if (
-            (
-                currentUser.email || ""
-            ).toLowerCase() !==
+            currentUser.email?.toLowerCase() !==
             ADMIN_EMAIL.toLowerCase()
         ) {
 
             showToast(
                 "Admin access required."
             );
-
-            return;
-
-        }
-
-
-        /*------------------------------------------
-        PREVENT DOUBLE SAVE
-        ------------------------------------------*/
-
-        if (
-            saveBannerButton.disabled
-        ) {
 
             return;
 
@@ -691,21 +564,17 @@ bannerForm.addEventListener(
 
 
             saveBannerButton.innerHTML =
-                `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
+                `<i class="fa-solid fa-spinner fa-spin"></i>
+                 Saving...`;
 
 
             /*--------------------------------------
-            SELECTED FILE
+            SELECTED IMAGE
             --------------------------------------*/
 
             const selectedFile =
-                bannerImage.files &&
                 bannerImage.files[0];
 
-
-            /*--------------------------------------
-            IMAGE VALIDATION
-            --------------------------------------*/
 
             if (
                 !selectedFile &&
@@ -720,7 +589,7 @@ bannerForm.addEventListener(
 
 
             /*--------------------------------------
-            UPLOAD IMAGE
+            IMAGE URL
             --------------------------------------*/
 
             let imageUrl =
@@ -733,19 +602,6 @@ bannerForm.addEventListener(
                     await uploadBannerImage(
                         selectedFile
                     );
-
-            }
-
-
-            /*--------------------------------------
-            FINAL IMAGE CHECK
-            --------------------------------------*/
-
-            if (!imageUrl) {
-
-                throw new Error(
-                    "Banner image URL is missing."
-                );
 
             }
 
@@ -786,18 +642,16 @@ bannerForm.addEventListener(
                     Date.now(),
 
                 updatedBy:
-                    currentUser.email || ""
+                    currentUser.email
 
             };
 
 
             /*--------------------------------------
-            UPDATE EXISTING BANNER
+            EDIT EXISTING BANNER
             --------------------------------------*/
 
-            if (
-                editingBannerId
-            ) {
+            if (editingBannerId) {
 
                 await update(
                     ref(
@@ -826,7 +680,7 @@ bannerForm.addEventListener(
 
 
                 bannerData.createdBy =
-                    currentUser.email || "";
+                    currentUser.email;
 
 
                 const newBannerRef =
@@ -849,17 +703,17 @@ bannerForm.addEventListener(
 
 
             /*--------------------------------------
-            RELOAD
-            --------------------------------------*/
-
-            await loadBanners();
-
-
-            /*--------------------------------------
-            RESET FORM
+            RESET AFTER SAVE
             --------------------------------------*/
 
             resetForm();
+
+
+            /*--------------------------------------
+            RELOAD BANNERS
+            --------------------------------------*/
+
+            await loadBanners();
 
         }
 
@@ -885,7 +739,8 @@ bannerForm.addEventListener(
 
 
             saveBannerButton.innerHTML =
-                `<i class="fa-solid fa-cloud-arrow-up"></i> Save Banner`;
+                `<i class="fa-solid fa-cloud-arrow-up"></i>
+                 Save Banner`;
 
         }
 
@@ -907,8 +762,7 @@ async function loadBanners() {
             );
 
 
-        allBanners =
-            [];
+        allBanners = [];
 
 
         if (
@@ -922,12 +776,7 @@ async function loadBanners() {
             Object.entries(
                 data
             ).forEach(
-                (
-                    [
-                        id,
-                        banner
-                    ]
-                ) => {
+                ([id, banner]) => {
 
                     allBanners.push({
 
@@ -944,14 +793,11 @@ async function loadBanners() {
 
 
         /*--------------------------------------
-        SORT
+        SORT BY DISPLAY ORDER
         --------------------------------------*/
 
         allBanners.sort(
-            (
-                a,
-                b
-            ) => {
+            (a, b) => {
 
                 return (
                     Number(
@@ -979,7 +825,6 @@ async function loadBanners() {
 
 
         showToast(
-            error.message ||
             "Unable to load banners."
         );
 
@@ -1034,12 +879,6 @@ function renderBanners() {
             .map(
                 (banner) => {
 
-                    const id =
-                        escapeAttribute(
-                            banner.id
-                        );
-
-
                     const title =
                         escapeHTML(
                             banner.title ||
@@ -1065,7 +904,7 @@ function renderBanners() {
 
                         <article
                             class="banner-card"
-                            data-id="${id}">
+                            data-id="${escapeAttribute(banner.id)}">
 
                             <img
                                 class="banner-card-image"
@@ -1106,19 +945,18 @@ function renderBanners() {
                                             type="button"
                                             class="edit-banner"
                                             data-action="edit"
-                                            data-id="${id}"
+                                            data-id="${escapeAttribute(banner.id)}"
                                             title="Edit Banner">
 
                                             <i class="fa-solid fa-pen"></i>
 
                                         </button>
 
-
                                         <button
                                             type="button"
                                             class="delete-banner"
                                             data-action="delete"
-                                            data-id="${id}"
+                                            data-id="${escapeAttribute(banner.id)}"
                                             title="Delete Banner">
 
                                             <i class="fa-solid fa-trash"></i>
@@ -1148,7 +986,7 @@ FEATURE: EDIT / DELETE BUTTONS
 
 bannersGrid.addEventListener(
     "click",
-    async function (event) {
+    async (event) => {
 
         const button =
             event.target.closest(
@@ -1177,8 +1015,6 @@ bannersGrid.addEventListener(
 
             editBanner(id);
 
-            return;
-
         }
 
 
@@ -1198,9 +1034,7 @@ bannersGrid.addEventListener(
 FEATURE: EDIT BANNER
 ==================================================*/
 
-function editBanner(
-    id
-) {
+function editBanner(id) {
 
     const banner =
         allBanners.find(
@@ -1256,10 +1090,6 @@ function editBanner(
         banner.active !== false;
 
 
-    /*------------------------------------------
-    SHOW EXISTING IMAGE
-    ------------------------------------------*/
-
     if (
         currentImageUrl
     ) {
@@ -1283,23 +1113,17 @@ function editBanner(
 
 
     saveBannerButton.innerHTML =
-        `<i class="fa-solid fa-floppy-disk"></i> Update Banner`;
+        `<i class="fa-solid fa-floppy-disk"></i>
+         Update Banner`;
 
 
-    const formCard =
-        document.getElementById(
+    document
+        .getElementById(
             "bannerFormCard"
-        );
-
-
-    if (formCard) {
-
-        formCard.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
+        )
+        .scrollIntoView({
+            behavior: "smooth"
         });
-
-    }
 
 }
 
@@ -1308,9 +1132,7 @@ function editBanner(
 FEATURE: DELETE BANNER
 ==================================================*/
 
-async function deleteBanner(
-    id
-) {
+async function deleteBanner(id) {
 
     const banner =
         allBanners.find(
@@ -1414,13 +1236,8 @@ function resetForm() {
         "";
 
 
-    imagePreview.onload =
-        null;
-
-
-    imagePreview.removeAttribute(
-        "src"
-    );
+    imagePreview.src =
+        "";
 
 
     imagePreview.style.display =
@@ -1448,7 +1265,8 @@ function resetForm() {
 
 
     saveBannerButton.innerHTML =
-        `<i class="fa-solid fa-cloud-arrow-up"></i> Save Banner`;
+        `<i class="fa-solid fa-cloud-arrow-up"></i>
+         Save Banner`;
 
 }
 
@@ -1459,11 +1277,7 @@ FEATURE: RESET BUTTON
 
 resetFormButton.addEventListener(
     "click",
-    function () {
-
-        resetForm();
-
-    }
+    resetForm
 );
 
 
@@ -1473,7 +1287,7 @@ FEATURE: LOGOUT
 
 logoutButton.addEventListener(
     "click",
-    async function () {
+    async () => {
 
         try {
 
@@ -1496,7 +1310,6 @@ logoutButton.addEventListener(
 
 
             showToast(
-                error.message ||
                 "Logout failed."
             );
 
@@ -1524,7 +1337,7 @@ function showToast(
 
 
     setTimeout(
-        function () {
+        () => {
 
             toast.classList.remove(
                 "show"
