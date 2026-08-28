@@ -3257,12 +3257,17 @@ FEATURE: REDUCED MOTION ACCESSIBILITY
 }
 
 /*==================================================
-FEATURE: ADMIN BANNER BUTTON VISIBILITY
-NORMAL USERS MUST NOT SEE + BUTTON
+SMARTBAZAAR PRO
+FEATURE: HIDE ADMIN BANNER BUTTON
 ==================================================*/
 
-.admin-add-banner-button {
+.admin-add-banner-button,
+#adminAddBannerButton,
+button.admin-add-banner-button {
     display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
 }
 /*==================================================
 END OF SMARTBAZAAR PRO
