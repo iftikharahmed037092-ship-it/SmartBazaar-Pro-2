@@ -1,279 +1,391 @@
 /*==================================================
 SMARTBAZAAR PRO 2
 FEATURE: PREMIUM PRODUCT DETAIL EDITOR
-FEATURES:
+FEATURE: FIREBASE + CLOUDINARY + MEDIA + CONTENT BUILDER
+==================================================*/
 
-- Firebase Authentication
-- Firebase Realtime Database
-- Cloudinary Images
-- Cloudinary Video
-- Multiple Gallery Images
-- Content Block Builder
-- Rating & Reviews
-- SKU / Condition
-- Low Stock Alert
-- Featured Product
-- Free Shipping
-- Publish Settings
-  ==================================================*/
 
-/==================================================
+/*==================================================
 FEATURE: FIREBASE IMPORT
-==================================================/
+==================================================*/
 
 import {
-database,
-auth
+    database,
+    auth
 } from "./firebase-config.js";
 
-/==================================================
+
+/*==================================================
 FEATURE: FIREBASE DATABASE METHODS
-==================================================/
+==================================================*/
 
 import {
-ref,
-push,
-set
+    ref,
+    push,
+    set
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
 
-/==================================================
-FEATURE: FIREBASE AUTH
-==================================================/
+
+/*==================================================
+FEATURE: FIREBASE AUTH METHODS
+==================================================*/
 
 import {
-onAuthStateChanged
+    onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
-/==================================================
-FEATURE: CLOUDINARY
-==================================================/
+
+/*==================================================
+FEATURE: CLOUDINARY IMPORT
+==================================================*/
 
 import {
-uploadToCloudinary,
-CLOUDINARY_FOLDERS
+    uploadToCloudinary,
+    CLOUDINARY_FOLDERS
 } from "./cloudinary-config.js";
 
-/==================================================
+
+/*==================================================
 FEATURE: ADMIN EMAIL
-==================================================/
+==================================================*/
 
 const ADMIN_EMAIL =
-"iftikharahmed037092@gmail.com";
+    "iftikharahmed037092@gmail.com";
 
-/==================================================
+
+/*==================================================
 FEATURE: DOM ELEMENTS
-==================================================/
+==================================================*/
 
 const productForm =
-document.getElementById("productForm");
+    document.getElementById("productForm");
 
 const saveProductButton =
-document.getElementById("saveProductButton");
+    document.getElementById("saveProductButton");
 
 const clearButton =
-document.getElementById("clearButton");
+    document.getElementById("clearButton");
 
 const mainImageInput =
-document.getElementById("mainImage");
+    document.getElementById("mainImage");
 
 const galleryImagesInput =
-document.getElementById("galleryImages");
+    document.getElementById("galleryImages");
 
 const productVideoInput =
-document.getElementById("productVideo");
-
-const mainImagePreview =
-document.getElementById("mainImagePreview");
-
-const galleryPreview =
-document.getElementById("galleryPreview");
-
-const videoPreview =
-document.getElementById("videoPreview");
+    document.getElementById("productVideo");
 
 const productVideoUrl =
-document.getElementById("productVideoUrl");
+    document.getElementById("productVideoUrl");
 
-const contentBlocks =
-document.getElementById("contentBlocks");
+const mainImagePreview =
+    document.getElementById("mainImagePreview");
 
-const contentEmptyState =
-document.getElementById("contentEmptyState");
+const galleryPreview =
+    document.getElementById("galleryPreview");
+
+const videoPreview =
+    document.getElementById("videoPreview");
 
 const editorMessage =
-document.getElementById("editorMessage");
+    document.getElementById("editorMessage");
 
 const editorStatusDot =
-document.getElementById("editorStatusDot");
+    document.getElementById("editorStatusDot");
 
 const editorStatusText =
-document.getElementById("editorStatusText");
+    document.getElementById("editorStatusText");
 
 const previewPrice =
-document.getElementById("previewPrice");
+    document.getElementById("previewPrice");
 
 const previewOldPrice =
-document.getElementById("previewOldPrice");
+    document.getElementById("previewOldPrice");
 
 const previewDiscount =
-document.getElementById("previewDiscount");
+    document.getElementById("previewDiscount");
 
 const shortDescription =
-document.getElementById("shortDescription");
+    document.getElementById("shortDescription");
 
 const shortDescriptionCount =
-document.getElementById("shortDescriptionCount");
+    document.getElementById("shortDescriptionCount");
 
 const priceInput =
-document.getElementById("productPrice");
+    document.getElementById("productPrice");
 
 const oldPriceInput =
-document.getElementById("productOldPrice");
+    document.getElementById("productOldPrice");
 
-/==================================================
-FEATURE: LOCAL STATE
-==================================================/
+const contentBlocks =
+    document.getElementById("contentBlocks");
+
+const contentEmptyState =
+    document.getElementById("contentEmptyState");
+
+const contentBuilderToolbar =
+    document.getElementById("contentBuilderToolbar");
+
+
+/*==================================================
+FEATURE: LOCAL MEDIA ARRAYS
+==================================================*/
+
+let selectedGalleryFiles = [];
 
 let contentBlockData = [];
 
-let selectedVideoFile = null;
+let mainImageObjectUrl = null;
 
-/==================================================
+let videoObjectUrl = null;
+
+
+/*==================================================
 FEATURE: ADMIN ACCESS CONTROL
-==================================================/
+==================================================*/
 
 onAuthStateChanged(
-auth,
-(user) => {
+    auth,
+    (user) => {
 
-    if (!user) {
+        if (!user) {
 
-        window.location.href =
-            "admin-login.html";
+            window.location.href =
+                "admin-login.html";
 
-        return;
+            return;
+        }
+
+
+        const loggedInEmail =
+            user.email
+                ? user.email.toLowerCase()
+                : "";
+
+
+        if (
+            loggedInEmail !==
+            ADMIN_EMAIL.toLowerCase()
+        ) {
+
+            window.location.href =
+                "admin-login.html";
+
+            return;
+        }
+
+
+        setEditorStatus(
+            "Ready",
+            true
+        );
+
     }
+);
 
 
-    const loggedInEmail =
-        user.email
-            ? user.email.toLowerCase()
-            : "";
+/*==================================================
+FEATURE: MAIN IMAGE PREVIEW
+FIX: IMAGE NOW APPEARS INSIDE PREVIEW BOX
+==================================================*/
+
+if (mainImageInput) {
+
+    mainImageInput.addEventListener(
+        "change",
+        () => {
+
+            const file =
+                mainImageInput.files &&
+                mainImageInput.files[0];
 
 
-    if (
-        loggedInEmail !==
-        ADMIN_EMAIL.toLowerCase()
-    ) {
-
-        window.location.href =
-            "admin-login.html";
-
-        return;
-    }
+            clearMainImagePreview();
 
 
-    setEditorStatus(
-        "Ready",
-        true
+            if (!file) {
+                return;
+            }
+
+
+            if (
+                !file.type ||
+                !file.type.startsWith("image/")
+            ) {
+
+                showMessage(
+                    "Please select a valid image file.",
+                    "error"
+                );
+
+                mainImageInput.value = "";
+
+                return;
+            }
+
+
+            mainImageObjectUrl =
+                URL.createObjectURL(file);
+
+
+            const image =
+                document.createElement("img");
+
+
+            image.src =
+                mainImageObjectUrl;
+
+
+            image.alt =
+                "Main Product Image";
+
+
+            image.onload =
+                () => {
+
+                    mainImagePreview.style.display =
+                        "block";
+
+                };
+
+
+            image.onerror =
+                () => {
+
+                    clearMainImagePreview();
+
+                    showMessage(
+                        "Unable to preview this image.",
+                        "error"
+                    );
+
+                };
+
+
+            mainImagePreview.appendChild(
+                image
+            );
+
+
+            mainImagePreview.style.display =
+                "block";
+
+        }
     );
 
 }
 
-);
 
-/==================================================
-FEATURE: MAIN IMAGE PREVIEW
-==================================================/
+/*==================================================
+FEATURE: CLEAR MAIN IMAGE PREVIEW
+==================================================*/
 
-mainImageInput.addEventListener(
-"change",
-() => {
+function clearMainImagePreview() {
 
-    const file =
-        mainImageInput.files[0];
+    if (
+        mainImageObjectUrl
+    ) {
+
+        URL.revokeObjectURL(
+            mainImageObjectUrl
+        );
+
+        mainImageObjectUrl =
+            null;
+    }
 
 
-    mainImagePreview.innerHTML =
-        "";
+    if (mainImagePreview) {
 
-
-    if (!file) {
+        mainImagePreview.innerHTML =
+            "";
 
         mainImagePreview.style.display =
             "none";
-
-        return;
     }
-
-
-    if (
-        !file.type.startsWith("image/")
-    ) {
-
-        showMessage(
-            "Please select a valid image file.",
-            "error"
-        );
-
-        mainImageInput.value =
-            "";
-
-        return;
-    }
-
-
-    const image =
-        document.createElement("img");
-
-
-    image.src =
-        URL.createObjectURL(file);
-
-
-    image.alt =
-        "Main Product Image";
-
-
-    mainImagePreview.appendChild(
-        image
-    );
-
-
-    mainImagePreview.style.display =
-        "block";
 
 }
 
-);
 
-/==================================================
-FEATURE: MULTIPLE GALLERY PREVIEW
-==================================================/
+/*==================================================
+FEATURE: GALLERY IMAGE SELECTION
+==================================================*/
 
-galleryImagesInput.addEventListener(
-"change",
-() => {
+if (galleryImagesInput) {
+
+    galleryImagesInput.addEventListener(
+        "change",
+        () => {
+
+            const files =
+                Array.from(
+                    galleryImagesInput.files || []
+                );
+
+
+            const validFiles =
+                files.filter(
+                    (file) =>
+                        file.type &&
+                        file.type.startsWith("image/")
+                );
+
+
+            if (!validFiles.length) {
+
+                showMessage(
+                    "Please select valid image files.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            /*
+            Add new files instead of replacing
+            existing selected gallery images.
+            */
+
+            selectedGalleryFiles.push(
+                ...validFiles
+            );
+
+
+            renderGalleryPreview();
+
+
+            /*
+            Reset input so the same image can
+            also be selected again if required.
+            */
+
+            galleryImagesInput.value =
+                "";
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: RENDER GALLERY PREVIEW
+==================================================*/
+
+function renderGalleryPreview() {
+
+    if (!galleryPreview) {
+        return;
+    }
+
 
     galleryPreview.innerHTML =
         "";
 
 
-    const files =
-        Array.from(
-            galleryImagesInput.files
-        );
-
-
-    files.forEach(
+    selectedGalleryFiles.forEach(
         (file, index) => {
-
-            if (
-                !file.type.startsWith("image/")
-            ) {
-                return;
-            }
-
 
             const wrapper =
                 document.createElement("div");
@@ -283,20 +395,78 @@ galleryImagesInput.addEventListener(
                 "gallery-image";
 
 
+            wrapper.dataset.index =
+                index;
+
+
             const image =
                 document.createElement("img");
 
 
-            image.src =
+            const objectUrl =
                 URL.createObjectURL(file);
 
 
+            image.src =
+                objectUrl;
+
+
             image.alt =
-                `Gallery Image ${index + 1}`;
+                `Product Gallery Image ${index + 1}`;
+
+
+            image.onload =
+                () => {
+
+                    URL.revokeObjectURL(
+                        objectUrl
+                    );
+
+                };
+
+
+            const removeButton =
+                document.createElement("button");
+
+
+            removeButton.type =
+                "button";
+
+
+            removeButton.className =
+                "gallery-remove-button";
+
+
+            removeButton.innerHTML =
+                `
+                    <i class="fa-solid fa-xmark"></i>
+                    Remove
+                `;
+
+
+            removeButton.addEventListener(
+                "click",
+                () => {
+
+                    selectedGalleryFiles.splice(
+                        index,
+                        1
+                    );
+
+
+                    renderGalleryPreview();
+
+                }
+            );
 
 
             wrapper.appendChild(
                 image
+            );
+
+
+            wrapper.appendChild(
+                removeButton
             );
 
 
@@ -309,129 +479,190 @@ galleryImagesInput.addEventListener(
 
 }
 
-);
 
-/==================================================
-FEATURE: VIDEO PREVIEW
-==================================================/
+/*==================================================
+FEATURE: VIDEO FILE PREVIEW
+==================================================*/
 
-productVideoInput.addEventListener(
-"change",
-() => {
+if (productVideoInput) {
 
-    const file =
-        productVideoInput.files[0];
+    productVideoInput.addEventListener(
+        "change",
+        () => {
 
-
-    selectedVideoFile =
-        file || null;
+            const file =
+                productVideoInput.files &&
+                productVideoInput.files[0];
 
 
-    videoPreview.innerHTML =
-        "";
+            clearVideoPreview();
 
 
-    if (!file) {
-        return;
-    }
+            if (!file) {
+                return;
+            }
 
 
-    if (
-        !file.type.startsWith("video/")
-    ) {
+            if (
+                !file.type ||
+                !file.type.startsWith("video/")
+            ) {
 
-        showMessage(
-            "Please select a valid video file.",
-            "error"
-        );
+                showMessage(
+                    "Please select a valid video file.",
+                    "error"
+                );
 
-        productVideoInput.value =
-            "";
+                productVideoInput.value =
+                    "";
 
-        selectedVideoFile =
-            null;
-
-        return;
-    }
+                return;
+            }
 
 
-    const video =
-        document.createElement("video");
+            videoObjectUrl =
+                URL.createObjectURL(file);
 
 
-    video.src =
-        URL.createObjectURL(file);
+            const video =
+                document.createElement("video");
 
 
-    video.controls =
-        true;
+            video.src =
+                videoObjectUrl;
 
 
-    video.preload =
-        "metadata";
+            video.controls =
+                true;
 
 
-    video.style.width =
-        "100%";
+            video.playsInline =
+                true;
 
 
-    video.style.maxWidth =
-        "700px";
+            video.preload =
+                "metadata";
 
 
-    video.style.borderRadius =
-        "14px";
+            video.className =
+                "product-video-element";
 
 
-    videoPreview.appendChild(
-        video
+            videoPreview.appendChild(
+                video
+            );
+
+
+            videoPreview.style.display =
+                "block";
+
+        }
     );
 
 }
 
-);
 
-/==================================================
-FEATURE: VIDEO URL PREVIEW
-==================================================/
+/*==================================================
+FEATURE: CLEAR VIDEO PREVIEW
+==================================================*/
 
-productVideoUrl.addEventListener(
-"input",
-() => {
+function clearVideoPreview() {
 
     if (
-        selectedVideoFile
+        videoObjectUrl
     ) {
-        return;
+
+        URL.revokeObjectURL(
+            videoObjectUrl
+        );
+
+        videoObjectUrl =
+            null;
     }
 
 
-    const url =
-        productVideoUrl.value.trim();
-
-
-    if (!url) {
+    if (videoPreview) {
 
         videoPreview.innerHTML =
             "";
 
-        return;
+        videoPreview.style.display =
+            "none";
     }
 
-
-    try {
-
-        new URL(url);
-
-    } catch {
-
-        return;
-
-    }
+}
 
 
-    videoPreview.innerHTML =
-        "";
+/*==================================================
+FEATURE: VIDEO URL PREVIEW
+==================================================*/
+
+if (productVideoUrl) {
+
+    productVideoUrl.addEventListener(
+        "input",
+        () => {
+
+            /*
+            Do not create URL preview while
+            a local video file is selected.
+            */
+
+            if (
+                productVideoInput &&
+                productVideoInput.files &&
+                productVideoInput.files.length
+            ) {
+
+                return;
+            }
+
+
+            const url =
+                productVideoUrl.value.trim();
+
+
+            if (!url) {
+
+                clearVideoUrlPreview();
+
+                return;
+            }
+
+
+            if (
+                !isValidUrl(url)
+            ) {
+
+                return;
+            }
+
+
+            renderVideoUrlPreview(
+                url
+            );
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: VIDEO URL PREVIEW
+==================================================*/
+
+function renderVideoUrlPreview(url) {
+
+    clearVideoUrlPreview();
+
+
+    const wrapper =
+        document.createElement("div");
+
+
+    wrapper.className =
+        "video-url-preview";
 
 
     const video =
@@ -446,375 +677,226 @@ productVideoUrl.addEventListener(
         true;
 
 
+    video.playsInline =
+        true;
+
+
     video.preload =
         "metadata";
 
 
-    video.style.width =
-        "100%";
+    video.className =
+        "product-video-element";
 
 
-    video.style.maxWidth =
-        "700px";
-
-
-    video.style.borderRadius =
-        "14px";
+    wrapper.appendChild(
+        video
+    );
 
 
     videoPreview.appendChild(
-        video
+        wrapper
+    );
+
+
+    videoPreview.style.display =
+        "block";
+
+}
+
+
+/*==================================================
+FEATURE: CLEAR VIDEO URL PREVIEW
+==================================================*/
+
+function clearVideoUrlPreview() {
+
+    if (
+        !videoPreview
+    ) {
+        return;
+    }
+
+
+    if (
+        productVideoInput &&
+        productVideoInput.files &&
+        productVideoInput.files.length
+    ) {
+
+        return;
+    }
+
+
+    videoPreview.innerHTML =
+        "";
+
+    videoPreview.style.display =
+        "none";
+
+}
+
+
+/*==================================================
+FEATURE: PRICE PREVIEW
+==================================================*/
+
+if (priceInput) {
+
+    priceInput.addEventListener(
+        "input",
+        updatePricePreview
     );
 
 }
 
-);
 
-/==================================================
-FEATURE: PRICE PREVIEW
-==================================================/
+if (oldPriceInput) {
 
-priceInput.addEventListener(
-"input",
-updatePricePreview
-);
+    oldPriceInput.addEventListener(
+        "input",
+        updatePricePreview
+    );
 
-oldPriceInput.addEventListener(
-"input",
-updatePricePreview
-);
+}
+
 
 function updatePricePreview() {
 
-const price =
-    Number(priceInput.value) || 0;
+    if (
+        !previewPrice ||
+        !priceInput ||
+        !oldPriceInput
+    ) {
+        return;
+    }
 
 
-const oldPrice =
-    Number(oldPriceInput.value) || 0;
+    const price =
+        Number(
+            priceInput.value
+        ) || 0;
 
 
-previewPrice.textContent =
-    formatPrice(price);
+    const oldPrice =
+        Number(
+            oldPriceInput.value
+        ) || 0;
 
 
-previewOldPrice.textContent =
-    "";
-
-
-previewDiscount.textContent =
-    "";
-
-
-if (
-    oldPrice > price &&
-    oldPrice > 0
-) {
-
-    previewOldPrice.textContent =
-        formatPrice(oldPrice);
-
-
-    const discount =
-        Math.round(
-            (
-                (oldPrice - price)
-                /
-                oldPrice
-            ) * 100
+    previewPrice.textContent =
+        formatPrice(
+            price
         );
 
 
+    previewOldPrice.textContent =
+        "";
+
+
     previewDiscount.textContent =
-        `-${discount}%`;
+        "";
+
+
+    if (
+        oldPrice > price &&
+        oldPrice > 0
+    ) {
+
+        previewOldPrice.textContent =
+            formatPrice(
+                oldPrice
+            );
+
+
+        const discount =
+            Math.round(
+                (
+                    (
+                        oldPrice -
+                        price
+                    )
+                    /
+                    oldPrice
+                )
+                * 100
+            );
+
+
+        previewDiscount.textContent =
+            `-${discount}%`;
+
+    }
 
 }
 
-}
 
-/==================================================
+/*==================================================
 FEATURE: SHORT DESCRIPTION COUNTER
-==================================================/
+==================================================*/
 
-shortDescription.addEventListener(
-"input",
-() => {
+if (shortDescription) {
+
+    shortDescription.addEventListener(
+        "input",
+        updateDescriptionCounter
+    );
+
+
+    updateDescriptionCounter();
+
+}
+
+
+function updateDescriptionCounter() {
+
+    if (
+        !shortDescription ||
+        !shortDescriptionCount
+    ) {
+        return;
+    }
+
 
     shortDescriptionCount.textContent =
         shortDescription.value.length;
 
 }
 
-);
 
-/==================================================
+/*==================================================
 FEATURE: CONTENT BUILDER
-==================================================/
+==================================================*/
 
-document
-.querySelectorAll(".content-add-button")
-.forEach(
-(button) => {
+if (contentBuilderToolbar) {
 
-        button.addEventListener(
-            "click",
-            () => {
+    contentBuilderToolbar.addEventListener(
+        "click",
+        (event) => {
 
-                const type =
-                    button.dataset.blockType;
+            const button =
+                event.target.closest(
+                    ".content-add-button"
+                );
 
-                addContentBlock(type);
 
+            if (!button) {
+                return;
             }
-        );
-
-    }
-);
-
-function addContentBlock(type) {
-
-const blockId =
-    "block_" +
-    Date.now() +
-    "_" +
-    Math.random()
-        .toString(36)
-        .substring(2, 8);
 
 
-const block = {
-
-    id:
-        blockId,
-
-    type:
-        type,
-
-    title:
-        "",
-
-    text:
-        "",
-
-    imageUrl:
-        "",
-
-    videoUrl:
-        "",
-
-    specifications:
-        []
-
-};
+            const blockType =
+                button.dataset.blockType;
 
 
-contentBlockData.push(
-    block
-);
-
-
-renderContentBlocks();
-
-}
-
-/==================================================
-FEATURE: RENDER CONTENT BLOCKS
-==================================================/
-
-function renderContentBlocks() {
-
-contentBlocks.innerHTML =
-    "";
-
-
-if (
-    contentBlockData.length === 0
-) {
-
-    contentBlocks.appendChild(
-        contentEmptyState
-    );
-
-    return;
-}
-
-
-contentBlockData.forEach(
-    (block, index) => {
-
-        const wrapper =
-            document.createElement("div");
-
-
-        wrapper.className =
-            "content-builder-block";
-
-
-        wrapper.dataset.blockId =
-            block.id;
-
-
-        const header =
-            document.createElement("div");
-
-
-        header.className =
-            "content-block-header";
-
-
-        const title =
-            document.createElement("strong");
-
-
-        title.textContent =
-            `${index + 1}. ${getBlockTitle(block.type)}`;
-
-
-        const removeButton =
-            document.createElement("button");
-
-
-        removeButton.type =
-            "button";
-
-
-        removeButton.className =
-            "content-remove-button";
-
-
-        removeButton.innerHTML =
-            `<i class="fa-solid fa-trash"></i>`;
-
-
-        removeButton.addEventListener(
-            "click",
-            () => {
-
-                contentBlockData =
-                    contentBlockData.filter(
-                        item =>
-                            item.id !== block.id
-                    );
-
-
-                renderContentBlocks();
-
+            if (!blockType) {
+                return;
             }
-        );
 
 
-        header.appendChild(
-            title
-        );
-
-
-        header.appendChild(
-            removeButton
-        );
-
-
-        wrapper.appendChild(
-            header
-        );
-
-
-        const editor =
-            createBlockEditor(
-                block
+            addContentBlock(
+                blockType
             );
-
-
-        wrapper.appendChild(
-            editor
-        );
-
-
-        contentBlocks.appendChild(
-            wrapper
-        );
-
-    }
-);
-
-}
-
-/==================================================
-FEATURE: BLOCK TITLES
-==================================================/
-
-function getBlockTitle(type) {
-
-const titles = {
-
-    heading:
-        "Heading",
-
-    text:
-        "Text",
-
-    image:
-        "Image",
-
-    video:
-        "Video",
-
-    specifications:
-        "Specifications",
-
-    divider:
-        "Divider"
-
-};
-
-
-return (
-    titles[type]
-    ||
-    "Content Block"
-);
-
-}
-
-/==================================================
-FEATURE: BLOCK EDITOR
-==================================================/
-
-function createBlockEditor(block) {
-
-const editor =
-    document.createElement("div");
-
-
-editor.className =
-    "content-block-editor";
-
-
-if (
-    block.type === "heading"
-) {
-
-    editor.innerHTML =
-        `
-            <label>Heading Title</label>
-
-            <input
-                type="text"
-                value="${escapeAttribute(block.title)}"
-                placeholder="Enter section heading"
-            >
-        `;
-
-
-    const input =
-        editor.querySelector("input");
-
-
-    input.addEventListener(
-        "input",
-        () => {
-
-            block.title =
-                input.value;
 
         }
     );
@@ -822,235 +904,646 @@ if (
 }
 
 
-if (
-    block.type === "text"
+/*==================================================
+FEATURE: ADD CONTENT BLOCK
+==================================================*/
+
+function addContentBlock(
+    type
 ) {
 
-    editor.innerHTML =
-        `
-            <label>Text Content</label>
+    const blockId =
+        `block_${Date.now()}_${Math.random()
+            .toString(36)
+            .slice(2, 8)}`;
 
-            <textarea
-                rows="6"
-                placeholder="Write detailed product information..."
-            >${escapeHtml(block.text)}</textarea>
-        `;
+
+    const block = {
+
+        id:
+            blockId,
+
+        type:
+            type,
+
+        title:
+            "",
+
+        content:
+            "",
+
+        imageUrl:
+            "",
+
+        videoUrl:
+            "",
+
+        specifications:
+            []
+
+    };
+
+
+    contentBlockData.push(
+        block
+    );
+
+
+    renderContentBlocks();
+
+}
+
+
+/*==================================================
+FEATURE: RENDER CONTENT BLOCKS
+==================================================*/
+
+function renderContentBlocks() {
+
+    if (!contentBlocks) {
+        return;
+    }
+
+
+    contentBlocks.innerHTML =
+        "";
+
+
+    if (
+        !contentBlockData.length
+    ) {
+
+        if (contentEmptyState) {
+
+            contentBlocks.appendChild(
+                contentEmptyState
+            );
+
+        }
+
+        return;
+    }
+
+
+    contentBlockData.forEach(
+        (block, index) => {
+
+            const wrapper =
+                document.createElement("div");
+
+
+            wrapper.className =
+                "content-block-editor";
+
+
+            wrapper.dataset.blockId =
+                block.id;
+
+
+            const header =
+                document.createElement("div");
+
+
+            header.className =
+                "content-block-header";
+
+
+            const title =
+                document.createElement("strong");
+
+
+            title.textContent =
+                `${capitalize(block.type)} Block ${index + 1}`;
+
+
+            const removeButton =
+                document.createElement("button");
+
+
+            removeButton.type =
+                "button";
+
+
+            removeButton.className =
+                "content-block-remove";
+
+
+            removeButton.innerHTML =
+                `
+                    <i class="fa-solid fa-trash"></i>
+                    Remove
+                `;
+
+
+            removeButton.addEventListener(
+                "click",
+                () => {
+
+                    contentBlockData =
+                        contentBlockData.filter(
+                            (item) =>
+                                item.id !== block.id
+                        );
+
+
+                    renderContentBlocks();
+
+                }
+            );
+
+
+            header.appendChild(
+                title
+            );
+
+
+            header.appendChild(
+                removeButton
+            );
+
+
+            wrapper.appendChild(
+                header
+            );
+
+
+            /*
+            HEADING
+            */
+
+            if (
+                block.type === "heading"
+            ) {
+
+                const input =
+                    createTextInput(
+                        "Heading",
+                        block.title,
+                        (value) => {
+
+                            block.title =
+                                value;
+
+                        }
+                    );
+
+
+                wrapper.appendChild(
+                    input
+                );
+
+            }
+
+
+            /*
+            TEXT
+            */
+
+            if (
+                block.type === "text"
+            ) {
+
+                const textarea =
+                    createTextarea(
+                        "Text Content",
+                        block.content,
+                        (value) => {
+
+                            block.content =
+                                value;
+
+                        }
+                    );
+
+
+                wrapper.appendChild(
+                    textarea
+                );
+
+            }
+
+
+            /*
+            IMAGE
+            */
+
+            if (
+                block.type === "image"
+            ) {
+
+                const input =
+                    createTextInput(
+                        "Image URL",
+                        block.imageUrl,
+                        (value) => {
+
+                            block.imageUrl =
+                                value;
+
+                        }
+                    );
+
+
+                wrapper.appendChild(
+                    input
+                );
+
+
+                const note =
+                    document.createElement("small");
+
+
+                note.textContent =
+                    "You can use a Cloudinary image URL here.";
+
+
+                wrapper.appendChild(
+                    note
+                );
+
+            }
+
+
+            /*
+            VIDEO
+            */
+
+            if (
+                block.type === "video"
+            ) {
+
+                const input =
+                    createTextInput(
+                        "Video URL",
+                        block.videoUrl,
+                        (value) => {
+
+                            block.videoUrl =
+                                value;
+
+                        }
+                    );
+
+
+                wrapper.appendChild(
+                    input
+                );
+
+            }
+
+
+            /*
+            SPECIFICATIONS
+            */
+
+            if (
+                block.type === "specifications"
+            ) {
+
+                const specificationsBox =
+                    document.createElement("div");
+
+
+                specificationsBox.className =
+                    "specifications-editor";
+
+
+                renderSpecificationEditor(
+                    specificationsBox,
+                    block
+                );
+
+
+                wrapper.appendChild(
+                    specificationsBox
+                );
+
+            }
+
+
+            /*
+            DIVIDER
+            */
+
+            if (
+                block.type === "divider"
+            ) {
+
+                const divider =
+                    document.createElement("div");
+
+
+                divider.className =
+                    "content-preview-divider";
+
+
+                wrapper.appendChild(
+                    divider
+                );
+
+            }
+
+
+            contentBlocks.appendChild(
+                wrapper
+            );
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: TEXT INPUT CREATOR
+==================================================*/
+
+function createTextInput(
+    labelText,
+    value,
+    callback
+) {
+
+    const group =
+        document.createElement("div");
+
+
+    group.className =
+        "content-field";
+
+
+    const label =
+        document.createElement("label");
+
+
+    label.textContent =
+        labelText;
+
+
+    const input =
+        document.createElement("input");
+
+
+    input.type =
+        "text";
+
+
+    input.value =
+        value || "";
+
+
+    input.addEventListener(
+        "input",
+        () => {
+
+            callback(
+                input.value
+            );
+
+        }
+    );
+
+
+    group.appendChild(
+        label
+    );
+
+
+    group.appendChild(
+        input
+    );
+
+
+    return group;
+
+}
+
+
+/*==================================================
+FEATURE: TEXTAREA CREATOR
+==================================================*/
+
+function createTextarea(
+    labelText,
+    value,
+    callback
+) {
+
+    const group =
+        document.createElement("div");
+
+
+    group.className =
+        "content-field";
+
+
+    const label =
+        document.createElement("label");
+
+
+    label.textContent =
+        labelText;
 
 
     const textarea =
-        editor.querySelector("textarea");
+        document.createElement("textarea");
+
+
+    textarea.rows =
+        6;
+
+
+    textarea.value =
+        value || "";
 
 
     textarea.addEventListener(
         "input",
         () => {
 
-            block.text =
-                textarea.value;
+            callback(
+                textarea.value
+            );
 
         }
     );
 
-}
 
-
-if (
-    block.type === "image"
-) {
-
-    editor.innerHTML =
-        `
-            <label>Image URL</label>
-
-            <input
-                type="url"
-                value="${escapeAttribute(block.imageUrl)}"
-                placeholder="https://..."
-            >
-        `;
-
-
-    const input =
-        editor.querySelector("input");
-
-
-    input.addEventListener(
-        "input",
-        () => {
-
-            block.imageUrl =
-                input.value;
-
-        }
+    group.appendChild(
+        label
     );
 
-}
 
-
-if (
-    block.type === "video"
-) {
-
-    editor.innerHTML =
-        `
-            <label>Video URL</label>
-
-            <input
-                type="url"
-                value="${escapeAttribute(block.videoUrl)}"
-                placeholder="https://..."
-            >
-        `;
-
-
-    const input =
-        editor.querySelector("input");
-
-
-    input.addEventListener(
-        "input",
-        () => {
-
-            block.videoUrl =
-                input.value;
-
-        }
+    group.appendChild(
+        textarea
     );
 
+
+    return group;
+
 }
 
 
-if (
-    block.type === "specifications"
+/*==================================================
+FEATURE: SPECIFICATIONS EDITOR
+==================================================*/
+
+function renderSpecificationEditor(
+    container,
+    block
 ) {
 
-    editor.innerHTML =
-        `
-            <div class="specification-editor">
-
-                <div class="specification-list"></div>
-
-                <button
-                    type="button"
-                    class="add-specification-button"
-                >
-                    <i class="fa-solid fa-plus"></i>
-                    Add Specification
-                </button>
-
-            </div>
-        `;
+    container.innerHTML =
+        "";
 
 
-    const list =
-        editor.querySelector(
-            ".specification-list"
-        );
+    const rows =
+        document.createElement("div");
 
 
-    const addButton =
-        editor.querySelector(
-            ".add-specification-button"
-        );
+    rows.className =
+        "specification-rows";
 
 
-    function renderSpecifications() {
+    block.specifications.forEach(
+        (item, index) => {
 
-        list.innerHTML =
-            "";
-
-
-        block.specifications
-            .forEach(
-                (spec, specIndex) => {
-
-                    const row =
-                        document.createElement("div");
+            const row =
+                document.createElement("div");
 
 
-                    row.className =
-                        "specification-row";
+            row.className =
+                "specification-row";
 
 
-                    row.innerHTML =
-                        `
-                            <input
-                                type="text"
-                                placeholder="Specification"
-                                value="${escapeAttribute(spec.key)}"
-                            >
-
-                            <input
-                                type="text"
-                                placeholder="Value"
-                                value="${escapeAttribute(spec.value)}"
-                            >
-
-                            <button
-                                type="button"
-                                class="remove-specification-button"
-                            >
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        `;
+            const nameInput =
+                document.createElement("input");
 
 
-                    const inputs =
-                        row.querySelectorAll(
-                            "input"
-                        );
+            nameInput.type =
+                "text";
 
 
-                    inputs[0].addEventListener(
-                        "input",
-                        () => {
-
-                            spec.key =
-                                inputs[0].value;
-
-                        }
-                    );
+            nameInput.placeholder =
+                "Specification name";
 
 
-                    inputs[1].addEventListener(
-                        "input",
-                        () => {
-
-                            spec.value =
-                                inputs[1].value;
-
-                        }
-                    );
+            nameInput.value =
+                item.name || "";
 
 
-                    row
-                        .querySelector(
-                            ".remove-specification-button"
-                        )
-                        .addEventListener(
-                            "click",
-                            () => {
-
-                                block.specifications
-                                    .splice(
-                                        specIndex,
-                                        1
-                                    );
-
-                                renderSpecifications();
-
-                            }
-                        );
+            const valueInput =
+                document.createElement("input");
 
 
-                    list.appendChild(
-                        row
-                    );
+            valueInput.type =
+                "text";
+
+
+            valueInput.placeholder =
+                "Value";
+
+
+            valueInput.value =
+                item.value || "";
+
+
+            const remove =
+                document.createElement("button");
+
+
+            remove.type =
+                "button";
+
+
+            remove.className =
+                "specification-remove";
+
+
+            remove.innerHTML =
+                `
+                    <i class="fa-solid fa-xmark"></i>
+                `;
+
+
+            nameInput.addEventListener(
+                "input",
+                () => {
+
+                    block.specifications[index].name =
+                        nameInput.value;
 
                 }
             );
 
-    }
+
+            valueInput.addEventListener(
+                "input",
+                () => {
+
+                    block.specifications[index].value =
+                        valueInput.value;
+
+                }
+            );
+
+
+            remove.addEventListener(
+                "click",
+                () => {
+
+                    block.specifications.splice(
+                        index,
+                        1
+                    );
+
+
+                    renderContentBlocks();
+
+                }
+            );
+
+
+            row.appendChild(
+                nameInput
+            );
+
+
+            row.appendChild(
+                valueInput
+            );
+
+
+            row.appendChild(
+                remove
+            );
+
+
+            rows.appendChild(
+                row
+            );
+
+        }
+    );
+
+
+    const addButton =
+        document.createElement("button");
+
+
+    addButton.type =
+        "button";
+
+
+    addButton.className =
+        "add-specification-button";
+
+
+    addButton.innerHTML =
+        `
+            <i class="fa-solid fa-plus"></i>
+            Add Specification
+        `;
 
 
     addButton.addEventListener(
@@ -1059,7 +1552,7 @@ if (
 
             block.specifications.push({
 
-                key:
+                name:
                     "",
 
                 value:
@@ -1068,753 +1561,739 @@ if (
             });
 
 
-            renderSpecifications();
+            renderContentBlocks();
 
         }
     );
 
 
-    renderSpecifications();
+    container.appendChild(
+        rows
+    );
+
+
+    container.appendChild(
+        addButton
+    );
 
 }
 
 
-if (
-    block.type === "divider"
-) {
-
-    editor.innerHTML =
-        `
-            <p class="divider-block-info">
-                A professional divider will appear
-                between product detail sections.
-            </p>
-        `;
-
-}
-
-
-return editor;
-
-}
-
-/==================================================
+/*==================================================
 FEATURE: SAVE PRODUCT
-==================================================/
+==================================================*/
 
-productForm.addEventListener(
-"submit",
-async (event) => {
+if (productForm) {
 
-    event.preventDefault();
+    productForm.addEventListener(
+        "submit",
+        async (event) => {
 
+            event.preventDefault();
 
-    hideMessage();
 
+            hideMessage();
 
-    const currentUser =
-        auth.currentUser;
 
+            const currentUser =
+                auth.currentUser;
 
-    if (!currentUser) {
 
-        showMessage(
-            "Please login as administrator first.",
-            "error"
-        );
+            if (!currentUser) {
 
-        return;
-    }
+                showMessage(
+                    "Please login as administrator first.",
+                    "error"
+                );
 
+                return;
 
-    const currentEmail =
-        currentUser.email
-            ? currentUser.email.toLowerCase()
-            : "";
+            }
 
 
-    if (
-        currentEmail !==
-        ADMIN_EMAIL.toLowerCase()
-    ) {
+            const currentEmail =
+                currentUser.email
+                    ? currentUser.email.toLowerCase()
+                    : "";
 
-        showMessage(
-            "You are not authorized to add products.",
-            "error"
-        );
 
-        return;
-    }
+            if (
+                currentEmail !==
+                ADMIN_EMAIL.toLowerCase()
+            ) {
 
+                showMessage(
+                    "You are not authorized to add products.",
+                    "error"
+                );
 
-    /*==================================================
-    FEATURE: FORM DATA
-    ==================================================*/
+                return;
 
-    const name =
-        document
-            .getElementById("productName")
-            .value
-            .trim();
+            }
 
 
-    const category =
-        document
-            .getElementById("productCategory")
-            .value
-            .trim();
+            /*==================================================
+            READ BASIC DATA
+            ==================================================*/
 
+            const name =
+                getValue("productName");
 
-    const brand =
-        document
-            .getElementById("productBrand")
-            .value
-            .trim();
 
+            const category =
+                getValue("productCategory");
 
-    const sku =
-        document
-            .getElementById("productSKU")
-            .value
-            .trim();
 
+            const brand =
+                getValue("productBrand");
 
-    const condition =
-        document
-            .getElementById("productCondition")
-            .value;
 
+            const sku =
+                getValue("productSKU");
 
-    const price =
-        Number(priceInput.value);
 
+            const condition =
+                getValue("productCondition") ||
+                "new";
 
-    const oldPrice =
-        Number(oldPriceInput.value) || 0;
 
-
-    const stock =
-        Number(
-            document
-                .getElementById("productStock")
-                .value
-        );
-
-
-    const lowStockLimit =
-        Number(
-            document
-                .getElementById("lowStockLimit")
-                .value
-        ) || 0;
-
-
-    const shortDescriptionValue =
-        shortDescription.value.trim();
-
-
-    const description =
-        document
-            .getElementById("fullDescription")
-            .value
-            .trim();
-
-
-    const sellerName =
-        document
-            .getElementById("sellerName")
-            .value
-            .trim();
-
-
-    const rating =
-        Number(
-            document
-                .getElementById("productRating")
-                .value
-        ) || 0;
-
-
-    const reviews =
-        Number(
-            document
-                .getElementById("productReviews")
-                .value
-        ) || 0;
-
-
-    const published =
-        document
-            .getElementById("productPublished")
-            .checked;
-
-
-    const featured =
-        document
-            .getElementById("productFeatured")
-            .checked;
-
-
-    const freeShipping =
-        document
-            .getElementById("freeShipping")
-            .checked;
-
-
-    /*==================================================
-    FEATURE: VALIDATION
-    ==================================================*/
-
-    if (!name) {
-
-        showMessage(
-            "Please enter the product name.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    if (!category) {
-
-        showMessage(
-            "Please enter the product category.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    if (
-        !Number.isFinite(price) ||
-        price < 0
-    ) {
-
-        showMessage(
-            "Please enter a valid selling price.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    if (
-        !Number.isInteger(stock) ||
-        stock < 0
-    ) {
-
-        showMessage(
-            "Please enter a valid stock quantity.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    if (
-        rating < 0 ||
-        rating > 5
-    ) {
-
-        showMessage(
-            "Rating must be between 0 and 5.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    if (
-        reviews < 0
-    ) {
-
-        showMessage(
-            "Review count cannot be negative.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    if (
-        !mainImageInput.files[0]
-    ) {
-
-        showMessage(
-            "Please select the main product image.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    /*==================================================
-    FEATURE: DISABLE SAVE
-    ==================================================*/
-
-    saveProductButton.disabled =
-        true;
-
-
-    try {
-
-        /*==================================================
-        FEATURE: MAIN IMAGE UPLOAD
-        ==================================================*/
-
-        saveProductButton.innerHTML =
-            `
-                <i class="fa-solid fa-spinner fa-spin"></i>
-                Uploading Main Image...
-            `;
-
-
-        setEditorStatus(
-            "Uploading",
-            false
-        );
-
-
-        const mainUpload =
-            await uploadToCloudinary(
-                mainImageInput.files[0],
-                CLOUDINARY_FOLDERS.PRODUCTS
-            );
-
-
-        const mainImageUrl =
-            mainUpload.url;
-
-
-        /*==================================================
-        FEATURE: GALLERY UPLOAD
-        ==================================================*/
-
-        const galleryUrls =
-            [];
-
-
-        const galleryFiles =
-            Array.from(
-                galleryImagesInput.files
-            );
-
-
-        for (
-            let index = 0;
-            index < galleryFiles.length;
-            index++
-        ) {
-
-            saveProductButton.innerHTML =
-                `
-                    <i class="fa-solid fa-spinner fa-spin"></i>
-                    Uploading Gallery ${index + 1}/${galleryFiles.length}...
-                `;
-
-
-            const upload =
-                await uploadToCloudinary(
-                    galleryFiles[index],
-                    CLOUDINARY_FOLDERS.PRODUCTS
+            const price =
+                Number(
+                    getValue("productPrice")
                 );
 
 
-            galleryUrls.push(
-                upload.url
-            );
-
-        }
-
-
-        /*==================================================
-        FEATURE: VIDEO UPLOAD
-        ==================================================*/
-
-        let uploadedVideoUrl =
-            productVideoUrl.value.trim();
+            const oldPrice =
+                Number(
+                    getValue("productOldPrice")
+                ) || 0;
 
 
-        if (
-            selectedVideoFile
-        ) {
-
-            saveProductButton.innerHTML =
-                `
-                    <i class="fa-solid fa-spinner fa-spin"></i>
-                    Uploading Product Video...
-                `;
-
-
-            const videoUpload =
-                await uploadToCloudinary(
-                    selectedVideoFile,
-                    CLOUDINARY_FOLDERS.PRODUCTS,
-                    "video"
+            const stock =
+                Number(
+                    getValue("productStock")
                 );
 
 
-            uploadedVideoUrl =
-                videoUpload.url;
-
-        }
-
-
-        /*==================================================
-        FEATURE: IMAGES ARRAY
-        ==================================================*/
-
-        const images = [
-
-            mainImageUrl,
-
-            ...galleryUrls
-
-        ];
+            const lowStockLimit =
+                Number(
+                    getValue("lowStockLimit")
+                ) || 5;
 
 
-        /*==================================================
-        FEATURE: DISCOUNT
-        ==================================================*/
-
-        let discount =
-            0;
+            const shortDescriptionValue =
+                getValue("shortDescription");
 
 
-        if (
-            oldPrice > price &&
-            oldPrice > 0
-        ) {
+            const description =
+                getValue("fullDescription");
 
-            discount =
-                Math.round(
-                    (
-                        (
-                            oldPrice -
-                            price
-                        )
-                        /
-                        oldPrice
-                    ) * 100
+
+            const sellerName =
+                getValue("sellerName");
+
+
+            const published =
+                getChecked(
+                    "productPublished"
                 );
 
-        }
+
+            const featured =
+                getChecked(
+                    "productFeatured"
+                );
 
 
-        /*==================================================
-        FEATURE: STOCK STATUS
-        ==================================================*/
-
-        let stockStatus =
-            "in-stock";
+            const freeShipping =
+                getChecked(
+                    "freeShipping"
+                );
 
 
-        if (
-            stock <= 0
-        ) {
-
-            stockStatus =
-                "out-of-stock";
-
-        } else if (
-            stock <= lowStockLimit
-        ) {
-
-            stockStatus =
-                "low-stock";
-
-        }
+            const rating =
+                Number(
+                    getValue("productRating")
+                ) || 0;
 
 
-        /*==================================================
-        FEATURE: FIREBASE PRODUCT REFERENCE
-        ==================================================*/
+            const reviews =
+                Number(
+                    getValue("productReviews")
+                ) || 0;
 
-        const productsRef =
-            ref(
-                database,
-                "products"
+
+            const videoUrl =
+                getValue("productVideoUrl");
+
+
+            /*==================================================
+            VALIDATION
+            ==================================================*/
+
+            if (!name) {
+
+                showMessage(
+                    "Please enter the product name.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            if (!category) {
+
+                showMessage(
+                    "Please enter the product category.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !Number.isFinite(price) ||
+                price < 0
+            ) {
+
+                showMessage(
+                    "Please enter a valid selling price.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !Number.isInteger(stock) ||
+                stock < 0
+            ) {
+
+                showMessage(
+                    "Please enter a valid stock quantity.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            if (
+                rating < 0 ||
+                rating > 5
+            ) {
+
+                showMessage(
+                    "Rating must be between 0 and 5.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !mainImageInput ||
+                !mainImageInput.files ||
+                !mainImageInput.files[0]
+            ) {
+
+                showMessage(
+                    "Please select the main product image.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            /*==================================================
+            DISABLE SAVE BUTTON
+            ==================================================*/
+
+            saveProductButton.disabled =
+                true;
+
+
+            setSaveButton(
+                "Uploading..."
             );
 
 
-        const newProductRef =
-            push(productsRef);
+            setEditorStatus(
+                "Uploading",
+                false
+            );
 
 
-        const productId =
-            newProductRef.key;
+            try {
+
+                /*==================================================
+                FEATURE: MAIN IMAGE CLOUDINARY UPLOAD
+                ==================================================*/
+
+                const mainFile =
+                    mainImageInput.files[0];
 
 
-        /*==================================================
-        FEATURE: COMPLETE PRODUCT DATA
-        ==================================================*/
-
-        const productData = {
-
-            productId:
-                productId,
-
-            name:
-                name,
-
-            category:
-                category,
-
-            brand:
-                brand,
-
-            sku:
-                sku,
-
-            condition:
-                condition,
-
-            price:
-                price,
-
-            oldPrice:
-                oldPrice,
-
-            discount:
-                discount,
-
-            stock:
-                stock,
-
-            lowStockLimit:
-                lowStockLimit,
-
-            stockStatus:
-                stockStatus,
-
-            shortDescription:
-                shortDescriptionValue,
-
-            description:
-                description,
-
-            image:
-                mainImageUrl,
-
-            images:
-                images,
-
-            video:
-                uploadedVideoUrl,
-
-            contentBlocks:
-                contentBlockData,
-
-            sellerName:
-                sellerName ||
-                "SmartBazaar Seller",
-
-            rating:
-                rating,
-
-            reviews:
-                reviews,
-
-            published:
-                published,
-
-            featured:
-                featured,
-
-            freeShipping:
-                freeShipping,
-
-            createdBy:
-                currentUser.uid,
-
-            sellerId:
-                currentUser.uid,
-
-            createdAt:
-                Date.now(),
-
-            updatedAt:
-                Date.now()
-
-        };
+                const mainUpload =
+                    await uploadToCloudinary(
+                        mainFile,
+                        CLOUDINARY_FOLDERS.PRODUCTS
+                    );
 
 
-        /*==================================================
-        FEATURE: SAVE TO FIREBASE
-        ==================================================*/
-
-        saveProductButton.innerHTML =
-            `
-                <i class="fa-solid fa-spinner fa-spin"></i>
-                Saving Product...
-            `;
+                const mainImageUrl =
+                    mainUpload.url;
 
 
-        setEditorStatus(
-            "Saving",
-            false
-        );
+                /*==================================================
+                FEATURE: GALLERY CLOUDINARY UPLOAD
+                ==================================================*/
+
+                const galleryUrls =
+                    [];
 
 
-        await set(
-            newProductRef,
-            productData
-        );
+                for (
+                    let index = 0;
+                    index < selectedGalleryFiles.length;
+                    index++
+                ) {
+
+                    setSaveButton(
+                        `Uploading Image ${index + 1}/${selectedGalleryFiles.length}...`
+                    );
 
 
-        /*==================================================
-        FEATURE: SUCCESS
-        ==================================================*/
-
-        showMessage(
-            `Product saved successfully. Product ID: ${productId}`,
-            "success"
-        );
+                    const upload =
+                        await uploadToCloudinary(
+                            selectedGalleryFiles[index],
+                            CLOUDINARY_FOLDERS.PRODUCTS
+                        );
 
 
-        setEditorStatus(
-            "Saved",
-            true
-        );
+                    galleryUrls.push(
+                        upload.url
+                    );
+
+                }
 
 
-        /*==================================================
-        FEATURE: RESET
-        ==================================================*/
+                /*==================================================
+                FEATURE: PRODUCT VIDEO UPLOAD
+                ==================================================*/
+
+                let uploadedVideoUrl =
+                    videoUrl;
+
+
+                if (
+                    productVideoInput &&
+                    productVideoInput.files &&
+                    productVideoInput.files[0]
+                ) {
+
+                    setSaveButton(
+                        "Uploading Product Video..."
+                    );
+
+
+                    const videoUpload =
+                        await uploadToCloudinary(
+                            productVideoInput.files[0],
+                            CLOUDINARY_FOLDERS.PRODUCTS
+                        );
+
+
+                    uploadedVideoUrl =
+                        videoUpload.url;
+
+                }
+
+
+                /*==================================================
+                FEATURE: COMPLETE IMAGE ARRAY
+                ==================================================*/
+
+                const images = [
+
+                    mainImageUrl,
+
+                    ...galleryUrls
+
+                ];
+
+
+                /*==================================================
+                FEATURE: DISCOUNT
+                ==================================================*/
+
+                let discount =
+                    0;
+
+
+                if (
+                    oldPrice > price &&
+                    oldPrice > 0
+                ) {
+
+                    discount =
+                        Math.round(
+                            (
+                                (
+                                    oldPrice -
+                                    price
+                                )
+                                /
+                                oldPrice
+                            )
+                            * 100
+                        );
+
+                }
+
+
+                /*==================================================
+                FEATURE: AVAILABILITY
+                ==================================================*/
+
+                const inStock =
+                    stock > 0;
+
+
+                const lowStock =
+                    stock > 0 &&
+                    stock <= lowStockLimit;
+
+
+                const availability =
+                    stock <= 0
+                        ? "out_of_stock"
+                        : lowStock
+                            ? "low_stock"
+                            : "in_stock";
+
+
+                /*==================================================
+                FEATURE: PRODUCT ID
+                ==================================================*/
+
+                const productsRef =
+                    ref(
+                        database,
+                        "products"
+                    );
+
+
+                const newProductRef =
+                    push(
+                        productsRef
+                    );
+
+
+                const productId =
+                    newProductRef.key;
+
+
+                /*==================================================
+                FEATURE: PRODUCT DATA
+                ==================================================*/
+
+                const productData = {
+
+                    productId:
+                        productId,
+
+                    name:
+                        name,
+
+                    category:
+                        category,
+
+                    brand:
+                        brand,
+
+                    sku:
+                        sku,
+
+                    condition:
+                        condition,
+
+                    price:
+                        price,
+
+                    oldPrice:
+                        oldPrice,
+
+                    discount:
+                        discount,
+
+                    stock:
+                        stock,
+
+                    lowStockLimit:
+                        lowStockLimit,
+
+                    inStock:
+                        inStock,
+
+                    availability:
+                        availability,
+
+                    shortDescription:
+                        shortDescriptionValue,
+
+                    description:
+                        description,
+
+                    image:
+                        mainImageUrl,
+
+                    images:
+                        images,
+
+                    video:
+                        uploadedVideoUrl || "",
+
+                    videoUrl:
+                        uploadedVideoUrl || "",
+
+                    contentBlocks:
+                        contentBlockData,
+
+                    sellerName:
+                        sellerName ||
+                        "SmartBazaar Seller",
+
+                    rating:
+                        rating,
+
+                    reviews:
+                        reviews,
+
+                    published:
+                        published,
+
+                    featured:
+                        featured,
+
+                    freeShipping:
+                        freeShipping,
+
+                    createdBy:
+                        currentUser.uid,
+
+                    sellerId:
+                        currentUser.uid,
+
+                    createdAt:
+                        Date.now(),
+
+                    updatedAt:
+                        Date.now()
+
+                };
+
+
+                /*==================================================
+                FEATURE: SAVE TO FIREBASE
+                ==================================================*/
+
+                setSaveButton(
+                    "Saving Product..."
+                );
+
+
+                setEditorStatus(
+                    "Saving",
+                    false
+                );
+
+
+                await set(
+                    newProductRef,
+                    productData
+                );
+
+
+                /*==================================================
+                FEATURE: SUCCESS
+                ==================================================*/
+
+                showMessage(
+                    `Product saved successfully. Product ID: ${productId}`,
+                    "success"
+                );
+
+
+                setEditorStatus(
+                    "Saved",
+                    true
+                );
+
+
+                /*==================================================
+                FEATURE: RESET
+                ==================================================*/
+
+                resetEditor();
+
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Product Editor Error:",
+                    error
+                );
+
+
+                showMessage(
+                    error.message ||
+                    "Unable to save product. Please try again.",
+                    "error"
+                );
+
+
+                setEditorStatus(
+                    "Error",
+                    false
+                );
+
+            }
+
+            finally {
+
+                saveProductButton.disabled =
+                    false;
+
+
+                setSaveButton(
+                    "Save Product"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: CLEAR FORM
+==================================================*/
+
+if (clearButton) {
+
+    clearButton.addEventListener(
+        "click",
+        () => {
+
+            const confirmed =
+                confirm(
+                    "Clear all product information?"
+                );
+
+
+            if (!confirmed) {
+                return;
+            }
+
+
+            resetEditor();
+
+
+            hideMessage();
+
+
+            setEditorStatus(
+                "Ready",
+                true
+            );
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: RESET EDITOR
+==================================================*/
+
+function resetEditor() {
+
+    if (productForm) {
 
         productForm.reset();
 
-
-        contentBlockData =
-            [];
-
-
-        selectedVideoFile =
-            null;
-
-
-        mainImagePreview.innerHTML =
-            "";
-
-
-        mainImagePreview.style.display =
-            "none";
-
-
-        galleryPreview.innerHTML =
-            "";
-
-
-        videoPreview.innerHTML =
-            "";
-
-
-        shortDescriptionCount.textContent =
-            "0";
-
-
-        renderContentBlocks();
-
-
-        updatePricePreview();
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Product Editor Error:",
-            error
-        );
-
-
-        showMessage(
-            error.message ||
-            "Unable to save product. Please try again.",
-            "error"
-        );
-
-
-        setEditorStatus(
-            "Error",
-            false
-        );
-
-    }
-
-    finally {
-
-        saveProductButton.disabled =
-            false;
-
-
-        saveProductButton.innerHTML =
-            `
-                <i class="fa-solid fa-cloud-arrow-up"></i>
-                Save Product
-            `;
-
-    }
-
-}
-
-);
-
-/==================================================
-FEATURE: CLEAR FORM
-==================================================/
-
-clearButton.addEventListener(
-"click",
-() => {
-
-    const confirmed =
-        confirm(
-            "Clear all product information?"
-        );
-
-
-    if (!confirmed) {
-        return;
     }
 
 
-    productForm.reset();
+    selectedGalleryFiles =
+        [];
 
 
     contentBlockData =
         [];
 
 
-    selectedVideoFile =
-        null;
+    clearMainImagePreview();
 
 
-    mainImagePreview.innerHTML =
-        "";
+    clearVideoPreview();
 
 
-    mainImagePreview.style.display =
-        "none";
+    if (galleryPreview) {
+
+        galleryPreview.innerHTML =
+            "";
+
+    }
 
 
-    galleryPreview.innerHTML =
-        "";
+    if (galleryImagesInput) {
+
+        galleryImagesInput.value =
+            "";
+
+    }
 
 
-    videoPreview.innerHTML =
-        "";
+    if (mainImageInput) {
+
+        mainImageInput.value =
+            "";
+
+    }
 
 
-    shortDescriptionCount.textContent =
-        "0";
+    if (productVideoInput) {
+
+        productVideoInput.value =
+            "";
+
+    }
+
+
+    if (productVideoUrl) {
+
+        productVideoUrl.value =
+            "";
+
+    }
 
 
     renderContentBlocks();
@@ -1823,121 +2302,228 @@ clearButton.addEventListener(
     updatePricePreview();
 
 
-    hideMessage();
+    updateDescriptionCounter();
+
+}
 
 
-    setEditorStatus(
-        "Ready",
-        true
+/*==================================================
+FEATURE: GET VALUE
+==================================================*/
+
+function getValue(
+    id
+) {
+
+    const element =
+        document.getElementById(id);
+
+
+    return element
+        ? element.value.trim()
+        : "";
+
+}
+
+
+/*==================================================
+FEATURE: GET CHECKED
+==================================================*/
+
+function getChecked(
+    id
+) {
+
+    const element =
+        document.getElementById(id);
+
+
+    return element
+        ? element.checked
+        : false;
+
+}
+
+
+/*==================================================
+FEATURE: VALID URL
+==================================================*/
+
+function isValidUrl(
+    value
+) {
+
+    try {
+
+        new URL(value);
+
+        return true;
+
+    }
+
+    catch {
+
+        return false;
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: PRICE FORMAT
+==================================================*/
+
+function formatPrice(
+    value
+) {
+
+    return (
+        "Rs. " +
+        Number(value)
+            .toLocaleString("en-PK")
     );
 
 }
 
-);
 
-/==================================================
-FEATURE: PRICE FORMAT
-==================================================/
+/*==================================================
+FEATURE: SAVE BUTTON
+==================================================*/
 
-function formatPrice(value) {
+function setSaveButton(
+    text
+) {
 
-return (
-    "Rs. " +
-    Number(value)
-        .toLocaleString("en-PK")
-);
+    if (!saveProductButton) {
+        return;
+    }
+
+
+    if (
+        text === "Save Product"
+    ) {
+
+        saveProductButton.innerHTML =
+            `
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                Save Product
+            `;
+
+        return;
+
+    }
+
+
+    saveProductButton.innerHTML =
+        `
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            ${text}
+        `;
 
 }
 
-/==================================================
-FEATURE: STATUS
-==================================================/
+
+/*==================================================
+FEATURE: EDITOR STATUS
+==================================================*/
 
 function setEditorStatus(
-text,
-online
+    text,
+    online
 ) {
 
-editorStatusText.textContent =
-    text;
+    if (editorStatusText) {
+
+        editorStatusText.textContent =
+            text;
+
+    }
 
 
-editorStatusDot.style.background =
-    online
-        ? "#2e7d32"
-        : "#f39c12";
+    if (editorStatusDot) {
+
+        editorStatusDot.style.background =
+            online
+                ? "#2e7d32"
+                : "#f39c12";
+
+    }
 
 }
 
-/==================================================
+
+/*==================================================
 FEATURE: SHOW MESSAGE
-==================================================/
+==================================================*/
 
 function showMessage(
-message,
-type
+    message,
+    type
 ) {
 
-editorMessage.textContent =
-    message;
+    if (!editorMessage) {
+        return;
+    }
 
 
-editorMessage.className =
-    `editor-message ${type}`;
+    editorMessage.textContent =
+        message;
 
 
-editorMessage.scrollIntoView({
+    editorMessage.className =
+        `editor-message ${type}`;
 
-    behavior:
-        "smooth",
 
-    block:
-        "center"
+    editorMessage.scrollIntoView({
 
-});
+        behavior:
+            "smooth",
+
+        block:
+            "center"
+
+    });
 
 }
 
-/==================================================
+
+/*==================================================
 FEATURE: HIDE MESSAGE
-==================================================/
+==================================================*/
 
 function hideMessage() {
 
-editorMessage.textContent =
-    "";
+    if (!editorMessage) {
+        return;
+    }
 
 
-editorMessage.className =
-    "editor-message";
+    editorMessage.textContent =
+        "";
 
-}
-
-/==================================================
-FEATURE: HTML ESCAPE
-==================================================/
-
-function escapeHtml(value) {
-
-return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    editorMessage.className =
+        "editor-message";
 
 }
 
-function escapeAttribute(value) {
 
-return escapeHtml(value);
+/*==================================================
+FEATURE: CAPITALIZE
+==================================================*/
+
+function capitalize(
+    value
+) {
+
+    if (!value) {
+        return "";
+    }
+
+
+    return (
+        value.charAt(0).toUpperCase() +
+        value.slice(1)
+    );
 
 }
-
-/==================================================
-FEATURE: INITIAL UI
-==================================================/
-
-updatePricePreview();
-
-renderContentBlocks();
