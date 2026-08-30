@@ -2,6 +2,7 @@
 SMARTBAZAAR PRO 2
 FEATURE: PRODUCT DETAILS SYSTEM
 FEATURE: ADVANCED PRODUCT DETAIL SUPPORT
+FEATURE: CLOUDINARY PRODUCT VIDEO SUPPORT
 ==================================================*/
 
 
@@ -22,7 +23,7 @@ import {
 
 
 /*==================================================
-FEATURE: FIREBASE
+FEATURE: FIREBASE DATABASE
 ==================================================*/
 
 const db =
@@ -52,7 +53,6 @@ const productDescriptionSection =
     document.getElementById(
         "productDescriptionSection"
     );
-
 
 const productMainImage =
     document.getElementById(
@@ -187,7 +187,9 @@ if (!productId) {
 FEATURE: LOAD PRODUCT FROM FIREBASE
 ==================================================*/
 
-async function loadProduct(id) {
+async function loadProduct(
+    id
+) {
 
     try {
 
@@ -216,11 +218,6 @@ async function loadProduct(id) {
         const product =
             snapshot.val();
 
-
-        /*
-         * IMPORTANT:
-         * Existing products remain compatible.
-         */
 
         renderProduct(
             product,
@@ -252,43 +249,67 @@ function renderProduct(
     id
 ) {
 
-    productDetailsLoading.style.display =
-        "none";
+    if (productDetailsLoading) {
+
+        productDetailsLoading.style.display =
+            "none";
+
+    }
 
 
-    productContent.style.display =
-        "grid";
+    if (productContent) {
+
+        productContent.style.display =
+            "grid";
+
+    }
 
 
-    productDescriptionSection.style.display =
-        "block";
+    if (productDescriptionSection) {
+
+        productDescriptionSection.style.display =
+            "block";
+
+    }
 
 
     /*==================================================
     FEATURE: PRODUCT NAME
     ==================================================*/
 
-    productName.textContent =
+    const finalProductName =
         product.name ||
         product.title ||
         "Product";
 
 
+    if (productName) {
+
+        productName.textContent =
+            finalProductName;
+
+    }
+
+
     document.title =
-        `${productName.textContent} | SmartBazaar Pro`;
+        `${finalProductName} | SmartBazaar Pro`;
 
 
     /*==================================================
     FEATURE: CATEGORY
     ==================================================*/
 
-    productCategory.textContent =
-        product.category ||
-        "Product";
+    if (productCategory) {
+
+        productCategory.textContent =
+            product.category ||
+            "Product";
+
+    }
 
 
     /*==================================================
-    FEATURE: BRAND
+    FEATURE: ADVANCED META
     ==================================================*/
 
     renderAdvancedMeta(
@@ -306,10 +327,14 @@ function renderProduct(
         );
 
 
-    productPrice.textContent =
-        formatPrice(
-            price
-        );
+    if (productPrice) {
+
+        productPrice.textContent =
+            formatPrice(
+                price
+            );
+
+    }
 
 
     /*==================================================
@@ -325,43 +350,50 @@ function renderProduct(
 
 
     if (
-        oldPrice > price &&
-        oldPrice > 0
+        productOldPrice &&
+        productDiscount
     ) {
 
-        productOldPrice.textContent =
-            formatPrice(
-                oldPrice
-            );
+        if (
+            oldPrice > price &&
+            oldPrice > 0
+        ) {
 
-
-        const discount =
-            product.discount != null
-                ? Number(product.discount)
-                : Math.round(
-                    (
-                        (
-                            oldPrice -
-                            price
-                        )
-                        /
-                        oldPrice
-                    )
-                    *
-                    100
+            productOldPrice.textContent =
+                formatPrice(
+                    oldPrice
                 );
 
 
-        productDiscount.textContent =
-            `-${discount}%`;
+            const discount =
+                product.discount != null
+                    ? Number(product.discount)
+                    : Math.round(
+                        (
+                            (
+                                oldPrice -
+                                price
+                            )
+                            /
+                            oldPrice
+                        )
+                        *
+                        100
+                    );
 
-    } else {
 
-        productOldPrice.textContent =
-            "";
+            productDiscount.textContent =
+                `-${discount}%`;
 
-        productDiscount.textContent =
-            "";
+        } else {
+
+            productOldPrice.textContent =
+                "";
+
+            productDiscount.textContent =
+                "";
+
+        }
 
     }
 
@@ -376,14 +408,22 @@ function renderProduct(
         );
 
 
-    productStars.textContent =
-        createStars(
-            rating
-        );
+    if (productStars) {
+
+        productStars.textContent =
+            createStars(
+                rating
+            );
+
+    }
 
 
-    productReviews.textContent =
-        `${Number(product.reviews || 0)} Reviews`;
+    if (productReviews) {
+
+        productReviews.textContent =
+            `${Number(product.reviews || 0)} Reviews`;
+
+    }
 
 
     /*==================================================
@@ -396,25 +436,29 @@ function renderProduct(
         );
 
 
-    if (stock > 0) {
+    if (productStock) {
 
-        productStock.textContent =
-            `In Stock (${stock})`;
+        if (stock > 0) {
 
-
-        productStock.classList.remove(
-            "out-of-stock"
-        );
-
-    } else {
-
-        productStock.textContent =
-            "Out of Stock";
+            productStock.textContent =
+                `In Stock (${stock})`;
 
 
-        productStock.classList.add(
-            "out-of-stock"
-        );
+            productStock.classList.remove(
+                "out-of-stock"
+            );
+
+        } else {
+
+            productStock.textContent =
+                "Out of Stock";
+
+
+            productStock.classList.add(
+                "out-of-stock"
+            );
+
+        }
 
     }
 
@@ -423,11 +467,15 @@ function renderProduct(
     FEATURE: SHORT DESCRIPTION
     ==================================================*/
 
-    productShortDescription.textContent =
-        product.shortDescription ||
-        product.short_description ||
-        product.description ||
-        "No description available.";
+    if (productShortDescription) {
+
+        productShortDescription.textContent =
+            product.shortDescription ||
+            product.short_description ||
+            product.description ||
+            "No description available.";
+
+    }
 
 
     /*==================================================
@@ -440,21 +488,31 @@ function renderProduct(
         "";
 
 
-    if (fullDescription.trim()) {
+    if (
+        productDescription &&
+        productDescriptionSection
+    ) {
 
-        productDescription.textContent =
-            fullDescription;
+        if (
+            String(fullDescription).trim()
+        ) {
 
-        productDescriptionSection.style.display =
-            "block";
+            productDescription.textContent =
+                fullDescription;
 
-    } else {
 
-        productDescription.textContent =
-            "";
+            productDescriptionSection.style.display =
+                "block";
 
-        productDescriptionSection.style.display =
-            "none";
+        } else {
+
+            productDescription.textContent =
+                "";
+
+            productDescriptionSection.style.display =
+                "none";
+
+        }
 
     }
 
@@ -463,14 +521,18 @@ function renderProduct(
     FEATURE: SELLER
     ==================================================*/
 
-    sellerName.textContent =
-        product.sellerName ||
-        product.seller ||
-        "SmartBazaar Seller";
+    if (sellerName) {
+
+        sellerName.textContent =
+            product.sellerName ||
+            product.seller ||
+            "SmartBazaar Seller";
+
+    }
 
 
     /*==================================================
-    FEATURE: IMAGES
+    FEATURE: PRODUCT IMAGES
     ==================================================*/
 
     const images =
@@ -503,49 +565,65 @@ function renderProduct(
 
 
     /*==================================================
-    FEATURE: BUTTON DATA
+    FEATURE: PRODUCT ID
     ==================================================*/
 
-    addToCartButton.dataset.productId =
-        id;
+    if (addToCartButton) {
+
+        addToCartButton.dataset.productId =
+            id;
+
+    }
 
 
-    buyNowButton.dataset.productId =
-        id;
+    if (buyNowButton) {
+
+        buyNowButton.dataset.productId =
+            id;
+
+    }
 
 
-    wishlistButton.dataset.productId =
-        id;
+    if (wishlistButton) {
+
+        wishlistButton.dataset.productId =
+            id;
+
+    }
 
 
     /*==================================================
     FEATURE: STOCK QUANTITY LIMIT
     ==================================================*/
 
-    productQuantity.max =
-        stock > 0
-            ? stock
-            : 1;
+    if (productQuantity) {
 
-
-    if (stock <= 0) {
-
-        addToCartButton.disabled =
-            true;
-
-        buyNowButton.disabled =
-            true;
-
-    } else {
-
-        addToCartButton.disabled =
-            false;
-
-        buyNowButton.disabled =
-            false;
+        productQuantity.max =
+            stock > 0
+                ? stock
+                : 1;
 
     }
 
+
+    /*==================================================
+    FEATURE: DISABLE PURCHASE WHEN OUT OF STOCK
+    ==================================================*/
+
+    if (addToCartButton) {
+
+        addToCartButton.disabled =
+            stock <= 0;
+
+    }
+
+
+    if (buyNowButton) {
+
+        buyNowButton.disabled =
+            stock <= 0;
+
+    }
 
 }
 
@@ -597,6 +675,13 @@ function renderAdvancedMeta(
     }
 
 
+    if (!metaContainer) {
+
+        return;
+
+    }
+
+
     metaContainer.innerHTML =
         "";
 
@@ -618,7 +703,10 @@ function renderAdvancedMeta(
 
     /* SKU */
 
-    if (product.sku || product.SKU) {
+    if (
+        product.sku ||
+        product.SKU
+    ) {
 
         items.push({
             label: "SKU",
@@ -632,7 +720,10 @@ function renderAdvancedMeta(
 
     /* CONDITION */
 
-    if (product.condition || product.productCondition) {
+    if (
+        product.condition ||
+        product.productCondition
+    ) {
 
         items.push({
             label: "Condition",
@@ -681,16 +772,34 @@ function renderAdvancedMeta(
                 "product-meta-row";
 
 
-            row.innerHTML =
-                `
-                    <span>
-                        ${escapeHTML(item.label)}
-                    </span>
+            const label =
+                document.createElement(
+                    "span"
+                );
 
-                    <strong>
-                        ${escapeHTML(item.value)}
-                    </strong>
-                `;
+
+            label.textContent =
+                item.label;
+
+
+            const value =
+                document.createElement(
+                    "strong"
+                );
+
+
+            value.textContent =
+                item.value;
+
+
+            row.appendChild(
+                label
+            );
+
+
+            row.appendChild(
+                value
+            );
 
 
             metaContainer.appendChild(
@@ -772,12 +881,26 @@ function renderAdvancedProductContent(
             "advanced-product-content";
 
 
-        productDescriptionSection
-            .parentNode
-            .insertBefore(
-                container,
-                productDescriptionSection.nextSibling
-            );
+        if (
+            productDescriptionSection &&
+            productDescriptionSection.parentNode
+        ) {
+
+            productDescriptionSection
+                .parentNode
+                .insertBefore(
+                    container,
+                    productDescriptionSection.nextSibling
+                );
+
+        }
+
+    }
+
+
+    if (!container) {
+
+        return;
 
     }
 
@@ -949,6 +1072,41 @@ function renderAdvancedProductContent(
 
 
     /*==================================================
+    FEATURE: DIRECT PRODUCT VIDEO
+    ==================================================*/
+
+    const directVideos =
+        getProductVideos(
+            product
+        );
+
+
+    if (directVideos.length) {
+
+        directVideos.forEach(
+            videoUrl => {
+
+                const videoElement =
+                    createVideoElement(
+                        videoUrl
+                    );
+
+
+                if (videoElement) {
+
+                    container.appendChild(
+                        videoElement
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /*==================================================
     FEATURE: SPECIFICATIONS
     ==================================================*/
 
@@ -974,6 +1132,10 @@ function renderAdvancedProductContent(
 
     }
 
+
+    /*==================================================
+    FEATURE: SHOW / HIDE ADVANCED CONTENT
+    ==================================================*/
 
     if (!container.innerHTML.trim()) {
 
@@ -1178,6 +1340,17 @@ function renderContentBlock(
             "lazy";
 
 
+        image.onerror =
+            () => {
+
+                console.error(
+                    "Product detail image failed:",
+                    url
+                );
+
+            };
+
+
         section.appendChild(
             image
         );
@@ -1199,7 +1372,8 @@ function renderContentBlock(
         const url =
             block.url ||
             block.src ||
-            block.videoUrl;
+            block.videoUrl ||
+            block.video;
 
 
         if (!url) {
@@ -1232,7 +1406,7 @@ function renderContentBlock(
 
 
     /*==================================================
-    SPECIFICATIONS BLOCK
+    SPECIFICATIONS
     ==================================================*/
 
     if (
@@ -1250,6 +1424,197 @@ function renderContentBlock(
 
 
     return null;
+
+}
+
+
+/*==================================================
+FEATURE: GET PRODUCT VIDEOS
+SUPPORTS:
+
+product.video
+product.videoUrl
+product.videos
+==================================================*/
+
+function getProductVideos(
+    product
+) {
+
+    const videos = [];
+
+
+    /*==================================================
+    DIRECT VIDEO URL
+    ==================================================*/
+
+    if (
+        typeof product.video === "string" &&
+        product.video.trim()
+    ) {
+
+        videos.push(
+            product.video.trim()
+        );
+
+    }
+
+
+    /*==================================================
+    VIDEO URL
+    ==================================================*/
+
+    if (
+        typeof product.videoUrl === "string" &&
+        product.videoUrl.trim()
+    ) {
+
+        if (
+            !videos.includes(
+                product.videoUrl.trim()
+            )
+        ) {
+
+            videos.push(
+                product.videoUrl.trim()
+            );
+
+        }
+
+    }
+
+
+    /*==================================================
+    VIDEO ARRAY
+    ==================================================*/
+
+    if (
+        Array.isArray(
+            product.videos
+        )
+    ) {
+
+        product.videos.forEach(
+            video => {
+
+                if (
+                    typeof video === "string" &&
+                    video.trim()
+                ) {
+
+                    if (
+                        !videos.includes(
+                            video.trim()
+                        )
+                    ) {
+
+                        videos.push(
+                            video.trim()
+                        );
+
+                    }
+
+                } else if (
+                    video &&
+                    typeof video === "object"
+                ) {
+
+                    const url =
+                        video.url ||
+                        video.src ||
+                        video.videoUrl ||
+                        video.video;
+
+
+                    if (
+                        typeof url === "string" &&
+                        url.trim() &&
+                        !videos.includes(
+                            url.trim()
+                        )
+                    ) {
+
+                        videos.push(
+                            url.trim()
+                        );
+
+                    }
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /*==================================================
+    VIDEO OBJECT
+    ==================================================*/
+
+    if (
+        product.videos &&
+        typeof product.videos === "object" &&
+        !Array.isArray(product.videos)
+    ) {
+
+        Object.values(
+            product.videos
+        ).forEach(
+            video => {
+
+                if (
+                    typeof video === "string" &&
+                    video.trim()
+                ) {
+
+                    if (
+                        !videos.includes(
+                            video.trim()
+                        )
+                    ) {
+
+                        videos.push(
+                            video.trim()
+                        );
+
+                    }
+
+                } else if (
+                    video &&
+                    typeof video === "object"
+                ) {
+
+                    const url =
+                        video.url ||
+                        video.src ||
+                        video.videoUrl ||
+                        video.video;
+
+
+                    if (
+                        typeof url === "string" &&
+                        url.trim() &&
+                        !videos.includes(
+                            url.trim()
+                        )
+                    ) {
+
+                        videos.push(
+                            url.trim()
+                        );
+
+                    }
+
+                }
+
+            }
+        );
+
+    }
+
+
+    return videos;
 
 }
 
@@ -1454,6 +1819,27 @@ function createVideoElement(
     url
 ) {
 
+    if (
+        !url ||
+        typeof url !== "string"
+    ) {
+
+        return null;
+
+    }
+
+
+    const cleanUrl =
+        url.trim();
+
+
+    if (!cleanUrl) {
+
+        return null;
+
+    }
+
+
     const wrapper =
         document.createElement(
             "div"
@@ -1492,8 +1878,63 @@ function createVideoElement(
         "metadata";
 
 
+    video.setAttribute(
+        "controlsList",
+        "nodownload"
+    );
+
+
+    video.setAttribute(
+        "webkit-playsinline",
+        "true"
+    );
+
+
+    /*==================================================
+    FEATURE: CLOUDINARY VIDEO URL
+    ==================================================*/
+
+    const videoSource =
+        createCloudinaryVideoUrl(
+            cleanUrl
+        );
+
+
     video.src =
-        url;
+        videoSource;
+
+
+    video.style.width =
+        "100%";
+
+
+    video.style.maxWidth =
+        "800px";
+
+
+    video.style.display =
+        "block";
+
+
+    video.style.borderRadius =
+        "14px";
+
+
+    video.style.background =
+        "#000";
+
+
+    video.addEventListener(
+        "error",
+        () => {
+
+            console.error(
+                "Product video failed to load:",
+                videoSource
+            );
+
+        }
+    );
 
 
     wrapper.appendChild(
@@ -1512,6 +1953,60 @@ function createVideoElement(
 
 
 /*==================================================
+FEATURE: CLOUDINARY VIDEO DELIVERY
+==================================================*/
+
+function createCloudinaryVideoUrl(
+    url
+) {
+
+    if (
+        !url.includes(
+            "res.cloudinary.com"
+        )
+    ) {
+
+        return url;
+
+    }
+
+
+    /*
+     * Add Cloudinary automatic format
+     * and quality optimization.
+     *
+     * Existing Cloudinary URL:
+     *
+     * /video/upload/...
+     *
+     * Becomes:
+     *
+     * /video/upload/f_auto,q_auto/...
+     */
+
+    if (
+        url.includes(
+            "/video/upload/"
+        ) &&
+        !url.includes(
+            "/video/upload/f_auto"
+        )
+    ) {
+
+        return url.replace(
+            "/video/upload/",
+            "/video/upload/f_auto,q_auto/"
+        );
+
+    }
+
+
+    return url;
+
+}
+
+
+/*==================================================
 FEATURE: PRODUCT IMAGES
 ==================================================*/
 
@@ -1522,6 +2017,10 @@ function getProductImages(
     let images = [];
 
 
+    /*==================================================
+    IMAGE ARRAY
+    ==================================================*/
+
     if (
         Array.isArray(
             product.images
@@ -1531,19 +2030,21 @@ function getProductImages(
         images =
             product.images.filter(
                 image =>
-                    typeof image ===
-                    "string" &&
+                    typeof image === "string" &&
                     image.trim()
             );
 
     }
 
 
+    /*==================================================
+    IMAGE OBJECT
+    ==================================================*/
+
     if (
         images.length === 0 &&
         product.images &&
-        typeof product.images ===
-        "object"
+        typeof product.images === "object"
     ) {
 
         images =
@@ -1551,33 +2052,42 @@ function getProductImages(
                 product.images
             ).filter(
                 image =>
-                    typeof image ===
-                    "string" &&
+                    typeof image === "string" &&
                     image.trim()
             );
 
     }
 
 
+    /*==================================================
+    MAIN IMAGE
+    ==================================================*/
+
     if (
         images.length === 0 &&
-        product.image
+        typeof product.image === "string" &&
+        product.image.trim()
     ) {
 
         images.push(
-            product.image
+            product.image.trim()
         );
 
     }
 
 
+    /*==================================================
+    IMAGE URL
+    ==================================================*/
+
     if (
         images.length === 0 &&
-        product.imageUrl
+        typeof product.imageUrl === "string" &&
+        product.imageUrl.trim()
     ) {
 
         images.push(
-            product.imageUrl
+            product.imageUrl.trim()
         );
 
     }
@@ -1596,12 +2106,32 @@ function setMainImage(
     image
 ) {
 
+    if (!productMainImage) {
+
+        return;
+
+    }
+
+
     productMainImage.src =
         image;
 
 
     productMainImage.alt =
-        productName.textContent;
+        productName
+            ? productName.textContent
+            : "Product";
+
+
+    productMainImage.onerror =
+        () => {
+
+            console.error(
+                "Main product image failed:",
+                image
+            );
+
+        };
 
 }
 
@@ -1613,6 +2143,13 @@ FEATURE: THUMBNAILS
 function createThumbnails(
     images
 ) {
+
+    if (!productThumbnails) {
+
+        return;
+
+    }
+
 
     productThumbnails.innerHTML =
         "";
@@ -1766,238 +2303,244 @@ function createStars(
 FEATURE: QUANTITY
 ==================================================*/
 
-increaseQuantity.addEventListener(
-    "click",
-    () => {
+if (increaseQuantity) {
 
-        const current =
-            Number(
-                productQuantity.value
-            ) || 1;
+    increaseQuantity.addEventListener(
+        "click",
+        () => {
 
-
-        const max =
-            Number(
-                productQuantity.max
-            );
+            const current =
+                Number(
+                    productQuantity?.value
+                ) || 1;
 
 
-        if (
-            max > 0 &&
-            current >= max
-        ) {
-
-            productQuantity.value =
-                max;
-
-            return;
-
-        }
+            const max =
+                Number(
+                    productQuantity?.max
+                );
 
 
-        productQuantity.value =
-            current + 1;
+            if (
+                max > 0 &&
+                current >= max
+            ) {
 
-    }
-);
+                if (productQuantity) {
+
+                    productQuantity.value =
+                        max;
+
+                }
+
+                return;
+
+            }
 
 
-decreaseQuantity.addEventListener(
-    "click",
-    () => {
+            if (productQuantity) {
 
-        const current =
-            Number(
-                productQuantity.value
-            ) || 1;
+                productQuantity.value =
+                    current + 1;
 
-
-        if (
-            current > 1
-        ) {
-
-            productQuantity.value =
-                current - 1;
+            }
 
         }
+    );
 
-    }
-);
+}
+
+
+if (decreaseQuantity) {
+
+    decreaseQuantity.addEventListener(
+        "click",
+        () => {
+
+            const current =
+                Number(
+                    productQuantity?.value
+                ) || 1;
+
+
+            if (
+                current > 1 &&
+                productQuantity
+            ) {
+
+                productQuantity.value =
+                    current - 1;
+
+            }
+
+        }
+    );
+
+}
 
 
 /*==================================================
 FEATURE: QUANTITY VALIDATION
 ==================================================*/
 
-productQuantity.addEventListener(
-    "change",
-    () => {
+if (productQuantity) {
 
-        let quantity =
-            Number(
-                productQuantity.value
-            ) || 1;
+    productQuantity.addEventListener(
+        "change",
+        () => {
 
-
-        const max =
-            Number(
-                productQuantity.max
-            );
+            let quantity =
+                Number(
+                    productQuantity.value
+                ) || 1;
 
 
-        if (
-            quantity < 1
-        ) {
+            const max =
+                Number(
+                    productQuantity.max
+                );
 
-            quantity =
-                1;
+
+            if (
+                quantity < 1
+            ) {
+
+                quantity =
+                    1;
+
+            }
+
+
+            if (
+                max > 0 &&
+                quantity > max
+            ) {
+
+                quantity =
+                    max;
+
+            }
+
+
+            productQuantity.value =
+                quantity;
 
         }
+    );
 
-
-        if (
-            max > 0 &&
-            quantity > max
-        ) {
-
-            quantity =
-                max;
-
-        }
-
-
-        productQuantity.value =
-            quantity;
-
-    }
-);
+}
 
 
 /*==================================================
 FEATURE: ADD TO CART
 ==================================================*/
 
-addToCartButton.addEventListener(
-    "click",
-    () => {
+if (addToCartButton) {
 
-        const id =
-            addToCartButton.dataset.productId;
+    addToCartButton.addEventListener(
+        "click",
+        () => {
 
-
-        const quantity =
-            Number(
-                productQuantity.value
-            ) || 1;
+            const id =
+                addToCartButton.dataset.productId;
 
 
-        console.log(
-            "Add to cart:",
-            id,
-            quantity
-        );
+            const quantity =
+                Number(
+                    productQuantity?.value
+                ) || 1;
 
 
-        alert(
-            "Product added to cart."
-        );
+            console.log(
+                "Add to cart:",
+                id,
+                quantity
+            );
 
-    }
-);
+
+            alert(
+                "Product added to cart."
+            );
+
+        }
+    );
+
+}
 
 
 /*==================================================
 FEATURE: BUY NOW
 ==================================================*/
 
-buyNowButton.addEventListener(
-    "click",
-    () => {
+if (buyNowButton) {
 
-        const id =
-            buyNowButton.dataset.productId;
+    buyNowButton.addEventListener(
+        "click",
+        () => {
 
-
-        const quantity =
-            Number(
-                productQuantity.value
-            ) || 1;
+            const id =
+                buyNowButton.dataset.productId;
 
 
-        console.log(
-            "Buy now:",
-            id,
-            quantity
-        );
+            const quantity =
+                Number(
+                    productQuantity?.value
+                ) || 1;
 
 
-        /*
-         * Checkout system remains
-         * ready for later integration.
-         */
+            console.log(
+                "Buy now:",
+                id,
+                quantity
+            );
 
 
-        alert(
-            "Buy Now system is ready for checkout integration."
-        );
+            alert(
+                "Buy Now system is ready for checkout integration."
+            );
 
-    }
-);
+        }
+    );
+
+}
 
 
 /*==================================================
 FEATURE: WISHLIST
 ==================================================*/
 
-wishlistButton.addEventListener(
-    "click",
-    () => {
+if (wishlistButton) {
 
-        const icon =
-            wishlistButton.querySelector(
-                "i"
+    wishlistButton.addEventListener(
+        "click",
+        () => {
+
+            const icon =
+                wishlistButton.querySelector(
+                    "i"
+                );
+
+
+            if (icon) {
+
+                icon.classList.toggle(
+                    "fa-regular"
+                );
+
+
+                icon.classList.toggle(
+                    "fa-solid"
+                );
+
+            }
+
+
+            wishlistButton.classList.toggle(
+                "active"
             );
 
-
-        icon.classList.toggle(
-            "fa-regular"
-        );
-
-
-        icon.classList.toggle(
-            "fa-solid"
-        );
-
-
-        wishlistButton.classList.toggle(
-            "active"
-        );
-
-    }
-);
-
-
-/*==================================================
-FEATURE: HTML ESCAPE
-==================================================*/
-
-function escapeHTML(
-    value
-) {
-
-    const div =
-        document.createElement(
-            "div"
-        );
-
-
-    div.textContent =
-        String(
-            value ?? ""
-        );
-
-
-    return div.innerHTML;
+        }
+    );
 
 }
 
@@ -2008,19 +2551,35 @@ FEATURE: PRODUCT ERROR
 
 function showProductError() {
 
-    productDetailsLoading.style.display =
-        "none";
+    if (productDetailsLoading) {
+
+        productDetailsLoading.style.display =
+            "none";
+
+    }
 
 
-    productContent.style.display =
-        "none";
+    if (productContent) {
+
+        productContent.style.display =
+            "none";
+
+    }
 
 
-    productDescriptionSection.style.display =
-        "none";
+    if (productDescriptionSection) {
+
+        productDescriptionSection.style.display =
+            "none";
+
+    }
 
 
-    productError.style.display =
-        "flex";
+    if (productError) {
+
+        productError.style.display =
+            "flex";
+
+    }
 
 }
