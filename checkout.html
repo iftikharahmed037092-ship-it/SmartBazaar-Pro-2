@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="SmartBazaar Pro Checkout"
+    >
+
+    <title>Checkout | SmartBazaar Pro</title>
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <!-- Checkout CSS -->
+    <link
+        rel="stylesheet"
+        href="./checkout.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<!--==================================================
+SMARTBAZAAR PRO 2
+FEATURE: CHECKOUT PAGE
+==================================================-->
+
+<header class="checkout-header">
+
+    <div class="checkout-header-inner">
+
+        <a
+            href="./index.html"
+            class="checkout-logo"
+        >
+            <i class="fa-solid fa-store"></i>
+            <span>SmartBazaar</span>
+        </a>
+
+        <div class="secure-checkout">
+
+            <i class="fa-solid fa-lock"></i>
+
+            Secure Checkout
+
+        </div>
+
+    </div>
+
+</header>
+
+
+
+<!--==================================================
+FEATURE: MAIN CHECKOUT
+==================================================-->
+
+<main class="checkout-container">
+
+
+    <!--==================================================
+    FEATURE: LOADING
+    ==================================================-->
+
+    <div
+        id="checkoutLoading"
+        class="checkout-loading"
+    >
+
+        <div class="loading-spinner"></div>
+
+        <p>
+            Loading your order...
+        </p>
+
+    </div>
+
+
+
+    <!--==================================================
+    FEATURE: CHECKOUT ERROR
+    ==================================================-->
+
+    <section
+        id="checkoutError"
+        class="checkout-error"
+        style="display:none;"
+    >
+
+        <div class="error-icon">
+
+            <i class="fa-solid fa-circle-exclamation"></i>
+
+        </div>
+
+        <h2>
+            Unable to Load Order
+        </h2>
+
+        <p id="checkoutErrorMessage">
+            Product information could not be loaded.
+        </p>
+
+        <a
+            href="./index.html"
+            class="back-home-button"
+        >
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to Home
+        </a>
+
+    </section>
+
+
+
+    <!--==================================================
+    FEATURE: CHECKOUT CONTENT
+    ==================================================-->
+
+    <section
+        id="checkoutContent"
+        class="checkout-content"
+        style="display:none;"
+    >
+
+
+        <!--==================================================
+        FEATURE: CUSTOMER INFORMATION
+        ==================================================-->
+
+        <div class="checkout-left">
+
+
+            <div class="checkout-card">
+
+                <div class="card-heading">
+
+                    <div class="heading-icon">
+
+                        <i class="fa-solid fa-user"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Customer Information
+                        </h2>
+
+                        <p>
+                            Enter your delivery details
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <form id="checkoutForm">
+
+
+                    <!-- NAME -->
+
+                    <div class="form-group">
+
+                        <label for="customerName">
+
+                            Full Name
+                            <span>*</span>
+
+                        </label>
+
+                        <input
+                            type="text"
+                            id="customerName"
+                            name="customerName"
+                            placeholder="Enter your full name"
+                            autocomplete="name"
+                            required
+                        >
+
+                    </div>
+
+
+
+                    <!-- PHONE -->
+
+                    <div class="form-group">
+
+                        <label for="customerPhone">
+
+                            Mobile Number
+                            <span>*</span>
+
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="customerPhone"
+                            name="customerPhone"
+                            placeholder="03XXXXXXXXX"
+                            inputmode="numeric"
+                            autocomplete="tel"
+                            maxlength="11"
+                            required
+                        >
+
+                        <small>
+                            Example: 03001234567
+                        </small>
+
+                    </div>
+
+
+
+                    <!-- CITY -->
+
+                    <div class="form-group">
+
+                        <label for="customerCity">
+
+                            City
+                            <span>*</span>
+
+                        </label>
+
+                        <input
+                            type="text"
+                            id="customerCity"
+                            name="customerCity"
+                            placeholder="Enter your city"
+                            autocomplete="address-level2"
+                            required
+                        >
+
+                    </div>
+
+
+
+                    <!-- ADDRESS -->
+
+                    <div class="form-group">
+
+                        <label for="customerAddress">
+
+                            Complete Delivery Address
+                            <span>*</span>
+
+                        </label>
+
+                        <textarea
+                            id="customerAddress"
+                            name="customerAddress"
+                            rows="4"
+                            placeholder="House number, street, village/area, nearby landmark..."
+                            autocomplete="street-address"
+                            required
+                        ></textarea>
+
+                    </div>
+
+
+
+                    <!-- NOTE -->
+
+                    <div class="form-group">
+
+                        <label for="customerNote">
+
+                            Order Note
+                            <span class="optional">
+                                Optional
+                            </span>
+
+                        </label>
+
+                        <textarea
+                            id="customerNote"
+                            name="customerNote"
+                            rows="3"
+                            placeholder="Any special instructions..."
+                        ></textarea>
+
+                    </div>
+
+
+
+                </form>
+
+            </div>
+
+
+
+            <!--==================================================
+            FEATURE: PAYMENT METHOD
+            ==================================================-->
+
+            <div class="checkout-card">
+
+                <div class="card-heading">
+
+                    <div class="heading-icon">
+
+                        <i class="fa-solid fa-credit-card"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Payment Method
+                        </h2>
+
+                        <p>
+                            Choose your payment method
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="payment-methods">
+
+
+                    <!-- COD -->
+
+                    <label
+                        class="payment-option active"
+                        for="codPayment"
+                    >
+
+                        <input
+                            type="radio"
+                            id="codPayment"
+                            name="paymentMethod"
+                            value="cod"
+                            checked
+                        >
+
+                        <div class="payment-icon cod-icon">
+
+                            <i class="fa-solid fa-money-bill-wave"></i>
+
+                        </div>
+
+                        <div class="payment-text">
+
+                            <strong>
+                                Cash on Delivery
+                            </strong>
+
+                            <span>
+                                Pay when your order arrives
+                            </span>
+
+                        </div>
+
+                        <div class="payment-check">
+
+                            <i class="fa-solid fa-circle-check"></i>
+
+                        </div>
+
+                    </label>
+
+
+
+                    <!-- JAZZCASH -->
+
+                    <label
+                        class="payment-option disabled-payment"
+                        for="jazzcashPayment"
+                    >
+
+                        <input
+                            type="radio"
+                            id="jazzcashPayment"
+                            name="paymentMethod"
+                            value="jazzcash"
+                            disabled
+                        >
+
+                        <div class="payment-icon">
+
+                            <i class="fa-solid fa-mobile-screen-button"></i>
+
+                        </div>
+
+                        <div class="payment-text">
+
+                            <strong>
+                                JazzCash
+                            </strong>
+
+                            <span>
+                                Online payment coming soon
+                            </span>
+
+                        </div>
+
+                        <span class="coming-soon">
+                            Soon
+                        </span>
+
+                    </label>
+
+
+
+                    <!-- EASYPAISA -->
+
+                    <label
+                        class="payment-option disabled-payment"
+                        for="easypaisaPayment"
+                    >
+
+                        <input
+                            type="radio"
+                            id="easypaisaPayment"
+                            name="paymentMethod"
+                            value="easypaisa"
+                            disabled
+                        >
+
+                        <div class="payment-icon">
+
+                            <i class="fa-solid fa-wallet"></i>
+
+                        </div>
+
+                        <div class="payment-text">
+
+                            <strong>
+                                EasyPaisa
+                            </strong>
+
+                            <span>
+                                Online payment coming soon
+                            </span>
+
+                        </div>
+
+                        <span class="coming-soon">
+                            Soon
+                        </span>
+
+                    </label>
+
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!--==================================================
+        FEATURE: ORDER SUMMARY
+        ==================================================-->
+
+        <aside class="checkout-right">
+
+            <div class="checkout-card order-summary">
+
+
+                <div class="card-heading">
+
+                    <div class="heading-icon">
+
+                        <i class="fa-solid fa-bag-shopping"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Order Summary
+                        </h2>
+
+                        <p>
+                            Review your order
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- PRODUCT -->
+
+                <div class="checkout-product">
+
+                    <div class="checkout-product-image">
+
+                        <img
+                            id="checkoutProductImage"
+                            src=""
+                            alt="Product"
+                        >
+
+                    </div>
+
+                    <div class="checkout-product-info">
+
+                        <h3 id="checkoutProductName">
+                            Product
+                        </h3>
+
+                        <p id="checkoutProductCategory">
+                            Product
+                        </p>
+
+                        <div class="checkout-price-row">
+
+                            <strong id="checkoutProductPrice">
+                                Rs. 0
+                            </strong>
+
+                            <span>
+                                ×
+                            </span>
+
+                            <span id="checkoutProductQuantity">
+                                1
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- QUANTITY -->
+
+                <div class="summary-quantity">
+
+                    <span>
+                        Quantity
+                    </span>
+
+                    <div class="quantity-control">
+
+                        <button
+                            type="button"
+                            id="decreaseQuantity"
+                            aria-label="Decrease quantity"
+                        >
+                            −
+                        </button>
+
+                        <input
+                            type="number"
+                            id="checkoutQuantity"
+                            value="1"
+                            min="1"
+                            readonly
+                        >
+
+                        <button
+                            type="button"
+                            id="increaseQuantity"
+                            aria-label="Increase quantity"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- PRICES -->
+
+                <div class="summary-lines">
+
+                    <div>
+
+                        <span>
+                            Product Price
+                        </span>
+
+                        <strong id="summaryProductPrice">
+                            Rs. 0
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Quantity
+                        </span>
+
+                        <strong id="summaryQuantity">
+                            1
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Delivery
+                        </span>
+
+                        <strong class="free-delivery">
+                            Free
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- TOTAL -->
+
+                <div class="summary-total">
+
+                    <span>
+                        Total
+                    </span>
+
+                    <strong id="summaryTotal">
+                        Rs. 0
+                    </strong>
+
+                </div>
+
+
+
+                <!-- PLACE ORDER -->
+
+                <button
+                    type="submit"
+                    form="checkoutForm"
+                    id="placeOrderButton"
+                    class="place-order-button"
+                >
+
+                    <i class="fa-solid fa-lock"></i>
+
+                    Place Order
+
+                </button>
+
+
+
+                <p class="secure-note">
+
+                    <i class="fa-solid fa-shield-halved"></i>
+
+                    Your order information is securely saved.
+
+                </p>
+
+
+            </div>
+
+
+        </aside>
+
+
+    </section>
+
+
+
+    <!--==================================================
+    FEATURE: ORDER SUCCESS
+    ==================================================-->
+
+    <section
+        id="orderSuccess"
+        class="order-success"
+        style="display:none;"
+    >
+
+        <div class="success-icon">
+
+            <i class="fa-solid fa-check"></i>
+
+        </div>
+
+        <h1>
+            Order Placed Successfully!
+        </h1>
+
+        <p>
+            Thank you for shopping with SmartBazaar.
+        </p>
+
+
+        <div class="success-order-box">
+
+            <span>
+                Order ID
+            </span>
+
+            <strong id="successOrderId">
+                —
+            </strong>
+
+        </div>
+
+
+        <div class="success-total-box">
+
+            <span>
+                Order Total
+            </span>
+
+            <strong id="successOrderTotal">
+                Rs. 0
+            </strong>
+
+        </div>
+
+
+        <div class="success-message">
+
+            <i class="fa-solid fa-truck"></i>
+
+            <p>
+                Your order has been received.
+                We will contact you for delivery confirmation.
+            </p>
+
+        </div>
+
+
+        <a
+            href="./index.html"
+            class="continue-shopping-button"
+        >
+
+            <i class="fa-solid fa-cart-shopping"></i>
+
+            Continue Shopping
+
+        </a>
+
+    </section>
+
+
+</main>
+
+
+
+<!--==================================================
+FEATURE: CHECKOUT JAVASCRIPT
+==================================================-->
+
+<script
+    type="module"
+    src="./checkout.js"
+></script>
+
+
+</body>
+
+</html>
