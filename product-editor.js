@@ -1,827 +1,813 @@
-/*==================================================
+/==================================================
 SMARTBAZAAR PRO 2
 FEATURE: PREMIUM PRODUCT DETAIL EDITOR
-FEATURE: FIREBASE + CLOUDINARY + MEDIA + CONTENT BUILDER
-==================================================*/
+VERSION: PRODUCT EDITOR V2
+==================================================/
 
-
-/*==================================================
+/==================================================
 FEATURE: FIREBASE IMPORT
-==================================================*/
+KEEP EXISTING CONNECTION
+==================================================/
 
 import {
-    database,
-    auth
+database,
+auth
 } from "./firebase-config.js";
 
-
-/*==================================================
+/==================================================
 FEATURE: FIREBASE DATABASE METHODS
-==================================================*/
+==================================================/
 
 import {
-    ref,
-    push,
-    set
+ref,
+push,
+set
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
 
-
-/*==================================================
+/==================================================
 FEATURE: FIREBASE AUTH METHODS
-==================================================*/
+==================================================/
 
 import {
-    onAuthStateChanged
+onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
-
-/*==================================================
+/==================================================
 FEATURE: CLOUDINARY IMPORT
-==================================================*/
+KEEP EXISTING CONNECTION
+==================================================/
 
 import {
-    uploadToCloudinary,
-    CLOUDINARY_FOLDERS
+uploadToCloudinary,
+CLOUDINARY_FOLDERS
 } from "./cloudinary-config.js";
 
-
-/*==================================================
+/==================================================
 FEATURE: ADMIN EMAIL
-==================================================*/
+==================================================/
 
 const ADMIN_EMAIL =
-    "iftikharahmed037092@gmail.com";
+"iftikharahmed037092@gmail.com";
 
-
-/*==================================================
+/==================================================
 FEATURE: DOM ELEMENTS
-==================================================*/
+==================================================/
 
 const productForm =
-    document.getElementById("productForm");
+document.getElementById("productForm");
 
 const saveProductButton =
-    document.getElementById("saveProductButton");
+document.getElementById("saveProductButton");
 
 const clearButton =
-    document.getElementById("clearButton");
+document.getElementById("clearButton");
 
 const mainImageInput =
-    document.getElementById("mainImage");
+document.getElementById("mainImage");
 
 const galleryImagesInput =
-    document.getElementById("galleryImages");
+document.getElementById("galleryImages");
 
 const productVideoInput =
-    document.getElementById("productVideo");
+document.getElementById("productVideo");
 
-const productVideoUrl =
-    document.getElementById("productVideoUrl");
+const productVideoUrlInput =
+document.getElementById("productVideoUrl");
 
 const mainImagePreview =
-    document.getElementById("mainImagePreview");
+document.getElementById("mainImagePreview");
 
 const galleryPreview =
-    document.getElementById("galleryPreview");
+document.getElementById("galleryPreview");
 
 const videoPreview =
-    document.getElementById("videoPreview");
-
-const editorMessage =
-    document.getElementById("editorMessage");
-
-const editorStatusDot =
-    document.getElementById("editorStatusDot");
-
-const editorStatusText =
-    document.getElementById("editorStatusText");
-
-const previewPrice =
-    document.getElementById("previewPrice");
-
-const previewOldPrice =
-    document.getElementById("previewOldPrice");
-
-const previewDiscount =
-    document.getElementById("previewDiscount");
-
-const shortDescription =
-    document.getElementById("shortDescription");
-
-const shortDescriptionCount =
-    document.getElementById("shortDescriptionCount");
-
-const priceInput =
-    document.getElementById("productPrice");
-
-const oldPriceInput =
-    document.getElementById("productOldPrice");
+document.getElementById("videoPreview");
 
 const contentBlocks =
-    document.getElementById("contentBlocks");
+document.getElementById("contentBlocks");
 
 const contentEmptyState =
-    document.getElementById("contentEmptyState");
+document.getElementById("contentEmptyState");
 
 const contentBuilderToolbar =
-    document.getElementById("contentBuilderToolbar");
+document.getElementById("contentBuilderToolbar");
 
+const editorMessage =
+document.getElementById("editorMessage");
 
-/*==================================================
-FEATURE: LOCAL MEDIA ARRAYS
-==================================================*/
+const editorStatusDot =
+document.getElementById("editorStatusDot");
 
-let selectedGalleryFiles = [];
+const editorStatusText =
+document.getElementById("editorStatusText");
 
-let contentBlockData = [];
+const previewPrice =
+document.getElementById("previewPrice");
 
-let mainImageObjectUrl = null;
+const previewOldPrice =
+document.getElementById("previewOldPrice");
 
-let videoObjectUrl = null;
+const previewDiscount =
+document.getElementById("previewDiscount");
 
+const shortDescription =
+document.getElementById("shortDescription");
 
-/*==================================================
+const shortDescriptionCount =
+document.getElementById("shortDescriptionCount");
+
+/==================================================
+FEATURE: ADDITIONAL DOM ELEMENTS
+==================================================/
+
+const priceInput =
+document.getElementById("productPrice");
+
+const oldPriceInput =
+document.getElementById("productOldPrice");
+
+const productStockInput =
+document.getElementById("productStock");
+
+const lowStockLimitInput =
+document.getElementById("lowStockLimit");
+
+const productSKUInput =
+document.getElementById("productSKU");
+
+const productConditionInput =
+document.getElementById("productCondition");
+
+const productRatingInput =
+document.getElementById("productRating");
+
+const productReviewsInput =
+document.getElementById("productReviews");
+
+const productPublishedInput =
+document.getElementById("productPublished");
+
+const productFeaturedInput =
+document.getElementById("productFeatured");
+
+const freeShippingInput =
+document.getElementById("freeShipping");
+
+/==================================================
+FEATURE: LOCAL EDITOR STATE
+==================================================/
+
+/*
+IMPORTANT:
+Gallery files are stored locally until Save Product.
+This allows the user to select more images later
+without losing the previously selected images.
+*/
+
+let galleryFiles = [];
+
+/*
+Content Builder blocks.
+*/
+
+let detailBlocks = [];
+
+/*
+Temporary object URLs for cleanup.
+*/
+
+const objectUrls = new Set();
+
+/==================================================
 FEATURE: ADMIN ACCESS CONTROL
-==================================================*/
+KEEP EXISTING AUTH SYSTEM
+==================================================/
 
 onAuthStateChanged(
-    auth,
-    (user) => {
+auth,
+(user) => {
 
-        if (!user) {
+    if (!user) {
 
-            window.location.href =
-                "admin-login.html";
+        window.location.href =
+            "admin-login.html";
+
+        return;
+    }
+
+
+    const loggedInEmail =
+        user.email
+            ? user.email.toLowerCase()
+            : "";
+
+
+    if (
+        loggedInEmail !==
+        ADMIN_EMAIL.toLowerCase()
+    ) {
+
+        window.location.href =
+            "admin-login.html";
+
+        return;
+    }
+
+
+    setEditorStatus(
+        "Ready",
+        true
+    );
+
+}
+
+);
+
+/==================================================
+FEATURE: MAIN IMAGE PREVIEW
+FIXED PREMIUM PREVIEW SYSTEM
+==================================================/
+
+if (mainImageInput) {
+
+mainImageInput.addEventListener(
+    "change",
+    () => {
+
+        const file =
+            mainImageInput.files &&
+            mainImageInput.files[0];
+
+
+        clearMainImagePreview();
+
+
+        if (!file) {
 
             return;
         }
-
-
-        const loggedInEmail =
-            user.email
-                ? user.email.toLowerCase()
-                : "";
 
 
         if (
-            loggedInEmail !==
-            ADMIN_EMAIL.toLowerCase()
+            !file.type.startsWith("image/")
         ) {
 
-            window.location.href =
-                "admin-login.html";
+            showMessage(
+                "Please select a valid image file.",
+                "error"
+            );
+
+            mainImageInput.value =
+                "";
 
             return;
         }
 
 
-        setEditorStatus(
-            "Ready",
-            true
+        const objectUrl =
+            URL.createObjectURL(file);
+
+
+        objectUrls.add(objectUrl);
+
+
+        const image =
+            document.createElement("img");
+
+
+        image.src =
+            objectUrl;
+
+
+        image.alt =
+            "Main Product Image";
+
+
+        /*
+            Inline fallback styling makes the
+            preview visible even if CSS has
+            not yet been updated.
+        */
+
+        image.style.display =
+            "block";
+
+        image.style.width =
+            "100%";
+
+        image.style.height =
+            "100%";
+
+        image.style.objectFit =
+            "contain";
+
+
+        mainImagePreview.appendChild(
+            image
+        );
+
+
+        mainImagePreview.style.display =
+            "block";
+
+        mainImagePreview.style.visibility =
+            "visible";
+
+        mainImagePreview.style.opacity =
+            "1";
+
+    }
+);
+
+}
+
+/==================================================
+FEATURE: GALLERY IMAGE SELECTION
+MULTIPLE + ADD MORE SUPPORT
+==================================================/
+
+if (galleryImagesInput) {
+
+galleryImagesInput.addEventListener(
+    "change",
+    () => {
+
+        const selectedFiles =
+            Array.from(
+                galleryImagesInput.files || []
+            );
+
+
+        selectedFiles.forEach(
+            (file) => {
+
+                if (
+                    file.type.startsWith("image/")
+                ) {
+
+                    galleryFiles.push(file);
+
+                }
+
+            }
+        );
+
+
+        /*
+            Reset the native input so the
+            same file can be selected again
+            and additional images can be added.
+        */
+
+        galleryImagesInput.value =
+            "";
+
+
+        renderGalleryPreview();
+
+    }
+);
+
+}
+
+/==================================================
+FEATURE: RENDER GALLERY PREVIEW
+==================================================/
+
+function renderGalleryPreview() {
+
+galleryPreview.innerHTML =
+    "";
+
+
+galleryFiles.forEach(
+    (file, index) => {
+
+        const wrapper =
+            document.createElement("div");
+
+
+        wrapper.className =
+            "gallery-image";
+
+
+        /*
+            Extra styling for reliable preview.
+        */
+
+        wrapper.style.position =
+            "relative";
+
+        wrapper.style.overflow =
+            "hidden";
+
+
+        const image =
+            document.createElement("img");
+
+
+        const objectUrl =
+            URL.createObjectURL(file);
+
+
+        objectUrls.add(objectUrl);
+
+
+        image.src =
+            objectUrl;
+
+
+        image.alt =
+            `Gallery Image ${index + 1}`;
+
+
+        image.style.display =
+            "block";
+
+        image.style.width =
+            "100%";
+
+        image.style.height =
+            "100%";
+
+        image.style.objectFit =
+            "cover";
+
+
+        wrapper.appendChild(
+            image
+        );
+
+
+        /*
+            Remove button.
+        */
+
+        const removeButton =
+            document.createElement("button");
+
+
+        removeButton.type =
+            "button";
+
+
+        removeButton.innerHTML =
+            '<i class="fa-solid fa-xmark"></i>';
+
+
+        removeButton.title =
+            "Remove image";
+
+
+        removeButton.style.position =
+            "absolute";
+
+        removeButton.style.top =
+            "6px";
+
+        removeButton.style.right =
+            "6px";
+
+        removeButton.style.width =
+            "30px";
+
+        removeButton.style.height =
+            "30px";
+
+        removeButton.style.border =
+            "0";
+
+        removeButton.style.borderRadius =
+            "50%";
+
+        removeButton.style.cursor =
+            "pointer";
+
+        removeButton.style.background =
+            "rgba(0,0,0,0.70)";
+
+        removeButton.style.color =
+            "#ffffff";
+
+
+        removeButton.addEventListener(
+            "click",
+            () => {
+
+                galleryFiles.splice(
+                    index,
+                    1
+                );
+
+                renderGalleryPreview();
+
+            }
+        );
+
+
+        wrapper.appendChild(
+            removeButton
+        );
+
+
+        galleryPreview.appendChild(
+            wrapper
         );
 
     }
 );
 
-
-/*==================================================
-FEATURE: MAIN IMAGE PREVIEW
-FIX: IMAGE NOW APPEARS INSIDE PREVIEW BOX
-==================================================*/
-
-if (mainImageInput) {
-
-    mainImageInput.addEventListener(
-        "change",
-        () => {
-
-            const file =
-                mainImageInput.files &&
-                mainImageInput.files[0];
-
-
-            clearMainImagePreview();
-
-
-            if (!file) {
-                return;
-            }
-
-
-            if (
-                !file.type ||
-                !file.type.startsWith("image/")
-            ) {
-
-                showMessage(
-                    "Please select a valid image file.",
-                    "error"
-                );
-
-                mainImageInput.value = "";
-
-                return;
-            }
-
-
-            mainImageObjectUrl =
-                URL.createObjectURL(file);
-
-
-            const image =
-                document.createElement("img");
-
-
-            image.src =
-                mainImageObjectUrl;
-
-
-            image.alt =
-                "Main Product Image";
-
-
-            image.onload =
-                () => {
-
-                    mainImagePreview.style.display =
-                        "block";
-
-                };
-
-
-            image.onerror =
-                () => {
-
-                    clearMainImagePreview();
-
-                    showMessage(
-                        "Unable to preview this image.",
-                        "error"
-                    );
-
-                };
-
-
-            mainImagePreview.appendChild(
-                image
-            );
-
-
-            mainImagePreview.style.display =
-                "block";
-
-        }
-    );
-
 }
 
-
-/*==================================================
-FEATURE: CLEAR MAIN IMAGE PREVIEW
-==================================================*/
-
-function clearMainImagePreview() {
-
-    if (
-        mainImageObjectUrl
-    ) {
-
-        URL.revokeObjectURL(
-            mainImageObjectUrl
-        );
-
-        mainImageObjectUrl =
-            null;
-    }
-
-
-    if (mainImagePreview) {
-
-        mainImagePreview.innerHTML =
-            "";
-
-        mainImagePreview.style.display =
-            "none";
-    }
-
-}
-
-
-/*==================================================
-FEATURE: GALLERY IMAGE SELECTION
-==================================================*/
-
-if (galleryImagesInput) {
-
-    galleryImagesInput.addEventListener(
-        "change",
-        () => {
-
-            const files =
-                Array.from(
-                    galleryImagesInput.files || []
-                );
-
-
-            const validFiles =
-                files.filter(
-                    (file) =>
-                        file.type &&
-                        file.type.startsWith("image/")
-                );
-
-
-            if (!validFiles.length) {
-
-                showMessage(
-                    "Please select valid image files.",
-                    "error"
-                );
-
-                return;
-            }
-
-
-            /*
-            Add new files instead of replacing
-            existing selected gallery images.
-            */
-
-            selectedGalleryFiles.push(
-                ...validFiles
-            );
-
-
-            renderGalleryPreview();
-
-
-            /*
-            Reset input so the same image can
-            also be selected again if required.
-            */
-
-            galleryImagesInput.value =
-                "";
-
-        }
-    );
-
-}
-
-
-/*==================================================
-FEATURE: RENDER GALLERY PREVIEW
-==================================================*/
-
-function renderGalleryPreview() {
-
-    if (!galleryPreview) {
-        return;
-    }
-
-
-    galleryPreview.innerHTML =
-        "";
-
-
-    selectedGalleryFiles.forEach(
-        (file, index) => {
-
-            const wrapper =
-                document.createElement("div");
-
-
-            wrapper.className =
-                "gallery-image";
-
-
-            wrapper.dataset.index =
-                index;
-
-
-            const image =
-                document.createElement("img");
-
-
-            const objectUrl =
-                URL.createObjectURL(file);
-
-
-            image.src =
-                objectUrl;
-
-
-            image.alt =
-                `Product Gallery Image ${index + 1}`;
-
-
-            image.onload =
-                () => {
-
-                    URL.revokeObjectURL(
-                        objectUrl
-                    );
-
-                };
-
-
-            const removeButton =
-                document.createElement("button");
-
-
-            removeButton.type =
-                "button";
-
-
-            removeButton.className =
-                "gallery-remove-button";
-
-
-            removeButton.innerHTML =
-                `
-                    <i class="fa-solid fa-xmark"></i>
-                    Remove
-                `;
-
-
-            removeButton.addEventListener(
-                "click",
-                () => {
-
-                    selectedGalleryFiles.splice(
-                        index,
-                        1
-                    );
-
-
-                    renderGalleryPreview();
-
-                }
-            );
-
-
-            wrapper.appendChild(
-                image
-            );
-
-
-            wrapper.appendChild(
-                removeButton
-            );
-
-
-            galleryPreview.appendChild(
-                wrapper
-            );
-
-        }
-    );
-
-}
-
-
-/*==================================================
+/==================================================
 FEATURE: VIDEO FILE PREVIEW
-==================================================*/
+==================================================/
 
 if (productVideoInput) {
 
-    productVideoInput.addEventListener(
-        "change",
-        () => {
+productVideoInput.addEventListener(
+    "change",
+    () => {
 
-            const file =
-                productVideoInput.files &&
-                productVideoInput.files[0];
+        const file =
+            productVideoInput.files &&
+            productVideoInput.files[0];
 
-
-            clearVideoPreview();
-
-
-            if (!file) {
-                return;
-            }
-
-
-            if (
-                !file.type ||
-                !file.type.startsWith("video/")
-            ) {
-
-                showMessage(
-                    "Please select a valid video file.",
-                    "error"
-                );
-
-                productVideoInput.value =
-                    "";
-
-                return;
-            }
-
-
-            videoObjectUrl =
-                URL.createObjectURL(file);
-
-
-            const video =
-                document.createElement("video");
-
-
-            video.src =
-                videoObjectUrl;
-
-
-            video.controls =
-                true;
-
-
-            video.playsInline =
-                true;
-
-
-            video.preload =
-                "metadata";
-
-
-            video.className =
-                "product-video-element";
-
-
-            videoPreview.appendChild(
-                video
-            );
-
-
-            videoPreview.style.display =
-                "block";
-
-        }
-    );
-
-}
-
-
-/*==================================================
-FEATURE: CLEAR VIDEO PREVIEW
-==================================================*/
-
-function clearVideoPreview() {
-
-    if (
-        videoObjectUrl
-    ) {
-
-        URL.revokeObjectURL(
-            videoObjectUrl
-        );
-
-        videoObjectUrl =
-            null;
-    }
-
-
-    if (videoPreview) {
 
         videoPreview.innerHTML =
             "";
 
-        videoPreview.style.display =
-            "none";
-    }
 
-}
+        if (!file) {
 
+            videoPreview.style.display =
+                "none";
 
-/*==================================================
-FEATURE: VIDEO URL PREVIEW
-==================================================*/
-
-if (productVideoUrl) {
-
-    productVideoUrl.addEventListener(
-        "input",
-        () => {
-
-            /*
-            Do not create URL preview while
-            a local video file is selected.
-            */
-
-            if (
-                productVideoInput &&
-                productVideoInput.files &&
-                productVideoInput.files.length
-            ) {
-
-                return;
-            }
+            return;
+        }
 
 
-            const url =
-                productVideoUrl.value.trim();
+        if (
+            !file.type.startsWith("video/")
+        ) {
 
-
-            if (!url) {
-
-                clearVideoUrlPreview();
-
-                return;
-            }
-
-
-            if (
-                !isValidUrl(url)
-            ) {
-
-                return;
-            }
-
-
-            renderVideoUrlPreview(
-                url
+            showMessage(
+                "Please select a valid video file.",
+                "error"
             );
 
+            productVideoInput.value =
+                "";
+
+            return;
         }
-    );
+
+
+        const objectUrl =
+            URL.createObjectURL(file);
+
+
+        objectUrls.add(objectUrl);
+
+
+        const video =
+            document.createElement("video");
+
+
+        video.src =
+            objectUrl;
+
+
+        video.controls =
+            true;
+
+
+        video.preload =
+            "metadata";
+
+
+        video.playsInline =
+            true;
+
+
+        video.style.display =
+            "block";
+
+        video.style.width =
+            "100%";
+
+        video.style.maxWidth =
+            "700px";
+
+        video.style.maxHeight =
+            "420px";
+
+        video.style.borderRadius =
+            "14px";
+
+
+        videoPreview.appendChild(
+            video
+        );
+
+
+        videoPreview.style.display =
+            "block";
+
+    }
+);
 
 }
 
-
-/*==================================================
+/==================================================
 FEATURE: VIDEO URL PREVIEW
-==================================================*/
+==================================================/
+
+if (productVideoUrlInput) {
+
+productVideoUrlInput.addEventListener(
+    "input",
+    () => {
+
+        /*
+            Only show URL preview if no local
+            video file has been selected.
+        */
+
+        if (
+            productVideoInput &&
+            productVideoInput.files &&
+            productVideoInput.files[0]
+        ) {
+
+            return;
+        }
+
+
+        const url =
+            productVideoUrlInput.value.trim();
+
+
+        if (!url) {
+
+            videoPreview.innerHTML =
+                "";
+
+            videoPreview.style.display =
+                "none";
+
+            return;
+        }
+
+
+        renderVideoUrlPreview(url);
+
+    }
+);
+
+}
+
+/==================================================
+FEATURE: VIDEO URL PREVIEW RENDER
+==================================================/
 
 function renderVideoUrlPreview(url) {
 
-    clearVideoUrlPreview();
+videoPreview.innerHTML =
+    "";
 
 
-    const wrapper =
-        document.createElement("div");
+const video =
+    document.createElement("video");
 
 
-    wrapper.className =
-        "video-url-preview";
+video.src =
+    url;
 
 
-    const video =
-        document.createElement("video");
+video.controls =
+    true;
 
 
-    video.src =
-        url;
+video.preload =
+    "metadata";
 
 
-    video.controls =
-        true;
+video.playsInline =
+    true;
 
 
-    video.playsInline =
-        true;
+video.style.display =
+    "block";
+
+video.style.width =
+    "100%";
+
+video.style.maxWidth =
+    "700px";
+
+video.style.maxHeight =
+    "420px";
+
+video.style.borderRadius =
+    "14px";
 
 
-    video.preload =
-        "metadata";
+videoPreview.appendChild(
+    video
+);
 
 
-    video.className =
-        "product-video-element";
-
-
-    wrapper.appendChild(
-        video
-    );
-
-
-    videoPreview.appendChild(
-        wrapper
-    );
-
-
-    videoPreview.style.display =
-        "block";
-
-}
-
-
-/*==================================================
-FEATURE: CLEAR VIDEO URL PREVIEW
-==================================================*/
-
-function clearVideoUrlPreview() {
-
-    if (
-        !videoPreview
-    ) {
-        return;
-    }
-
-
-    if (
-        productVideoInput &&
-        productVideoInput.files &&
-        productVideoInput.files.length
-    ) {
-
-        return;
-    }
-
-
-    videoPreview.innerHTML =
-        "";
-
-    videoPreview.style.display =
-        "none";
+videoPreview.style.display =
+    "block";
 
 }
 
-
-/*==================================================
+/==================================================
 FEATURE: PRICE PREVIEW
-==================================================*/
+==================================================/
 
 if (priceInput) {
 
-    priceInput.addEventListener(
-        "input",
-        updatePricePreview
-    );
+priceInput.addEventListener(
+    "input",
+    updatePricePreview
+);
 
 }
-
 
 if (oldPriceInput) {
 
-    oldPriceInput.addEventListener(
-        "input",
-        updatePricePreview
-    );
+oldPriceInput.addEventListener(
+    "input",
+    updatePricePreview
+);
+
+}
+
+function updatePricePreview() {
+
+const price =
+    Number(priceInput?.value) || 0;
+
+
+const oldPrice =
+    Number(oldPriceInput?.value) || 0;
+
+
+if (previewPrice) {
+
+    previewPrice.textContent =
+        formatPrice(price);
 
 }
 
 
-function updatePricePreview() {
-
-    if (
-        !previewPrice ||
-        !priceInput ||
-        !oldPriceInput
-    ) {
-        return;
-    }
-
-
-    const price =
-        Number(
-            priceInput.value
-        ) || 0;
-
-
-    const oldPrice =
-        Number(
-            oldPriceInput.value
-        ) || 0;
-
-
-    previewPrice.textContent =
-        formatPrice(
-            price
-        );
-
+if (previewOldPrice) {
 
     previewOldPrice.textContent =
         "";
 
+}
+
+
+if (previewDiscount) {
 
     previewDiscount.textContent =
         "";
 
+}
 
-    if (
-        oldPrice > price &&
-        oldPrice > 0
-    ) {
+
+if (
+    oldPrice > price &&
+    oldPrice > 0
+) {
+
+    if (previewOldPrice) {
 
         previewOldPrice.textContent =
-            formatPrice(
-                oldPrice
-            );
+            formatPrice(oldPrice);
+
+    }
 
 
-        const discount =
-            Math.round(
+    const discount =
+        Math.round(
+            (
                 (
-                    (
-                        oldPrice -
-                        price
-                    )
-                    /
-                    oldPrice
+                    oldPrice -
+                    price
                 )
-                * 100
-            );
+                /
+                oldPrice
+            )
+            *
+            100
+        );
 
+
+    if (previewDiscount) {
 
         previewDiscount.textContent =
             `-${discount}%`;
@@ -830,520 +816,402 @@ function updatePricePreview() {
 
 }
 
+}
 
-/*==================================================
+/==================================================
 FEATURE: SHORT DESCRIPTION COUNTER
-==================================================*/
+==================================================/
 
 if (shortDescription) {
 
-    shortDescription.addEventListener(
-        "input",
-        updateDescriptionCounter
-    );
+shortDescription.addEventListener(
+    "input",
+    () => {
 
+        if (shortDescriptionCount) {
 
-    updateDescriptionCounter();
+            shortDescriptionCount.textContent =
+                shortDescription.value.length;
 
-}
+        }
 
-
-function updateDescriptionCounter() {
-
-    if (
-        !shortDescription ||
-        !shortDescriptionCount
-    ) {
-        return;
     }
-
-
-    shortDescriptionCount.textContent =
-        shortDescription.value.length;
+);
 
 }
 
-
-/*==================================================
-FEATURE: CONTENT BUILDER
-==================================================*/
+/==================================================
+FEATURE: CONTENT BUILDER TOOLBAR
+==================================================/
 
 if (contentBuilderToolbar) {
 
-    contentBuilderToolbar.addEventListener(
-        "click",
-        (event) => {
+contentBuilderToolbar.addEventListener(
+    "click",
+    (event) => {
 
-            const button =
-                event.target.closest(
-                    ".content-add-button"
-                );
-
-
-            if (!button) {
-                return;
-            }
-
-
-            const blockType =
-                button.dataset.blockType;
-
-
-            if (!blockType) {
-                return;
-            }
-
-
-            addContentBlock(
-                blockType
+        const button =
+            event.target.closest(
+                ".content-add-button"
             );
 
+
+        if (!button) {
+
+            return;
         }
-    );
+
+
+        const type =
+            button.dataset.blockType;
+
+
+        if (!type) {
+
+            return;
+        }
+
+
+        addContentBlock(type);
+
+    }
+);
 
 }
 
-
-/*==================================================
+/==================================================
 FEATURE: ADD CONTENT BLOCK
-==================================================*/
+==================================================/
 
-function addContentBlock(
-    type
-) {
+function addContentBlock(type) {
 
-    const blockId =
-        `block_${Date.now()}_${Math.random()
-            .toString(36)
-            .slice(2, 8)}`;
+const block = {
 
+    id:
+        createBlockId(),
 
-    const block = {
+    type:
+        type,
 
-        id:
-            blockId,
+    title:
+        "",
 
-        type:
-            type,
+    text:
+        "",
 
-        title:
-            "",
+    file:
+        null,
 
-        content:
-            "",
+    videoUrl:
+        "",
 
-        imageUrl:
-            "",
+    specifications:
+        []
 
-        videoUrl:
-            "",
-
-        specifications:
-            []
-
-    };
+};
 
 
-    contentBlockData.push(
-        block
-    );
+detailBlocks.push(
+    block
+);
 
 
-    renderContentBlocks();
+renderContentBlocks();
 
 }
 
+/==================================================
+FEATURE: CREATE BLOCK ID
+==================================================/
 
-/*==================================================
+function createBlockId() {
+
+return (
+    "block_" +
+    Date.now() +
+    "_" +
+    Math.random()
+        .toString(36)
+        .slice(2, 9)
+);
+
+}
+
+/==================================================
 FEATURE: RENDER CONTENT BLOCKS
-==================================================*/
+==================================================/
 
 function renderContentBlocks() {
 
-    if (!contentBlocks) {
-        return;
-    }
+if (!contentBlocks) {
 
-
-    contentBlocks.innerHTML =
-        "";
-
-
-    if (
-        !contentBlockData.length
-    ) {
-
-        if (contentEmptyState) {
-
-            contentBlocks.appendChild(
-                contentEmptyState
-            );
-
-        }
-
-        return;
-    }
-
-
-    contentBlockData.forEach(
-        (block, index) => {
-
-            const wrapper =
-                document.createElement("div");
-
-
-            wrapper.className =
-                "content-block-editor";
-
-
-            wrapper.dataset.blockId =
-                block.id;
-
-
-            const header =
-                document.createElement("div");
-
-
-            header.className =
-                "content-block-header";
-
-
-            const title =
-                document.createElement("strong");
-
-
-            title.textContent =
-                `${capitalize(block.type)} Block ${index + 1}`;
-
-
-            const removeButton =
-                document.createElement("button");
-
-
-            removeButton.type =
-                "button";
-
-
-            removeButton.className =
-                "content-block-remove";
-
-
-            removeButton.innerHTML =
-                `
-                    <i class="fa-solid fa-trash"></i>
-                    Remove
-                `;
-
-
-            removeButton.addEventListener(
-                "click",
-                () => {
-
-                    contentBlockData =
-                        contentBlockData.filter(
-                            (item) =>
-                                item.id !== block.id
-                        );
-
-
-                    renderContentBlocks();
-
-                }
-            );
-
-
-            header.appendChild(
-                title
-            );
-
-
-            header.appendChild(
-                removeButton
-            );
-
-
-            wrapper.appendChild(
-                header
-            );
-
-
-            /*
-            HEADING
-            */
-
-            if (
-                block.type === "heading"
-            ) {
-
-                const input =
-                    createTextInput(
-                        "Heading",
-                        block.title,
-                        (value) => {
-
-                            block.title =
-                                value;
-
-                        }
-                    );
-
-
-                wrapper.appendChild(
-                    input
-                );
-
-            }
-
-
-            /*
-            TEXT
-            */
-
-            if (
-                block.type === "text"
-            ) {
-
-                const textarea =
-                    createTextarea(
-                        "Text Content",
-                        block.content,
-                        (value) => {
-
-                            block.content =
-                                value;
-
-                        }
-                    );
-
-
-                wrapper.appendChild(
-                    textarea
-                );
-
-            }
-
-
-            /*
-            IMAGE
-            */
-
-            if (
-                block.type === "image"
-            ) {
-
-                const input =
-                    createTextInput(
-                        "Image URL",
-                        block.imageUrl,
-                        (value) => {
-
-                            block.imageUrl =
-                                value;
-
-                        }
-                    );
-
-
-                wrapper.appendChild(
-                    input
-                );
-
-
-                const note =
-                    document.createElement("small");
-
-
-                note.textContent =
-                    "You can use a Cloudinary image URL here.";
-
-
-                wrapper.appendChild(
-                    note
-                );
-
-            }
-
-
-            /*
-            VIDEO
-            */
-
-            if (
-                block.type === "video"
-            ) {
-
-                const input =
-                    createTextInput(
-                        "Video URL",
-                        block.videoUrl,
-                        (value) => {
-
-                            block.videoUrl =
-                                value;
-
-                        }
-                    );
-
-
-                wrapper.appendChild(
-                    input
-                );
-
-            }
-
-
-            /*
-            SPECIFICATIONS
-            */
-
-            if (
-                block.type === "specifications"
-            ) {
-
-                const specificationsBox =
-                    document.createElement("div");
-
-
-                specificationsBox.className =
-                    "specifications-editor";
-
-
-                renderSpecificationEditor(
-                    specificationsBox,
-                    block
-                );
-
-
-                wrapper.appendChild(
-                    specificationsBox
-                );
-
-            }
-
-
-            /*
-            DIVIDER
-            */
-
-            if (
-                block.type === "divider"
-            ) {
-
-                const divider =
-                    document.createElement("div");
-
-
-                divider.className =
-                    "content-preview-divider";
-
-
-                wrapper.appendChild(
-                    divider
-                );
-
-            }
-
-
-            contentBlocks.appendChild(
-                wrapper
-            );
-
-        }
-    );
-
+    return;
 }
 
 
-/*==================================================
-FEATURE: TEXT INPUT CREATOR
-==================================================*/
+contentBlocks.innerHTML =
+    "";
 
-function createTextInput(
-    labelText,
-    value,
-    callback
+
+if (
+    detailBlocks.length === 0
 ) {
 
-    const group =
-        document.createElement("div");
+    if (contentEmptyState) {
+
+        contentBlocks.appendChild(
+            contentEmptyState
+        );
+
+    }
+
+    return;
+}
 
 
-    group.className =
-        "content-field";
+detailBlocks.forEach(
+    (block, index) => {
+
+        const wrapper =
+            document.createElement("div");
 
 
-    const label =
-        document.createElement("label");
+        wrapper.className =
+            "content-editor-block";
 
 
-    label.textContent =
-        labelText;
+        wrapper.dataset.blockId =
+            block.id;
 
+
+        /*
+            Basic visual fallback.
+        */
+
+        wrapper.style.position =
+            "relative";
+
+        wrapper.style.padding =
+            "18px";
+
+        wrapper.style.marginBottom =
+            "15px";
+
+        wrapper.style.border =
+            "1px solid #e1e5e9";
+
+        wrapper.style.borderRadius =
+            "14px";
+
+        wrapper.style.background =
+            "#ffffff";
+
+
+        const header =
+            document.createElement("div");
+
+
+        header.style.display =
+            "flex";
+
+        header.style.alignItems =
+            "center";
+
+        header.style.justifyContent =
+            "space-between";
+
+        header.style.gap =
+            "10px";
+
+        header.style.marginBottom =
+            "15px";
+
+
+        const title =
+            document.createElement("strong");
+
+
+        title.textContent =
+            `${index + 1}. ${getBlockTitle(block.type)}`;
+
+
+        header.appendChild(
+            title
+        );
+
+
+        const deleteButton =
+            document.createElement("button");
+
+
+        deleteButton.type =
+            "button";
+
+
+        deleteButton.innerHTML =
+            '<i class="fa-solid fa-trash"></i>';
+
+
+        deleteButton.title =
+            "Delete block";
+
+
+        deleteButton.style.border =
+            "0";
+
+        deleteButton.style.background =
+            "#fff0f0";
+
+        deleteButton.style.color =
+            "#c62828";
+
+        deleteButton.style.padding =
+            "8px 11px";
+
+        deleteButton.style.borderRadius =
+            "8px";
+
+        deleteButton.style.cursor =
+            "pointer";
+
+
+        deleteButton.addEventListener(
+            "click",
+            () => {
+
+                detailBlocks =
+                    detailBlocks.filter(
+                        (item) =>
+                            item.id !==
+                            block.id
+                    );
+
+                renderContentBlocks();
+
+            }
+        );
+
+
+        header.appendChild(
+            deleteButton
+        );
+
+
+        wrapper.appendChild(
+            header
+        );
+
+
+        const editorArea =
+            createBlockEditor(
+                block
+            );
+
+
+        wrapper.appendChild(
+            editorArea
+        );
+
+
+        contentBlocks.appendChild(
+            wrapper
+        );
+
+    }
+);
+
+}
+
+/==================================================
+FEATURE: BLOCK TITLE
+==================================================/
+
+function getBlockTitle(type) {
+
+const titles = {
+
+    heading:
+        "Heading",
+
+    text:
+        "Text",
+
+    image:
+        "Image",
+
+    video:
+        "Video",
+
+    specifications:
+        "Specifications",
+
+    divider:
+        "Divider"
+
+};
+
+
+return (
+    titles[type] ||
+    "Content Block"
+);
+
+}
+
+/==================================================
+FEATURE: CREATE BLOCK EDITOR
+==================================================/
+
+function createBlockEditor(block) {
+
+const container =
+    document.createElement("div");
+
+
+/*================================================
+HEADING
+================================================*/
+
+if (
+    block.type === "heading"
+) {
 
     const input =
-        document.createElement("input");
-
-
-    input.type =
-        "text";
+        createTextInput(
+            "Heading",
+            "Enter section heading..."
+        );
 
 
     input.value =
-        value || "";
+        block.title;
 
 
     input.addEventListener(
         "input",
         () => {
 
-            callback(
-                input.value
-            );
+            block.title =
+                input.value;
 
         }
     );
 
 
-    group.appendChild(
-        label
-    );
-
-
-    group.appendChild(
+    container.appendChild(
         input
     );
-
-
-    return group;
 
 }
 
 
-/*==================================================
-FEATURE: TEXTAREA CREATOR
-==================================================*/
+/*================================================
+TEXT
+================================================*/
 
-function createTextarea(
-    labelText,
-    value,
-    callback
+if (
+    block.type === "text"
 ) {
-
-    const group =
-        document.createElement("div");
-
-
-    group.className =
-        "content-field";
-
-
-    const label =
-        document.createElement("label");
-
-
-    label.textContent =
-        labelText;
-
 
     const textarea =
         document.createElement("textarea");
@@ -1353,200 +1221,293 @@ function createTextarea(
         6;
 
 
+    textarea.placeholder =
+        "Write detailed product information...";
+
+
+    textarea.style.width =
+        "100%";
+
+    textarea.style.padding =
+        "12px";
+
+    textarea.style.border =
+        "1px solid #dce1e5";
+
+    textarea.style.borderRadius =
+        "10px";
+
+    textarea.style.fontFamily =
+        "inherit";
+
+    textarea.style.resize =
+        "vertical";
+
+
     textarea.value =
-        value || "";
+        block.text;
 
 
     textarea.addEventListener(
         "input",
         () => {
 
-            callback(
-                textarea.value
-            );
+            block.text =
+                textarea.value;
 
         }
     );
 
 
-    group.appendChild(
-        label
-    );
-
-
-    group.appendChild(
+    container.appendChild(
         textarea
     );
-
-
-    return group;
 
 }
 
 
-/*==================================================
-FEATURE: SPECIFICATIONS EDITOR
-==================================================*/
+/*================================================
+IMAGE
+================================================*/
 
-function renderSpecificationEditor(
-    container,
-    block
+if (
+    block.type === "image"
 ) {
 
-    container.innerHTML =
-        "";
+    const input =
+        document.createElement("input");
 
 
-    const rows =
-        document.createElement("div");
+    input.type =
+        "file";
 
 
-    rows.className =
-        "specification-rows";
+    input.accept =
+        "image/*";
 
 
-    block.specifications.forEach(
-        (item, index) => {
-
-            const row =
-                document.createElement("div");
+    input.style.width =
+        "100%";
 
 
-            row.className =
-                "specification-row";
+    input.addEventListener(
+        "change",
+        () => {
+
+            const file =
+                input.files &&
+                input.files[0];
 
 
-            const nameInput =
-                document.createElement("input");
+            if (!file) {
+
+                return;
+            }
 
 
-            nameInput.type =
-                "text";
+            if (
+                !file.type.startsWith(
+                    "image/"
+                )
+            ) {
+
+                return;
+            }
 
 
-            nameInput.placeholder =
-                "Specification name";
+            block.file =
+                file;
 
 
-            nameInput.value =
-                item.name || "";
-
-
-            const valueInput =
-                document.createElement("input");
-
-
-            valueInput.type =
-                "text";
-
-
-            valueInput.placeholder =
-                "Value";
-
-
-            valueInput.value =
-                item.value || "";
-
-
-            const remove =
-                document.createElement("button");
-
-
-            remove.type =
-                "button";
-
-
-            remove.className =
-                "specification-remove";
-
-
-            remove.innerHTML =
-                `
-                    <i class="fa-solid fa-xmark"></i>
-                `;
-
-
-            nameInput.addEventListener(
-                "input",
-                () => {
-
-                    block.specifications[index].name =
-                        nameInput.value;
-
-                }
-            );
-
-
-            valueInput.addEventListener(
-                "input",
-                () => {
-
-                    block.specifications[index].value =
-                        valueInput.value;
-
-                }
-            );
-
-
-            remove.addEventListener(
-                "click",
-                () => {
-
-                    block.specifications.splice(
-                        index,
-                        1
-                    );
-
-
-                    renderContentBlocks();
-
-                }
-            );
-
-
-            row.appendChild(
-                nameInput
-            );
-
-
-            row.appendChild(
-                valueInput
-            );
-
-
-            row.appendChild(
-                remove
-            );
-
-
-            rows.appendChild(
-                row
+            renderBlockFilePreview(
+                container,
+                file,
+                "image"
             );
 
         }
     );
 
 
-    const addButton =
+    container.appendChild(
+        input
+    );
+
+
+    if (block.file) {
+
+        renderBlockFilePreview(
+            container,
+            block.file,
+            "image"
+        );
+
+    }
+
+}
+
+
+/*================================================
+VIDEO
+================================================*/
+
+if (
+    block.type === "video"
+) {
+
+    const input =
+        document.createElement("input");
+
+
+    input.type =
+        "file";
+
+
+    input.accept =
+        "video/*";
+
+
+    input.style.width =
+        "100%";
+
+
+    input.addEventListener(
+        "change",
+        () => {
+
+            const file =
+                input.files &&
+                input.files[0];
+
+
+            if (!file) {
+
+                return;
+            }
+
+
+            if (
+                !file.type.startsWith(
+                    "video/"
+                )
+            ) {
+
+                return;
+            }
+
+
+            block.file =
+                file;
+
+
+            renderBlockFilePreview(
+                container,
+                file,
+                "video"
+            );
+
+        }
+    );
+
+
+    container.appendChild(
+        input
+    );
+
+
+    const urlInput =
+        createTextInput(
+            "Video URL (optional)",
+            "https://..."
+        );
+
+
+    urlInput.style.marginTop =
+        "12px";
+
+
+    urlInput.value =
+        block.videoUrl;
+
+
+    urlInput.addEventListener(
+        "input",
+        () => {
+
+            block.videoUrl =
+                urlInput.value;
+
+        }
+    );
+
+
+    container.appendChild(
+        urlInput
+    );
+
+
+    if (block.file) {
+
+        renderBlockFilePreview(
+            container,
+            block.file,
+            "video"
+        );
+
+    }
+
+}
+
+
+/*================================================
+SPECIFICATIONS
+================================================*/
+
+if (
+    block.type === "specifications"
+) {
+
+    const specificationWrapper =
+        document.createElement("div");
+
+
+    const addSpecButton =
         document.createElement("button");
 
 
-    addButton.type =
+    addSpecButton.type =
         "button";
 
 
-    addButton.className =
-        "add-specification-button";
+    addSpecButton.textContent =
+        "+ Add Specification";
 
 
-    addButton.innerHTML =
-        `
-            <i class="fa-solid fa-plus"></i>
-            Add Specification
-        `;
+    addSpecButton.style.marginBottom =
+        "12px";
 
 
-    addButton.addEventListener(
+    addSpecButton.style.padding =
+        "9px 13px";
+
+
+    addSpecButton.style.border =
+        "1px solid #dce1e5";
+
+
+    addSpecButton.style.borderRadius =
+        "8px";
+
+
+    addSpecButton.style.background =
+        "#ffffff";
+
+
+    addSpecButton.style.cursor =
+        "pointer";
+
+
+    addSpecButton.addEventListener(
         "click",
         () => {
 
@@ -1567,853 +1528,1262 @@ function renderSpecificationEditor(
     );
 
 
-    container.appendChild(
-        rows
+    specificationWrapper.appendChild(
+        addSpecButton
+    );
+
+
+    block.specifications.forEach(
+        (spec, specIndex) => {
+
+            const row =
+                document.createElement("div");
+
+
+            row.style.display =
+                "grid";
+
+            row.style.gridTemplateColumns =
+                "1fr 1fr auto";
+
+            row.style.gap =
+                "8px";
+
+            row.style.marginBottom =
+                "8px";
+
+
+            const nameInput =
+                document.createElement("input");
+
+
+            nameInput.type =
+                "text";
+
+
+            nameInput.placeholder =
+                "Specification";
+
+
+            nameInput.value =
+                spec.name;
+
+
+            const valueInput =
+                document.createElement("input");
+
+
+            valueInput.type =
+                "text";
+
+
+            valueInput.placeholder =
+                "Value";
+
+
+            valueInput.value =
+                spec.value;
+
+
+            const removeButton =
+                document.createElement("button");
+
+
+            removeButton.type =
+                "button";
+
+
+            removeButton.innerHTML =
+                '<i class="fa-solid fa-xmark"></i>';
+
+
+            nameInput.addEventListener(
+                "input",
+                () => {
+
+                    spec.name =
+                        nameInput.value;
+
+                }
+            );
+
+
+            valueInput.addEventListener(
+                "input",
+                () => {
+
+                    spec.value =
+                        valueInput.value;
+
+                }
+            );
+
+
+            removeButton.addEventListener(
+                "click",
+                () => {
+
+                    block.specifications.splice(
+                        specIndex,
+                        1
+                    );
+
+                    renderContentBlocks();
+
+                }
+            );
+
+
+            row.appendChild(
+                nameInput
+            );
+
+            row.appendChild(
+                valueInput
+            );
+
+            row.appendChild(
+                removeButton
+            );
+
+
+            specificationWrapper.appendChild(
+                row
+            );
+
+        }
     );
 
 
     container.appendChild(
-        addButton
+        specificationWrapper
     );
 
 }
 
 
-/*==================================================
+/*================================================
+DIVIDER
+================================================*/
+
+if (
+    block.type === "divider"
+) {
+
+    const divider =
+        document.createElement("hr");
+
+
+    divider.style.border =
+        "0";
+
+    divider.style.borderTop =
+        "2px solid #e1e5e9";
+
+    divider.style.margin =
+        "15px 0";
+
+
+    container.appendChild(
+        divider
+    );
+
+}
+
+
+return container;
+
+}
+
+/==================================================
+FEATURE: CREATE TEXT INPUT
+==================================================/
+
+function createTextInput(
+labelText,
+placeholder
+) {
+
+const wrapper =
+    document.createElement("div");
+
+
+const label =
+    document.createElement("label");
+
+
+label.textContent =
+    labelText;
+
+
+label.style.display =
+    "block";
+
+label.style.marginBottom =
+    "7px";
+
+label.style.fontWeight =
+    "700";
+
+
+const input =
+    document.createElement("input");
+
+
+input.type =
+    "text";
+
+
+input.placeholder =
+    placeholder;
+
+
+input.style.width =
+    "100%";
+
+input.style.padding =
+    "12px";
+
+input.style.border =
+    "1px solid #dce1e5";
+
+input.style.borderRadius =
+    "10px";
+
+input.style.fontFamily =
+    "inherit";
+
+
+wrapper.appendChild(
+    label
+);
+
+
+wrapper.appendChild(
+    input
+);
+
+
+return wrapper;
+
+}
+
+/==================================================
+FEATURE: BLOCK FILE PREVIEW
+==================================================/
+
+function renderBlockFilePreview(
+container,
+file,
+type
+) {
+
+const oldPreview =
+    container.querySelector(
+        ".block-file-preview"
+    );
+
+
+if (oldPreview) {
+
+    oldPreview.remove();
+
+}
+
+
+const preview =
+    document.createElement("div");
+
+
+preview.className =
+    "block-file-preview";
+
+
+preview.style.marginTop =
+    "12px";
+
+
+if (type === "image") {
+
+    const image =
+        document.createElement("img");
+
+
+    const objectUrl =
+        URL.createObjectURL(file);
+
+
+    objectUrls.add(objectUrl);
+
+
+    image.src =
+        objectUrl;
+
+
+    image.style.display =
+        "block";
+
+    image.style.width =
+        "100%";
+
+    image.style.maxWidth =
+        "500px";
+
+    image.style.maxHeight =
+        "350px";
+
+    image.style.objectFit =
+        "contain";
+
+    image.style.borderRadius =
+        "12px";
+
+
+    preview.appendChild(
+        image
+    );
+
+}
+
+
+if (type === "video") {
+
+    const video =
+        document.createElement("video");
+
+
+    const objectUrl =
+        URL.createObjectURL(file);
+
+
+    objectUrls.add(objectUrl);
+
+
+    video.src =
+        objectUrl;
+
+
+    video.controls =
+        true;
+
+
+    video.playsInline =
+        true;
+
+
+    video.style.display =
+        "block";
+
+    video.style.width =
+        "100%";
+
+    video.style.maxWidth =
+        "600px";
+
+    video.style.maxHeight =
+        "400px";
+
+    video.style.borderRadius =
+        "12px";
+
+
+    preview.appendChild(
+        video
+    );
+
+}
+
+
+container.appendChild(
+    preview
+);
+
+}
+
+/==================================================
 FEATURE: SAVE PRODUCT
-==================================================*/
+==================================================/
 
-if (productForm) {
+productForm.addEventListener(
+"submit",
+async (event) => {
 
-    productForm.addEventListener(
-        "submit",
-        async (event) => {
+    event.preventDefault();
 
-            event.preventDefault();
 
+    hideMessage();
 
-            hideMessage();
 
+    const currentUser =
+        auth.currentUser;
 
-            const currentUser =
-                auth.currentUser;
 
+    if (!currentUser) {
 
-            if (!currentUser) {
+        showMessage(
+            "Please login as administrator first.",
+            "error"
+        );
 
-                showMessage(
-                    "Please login as administrator first.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            const currentEmail =
-                currentUser.email
-                    ? currentUser.email.toLowerCase()
-                    : "";
-
-
-            if (
-                currentEmail !==
-                ADMIN_EMAIL.toLowerCase()
-            ) {
-
-                showMessage(
-                    "You are not authorized to add products.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            /*==================================================
-            READ BASIC DATA
-            ==================================================*/
-
-            const name =
-                getValue("productName");
-
-
-            const category =
-                getValue("productCategory");
-
-
-            const brand =
-                getValue("productBrand");
-
-
-            const sku =
-                getValue("productSKU");
-
-
-            const condition =
-                getValue("productCondition") ||
-                "new";
-
-
-            const price =
-                Number(
-                    getValue("productPrice")
-                );
-
-
-            const oldPrice =
-                Number(
-                    getValue("productOldPrice")
-                ) || 0;
-
-
-            const stock =
-                Number(
-                    getValue("productStock")
-                );
-
-
-            const lowStockLimit =
-                Number(
-                    getValue("lowStockLimit")
-                ) || 5;
-
-
-            const shortDescriptionValue =
-                getValue("shortDescription");
-
-
-            const description =
-                getValue("fullDescription");
-
-
-            const sellerName =
-                getValue("sellerName");
-
-
-            const published =
-                getChecked(
-                    "productPublished"
-                );
-
-
-            const featured =
-                getChecked(
-                    "productFeatured"
-                );
-
-
-            const freeShipping =
-                getChecked(
-                    "freeShipping"
-                );
-
-
-            const rating =
-                Number(
-                    getValue("productRating")
-                ) || 0;
-
-
-            const reviews =
-                Number(
-                    getValue("productReviews")
-                ) || 0;
-
-
-            const videoUrl =
-                getValue("productVideoUrl");
-
-
-            /*==================================================
-            VALIDATION
-            ==================================================*/
-
-            if (!name) {
-
-                showMessage(
-                    "Please enter the product name.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            if (!category) {
-
-                showMessage(
-                    "Please enter the product category.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            if (
-                !Number.isFinite(price) ||
-                price < 0
-            ) {
-
-                showMessage(
-                    "Please enter a valid selling price.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            if (
-                !Number.isInteger(stock) ||
-                stock < 0
-            ) {
-
-                showMessage(
-                    "Please enter a valid stock quantity.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            if (
-                rating < 0 ||
-                rating > 5
-            ) {
-
-                showMessage(
-                    "Rating must be between 0 and 5.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            if (
-                !mainImageInput ||
-                !mainImageInput.files ||
-                !mainImageInput.files[0]
-            ) {
-
-                showMessage(
-                    "Please select the main product image.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            /*==================================================
-            DISABLE SAVE BUTTON
-            ==================================================*/
-
-            saveProductButton.disabled =
-                true;
-
-
-            setSaveButton(
-                "Uploading..."
-            );
-
-
-            setEditorStatus(
-                "Uploading",
-                false
-            );
-
-
-            try {
-
-                /*==================================================
-                FEATURE: MAIN IMAGE CLOUDINARY UPLOAD
-                ==================================================*/
-
-                const mainFile =
-                    mainImageInput.files[0];
-
-
-                const mainUpload =
-                    await uploadToCloudinary(
-                        mainFile,
-                        CLOUDINARY_FOLDERS.PRODUCTS
-                    );
-
-
-                const mainImageUrl =
-                    mainUpload.url;
-
-
-                /*==================================================
-                FEATURE: GALLERY CLOUDINARY UPLOAD
-                ==================================================*/
-
-                const galleryUrls =
-                    [];
-
-
-                for (
-                    let index = 0;
-                    index < selectedGalleryFiles.length;
-                    index++
-                ) {
-
-                    setSaveButton(
-                        `Uploading Image ${index + 1}/${selectedGalleryFiles.length}...`
-                    );
-
-
-                    const upload =
-                        await uploadToCloudinary(
-                            selectedGalleryFiles[index],
-                            CLOUDINARY_FOLDERS.PRODUCTS
-                        );
-
-
-                    galleryUrls.push(
-                        upload.url
-                    );
-
-                }
-
-
-                /*==================================================
-                FEATURE: PRODUCT VIDEO UPLOAD
-                ==================================================*/
-
-                let uploadedVideoUrl =
-                    videoUrl;
-
-
-                if (
-                    productVideoInput &&
-                    productVideoInput.files &&
-                    productVideoInput.files[0]
-                ) {
-
-                    setSaveButton(
-                        "Uploading Product Video..."
-                    );
-
-
-                    const videoUpload =
-                        await uploadToCloudinary(
-                            productVideoInput.files[0],
-                            CLOUDINARY_FOLDERS.PRODUCTS
-                        );
-
-
-                    uploadedVideoUrl =
-                        videoUpload.url;
-
-                }
-
-
-                /*==================================================
-                FEATURE: COMPLETE IMAGE ARRAY
-                ==================================================*/
-
-                const images = [
-
-                    mainImageUrl,
-
-                    ...galleryUrls
-
-                ];
-
-
-                /*==================================================
-                FEATURE: DISCOUNT
-                ==================================================*/
-
-                let discount =
-                    0;
-
-
-                if (
-                    oldPrice > price &&
-                    oldPrice > 0
-                ) {
-
-                    discount =
-                        Math.round(
-                            (
-                                (
-                                    oldPrice -
-                                    price
-                                )
-                                /
-                                oldPrice
-                            )
-                            * 100
-                        );
-
-                }
-
-
-                /*==================================================
-                FEATURE: AVAILABILITY
-                ==================================================*/
-
-                const inStock =
-                    stock > 0;
-
-
-                const lowStock =
-                    stock > 0 &&
-                    stock <= lowStockLimit;
-
-
-                const availability =
-                    stock <= 0
-                        ? "out_of_stock"
-                        : lowStock
-                            ? "low_stock"
-                            : "in_stock";
-
-
-                /*==================================================
-                FEATURE: PRODUCT ID
-                ==================================================*/
-
-                const productsRef =
-                    ref(
-                        database,
-                        "products"
-                    );
-
-
-                const newProductRef =
-                    push(
-                        productsRef
-                    );
-
-
-                const productId =
-                    newProductRef.key;
-
-
-                /*==================================================
-                FEATURE: PRODUCT DATA
-                ==================================================*/
-
-                const productData = {
-
-                    productId:
-                        productId,
-
-                    name:
-                        name,
-
-                    category:
-                        category,
-
-                    brand:
-                        brand,
-
-                    sku:
-                        sku,
-
-                    condition:
-                        condition,
-
-                    price:
-                        price,
-
-                    oldPrice:
-                        oldPrice,
-
-                    discount:
-                        discount,
-
-                    stock:
-                        stock,
-
-                    lowStockLimit:
-                        lowStockLimit,
-
-                    inStock:
-                        inStock,
-
-                    availability:
-                        availability,
-
-                    shortDescription:
-                        shortDescriptionValue,
-
-                    description:
-                        description,
-
-                    image:
-                        mainImageUrl,
-
-                    images:
-                        images,
-
-                    video:
-                        uploadedVideoUrl || "",
-
-                    videoUrl:
-                        uploadedVideoUrl || "",
-
-                    contentBlocks:
-                        contentBlockData,
-
-                    sellerName:
-                        sellerName ||
-                        "SmartBazaar Seller",
-
-                    rating:
-                        rating,
-
-                    reviews:
-                        reviews,
-
-                    published:
-                        published,
-
-                    featured:
-                        featured,
-
-                    freeShipping:
-                        freeShipping,
-
-                    createdBy:
-                        currentUser.uid,
-
-                    sellerId:
-                        currentUser.uid,
-
-                    createdAt:
-                        Date.now(),
-
-                    updatedAt:
-                        Date.now()
-
-                };
-
-
-                /*==================================================
-                FEATURE: SAVE TO FIREBASE
-                ==================================================*/
-
-                setSaveButton(
-                    "Saving Product..."
-                );
-
-
-                setEditorStatus(
-                    "Saving",
-                    false
-                );
-
-
-                await set(
-                    newProductRef,
-                    productData
-                );
-
-
-                /*==================================================
-                FEATURE: SUCCESS
-                ==================================================*/
-
-                showMessage(
-                    `Product saved successfully. Product ID: ${productId}`,
-                    "success"
-                );
-
-
-                setEditorStatus(
-                    "Saved",
-                    true
-                );
-
-
-                /*==================================================
-                FEATURE: RESET
-                ==================================================*/
-
-                resetEditor();
-
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "Product Editor Error:",
-                    error
-                );
-
-
-                showMessage(
-                    error.message ||
-                    "Unable to save product. Please try again.",
-                    "error"
-                );
-
-
-                setEditorStatus(
-                    "Error",
-                    false
-                );
-
-            }
-
-            finally {
-
-                saveProductButton.disabled =
-                    false;
-
-
-                setSaveButton(
-                    "Save Product"
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-/*==================================================
-FEATURE: CLEAR FORM
-==================================================*/
-
-if (clearButton) {
-
-    clearButton.addEventListener(
-        "click",
-        () => {
-
-            const confirmed =
-                confirm(
-                    "Clear all product information?"
-                );
-
-
-            if (!confirmed) {
-                return;
-            }
-
-
-            resetEditor();
-
-
-            hideMessage();
-
-
-            setEditorStatus(
-                "Ready",
-                true
-            );
-
-        }
-    );
-
-}
-
-
-/*==================================================
-FEATURE: RESET EDITOR
-==================================================*/
-
-function resetEditor() {
-
-    if (productForm) {
-
-        productForm.reset();
-
+        return;
     }
 
 
-    selectedGalleryFiles =
-        [];
+    const currentEmail =
+        currentUser.email
+            ? currentUser.email.toLowerCase()
+            : "";
 
 
-    contentBlockData =
-        [];
+    if (
+        currentEmail !==
+        ADMIN_EMAIL.toLowerCase()
+    ) {
 
+        showMessage(
+            "You are not authorized to add products.",
+            "error"
+        );
 
-    clearMainImagePreview();
-
-
-    clearVideoPreview();
-
-
-    if (galleryPreview) {
-
-        galleryPreview.innerHTML =
-            "";
-
+        return;
     }
 
 
-    if (galleryImagesInput) {
+    /*================================================
+    READ BASIC DATA
+    ================================================*/
 
-        galleryImagesInput.value =
-            "";
+    const name =
+        document.getElementById(
+            "productName"
+        ).value.trim();
 
+
+    const category =
+        document.getElementById(
+            "productCategory"
+        ).value.trim();
+
+
+    const brand =
+        document.getElementById(
+            "productBrand"
+        ).value.trim();
+
+
+    const sku =
+        productSKUInput
+            ? productSKUInput.value.trim()
+            : "";
+
+
+    const condition =
+        productConditionInput
+            ? productConditionInput.value
+            : "new";
+
+
+    /*================================================
+    READ PRICING
+    ================================================*/
+
+    const price =
+        Number(priceInput.value);
+
+
+    const oldPrice =
+        Number(oldPriceInput.value) || 0;
+
+
+    const stock =
+        Number(productStockInput.value);
+
+
+    const lowStockLimit =
+        Number(
+            lowStockLimitInput?.value
+        ) || 0;
+
+
+    /*================================================
+    READ DESCRIPTION
+    ================================================*/
+
+    const shortDescriptionValue =
+        shortDescription.value.trim();
+
+
+    const description =
+        document.getElementById(
+            "fullDescription"
+        ).value.trim();
+
+
+    /*================================================
+    READ SELLER
+    ================================================*/
+
+    const sellerName =
+        document.getElementById(
+            "sellerName"
+        ).value.trim();
+
+
+    /*================================================
+    READ RATING
+    ================================================*/
+
+    const rating =
+        Number(
+            productRatingInput?.value
+        ) || 0;
+
+
+    const reviews =
+        Number(
+            productReviewsInput?.value
+        ) || 0;
+
+
+    /*================================================
+    READ SETTINGS
+    ================================================*/
+
+    const published =
+        productPublishedInput
+            ? productPublishedInput.checked
+            : true;
+
+
+    const featured =
+        productFeaturedInput
+            ? productFeaturedInput.checked
+            : false;
+
+
+    const freeShipping =
+        freeShippingInput
+            ? freeShippingInput.checked
+            : false;
+
+
+    /*================================================
+    VALIDATION
+    ================================================*/
+
+    if (!name) {
+
+        showMessage(
+            "Please enter the product name.",
+            "error"
+        );
+
+        return;
     }
 
 
-    if (mainImageInput) {
+    if (!category) {
 
-        mainImageInput.value =
-            "";
+        showMessage(
+            "Please enter the product category.",
+            "error"
+        );
 
-    }
-
-
-    if (productVideoInput) {
-
-        productVideoInput.value =
-            "";
-
-    }
-
-
-    if (productVideoUrl) {
-
-        productVideoUrl.value =
-            "";
-
-    }
-
-
-    renderContentBlocks();
-
-
-    updatePricePreview();
-
-
-    updateDescriptionCounter();
-
-}
-
-
-/*==================================================
-FEATURE: GET VALUE
-==================================================*/
-
-function getValue(
-    id
-) {
-
-    const element =
-        document.getElementById(id);
-
-
-    return element
-        ? element.value.trim()
-        : "";
-
-}
-
-
-/*==================================================
-FEATURE: GET CHECKED
-==================================================*/
-
-function getChecked(
-    id
-) {
-
-    const element =
-        document.getElementById(id);
-
-
-    return element
-        ? element.checked
-        : false;
-
-}
-
-
-/*==================================================
-FEATURE: VALID URL
-==================================================*/
-
-function isValidUrl(
-    value
-) {
-
-    try {
-
-        new URL(value);
-
-        return true;
-
-    }
-
-    catch {
-
-        return false;
-
-    }
-
-}
-
-
-/*==================================================
-FEATURE: PRICE FORMAT
-==================================================*/
-
-function formatPrice(
-    value
-) {
-
-    return (
-        "Rs. " +
-        Number(value)
-            .toLocaleString("en-PK")
-    );
-
-}
-
-
-/*==================================================
-FEATURE: SAVE BUTTON
-==================================================*/
-
-function setSaveButton(
-    text
-) {
-
-    if (!saveProductButton) {
         return;
     }
 
 
     if (
-        text === "Save Product"
+        !Number.isFinite(price) ||
+        price < 0
     ) {
 
-        saveProductButton.innerHTML =
-            `
-                <i class="fa-solid fa-cloud-arrow-up"></i>
-                Save Product
-            `;
+        showMessage(
+            "Please enter a valid selling price.",
+            "error"
+        );
 
         return;
+    }
+
+
+    if (
+        !Number.isInteger(stock) ||
+        stock < 0
+    ) {
+
+        showMessage(
+            "Please enter a valid stock quantity.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (
+        rating < 0 ||
+        rating > 5
+    ) {
+
+        showMessage(
+            "Rating must be between 0 and 5.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (
+        reviews < 0 ||
+        !Number.isInteger(reviews)
+    ) {
+
+        showMessage(
+            "Please enter a valid review count.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (
+        !mainImageInput.files ||
+        !mainImageInput.files[0]
+    ) {
+
+        showMessage(
+            "Please select the main product image.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    /*================================================
+    DISABLE SAVE
+    ================================================*/
+
+    saveProductButton.disabled =
+        true;
+
+
+    setSaveButtonText(
+        "Uploading..."
+    );
+
+
+    setEditorStatus(
+        "Uploading",
+        false
+    );
+
+
+    try {
+
+        /*============================================
+        MAIN IMAGE UPLOAD
+        ============================================*/
+
+        const mainUpload =
+            await uploadToCloudinary(
+                mainImageInput.files[0],
+                CLOUDINARY_FOLDERS.PRODUCTS
+            );
+
+
+        const mainImageUrl =
+            mainUpload.url;
+
+
+        /*============================================
+        GALLERY UPLOAD
+        ============================================*/
+
+        const galleryUrls =
+            [];
+
+
+        for (
+            let index = 0;
+            index < galleryFiles.length;
+            index++
+        ) {
+
+            setSaveButtonText(
+                `Uploading Image ${index + 1}/${galleryFiles.length}...`
+            );
+
+
+            const galleryUpload =
+                await uploadToCloudinary(
+                    galleryFiles[index],
+                    CLOUDINARY_FOLDERS.PRODUCTS
+                );
+
+
+            galleryUrls.push(
+                galleryUpload.url
+            );
+
+        }
+
+
+        /*============================================
+        PRODUCT VIDEO UPLOAD
+        ============================================*/
+
+        let productVideoUrl =
+            productVideoUrlInput
+                ? productVideoUrlInput.value.trim()
+                : "";
+
+
+        if (
+            productVideoInput &&
+            productVideoInput.files &&
+            productVideoInput.files[0]
+        ) {
+
+            setSaveButtonText(
+                "Uploading Product Video..."
+            );
+
+
+            const videoUpload =
+                await uploadToCloudinary(
+                    productVideoInput.files[0],
+                    CLOUDINARY_FOLDERS.PRODUCTS,
+                    "video"
+                );
+
+
+            productVideoUrl =
+                videoUpload.url;
+
+        }
+
+
+        /*============================================
+        COMPLETE IMAGE ARRAY
+        ============================================*/
+
+        const images = [
+
+            mainImageUrl,
+
+            ...galleryUrls
+
+        ];
+
+
+        /*============================================
+        DISCOUNT
+        ============================================*/
+
+        let discount =
+            0;
+
+
+        if (
+            oldPrice > price &&
+            oldPrice > 0
+        ) {
+
+            discount =
+                Math.round(
+                    (
+                        (
+                            oldPrice -
+                            price
+                        )
+                        /
+                        oldPrice
+                    )
+                    *
+                    100
+                );
+
+        }
+
+
+        /*============================================
+        CONTENT BLOCK UPLOAD
+        ============================================*/
+
+        const savedContentBlocks =
+            [];
+
+
+        for (
+            let index = 0;
+            index < detailBlocks.length;
+            index++
+        ) {
+
+            const block =
+                detailBlocks[index];
+
+
+            const savedBlock = {
+
+                id:
+                    block.id,
+
+                type:
+                    block.type,
+
+                title:
+                    block.title || "",
+
+                text:
+                    block.text || "",
+
+                videoUrl:
+                    block.videoUrl || "",
+
+                specifications:
+                    block.specifications || []
+
+            };
+
+
+            /*========================================
+            CONTENT IMAGE
+            ========================================*/
+
+            if (
+                block.type === "image" &&
+                block.file
+            ) {
+
+                setSaveButtonText(
+                    `Uploading Detail Image ${index + 1}...`
+                );
+
+
+                const upload =
+                    await uploadToCloudinary(
+                        block.file,
+                        CLOUDINARY_FOLDERS.PRODUCTS
+                    );
+
+
+                savedBlock.imageUrl =
+                    upload.url;
+
+            }
+
+
+            /*========================================
+            CONTENT VIDEO
+            ========================================*/
+
+            if (
+                block.type === "video" &&
+                block.file
+            ) {
+
+                setSaveButtonText(
+                    `Uploading Detail Video ${index + 1}...`
+                );
+
+
+                const upload =
+                    await uploadToCloudinary(
+                        block.file,
+                        CLOUDINARY_FOLDERS.PRODUCTS,
+                        "video"
+                    );
+
+
+                savedBlock.videoUrl =
+                    upload.url;
+
+            }
+
+
+            savedContentBlocks.push(
+                savedBlock
+            );
+
+        }
+
+
+        /*============================================
+        PRODUCT ID
+        ============================================*/
+
+        const productsRef =
+            ref(
+                database,
+                "products"
+            );
+
+
+        const newProductRef =
+            push(
+                productsRef
+            );
+
+
+        const productId =
+            newProductRef.key;
+
+
+        /*============================================
+        COMPLETE PRODUCT DATA
+        ============================================*/
+
+        const productData = {
+
+            productId:
+                productId,
+
+            name:
+                name,
+
+            category:
+                category,
+
+            brand:
+                brand,
+
+            sku:
+                sku,
+
+            condition:
+                condition,
+
+            price:
+                price,
+
+            oldPrice:
+                oldPrice,
+
+            discount:
+                discount,
+
+            stock:
+                stock,
+
+            lowStockLimit:
+                lowStockLimit,
+
+            inStock:
+                stock > 0,
+
+            available:
+                stock > 0,
+
+            shortDescription:
+                shortDescriptionValue,
+
+            description:
+                description,
+
+            image:
+                mainImageUrl,
+
+            images:
+                images,
+
+            videoUrl:
+                productVideoUrl,
+
+            detailBlocks:
+                savedContentBlocks,
+
+            sellerName:
+                sellerName ||
+                "SmartBazaar Seller",
+
+            rating:
+                rating,
+
+            reviews:
+                reviews,
+
+            published:
+                published,
+
+            featured:
+                featured,
+
+            freeShipping:
+                freeShipping,
+
+            createdBy:
+                currentUser.uid,
+
+            sellerId:
+                currentUser.uid,
+
+            createdAt:
+                Date.now(),
+
+            updatedAt:
+                Date.now()
+
+        };
+
+
+        /*============================================
+        SAVE TO FIREBASE
+        ============================================*/
+
+        setSaveButtonText(
+            "Saving Product..."
+        );
+
+
+        setEditorStatus(
+            "Saving",
+            false
+        );
+
+
+        await set(
+            newProductRef,
+            productData
+        );
+
+
+        /*============================================
+        SUCCESS
+        ============================================*/
+
+        showMessage(
+            `Product saved successfully. Product ID: ${productId}`,
+            "success"
+        );
+
+
+        setEditorStatus(
+            "Saved",
+            true
+        );
+
+
+        /*============================================
+        RESET EDITOR
+        ============================================*/
+
+        resetEditor();
 
     }
 
+    catch (error) {
+
+        console.error(
+            "Product Editor Error:",
+            error
+        );
+
+
+        showMessage(
+            error.message ||
+            "Unable to save product. Please try again.",
+            "error"
+        );
+
+
+        setEditorStatus(
+            "Error",
+            false
+        );
+
+    }
+
+    finally {
+
+        saveProductButton.disabled =
+            false;
+
+
+        setSaveButtonText(
+            "Save Product"
+        );
+
+    }
+
+}
+
+);
+
+/==================================================
+FEATURE: CLEAR FORM
+==================================================/
+
+if (clearButton) {
+
+clearButton.addEventListener(
+    "click",
+    () => {
+
+        const confirmed =
+            confirm(
+                "Clear all product information?"
+            );
+
+
+        if (!confirmed) {
+
+            return;
+        }
+
+
+        resetEditor();
+
+
+        hideMessage();
+
+
+        setEditorStatus(
+            "Ready",
+            true
+        );
+
+    }
+);
+
+}
+
+/==================================================
+FEATURE: RESET EDITOR
+==================================================/
+
+function resetEditor() {
+
+productForm.reset();
+
+
+galleryFiles =
+    [];
+
+
+detailBlocks =
+    [];
+
+
+clearMainImagePreview();
+
+
+if (galleryPreview) {
+
+    galleryPreview.innerHTML =
+        "";
+
+}
+
+
+if (videoPreview) {
+
+    videoPreview.innerHTML =
+        "";
+
+    videoPreview.style.display =
+        "none";
+
+}
+
+
+if (contentBlocks) {
+
+    renderContentBlocks();
+
+}
+
+
+if (shortDescriptionCount) {
+
+    shortDescriptionCount.textContent =
+        "0";
+
+}
+
+
+updatePricePreview();
+
+
+cleanupObjectUrls();
+
+}
+
+/==================================================
+FEATURE: CLEAR MAIN IMAGE PREVIEW
+==================================================/
+
+function clearMainImagePreview() {
+
+if (!mainImagePreview) {
+
+    return;
+}
+
+
+mainImagePreview.innerHTML =
+    "";
+
+
+mainImagePreview.style.display =
+    "none";
+
+}
+
+/==================================================
+FEATURE: CLEANUP OBJECT URLS
+==================================================/
+
+function cleanupObjectUrls() {
+
+objectUrls.forEach(
+    (url) => {
+
+        try {
+
+            URL.revokeObjectURL(url);
+
+        }
+
+        catch (error) {
+
+            console.warn(
+                "Object URL cleanup error:",
+                error
+            );
+
+        }
+
+    }
+);
+
+
+objectUrls.clear();
+
+}
+
+/==================================================
+FEATURE: SAVE BUTTON TEXT
+==================================================/
+
+function setSaveButtonText(
+text
+) {
+
+if (!saveProductButton) {
+
+    return;
+}
+
+
+if (
+    text !==
+    "Save Product"
+) {
 
     saveProductButton.innerHTML =
         `
@@ -2421,109 +2791,123 @@ function setSaveButton(
             ${text}
         `;
 
+    return;
 }
 
 
-/*==================================================
+saveProductButton.innerHTML =
+    `
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        Save Product
+    `;
+
+}
+
+/==================================================
+FEATURE: PRICE FORMAT
+==================================================/
+
+function formatPrice(
+value
+) {
+
+return (
+    "Rs. " +
+    Number(value)
+        .toLocaleString("en-PK")
+);
+
+}
+
+/==================================================
 FEATURE: EDITOR STATUS
-==================================================*/
+==================================================/
 
 function setEditorStatus(
-    text,
-    online
+text,
+online
 ) {
 
-    if (editorStatusText) {
+if (editorStatusText) {
 
-        editorStatusText.textContent =
-            text;
-
-    }
-
-
-    if (editorStatusDot) {
-
-        editorStatusDot.style.background =
-            online
-                ? "#2e7d32"
-                : "#f39c12";
-
-    }
+    editorStatusText.textContent =
+        text;
 
 }
 
 
-/*==================================================
+if (editorStatusDot) {
+
+    editorStatusDot.style.background =
+        online
+            ? "#2e7d32"
+            : "#f39c12";
+
+}
+
+}
+
+/==================================================
 FEATURE: SHOW MESSAGE
-==================================================*/
+==================================================/
 
 function showMessage(
-    message,
-    type
+message,
+type
 ) {
 
-    if (!editorMessage) {
-        return;
-    }
+if (!editorMessage) {
 
-
-    editorMessage.textContent =
-        message;
-
-
-    editorMessage.className =
-        `editor-message ${type}`;
-
-
-    editorMessage.scrollIntoView({
-
-        behavior:
-            "smooth",
-
-        block:
-            "center"
-
-    });
-
+    return;
 }
 
 
-/*==================================================
+editorMessage.textContent =
+    message;
+
+
+editorMessage.className =
+    `editor-message ${type}`;
+
+
+editorMessage.scrollIntoView({
+    behavior:
+        "smooth",
+
+    block:
+        "center"
+});
+
+}
+
+/==================================================
 FEATURE: HIDE MESSAGE
-==================================================*/
+==================================================/
 
 function hideMessage() {
 
-    if (!editorMessage) {
-        return;
-    }
+if (!editorMessage) {
 
-
-    editorMessage.textContent =
-        "";
-
-    editorMessage.className =
-        "editor-message";
-
+    return;
 }
 
 
-/*==================================================
-FEATURE: CAPITALIZE
-==================================================*/
+editorMessage.textContent =
+    "";
 
-function capitalize(
-    value
-) {
+editorMessage.className =
+    "editor-message";
 
-    if (!value) {
-        return "";
-    }
+}
 
+/==================================================
+FEATURE: INITIAL UI
+==================================================/
 
-    return (
-        value.charAt(0).toUpperCase() +
-        value.slice(1)
-    );
+updatePricePreview();
+
+if (contentBlocks) {
+
+renderContentBlocks();
 
 }
