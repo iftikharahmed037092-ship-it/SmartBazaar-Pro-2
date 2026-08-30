@@ -2469,42 +2469,40 @@ if (addToCartButton) {
 
 
 /*==================================================
-FEATURE: BUY NOW
+SMARTBAZAAR PRO 2
+FEATURE: BUY NOW → CHECKOUT
 ==================================================*/
 
-if (buyNowButton) {
+buyNowButton.addEventListener(
+    "click",
+    () => {
 
-    buyNowButton.addEventListener(
-        "click",
-        () => {
-
-            const id =
-                buyNowButton.dataset.productId;
+        const id =
+            buyNowButton.dataset.productId;
 
 
-            const quantity =
-                Number(
-                    productQuantity?.value
-                ) || 1;
+        const quantity =
+            Number(
+                productQuantity.value
+            ) || 1;
 
 
-            console.log(
-                "Buy now:",
-                id,
-                quantity
-            );
-
+        if (!id) {
 
             alert(
-                "Buy Now system is ready for checkout integration."
+                "Product information is missing."
             );
 
+            return;
+
         }
-    );
-
-}
 
 
+        window.location.href =
+            `./checkout.html?id=${encodeURIComponent(id)}&quantity=${encodeURIComponent(quantity)}`;
+
+    }
+);
 /*==================================================
 FEATURE: WISHLIST
 ==================================================*/
