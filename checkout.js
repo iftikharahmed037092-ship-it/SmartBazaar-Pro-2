@@ -2,6 +2,9 @@
 SMARTBAZAAR PRO 2
 FEATURE: CHECKOUT / ORDER SYSTEM
 FEATURE: FIREBASE ORDER CREATION
+FEATURE: STOCK VALIDATION
+FEATURE: PAYMENT METHOD SELECTION
+FEATURE: ORDER SUCCESS SYSTEM
 ==================================================*/
 
 
@@ -16,8 +19,7 @@ import {
     get,
     push,
     set,
-    runTransaction,
-    update
+    runTransaction
 
 } from
 "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
@@ -29,7 +31,7 @@ import {
 
 
 /*==================================================
-FEATURE: FIREBASE
+FEATURE: FIREBASE DATABASE
 ==================================================*/
 
 const db =
@@ -37,7 +39,7 @@ const db =
 
 
 /*==================================================
-FEATURE: DOM
+FEATURE: DOM ELEMENTS
 ==================================================*/
 
 const checkoutLoading =
@@ -199,6 +201,14 @@ let currentStock =
 
 
 /*==================================================
+FEATURE: ORDER STATE
+==================================================*/
+
+let orderBeingPlaced =
+    false;
+
+
+/*==================================================
 FEATURE: INITIALIZE
 ==================================================*/
 
@@ -210,8 +220,278 @@ if (!productId) {
 
 } else {
 
-    loadCheckoutProduct(
-        productId
+    initializeCheckout();
+
+}
+
+
+/*==================================================
+FEATURE: INITIALIZE CHECKOUT
+==================================================*/
+
+async function initializeCheckout() {
+
+    try {
+
+        /*
+         * Enable payment options for testing.
+         *
+         * IMPORTANT:
+         * Real JazzCash/EasyPaisa gateway integration
+         * will be added later.
+         */
+
+        enablePaymentMethods();
+
+
+        setupPaymentSelection();
+
+
+        setupQuantityControls();
+
+
+        await loadCheckoutProduct(
+            productId
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Checkout initialization error:",
+            error
+        );
+
+
+        showCheckoutError(
+            "Unable to initialize checkout."
+        );
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: ENABLE PAYMENT METHODS
+==================================================*/
+
+function enablePaymentMethods() {
+
+    const paymentInputs =
+        document.querySelectorAll(
+            'input[name="paymentMethod"]'
+        );
+
+
+    paymentInputs.forEach(
+        input => {
+
+            /*
+             * Remove disabled attribute.
+             */
+
+            input.disabled =
+                false;
+
+
+            const option =
+                input.closest(
+                    ".payment-option"
+                );
+
+
+            if (option) {
+
+                option.classList.remove(
+                    "disabled-payment"
+                );
+
+            }
+
+
+            /*
+             * Hide "Soon" badges for testing.
+             */
+
+            const soon =
+                option?.querySelector(
+                    ".coming-soon"
+                );
+
+
+            if (soon) {
+
+                soon.style.display =
+                    "none";
+
+            }
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: PAYMENT METHOD SELECTION
+==================================================*/
+
+function setupPaymentSelection() {
+
+    const paymentOptions =
+        document.querySelectorAll(
+            ".payment-option"
+        );
+
+
+    const paymentInputs =
+        document.querySelectorAll(
+            'input[name="paymentMethod"]'
+        );
+
+
+    paymentOptions.forEach(
+        option => {
+
+            option.addEventListener(
+                "click",
+                event => {
+
+                    const input =
+                        option.querySelector(
+                            'input[name="paymentMethod"]'
+                        );
+
+
+                    if (!input) {
+
+                        return;
+
+                    }
+
+
+                    /*
+                     * Make sure the radio is selected.
+                     */
+
+                    input.checked =
+                        true;
+
+
+                    updatePaymentSelection();
+
+                }
+            );
+
+        }
+    );
+
+
+    paymentInputs.forEach(
+        input => {
+
+            input.addEventListener(
+                "change",
+                () => {
+
+                    updatePaymentSelection();
+
+                }
+            );
+
+        }
+    );
+
+
+    updatePaymentSelection();
+
+}
+
+
+/*==================================================
+FEATURE: UPDATE PAYMENT SELECTION
+==================================================*/
+
+function updatePaymentSelection() {
+
+    const paymentOptions =
+        document.querySelectorAll(
+            ".payment-option"
+        );
+
+
+    paymentOptions.forEach(
+        option => {
+
+            const input =
+                option.querySelector(
+                    'input[name="paymentMethod"]'
+                );
+
+
+            const check =
+                option.querySelector(
+                    ".payment-check"
+                );
+
+
+            if (
+                input &&
+                input.checked
+            ) {
+
+                option.classList.add(
+                    "active"
+                );
+
+
+                if (!check) {
+
+                    const checkElement =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    checkElement.className =
+                        "payment-check";
+
+
+                    checkElement.innerHTML =
+                        `
+                            <i class="fa-solid fa-circle-check"></i>
+                        `;
+
+
+                    option.appendChild(
+                        checkElement
+                    );
+
+                }
+
+            } else {
+
+                option.classList.remove(
+                    "active"
+                );
+
+
+                if (
+                    check &&
+                    input?.value !== "cod"
+                ) {
+
+                    /*
+                     * Keep DOM clean.
+                     */
+
+                }
+
+            }
+
+        }
     );
 
 }
@@ -297,6 +577,16 @@ async function loadCheckoutProduct(
             requestedQuantity;
 
 
+        checkoutQuantity.min =
+            "1";
+
+
+        checkoutQuantity.max =
+            String(
+                currentStock
+            );
+
+
         renderCheckoutProduct();
 
 
@@ -332,6 +622,13 @@ FEATURE: RENDER CHECKOUT PRODUCT
 
 function renderCheckoutProduct() {
 
+    if (!currentProduct) {
+
+        return;
+
+    }
+
+
     const price =
         Number(
             currentProduct.price || 0
@@ -350,6 +647,7 @@ function renderCheckoutProduct() {
 
     checkoutProductImage.alt =
         currentProduct.name ||
+        currentProduct.title ||
         "Product";
 
 
@@ -384,7 +682,8 @@ function getProductImage(
 ) {
 
     if (
-        product.image
+        product.image &&
+        typeof product.image === "string"
     ) {
 
         return product.image;
@@ -393,7 +692,8 @@ function getProductImage(
 
 
     if (
-        product.imageUrl
+        product.imageUrl &&
+        typeof product.imageUrl === "string"
     ) {
 
         return product.imageUrl;
@@ -404,11 +704,22 @@ function getProductImage(
     if (
         Array.isArray(
             product.images
-        ) &&
-        product.images.length
+        )
     ) {
 
-        return product.images[0];
+        const validImage =
+            product.images.find(
+                image =>
+                    typeof image === "string" &&
+                    image.trim()
+            );
+
+
+        if (validImage) {
+
+            return validImage;
+
+        }
 
     }
 
@@ -424,11 +735,17 @@ function getProductImage(
             );
 
 
-        if (
-            images.length
-        ) {
+        const validImage =
+            images.find(
+                image =>
+                    typeof image === "string" &&
+                    image.trim()
+            );
 
-            return images[0];
+
+        if (validImage) {
+
+            return validImage;
 
         }
 
@@ -441,74 +758,161 @@ function getProductImage(
 
 
 /*==================================================
-FEATURE: QUANTITY INCREASE
+FEATURE: SETUP QUANTITY CONTROLS
 ==================================================*/
 
-increaseQuantity.addEventListener(
-    "click",
-    () => {
+function setupQuantityControls() {
 
-        let quantity =
-            Number(
-                checkoutQuantity.value
-            ) || 1;
+    if (
+        increaseQuantity
+    ) {
 
-
-        if (
-            quantity >= currentStock
-        ) {
-
-            quantity =
-                currentStock;
-
-        } else {
-
-            quantity++;
-
-        }
-
-
-        checkoutQuantity.value =
-            quantity;
-
-
-        updateSummary();
+        increaseQuantity.addEventListener(
+            "click",
+            increaseProductQuantity
+        );
 
     }
-);
+
+
+    if (
+        decreaseQuantity
+    ) {
+
+        decreaseQuantity.addEventListener(
+            "click",
+            decreaseProductQuantity
+        );
+
+    }
+
+
+    if (
+        checkoutQuantity
+    ) {
+
+        checkoutQuantity.addEventListener(
+            "change",
+            validateQuantityInput
+        );
+
+    }
+
+}
 
 
 /*==================================================
-FEATURE: QUANTITY DECREASE
+FEATURE: INCREASE QUANTITY
 ==================================================*/
 
-decreaseQuantity.addEventListener(
-    "click",
-    () => {
+function increaseProductQuantity() {
 
-        let quantity =
-            Number(
-                checkoutQuantity.value
-            ) || 1;
+    if (!currentProduct) {
 
-
-        if (
-            quantity > 1
-        ) {
-
-            quantity--;
-
-        }
-
-
-        checkoutQuantity.value =
-            quantity;
-
-
-        updateSummary();
+        return;
 
     }
-);
+
+
+    let quantity =
+        Number(
+            checkoutQuantity.value
+        ) || 1;
+
+
+    if (
+        quantity < currentStock
+    ) {
+
+        quantity++;
+
+    } else {
+
+        quantity =
+            currentStock;
+
+    }
+
+
+    checkoutQuantity.value =
+        quantity;
+
+
+    updateSummary();
+
+}
+
+
+/*==================================================
+FEATURE: DECREASE QUANTITY
+==================================================*/
+
+function decreaseProductQuantity() {
+
+    let quantity =
+        Number(
+            checkoutQuantity.value
+        ) || 1;
+
+
+    if (
+        quantity > 1
+    ) {
+
+        quantity--;
+
+    }
+
+
+    checkoutQuantity.value =
+        quantity;
+
+
+    updateSummary();
+
+}
+
+
+/*==================================================
+FEATURE: QUANTITY INPUT VALIDATION
+==================================================*/
+
+function validateQuantityInput() {
+
+    let quantity =
+        Number(
+            checkoutQuantity.value
+        ) || 1;
+
+
+    if (
+        quantity < 1
+    ) {
+
+        quantity =
+            1;
+
+    }
+
+
+    if (
+        currentStock > 0 &&
+        quantity > currentStock
+    ) {
+
+        quantity =
+            currentStock;
+
+    }
+
+
+    checkoutQuantity.value =
+        quantity;
+
+
+    updateSummary();
+
+}
 
 
 /*==================================================
@@ -594,28 +998,38 @@ FEATURE: PLACE ORDER
 
 checkoutForm.addEventListener(
     "submit",
-    async (
-        event
-    ) => {
+    async event => {
 
         event.preventDefault();
 
 
-        if (!currentProduct) {
-
-            return;
-
-        }
-
+        /*
+         * Prevent duplicate clicks.
+         */
 
         if (
-            placeOrderButton.disabled
+            orderBeingPlaced
         ) {
 
             return;
 
         }
 
+
+        if (!currentProduct) {
+
+            alert(
+                "Product information is not available."
+            );
+
+            return;
+
+        }
+
+
+        /*==================================================
+        FEATURE: GET CUSTOMER INFORMATION
+        ==================================================*/
 
         const customerName =
             document
@@ -662,12 +1076,25 @@ checkoutForm.addEventListener(
                 .trim();
 
 
-        const paymentMethod =
+        /*==================================================
+        FEATURE: GET PAYMENT METHOD
+        ==================================================*/
+
+        const selectedPayment =
             document.querySelector(
                 'input[name="paymentMethod"]:checked'
-            )?.value ||
-            "cod";
+            );
 
+
+        const paymentMethod =
+            selectedPayment
+                ? selectedPayment.value
+                : "cod";
+
+
+        /*==================================================
+        FEATURE: GET QUANTITY
+        ==================================================*/
 
         const quantity =
             Number(
@@ -734,7 +1161,19 @@ checkoutForm.addEventListener(
 
 
         if (
-            quantity < 1 ||
+            quantity < 1
+        ) {
+
+            alert(
+                "Please select at least 1 item."
+            );
+
+            return;
+
+        }
+
+
+        if (
             quantity > currentStock
         ) {
 
@@ -748,8 +1187,12 @@ checkoutForm.addEventListener(
 
 
         /*==================================================
-        FEATURE: BUTTON LOADING
+        FEATURE: START ORDER PROCESS
         ==================================================*/
+
+        orderBeingPlaced =
+            true;
+
 
         placeOrderButton.disabled =
             true;
@@ -762,13 +1205,112 @@ checkoutForm.addEventListener(
             `;
 
 
+        let stockReduced =
+            false;
+
+
+        let stockProductRef =
+            null;
+
+
         try {
 
             /*==================================================
-            FEATURE: RECHECK PRODUCT
+            FEATURE: REFERENCE TO PRODUCT STOCK ONLY
             ==================================================*/
 
-            const productRef =
+            stockProductRef =
+                ref(
+                    db,
+                    `products/${productId}/stock`
+                );
+
+
+            /*==================================================
+            FEATURE: FINAL STOCK TRANSACTION
+            ==================================================*/
+
+            const stockResult =
+                await runTransaction(
+                    stockProductRef,
+                    stock => {
+
+                        /*
+                         * Firebase may provide null
+                         * during transaction initialization.
+                         */
+
+                        if (
+                            stock === null ||
+                            stock === undefined
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        const availableStock =
+                            Number(
+                                stock
+                            );
+
+
+                        if (
+                            !Number.isFinite(
+                                availableStock
+                            )
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        if (
+                            availableStock <
+                            quantity
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        /*
+                         * IMPORTANT:
+                         * Only change the stock field.
+                         */
+
+                        return (
+                            availableStock -
+                            quantity
+                        );
+
+                    }
+                );
+
+
+            if (
+                !stockResult.committed
+            ) {
+
+                throw new Error(
+                    "The requested quantity is no longer available."
+                );
+
+            }
+
+
+            stockReduced =
+                true;
+
+
+            /*==================================================
+            FEATURE: GET LATEST PRODUCT
+            ==================================================*/
+
+            const latestProductRef =
                 ref(
                     db,
                     `products/${productId}`
@@ -777,7 +1319,7 @@ checkoutForm.addEventListener(
 
             const latestSnapshot =
                 await get(
-                    productRef
+                    latestProductRef
                 );
 
 
@@ -802,20 +1344,14 @@ checkoutForm.addEventListener(
                 );
 
 
-            if (
-                latestStock < quantity
-            ) {
+            /*
+             * The transaction has already reduced
+             * Firebase stock.
+             *
+             * latestStock is therefore expected to
+             * be currentStock - quantity.
+             */
 
-                throw new Error(
-                    `Only ${latestStock} item(s) are currently available.`
-                );
-
-            }
-
-
-            /*==================================================
-            FEATURE: TOTAL
-            ==================================================*/
 
             const price =
                 Number(
@@ -829,66 +1365,7 @@ checkoutForm.addEventListener(
 
 
             /*==================================================
-            FEATURE: STOCK TRANSACTION
-            ==================================================*/
-
-            const stockResult =
-                await runTransaction(
-                    productRef,
-                    product => {
-
-                        if (
-                            product === null
-                        ) {
-
-                            return;
-
-                        }
-
-
-                        const stock =
-                            Number(
-                                product.stock || 0
-                            );
-
-
-                        if (
-                            stock < quantity
-                        ) {
-
-                            return;
-
-                        }
-
-
-                        product.stock =
-                            stock -
-                            quantity;
-
-
-                        product.updatedAt =
-                            Date.now();
-
-
-                        return product;
-
-                    }
-                );
-
-
-            if (
-                !stockResult.committed
-            ) {
-
-                throw new Error(
-                    "The requested quantity is no longer available."
-                );
-
-            }
-
-
-            /*==================================================
-            FEATURE: CREATE ORDER ID
+            FEATURE: CREATE ORDER REFERENCE
             ==================================================*/
 
             const ordersRef =
@@ -912,6 +1389,10 @@ checkoutForm.addEventListener(
             FEATURE: ORDER DATA
             ==================================================*/
 
+            const now =
+                Date.now();
+
+
             const orderData = {
 
                 orderId:
@@ -929,6 +1410,10 @@ checkoutForm.addEventListener(
                     getProductImage(
                         latestProduct
                     ),
+
+                productCategory:
+                    latestProduct.category ||
+                    "",
 
                 price:
                     price,
@@ -957,9 +1442,13 @@ checkoutForm.addEventListener(
                 paymentMethod:
                     paymentMethod,
 
+                paymentStatus:
+                    "pending",
+
                 sellerId:
                     latestProduct.sellerId ||
                     latestProduct.seller ||
+                    latestProduct.createdBy ||
                     "",
 
                 sellerName:
@@ -970,25 +1459,20 @@ checkoutForm.addEventListener(
                 status:
                     "pending",
 
-                paymentStatus:
-                    paymentMethod === "cod"
-                        ? "pending"
-                        : "pending",
-
                 deliveryStatus:
                     "pending",
 
                 createdAt:
-                    Date.now(),
+                    now,
 
                 updatedAt:
-                    Date.now()
+                    now
 
             };
 
 
             /*==================================================
-            FEATURE: SAVE ORDER
+            FEATURE: SAVE ORDER TO FIREBASE
             ==================================================*/
 
             await set(
@@ -998,7 +1482,7 @@ checkoutForm.addEventListener(
 
 
             /*==================================================
-            FEATURE: SHOW SUCCESS
+            FEATURE: ORDER SUCCESS
             ==================================================*/
 
             showOrderSuccess(
@@ -1014,6 +1498,55 @@ checkoutForm.addEventListener(
                 "Order creation error:",
                 error
             );
+
+
+            /*==================================================
+            FEATURE: RESTORE STOCK IF ORDER FAILED
+            ==================================================*/
+
+            if (
+                stockReduced &&
+                stockProductRef
+            ) {
+
+                try {
+
+                    await runTransaction(
+                        stockProductRef,
+                        stock => {
+
+                            const current =
+                                Number(
+                                    stock || 0
+                                );
+
+
+                            return (
+                                current +
+                                quantity
+                            );
+
+                        }
+                    );
+
+                    console.log(
+                        "Stock restored after failed order."
+                    );
+
+                }
+
+                catch (
+                    restoreError
+                ) {
+
+                    console.error(
+                        "Stock restore error:",
+                        restoreError
+                    );
+
+                }
+
+            }
 
 
             alert(
@@ -1032,6 +1565,10 @@ checkoutForm.addEventListener(
                     Place Order
                 `;
 
+
+            orderBeingPlaced =
+                false;
+
         }
 
     }
@@ -1039,7 +1576,7 @@ checkoutForm.addEventListener(
 
 
 /*==================================================
-FEATURE: SUCCESS
+FEATURE: SHOW ORDER SUCCESS
 ==================================================*/
 
 function showOrderSuccess(
@@ -1084,7 +1621,7 @@ function showOrderSuccess(
 
 
 /*==================================================
-FEATURE: PHONE VALIDATION
+FEATURE: PAKISTANI PHONE VALIDATION
 ==================================================*/
 
 function isValidPakistaniPhone(
@@ -1126,19 +1663,35 @@ function showCheckoutError(
     message
 ) {
 
-    checkoutLoading.style.display =
-        "none";
+    if (checkoutLoading) {
+
+        checkoutLoading.style.display =
+            "none";
+
+    }
 
 
-    checkoutContent.style.display =
-        "none";
+    if (checkoutContent) {
+
+        checkoutContent.style.display =
+            "none";
+
+    }
 
 
-    checkoutError.style.display =
-        "block";
+    if (checkoutError) {
+
+        checkoutError.style.display =
+            "block";
+
+    }
 
 
-    checkoutErrorMessage.textContent =
-        message;
+    if (checkoutErrorMessage) {
+
+        checkoutErrorMessage.textContent =
+            message;
+
+    }
 
 }
