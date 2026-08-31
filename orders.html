@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="SmartBazaar Pro Admin Orders Management"
+    >
+
+    <title>Orders | SmartBazaar Pro</title>
+
+    <!--==================================================
+    SMARTBAZAAR PRO 2
+    FEATURE: ADMIN ORDERS PAGE
+    FEATURE: ORDER MANAGEMENT
+    FEATURE: ORDER STATUS SYSTEM
+    ==================================================-->
+
+    <!-- Font Awesome -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <!-- Orders CSS -->
+
+    <link
+        rel="stylesheet"
+        href="./orders.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<!--==================================================
+SMARTBAZAAR PRO 2
+FEATURE: ORDERS HEADER
+==================================================-->
+
+<header class="orders-header">
+
+    <div class="orders-header-inner">
+
+
+        <!-- LOGO -->
+
+        <a
+            href="./admin-panel.html"
+            class="orders-logo"
+        >
+
+            <i class="fa-solid fa-store"></i>
+
+            <span>
+                SmartBazaar
+            </span>
+
+        </a>
+
+
+        <!-- HEADER TITLE -->
+
+        <div class="orders-header-title">
+
+            <i class="fa-solid fa-box-open"></i>
+
+            <span>
+                Orders Management
+            </span>
+
+        </div>
+
+
+        <!-- BACK BUTTON -->
+
+        <a
+            href="./admin-panel.html"
+            class="back-admin-button"
+        >
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            <span>
+                Admin Panel
+            </span>
+
+        </a>
+
+    </div>
+
+</header>
+
+
+
+<!--==================================================
+FEATURE: MAIN ORDERS PAGE
+==================================================-->
+
+<main class="orders-container">
+
+
+    <!--==================================================
+    FEATURE: PAGE INTRO
+    ==================================================-->
+
+    <section class="orders-page-intro">
+
+        <div>
+
+            <span class="orders-page-badge">
+
+                <i class="fa-solid fa-shield-halved"></i>
+
+                Admin
+
+            </span>
+
+            <h1>
+                Order Management
+            </h1>
+
+            <p>
+                View and manage SmartBazaar customer orders.
+            </p>
+
+        </div>
+
+
+        <!-- REFRESH -->
+
+        <button
+            type="button"
+            id="refreshOrdersButton"
+            class="refresh-orders-button"
+        >
+
+            <i class="fa-solid fa-rotate"></i>
+
+            Refresh Orders
+
+        </button>
+
+    </section>
+
+
+
+    <!--==================================================
+    FEATURE: ORDER STATISTICS
+    ==================================================-->
+
+    <section class="orders-stats">
+
+
+        <!-- TOTAL -->
+
+        <div class="order-stat-card">
+
+            <div class="order-stat-icon total-icon">
+
+                <i class="fa-solid fa-boxes-stacked"></i>
+
+            </div>
+
+            <div>
+
+                <span>
+                    Total Orders
+                </span>
+
+                <strong id="totalOrdersCount">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- PENDING -->
+
+        <div class="order-stat-card">
+
+            <div class="order-stat-icon pending-icon">
+
+                <i class="fa-solid fa-clock"></i>
+
+            </div>
+
+            <div>
+
+                <span>
+                    Pending
+                </span>
+
+                <strong id="pendingOrdersCount">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- CONFIRMED -->
+
+        <div class="order-stat-card">
+
+            <div class="order-stat-icon confirmed-icon">
+
+                <i class="fa-solid fa-circle-check"></i>
+
+            </div>
+
+            <div>
+
+                <span>
+                    Confirmed
+                </span>
+
+                <strong id="confirmedOrdersCount">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- DELIVERED -->
+
+        <div class="order-stat-card">
+
+            <div class="order-stat-icon delivered-icon">
+
+                <i class="fa-solid fa-truck"></i>
+
+            </div>
+
+            <div>
+
+                <span>
+                    Delivered
+                </span>
+
+                <strong id="deliveredOrdersCount">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- CANCELLED -->
+
+        <div class="order-stat-card">
+
+            <div class="order-stat-icon cancelled-icon">
+
+                <i class="fa-solid fa-circle-xmark"></i>
+
+            </div>
+
+            <div>
+
+                <span>
+                    Cancelled
+                </span>
+
+                <strong id="cancelledOrdersCount">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!--==================================================
+    FEATURE: ORDERS TOOLBAR
+    ==================================================-->
+
+    <section class="orders-toolbar">
+
+
+        <!-- SEARCH -->
+
+        <div class="orders-search">
+
+            <i class="fa-solid fa-magnifying-glass"></i>
+
+            <input
+                type="search"
+                id="orderSearchInput"
+                placeholder="Search Order ID, customer, phone..."
+                autocomplete="off"
+            >
+
+        </div>
+
+
+
+        <!-- STATUS FILTER -->
+
+        <div class="orders-filter">
+
+            <label for="orderStatusFilter">
+
+                <i class="fa-solid fa-filter"></i>
+
+                Status
+
+            </label>
+
+            <select id="orderStatusFilter">
+
+                <option value="all">
+                    All Orders
+                </option>
+
+                <option value="pending">
+                    Pending
+                </option>
+
+                <option value="confirmed">
+                    Confirmed
+                </option>
+
+                <option value="processing">
+                    Processing
+                </option>
+
+                <option value="shipped">
+                    Shipped
+                </option>
+
+                <option value="delivered">
+                    Delivered
+                </option>
+
+                <option value="cancelled">
+                    Cancelled
+                </option>
+
+            </select>
+
+        </div>
+
+
+
+        <!-- PAYMENT FILTER -->
+
+        <div class="orders-filter">
+
+            <label for="paymentMethodFilter">
+
+                <i class="fa-solid fa-credit-card"></i>
+
+                Payment
+
+            </label>
+
+            <select id="paymentMethodFilter">
+
+                <option value="all">
+                    All Payments
+                </option>
+
+                <option value="cod">
+                    Cash on Delivery
+                </option>
+
+                <option value="jazzcash">
+                    JazzCash
+                </option>
+
+                <option value="easypaisa">
+                    EasyPaisa
+                </option>
+
+            </select>
+
+        </div>
+
+    </section>
+
+
+
+    <!--==================================================
+    FEATURE: ORDERS LOADING
+    ==================================================-->
+
+    <section
+        id="ordersLoading"
+        class="orders-loading"
+    >
+
+        <div class="orders-loading-spinner"></div>
+
+        <h3>
+            Loading Orders...
+        </h3>
+
+        <p>
+            Please wait while your orders are being loaded.
+        </p>
+
+    </section>
+
+
+
+    <!--==================================================
+    FEATURE: ORDERS ERROR
+    ==================================================-->
+
+    <section
+        id="ordersError"
+        class="orders-error"
+        style="display:none;"
+    >
+
+        <div class="orders-error-icon">
+
+            <i class="fa-solid fa-triangle-exclamation"></i>
+
+        </div>
+
+        <h3>
+            Unable to Load Orders
+        </h3>
+
+        <p id="ordersErrorMessage">
+            Something went wrong while loading orders.
+        </p>
+
+        <button
+            type="button"
+            id="retryOrdersButton"
+            class="retry-orders-button"
+        >
+
+            <i class="fa-solid fa-rotate-right"></i>
+
+            Try Again
+
+        </button>
+
+    </section>
+
+
+
+    <!--==================================================
+    FEATURE: EMPTY ORDERS
+    ==================================================-->
+
+    <section
+        id="ordersEmpty"
+        class="orders-empty"
+        style="display:none;"
+    >
+
+        <div class="orders-empty-icon">
+
+            <i class="fa-solid fa-box-open"></i>
+
+        </div>
+
+        <h3>
+            No Orders Found
+        </h3>
+
+        <p>
+            There are currently no orders matching your search.
+        </p>
+
+    </section>
+
+
+
+    <!--==================================================
+    FEATURE: ORDERS LIST
+    ==================================================-->
+
+    <section
+        id="ordersList"
+        class="orders-list"
+        style="display:none;"
+    >
+
+        <!-- JavaScript will create order cards here -->
+
+    </section>
+
+
+
+    <!--==================================================
+    FEATURE: ORDER DETAILS MODAL
+    ==================================================-->
+
+    <div
+        id="orderDetailsModal"
+        class="order-modal"
+        style="display:none;"
+    >
+
+        <div class="order-modal-overlay"></div>
+
+
+        <div class="order-modal-box">
+
+
+            <!-- MODAL HEADER -->
+
+            <div class="order-modal-header">
+
+                <div>
+
+                    <span>
+                        Order Details
+                    </span>
+
+                    <h2 id="modalOrderId">
+                        —
+                    </h2>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="closeOrderModal"
+                    class="close-order-modal"
+                    aria-label="Close"
+                >
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+
+
+            <!-- MODAL CONTENT -->
+
+            <div
+                id="orderModalContent"
+                class="order-modal-content"
+            >
+
+                <!-- JavaScript inserts details -->
+
+            </div>
+
+
+
+            <!-- MODAL FOOTER -->
+
+            <div class="order-modal-footer">
+
+                <button
+                    type="button"
+                    id="closeOrderModalBottom"
+                    class="modal-close-button"
+                >
+
+                    Close
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+</main>
+
+
+
+<!--==================================================
+FEATURE: ORDERS JAVASCRIPT
+==================================================-->
+
+<script
+    type="module"
+    src="./orders.js"
+></script>
+
+
+</body>
+
+</html>
