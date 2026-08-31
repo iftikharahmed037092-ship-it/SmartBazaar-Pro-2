@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="SmartBazaar Pro Customer Account"
+    >
+
+    <title>My Account | SmartBazaar Pro</title>
+
+
+    <!--==================================================
+    SMARTBAZAAR PRO 2
+    FEATURE: CUSTOMER ACCOUNT SYSTEM
+    FEATURE: ACCOUNT DASHBOARD
+    ==================================================-->
+
+
+    <!-- FONT AWESOME -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+
+    <!-- ACCOUNT CSS -->
+
+    <link
+        rel="stylesheet"
+        href="./account.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<!--==================================================
+SMARTBAZAAR PRO 2
+FEATURE: ACCOUNT HEADER
+==================================================-->
+
+<header class="account-header">
+
+    <div class="account-header-inner">
+
+
+        <!-- LOGO -->
+
+        <a
+            href="./index.html"
+            class="account-logo"
+        >
+
+            <i class="fa-solid fa-store"></i>
+
+            <span>
+                SmartBazaar
+            </span>
+
+        </a>
+
+
+        <!-- HEADER ACTIONS -->
+
+        <div class="account-header-actions">
+
+            <a
+                href="./index.html"
+                class="header-home-button"
+            >
+
+                <i class="fa-solid fa-house"></i>
+
+                <span>
+                    Home
+                </span>
+
+            </a>
+
+
+            <button
+                type="button"
+                id="logoutButtonTop"
+                class="header-logout-button"
+            >
+
+                <i class="fa-solid fa-right-from-bracket"></i>
+
+                <span>
+                    Logout
+                </span>
+
+            </button>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+
+<!--==================================================
+FEATURE: ACCOUNT PAGE
+==================================================-->
+
+<main class="account-container">
+
+
+    <!--==================================================
+    FEATURE: ACCOUNT LOADING
+    ==================================================-->
+
+    <section
+        id="accountLoading"
+        class="account-loading"
+    >
+
+        <div class="account-spinner"></div>
+
+        <h3>
+            Loading Account...
+        </h3>
+
+        <p>
+            Please wait while your account is being loaded.
+        </p>
+
+    </section>
+
+
+
+    <!--==================================================
+    FEATURE: ACCOUNT ERROR
+    ==================================================-->
+
+    <section
+        id="accountError"
+        class="account-error"
+        style="display:none;"
+    >
+
+        <div class="account-error-icon">
+
+            <i class="fa-solid fa-circle-exclamation"></i>
+
+        </div>
+
+        <h2>
+            Account Access Required
+        </h2>
+
+        <p id="accountErrorMessage">
+            Please login to access your account.
+        </p>
+
+        <a
+            href="./index.html"
+            class="account-error-button"
+        >
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            Back to Home
+
+        </a>
+
+    </section>
+
+
+
+    <!--==================================================
+    FEATURE: ACCOUNT CONTENT
+    ==================================================-->
+
+    <section
+        id="accountContent"
+        class="account-content"
+        style="display:none;"
+    >
+
+
+        <!--==================================================
+        FEATURE: ACCOUNT HERO
+        ==================================================-->
+
+        <section class="account-profile-card">
+
+
+            <div class="profile-background"></div>
+
+
+            <div class="profile-content">
+
+
+                <!-- AVATAR -->
+
+                <div class="profile-avatar">
+
+                    <span id="profileAvatarLetter">
+                        U
+                    </span>
+
+                    <button
+                        type="button"
+                        id="changeAvatarButton"
+                        class="avatar-edit-button"
+                        aria-label="Change profile picture"
+                    >
+
+                        <i class="fa-solid fa-camera"></i>
+
+                    </button>
+
+                </div>
+
+
+                <!-- PROFILE INFO -->
+
+                <div class="profile-main-info">
+
+                    <span class="profile-welcome">
+                        Welcome back
+                    </span>
+
+                    <h1 id="profileName">
+                        SmartBazaar User
+                    </h1>
+
+                    <p id="profileEmail">
+                        user@example.com
+                    </p>
+
+                    <div class="profile-status">
+
+                        <span class="status-dot"></span>
+
+                        <span>
+                            Active Account
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- EDIT -->
+
+                <button
+                    type="button"
+                    id="editProfileButton"
+                    class="edit-profile-button"
+                >
+
+                    <i class="fa-solid fa-pen"></i>
+
+                    Edit Profile
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!--==================================================
+        FEATURE: ACCOUNT STATISTICS
+        ==================================================-->
+
+        <section class="account-statistics">
+
+
+            <div class="account-stat-card">
+
+                <div class="account-stat-icon orders-stat-icon">
+
+                    <i class="fa-solid fa-box"></i>
+
+                </div>
+
+                <div>
+
+                    <span>
+                        Total Orders
+                    </span>
+
+                    <strong id="totalOrders">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="account-stat-card">
+
+                <div class="account-stat-icon wishlist-stat-icon">
+
+                    <i class="fa-regular fa-heart"></i>
+
+                </div>
+
+                <div>
+
+                    <span>
+                        Wishlist
+                    </span>
+
+                    <strong id="wishlistCount">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="account-stat-card">
+
+                <div class="account-stat-icon address-stat-icon">
+
+                    <i class="fa-solid fa-location-dot"></i>
+
+                </div>
+
+                <div>
+
+                    <span>
+                        Saved Addresses
+                    </span>
+
+                    <strong id="addressCount">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="account-stat-card">
+
+                <div class="account-stat-icon notification-stat-icon">
+
+                    <i class="fa-regular fa-bell"></i>
+
+                </div>
+
+                <div>
+
+                    <span>
+                        Notifications
+                    </span>
+
+                    <strong id="notificationCount">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!--==================================================
+        FEATURE: ACCOUNT DASHBOARD GRID
+        ==================================================-->
+
+        <div class="account-dashboard">
+
+
+            <!--==================================================
+            FEATURE: ACCOUNT SIDEBAR
+            ==================================================-->
+
+            <aside class="account-sidebar">
+
+
+                <div class="sidebar-title">
+
+                    <i class="fa-solid fa-user-circle"></i>
+
+                    <span>
+                        My Account
+                    </span>
+
+                </div>
+
+
+                <nav class="account-navigation">
+
+
+                    <button
+                        type="button"
+                        class="account-nav-item active"
+                        data-section="overview"
+                    >
+
+                        <i class="fa-solid fa-gauge-high"></i>
+
+                        <span>
+                            Overview
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="account-nav-item"
+                        data-section="profile"
+                    >
+
+                        <i class="fa-regular fa-user"></i>
+
+                        <span>
+                            Personal Information
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="account-nav-item"
+                        data-section="orders"
+                    >
+
+                        <i class="fa-solid fa-box-open"></i>
+
+                        <span>
+                            My Orders
+                        </span>
+
+                        <span
+                            id="ordersNavBadge"
+                            class="nav-badge"
+                        >
+                            0
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="account-nav-item"
+                        data-section="wishlist"
+                    >
+
+                        <i class="fa-regular fa-heart"></i>
+
+                        <span>
+                            Wishlist
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="account-nav-item"
+                        data-section="addresses"
+                    >
+
+                        <i class="fa-solid fa-location-dot"></i>
+
+                        <span>
+                            My Addresses
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="account-nav-item"
+                        data-section="notifications"
+                    >
+
+                        <i class="fa-regular fa-bell"></i>
+
+                        <span>
+                            Notifications
+                        </span>
+
+                        <span
+                            id="notificationNavBadge"
+                            class="nav-badge notification-badge"
+                        >
+                            0
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="account-nav-item"
+                        data-section="security"
+                    >
+
+                        <i class="fa-solid fa-shield-halved"></i>
+
+                        <span>
+                            Security
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="account-nav-item"
+                        data-section="settings"
+                    >
+
+                        <i class="fa-solid fa-gear"></i>
+
+                        <span>
+                            Account Settings
+                        </span>
+
+                    </button>
+
+                </nav>
+
+
+                <!-- LOGOUT -->
+
+                <button
+                    type="button"
+                    id="logoutButton"
+                    class="account-logout-button"
+                >
+
+                    <i class="fa-solid fa-right-from-bracket"></i>
+
+                    <span>
+                        Logout
+                    </span>
+
+                </button>
+
+
+            </aside>
+
+
+
+            <!--==================================================
+            FEATURE: ACCOUNT MAIN PANEL
+            ==================================================-->
+
+            <div class="account-main-panel">
+
+
+                <!--==================================================
+                FEATURE: OVERVIEW
+                ==================================================-->
+
+                <section
+                    class="account-section active"
+                    id="section-overview"
+                >
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <span class="section-label">
+                                Dashboard
+                            </span>
+
+                            <h2>
+                                Account Overview
+                            </h2>
+
+                            <p>
+                                Manage your SmartBazaar account and activity.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- QUICK ACTIONS -->
+
+                    <div class="quick-actions">
+
+
+                        <button
+                            type="button"
+                            class="quick-action-card"
+                            data-open-section="orders"
+                        >
+
+                            <div class="quick-action-icon">
+
+                                <i class="fa-solid fa-box-open"></i>
+
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    My Orders
+                                </strong>
+
+                                <span>
+                                    Track your purchases
+                                </span>
+
+                            </div>
+
+                            <i class="fa-solid fa-chevron-right"></i>
+
+                        </button>
+
+
+
+                        <button
+                            type="button"
+                            class="quick-action-card"
+                            data-open-section="wishlist"
+                        >
+
+                            <div class="quick-action-icon">
+
+                                <i class="fa-regular fa-heart"></i>
+
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Wishlist
+                                </strong>
+
+                                <span>
+                                    Your saved products
+                                </span>
+
+                            </div>
+
+                            <i class="fa-solid fa-chevron-right"></i>
+
+                        </button>
+
+
+
+                        <button
+                            type="button"
+                            class="quick-action-card"
+                            data-open-section="addresses"
+                        >
+
+                            <div class="quick-action-icon">
+
+                                <i class="fa-solid fa-location-dot"></i>
+
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Addresses
+                                </strong>
+
+                                <span>
+                                    Manage delivery addresses
+                                </span>
+
+                            </div>
+
+                            <i class="fa-solid fa-chevron-right"></i>
+
+                        </button>
+
+
+
+                        <button
+                            type="button"
+                            class="quick-action-card"
+                            data-open-section="security"
+                        >
+
+                            <div class="quick-action-icon">
+
+                                <i class="fa-solid fa-shield-halved"></i>
+
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Security
+                                </strong>
+
+                                <span>
+                                    Password and account security
+                                </span>
+
+                            </div>
+
+                            <i class="fa-solid fa-chevron-right"></i>
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- RECENT ORDERS -->
+
+                    <div class="account-card">
+
+                        <div class="account-card-heading">
+
+                            <div>
+
+                                <h3>
+                                    Recent Orders
+                                </h3>
+
+                                <p>
+                                    Your latest SmartBazaar purchases
+                                </p>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                class="view-all-button"
+                                data-open-section="orders"
+                            >
+
+                                View All
+
+                                <i class="fa-solid fa-arrow-right"></i>
+
+                            </button>
+
+                        </div>
+
+
+                        <div
+                            id="recentOrders"
+                            class="recent-orders"
+                        >
+
+                            <div class="empty-state">
+
+                                <i class="fa-solid fa-box-open"></i>
+
+                                <h4>
+                                    No Orders Yet
+                                </h4>
+
+                                <p>
+                                    Your recent orders will appear here.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!--==================================================
+                FEATURE: PERSONAL INFORMATION
+                ==================================================-->
+
+                <section
+                    class="account-section"
+                    id="section-profile"
+                >
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <span class="section-label">
+                                Profile
+                            </span>
+
+                            <h2>
+                                Personal Information
+                            </h2>
+
+                            <p>
+                                Manage your personal account information.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="account-card">
+
+
+                        <form id="profileForm">
+
+
+                            <div class="profile-form-grid">
+
+
+                                <div class="form-group">
+
+                                    <label for="accountFullName">
+                                        Full Name
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="accountFullName"
+                                        placeholder="Your full name"
+                                        autocomplete="name"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="accountEmail">
+                                        Email Address
+                                    </label>
+
+                                    <input
+                                        type="email"
+                                        id="accountEmail"
+                                        placeholder="Your email"
+                                        autocomplete="email"
+                                        readonly
+                                    >
+
+                                    <small>
+                                        Your login email cannot be changed here.
+                                    </small>
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="accountPhone">
+                                        Mobile Number
+                                    </label>
+
+                                    <input
+                                        type="tel"
+                                        id="accountPhone"
+                                        placeholder="03XXXXXXXXX"
+                                        maxlength="11"
+                                        inputmode="numeric"
+                                        autocomplete="tel"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="accountCity">
+                                        City
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="accountCity"
+                                        placeholder="Your city"
+                                        autocomplete="address-level2"
+                                    >
+
+                                </div>
+
+
+                            </div>
+
+
+                            <div class="form-actions">
+
+                                <button
+                                    type="submit"
+                                    class="save-button"
+                                >
+
+                                    <i class="fa-solid fa-floppy-disk"></i>
+
+                                    Save Changes
+
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </section>
+
+
+
+                <!--==================================================
+                FEATURE: MY ORDERS
+                ==================================================-->
+
+                <section
+                    class="account-section"
+                    id="section-orders"
+                >
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <span class="section-label">
+                                Shopping
+                            </span>
+
+                            <h2>
+                                My Orders
+                            </h2>
+
+                            <p>
+                                View and track all your orders.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="account-card">
+
+                        <div
+                            id="accountOrdersList"
+                            class="account-orders-list"
+                        >
+
+                            <div class="empty-state">
+
+                                <i class="fa-solid fa-box-open"></i>
+
+                                <h4>
+                                    No Orders Yet
+                                </h4>
+
+                                <p>
+                                    Orders you place will appear here.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!--==================================================
+                FEATURE: WISHLIST
+                ==================================================-->
+
+                <section
+                    class="account-section"
+                    id="section-wishlist"
+                >
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <span class="section-label">
+                                Saved
+                            </span>
+
+                            <h2>
+                                My Wishlist
+                            </h2>
+
+                            <p>
+                                Products you have saved for later.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="account-card">
+
+                        <div
+                            id="wishlistProducts"
+                            class="wishlist-products"
+                        >
+
+                            <div class="empty-state">
+
+                                <i class="fa-regular fa-heart"></i>
+
+                                <h4>
+                                    Your Wishlist is Empty
+                                </h4>
+
+                                <p>
+                                    Save products you love and find them here.
+                                </p>
+
+                                <a
+                                    href="./index.html"
+                                    class="empty-action-button"
+                                >
+
+                                    Browse Products
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!--==================================================
+                FEATURE: ADDRESSES
+                ==================================================-->
+
+                <section
+                    class="account-section"
+                    id="section-addresses"
+                >
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <span class="section-label">
+                                Delivery
+                            </span>
+
+                            <h2>
+                                My Addresses
+                            </h2>
+
+                            <p>
+                                Manage your saved delivery addresses.
+                            </p>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            id="addAddressButton"
+                            class="primary-action-button"
+                        >
+
+                            <i class="fa-solid fa-plus"></i>
+
+                            Add Address
+
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="addressesList"
+                        class="addresses-list"
+                    >
+
+                        <div class="empty-state">
+
+                            <i class="fa-solid fa-location-dot"></i>
+
+                            <h4>
+                                No Saved Addresses
+                            </h4>
+
+                            <p>
+                                Add an address for faster checkout.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!--==================================================
+                FEATURE: NOTIFICATIONS
+                ==================================================-->
+
+                <section
+                    class="account-section"
+                    id="section-notifications"
+                >
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <span class="section-label">
+                                Updates
+                            </span>
+
+                            <h2>
+                                Notifications
+                            </h2>
+
+                            <p>
+                                Stay updated about your orders and account.
+                            </p>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            id="markNotificationsRead"
+                            class="secondary-action-button"
+                        >
+
+                            <i class="fa-solid fa-check-double"></i>
+
+                            Mark All Read
+
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="notificationsList"
+                        class="notifications-list"
+                    >
+
+                        <div class="empty-state">
+
+                            <i class="fa-regular fa-bell"></i>
+
+                            <h4>
+                                No Notifications
+                            </h4>
+
+                            <p>
+                                New account and order updates will appear here.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!--==================================================
+                FEATURE: SECURITY
+                ==================================================-->
+
+                <section
+                    class="account-section"
+                    id="section-security"
+                >
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <span class="section-label">
+                                Protection
+                            </span>
+
+                            <h2>
+                                Account Security
+                            </h2>
+
+                            <p>
+                                Keep your SmartBazaar account secure.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="account-card security-card">
+
+
+                        <div class="security-item">
+
+                            <div class="security-item-icon">
+
+                                <i class="fa-solid fa-key"></i>
+
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Password
+                                </strong>
+
+                                <span>
+                                    Keep your password private and secure.
+                                </span>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                id="changePasswordButton"
+                                class="secondary-action-button"
+                            >
+
+                                Change Password
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="security-item">
+
+                            <div class="security-item-icon">
+
+                                <i class="fa-solid fa-shield-halved"></i>
+
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Account Protection
+                                </strong>
+
+                                <span>
+                                    Your account information is protected by Firebase authentication.
+                                </span>
+
+                            </div>
+
+                            <span class="security-active">
+                                Protected
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!--==================================================
+                FEATURE: ACCOUNT SETTINGS
+                ==================================================-->
+
+                <section
+                    class="account-section"
+                    id="section-settings"
+                >
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <span class="section-label">
+                                Preferences
+                            </span>
+
+                            <h2>
+                                Account Settings
+                            </h2>
+
+                            <p>
+                                Customize your SmartBazaar account preferences.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="account-card settings-card">
+
+
+                        <div class="setting-row">
+
+                            <div>
+
+                                <strong>
+                                    Order Notifications
+                                </strong>
+
+                                <span>
+                                    Receive updates about your orders.
+                                </span>
+
+                            </div>
+
+                            <label class="toggle-switch">
+
+                                <input
+                                    type="checkbox"
+                                    id="orderNotificationsToggle"
+                                    checked
+                                >
+
+                                <span class="toggle-slider"></span>
+
+                            </label>
+
+                        </div>
+
+
+                        <div class="setting-row">
+
+                            <div>
+
+                                <strong>
+                                    Delivery Updates
+                                </strong>
+
+                                <span>
+                                    Get notified when your order status changes.
+                                </span>
+
+                            </div>
+
+                            <label class="toggle-switch">
+
+                                <input
+                                    type="checkbox"
+                                    id="deliveryNotificationsToggle"
+                                    checked
+                                >
+
+                                <span class="toggle-slider"></span>
+
+                            </label>
+
+                        </div>
+
+
+                        <div class="setting-row">
+
+                            <div>
+
+                                <strong>
+                                    Promotional Notifications
+                                </strong>
+
+                                <span>
+                                    Receive special offers and product updates.
+                                </span>
+
+                            </div>
+
+                            <label class="toggle-switch">
+
+                                <input
+                                    type="checkbox"
+                                    id="promotionalNotificationsToggle"
+                                >
+
+                                <span class="toggle-slider"></span>
+
+                            </label>
+
+                        </div>
+
+
+                    </div>
+
+                </section>
+
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+
+<!--==================================================
+FEATURE: ADDRESS MODAL
+==================================================-->
+
+<div
+    id="addressModal"
+    class="account-modal"
+    style="display:none;"
+>
+
+    <div class="modal-overlay"></div>
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <div>
+
+                <span>
+                    Delivery Address
+                </span>
+
+                <h3>
+                    Add New Address
+                </h3>
+
+            </div>
+
+            <button
+                type="button"
+                id="closeAddressModal"
+                class="modal-close"
+            >
+
+                <i class="fa-solid fa-xmark"></i>
+
+            </button>
+
+        </div>
+
+
+        <form id="addressForm">
+
+
+            <div class="form-group">
+
+                <label for="addressTitle">
+                    Address Name
+                </label>
+
+                <select id="addressTitle">
+
+                    <option value="Home">
+                        Home
+                    </option>
+
+                    <option value="Office">
+                        Office
+                    </option>
+
+                    <option value="Other">
+                        Other
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="addressName">
+                    Full Name
+                </label>
+
+                <input
+                    type="text"
+                    id="addressName"
+                    placeholder="Recipient name"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="addressPhone">
+                    Mobile Number
+                </label>
+
+                <input
+                    type="tel"
+                    id="addressPhone"
+                    placeholder="03XXXXXXXXX"
+                    maxlength="11"
+                    inputmode="numeric"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="addressCity">
+                    City
+                </label>
+
+                <input
+                    type="text"
+                    id="addressCity"
+                    placeholder="City"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="addressComplete">
+                    Complete Address
+                </label>
+
+                <textarea
+                    id="addressComplete"
+                    rows="4"
+                    placeholder="House number, street, area, landmark..."
+                    required
+                ></textarea>
+
+            </div>
+
+
+            <label class="default-address-option">
+
+                <input
+                    type="checkbox"
+                    id="addressDefault"
+                >
+
+                <span>
+                    Make this my default address
+                </span>
+
+            </label>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    id="cancelAddressButton"
+                    class="modal-cancel-button"
+                >
+
+                    Cancel
+
+                </button>
+
+                <button
+                    type="submit"
+                    class="save-button"
+                >
+
+                    <i class="fa-solid fa-floppy-disk"></i>
+
+                    Save Address
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<!--==================================================
+FEATURE: PASSWORD MODAL
+==================================================-->
+
+<div
+    id="passwordModal"
+    class="account-modal"
+    style="display:none;"
+>
+
+    <div class="modal-overlay"></div>
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <div>
+
+                <span>
+                    Account Security
+                </span>
+
+                <h3>
+                    Change Password
+                </h3>
+
+            </div>
+
+            <button
+                type="button"
+                id="closePasswordModal"
+                class="modal-close"
+            >
+
+                <i class="fa-solid fa-xmark"></i>
+
+            </button>
+
+        </div>
+
+
+        <form id="passwordForm">
+
+
+            <div class="form-group">
+
+                <label for="currentPassword">
+                    Current Password
+                </label>
+
+                <input
+                    type="password"
+                    id="currentPassword"
+                    autocomplete="current-password"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="newPassword">
+                    New Password
+                </label>
+
+                <input
+                    type="password"
+                    id="newPassword"
+                    autocomplete="new-password"
+                    minlength="6"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="confirmPassword">
+                    Confirm New Password
+                </label>
+
+                <input
+                    type="password"
+                    id="confirmPassword"
+                    autocomplete="new-password"
+                    minlength="6"
+                    required
+                >
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    id="cancelPasswordButton"
+                    class="modal-cancel-button"
+                >
+
+                    Cancel
+
+                </button>
+
+                <button
+                    type="submit"
+                    class="save-button"
+                >
+
+                    <i class="fa-solid fa-key"></i>
+
+                    Update Password
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<!--==================================================
+FEATURE: LOGOUT CONFIRMATION
+==================================================-->
+
+<div
+    id="logoutModal"
+    class="account-modal"
+    style="display:none;"
+>
+
+    <div class="modal-overlay"></div>
+
+    <div class="logout-confirm-box">
+
+        <div class="logout-icon">
+
+            <i class="fa-solid fa-right-from-bracket"></i>
+
+        </div>
+
+        <h3>
+            Logout from SmartBazaar?
+        </h3>
+
+        <p>
+            You will need to login again to access your account.
+        </p>
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                id="cancelLogoutButton"
+                class="modal-cancel-button"
+            >
+
+                Cancel
+
+            </button>
+
+            <button
+                type="button"
+                id="confirmLogoutButton"
+                class="danger-button"
+            >
+
+                <i class="fa-solid fa-right-from-bracket"></i>
+
+                Logout
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!--==================================================
+FEATURE: ACCOUNT JAVASCRIPT
+==================================================-->
+
+<script
+    type="module"
+    src="./account.js"
+></script>
+
+
+</body>
+
+</html>
