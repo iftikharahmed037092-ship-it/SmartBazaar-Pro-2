@@ -440,25 +440,24 @@ FEATURE: ACCOUNT PAGE
 
 
                     <button
-                        type="button"
-                        class="account-nav-item"
-                        data-section="orders"
-                    >
+    type="button"
+    class="account-nav-item"
+    data-section="orders"
+    onclick="window.location.href='orders.html'"
+>
+    <i class="fa-solid fa-box-open"></i>
 
-                        <i class="fa-solid fa-box-open"></i>
+    <span>
+        My Orders
+    </span>
 
-                        <span>
-                            My Orders
-                        </span>
-
-                        <span
-                            id="ordersNavBadge"
-                            class="nav-badge"
-                        >
-                            0
-                        </span>
-
-                    </button>
+    <span
+        id="ordersNavBadge"
+        class="nav-badge"
+    >
+        0
+    </span>
+</button>
 
 
                     <button
