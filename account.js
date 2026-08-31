@@ -2,155 +2,89 @@
 SMARTBAZAAR PRO 2
 FEATURE: CUSTOMER ACCOUNT SYSTEM
 FEATURE: ACCOUNT DASHBOARD
+FEATURE: ACCOUNT NAVIGATION
 FEATURE: PROFILE MANAGEMENT
-FEATURE: ORDERS
+FEATURE: ORDERS INTEGRATION
 FEATURE: WISHLIST
 FEATURE: ADDRESSES
 FEATURE: NOTIFICATIONS
-FEATURE: SECURITY
+FEATURE: ACCOUNT SECURITY
 FEATURE: ACCOUNT SETTINGS
 ==================================================*/
 
-
-/*==================================================
-FIREBASE IMPORTS
-==================================================*/
-
-import {
-    auth,
-    db
-} from "./firebase-config.js";
-
 import {
     onAuthStateChanged,
+    signOut,
     updateProfile,
-    EmailAuthProvider,
-    reauthenticateWithCredential,
     updatePassword,
-    signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    reauthenticateWithCredential,
+    EmailAuthProvider
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 import {
     ref,
     get,
     set,
-    update,
     push,
+    update,
     remove,
-    onValue
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    query,
+    orderByChild,
+    equalTo
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 
 
 /*==================================================
-GLOBAL STATE
+FEATURE: FIREBASE CONFIG LOADER
+==================================================*/
+
+let firebaseConfigModule = null;
+
+let auth = null;
+let db = null;
+
+
+/*==================================================
+FEATURE: GLOBAL ACCOUNT STATE
 ==================================================*/
 
 let currentUser = null;
 
-let currentUserData = {};
+let currentProfile = {};
 
-let currentOrders = [];
+let accountOrders = [];
 
-let currentWishlist = [];
+let accountWishlist = [];
 
-let currentAddresses = [];
+let accountAddresses = [];
 
-let currentNotifications = [];
+let accountNotifications = [];
 
-let currentSettings = {
-    orderNotifications: true,
-    deliveryNotifications: true,
-    promotionalNotifications: false
-};
+let isSavingProfile = false;
 
 
 /*==================================================
-DOM HELPERS
+FEATURE: DOM HELPER
 ==================================================*/
 
-const $ = (selector) => document.querySelector(selector);
+function $(id) {
 
-const $$ = (selector) => document.querySelectorAll(selector);
-
-
-/*==================================================
-DOM ELEMENTS
-==================================================*/
-
-const accountLoading = $("#accountLoading");
-
-const accountError = $("#accountError");
-
-const accountErrorMessage = $("#accountErrorMessage");
-
-const accountContent = $("#accountContent");
-
-const profileName = $("#profileName");
-
-const profileEmail = $("#profileEmail");
-
-const profileAvatarLetter = $("#profileAvatarLetter");
-
-const totalOrders = $("#totalOrders");
-
-const wishlistCount = $("#wishlistCount");
-
-const addressCount = $("#addressCount");
-
-const notificationCount = $("#notificationCount");
-
-const ordersNavBadge = $("#ordersNavBadge");
-
-const notificationNavBadge = $("#notificationNavBadge");
-
-const accountFullName = $("#accountFullName");
-
-const accountEmail = $("#accountEmail");
-
-const accountPhone = $("#accountPhone");
-
-const accountCity = $("#accountCity");
-
-const recentOrders = $("#recentOrders");
-
-const accountOrdersList = $("#accountOrdersList");
-
-const wishlistProducts = $("#wishlistProducts");
-
-const addressesList = $("#addressesList");
-
-const notificationsList = $("#notificationsList");
-
-
-/*==================================================
-UTILITY: SHOW / HIDE
-==================================================*/
-
-function showElement(element) {
-
-    if (!element) return;
-
-    element.style.display = "";
-
-}
-
-
-function hideElement(element) {
-
-    if (!element) return;
-
-    element.style.display = "none";
+    return document.getElementById(id);
 
 }
 
 
 /*==================================================
-UTILITY: ESCAPE HTML
+FEATURE: SAFE TEXT
 ==================================================*/
 
 function escapeHTML(value) {
 
-    return String(value ?? "")
+    if (value === null || value === undefined) {
+        return "";
+    }
+
+    return String(value)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
@@ -161,100 +95,132 @@ function escapeHTML(value) {
 
 
 /*==================================================
-UTILITY: FORMAT DATE
+FEATURE: INITIALIZE FIREBASE
 ==================================================*/
 
-function formatDate(value) {
+async function initializeFirebase() {
 
-    if (!value) {
-        return "Date unavailable";
-    }
+    try {
 
-    const date = new Date(value);
+        firebaseConfigModule = await import("./firebase-config.js");
 
-    if (Number.isNaN(date.getTime())) {
-        return "Date unavailable";
-    }
+        /*
+        Support multiple common export names.
+        */
 
-    return date.toLocaleDateString(
-        "en-PK",
-        {
-            year: "numeric",
-            month: "short",
-            day: "numeric"
+        auth =
+            firebaseConfigModule.auth ||
+            firebaseConfigModule.firebaseAuth ||
+            firebaseConfigModule.authentication ||
+            null;
+
+
+        db =
+            firebaseConfigModule.db ||
+            firebaseConfigModule.database ||
+            firebaseConfigModule.firebaseDB ||
+            null;
+
+
+        /*
+        If firebase-config exports firebaseConfig
+        but does not export initialized services,
+        initialize them here.
+        */
+
+        if (!auth || !db) {
+
+            const firebaseConfig =
+                firebaseConfigModule.firebaseConfig ||
+                firebaseConfigModule.config ||
+                firebaseConfigModule.default ||
+                null;
+
+
+            if (firebaseConfig) {
+
+                const appModule =
+                    await import(
+                        "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"
+                    );
+
+
+                const {
+                    initializeApp,
+                    getApps
+                } = appModule;
+
+
+                const databaseModule =
+                    await import(
+                        "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js"
+                    );
+
+
+                const authModule =
+                    await import(
+                        "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js"
+                    );
+
+
+                const app =
+                    getApps().length
+                        ? getApps()[0]
+                        : initializeApp(firebaseConfig);
+
+
+                if (!auth) {
+
+                    auth =
+                        authModule.getAuth(app);
+
+                }
+
+
+                if (!db) {
+
+                    db =
+                        databaseModule.getDatabase(app);
+
+                }
+
+            }
+
         }
-    );
-
-}
 
 
-/*==================================================
-UTILITY: NUMBER
-==================================================*/
+        if (!auth) {
 
-function safeNumber(value) {
+            throw new Error(
+                "Firebase Authentication is not available."
+            );
 
-    const number = Number(value);
-
-    return Number.isFinite(number)
-        ? number
-        : 0;
-
-}
+        }
 
 
-/*==================================================
-UTILITY: TOAST
-==================================================*/
+        if (!db) {
 
-function showToast(message, type = "success") {
+            console.warn(
+                "Firebase Realtime Database is not available. Account UI will still work."
+            );
 
-    let toast = $("#accountToast");
-
-    if (!toast) {
-
-        toast = document.createElement("div");
-
-        toast.id = "accountToast";
-
-        toast.className = "account-toast";
-
-        document.body.appendChild(toast);
-
-    }
-
-    toast.textContent = message;
-
-    toast.dataset.type = type;
-
-    toast.classList.add("show");
-
-    clearTimeout(toast._timer);
-
-    toast._timer = setTimeout(() => {
-
-        toast.classList.remove("show");
-
-    }, 3000);
-
-}
+        }
 
 
-/*==================================================
-FEATURE: ACCOUNT ERROR
-==================================================*/
+        return true;
 
-function showAccountError(message) {
+    } catch (error) {
 
-    hideElement(accountLoading);
+        console.error(
+            "Firebase initialization error:",
+            error
+        );
 
-    hideElement(accountContent);
+        showAccountError(
+            "Firebase could not be initialized. Please check firebase-config.js."
+        );
 
-    showElement(accountError);
-
-    if (accountErrorMessage) {
-
-        accountErrorMessage.textContent = message;
+        return false;
 
     }
 
@@ -265,265 +231,1124 @@ function showAccountError(message) {
 FEATURE: ACCOUNT LOADING
 ==================================================*/
 
-function showAccountLoading() {
+function showLoading() {
 
-    showElement(accountLoading);
+    const loading = $("accountLoading");
+    const content = $("accountContent");
+    const error = $("accountError");
 
-    hideElement(accountError);
+    if (loading) {
 
-    hideElement(accountContent);
+        loading.style.display = "grid";
+
+    }
+
+    if (content) {
+
+        content.style.display = "none";
+
+    }
+
+    if (error) {
+
+        error.style.display = "none";
+
+    }
 
 }
 
 
 /*==================================================
-FEATURE: ACCOUNT READY
+FEATURE: SHOW ACCOUNT CONTENT
 ==================================================*/
 
 function showAccountContent() {
 
-    hideElement(accountLoading);
+    const loading = $("accountLoading");
+    const content = $("accountContent");
+    const error = $("accountError");
 
-    hideElement(accountError);
+    if (loading) {
 
-    showElement(accountContent);
+        loading.style.display = "none";
+
+    }
+
+    if (error) {
+
+        error.style.display = "none";
+
+    }
+
+    if (content) {
+
+        content.style.display = "block";
+
+    }
 
 }
 
 
 /*==================================================
-FEATURE: LOAD USER PROFILE
+FEATURE: ACCOUNT ERROR
 ==================================================*/
 
-async function loadUserProfile(user) {
+function showAccountError(message) {
 
-    try {
+    const loading = $("accountLoading");
+    const content = $("accountContent");
+    const error = $("accountError");
+    const errorMessage = $("accountErrorMessage");
 
-        const userRef = ref(
-            db,
-            `users/${user.uid}`
+    if (loading) {
+
+        loading.style.display = "none";
+
+    }
+
+    if (content) {
+
+        content.style.display = "none";
+
+    }
+
+    if (error) {
+
+        error.style.display = "flex";
+
+    }
+
+    if (errorMessage) {
+
+        errorMessage.textContent = message;
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: ACCOUNT NAVIGATION
+IMPORTANT:
+ONLY ONE BUTTON CAN BE ACTIVE AT A TIME
+==================================================*/
+
+function setupAccountNavigation() {
+
+    const navItems =
+        document.querySelectorAll(
+            ".account-nav-item"
         );
 
-        const snapshot = await get(userRef);
 
-        if (snapshot.exists()) {
+    const sections =
+        document.querySelectorAll(
+            ".account-section"
+        );
 
-            currentUserData = snapshot.val() || {};
 
-        } else {
+    function openSection(sectionName) {
 
-            currentUserData = {};
+        if (!sectionName) {
+
+            sectionName = "overview";
 
         }
 
-        renderUserProfile(user);
 
-    } catch (error) {
+        /*
+        Remove active from ALL navigation items first.
+        */
 
-        console.error(
-            "Profile loading error:",
-            error
+        navItems.forEach(item => {
+
+            item.classList.remove("active");
+
+        });
+
+
+        /*
+        Add active ONLY to selected navigation item.
+        */
+
+        navItems.forEach(item => {
+
+            if (
+                item.dataset.section === sectionName
+            ) {
+
+                item.classList.add("active");
+
+            }
+
+        });
+
+
+        /*
+        Hide ALL account sections.
+        */
+
+        sections.forEach(section => {
+
+            section.classList.remove("active");
+
+        });
+
+
+        /*
+        Show ONLY selected section.
+        */
+
+        const targetSection =
+            $(
+                `section-${sectionName}`
+            );
+
+
+        if (targetSection) {
+
+            targetSection.classList.add("active");
+
+        }
+
+
+        /*
+        Also scroll to section on mobile.
+        */
+
+        if (
+            window.innerWidth <= 767 &&
+            targetSection
+        ) {
+
+            setTimeout(() => {
+
+                targetSection.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+            }, 80);
+
+        }
+
+
+        /*
+        Save currently selected section.
+        */
+
+        try {
+
+            localStorage.setItem(
+                "smartbazaar_account_section",
+                sectionName
+            );
+
+        } catch (error) {
+
+            console.warn(
+                "Could not save account section."
+            );
+
+        }
+
+
+        /*
+        Refresh dynamic content.
+        */
+
+        if (sectionName === "orders") {
+
+            renderOrders();
+
+        }
+
+
+        if (sectionName === "wishlist") {
+
+            renderWishlist();
+
+        }
+
+
+        if (sectionName === "addresses") {
+
+            renderAddresses();
+
+        }
+
+
+        if (sectionName === "notifications") {
+
+            renderNotifications();
+
+        }
+
+    }
+
+
+    /*
+    Sidebar navigation click.
+    */
+
+    navItems.forEach(item => {
+
+        item.addEventListener(
+            "click",
+            () => {
+
+                openSection(
+                    item.dataset.section
+                );
+
+            }
         );
 
-        currentUserData = {};
-
-        renderUserProfile(user);
-
-    }
-
-}
+    });
 
 
-/*==================================================
-FEATURE: RENDER USER PROFILE
-==================================================*/
+    /*
+    Quick action buttons.
+    */
 
-function renderUserProfile(user) {
+    const quickActions =
+        document.querySelectorAll(
+            "[data-open-section]"
+        );
 
-    const name =
-        currentUserData.fullName ||
-        currentUserData.name ||
-        user.displayName ||
-        "SmartBazaar User";
 
-    const email =
-        user.email ||
-        currentUserData.email ||
-        "No email";
+    quickActions.forEach(button => {
 
-    if (profileName) {
+        button.addEventListener(
+            "click",
+            () => {
 
-        profileName.textContent = name;
+                const sectionName =
+                    button.dataset.openSection;
 
-    }
 
-    if (profileEmail) {
+                openSection(sectionName);
 
-        profileEmail.textContent = email;
+            }
+        );
 
-    }
+    });
 
-    if (profileAvatarLetter) {
 
-        profileAvatarLetter.textContent =
-            name.trim().charAt(0).toUpperCase() || "U";
+    /*
+    Edit Profile opens Profile section.
+    */
 
-    }
+    const editProfileButton =
+        $("editProfileButton");
 
-    if (accountFullName) {
 
-        accountFullName.value =
-            currentUserData.fullName ||
-            currentUserData.name ||
-            user.displayName ||
-            "";
+    if (editProfileButton) {
+
+        editProfileButton.addEventListener(
+            "click",
+            () => {
+
+                openSection("profile");
+
+            }
+        );
 
     }
 
-    if (accountEmail) {
 
-        accountEmail.value = email;
+    /*
+    Restore previous section.
+    */
 
-    }
-
-    if (accountPhone) {
-
-        accountPhone.value =
-            currentUserData.phone ||
-            currentUserData.mobile ||
-            "";
-
-    }
-
-    if (accountCity) {
-
-        accountCity.value =
-            currentUserData.city ||
-            "";
-
-    }
-
-}
-
-
-/*==================================================
-FEATURE: LOAD ORDERS
-==================================================*/
-
-async function loadOrders() {
-
-    if (!currentUser) return;
+    let savedSection = "overview";
 
     try {
 
-        /*
-        Supported paths:
-        users/{uid}/orders
-        orders/{uid}
-        */
+        savedSection =
+            localStorage.getItem(
+                "smartbazaar_account_section"
+            ) || "overview";
 
-        let orders = [];
+    } catch (error) {
 
-        const userOrdersRef = ref(
-            db,
-            `users/${currentUser.uid}/orders`
-        );
+        savedSection = "overview";
 
-        const userOrdersSnapshot =
-            await get(userOrdersRef);
+    }
 
-        if (userOrdersSnapshot.exists()) {
 
-            const data =
-                userOrdersSnapshot.val();
+    /*
+    Validate section.
+    */
 
-            orders = convertObjectToArray(data);
+    const validSections = [
+        "overview",
+        "profile",
+        "orders",
+        "wishlist",
+        "addresses",
+        "notifications",
+        "security",
+        "settings"
+    ];
 
-        } else {
 
-            const ordersRef = ref(
-                db,
-                `orders/${currentUser.uid}`
+    if (
+        !validSections.includes(
+            savedSection
+        )
+    ) {
+
+        savedSection = "overview";
+
+    }
+
+
+    openSection(savedSection);
+
+}
+
+
+/*==================================================
+FEATURE: PROFILE LOAD
+==================================================*/
+
+async function loadProfile() {
+
+    if (!currentUser) {
+
+        return;
+
+    }
+
+
+    const defaultName =
+        currentUser.displayName ||
+        currentUser.email?.split("@")[0] ||
+        "SmartBazaar User";
+
+
+    currentProfile = {
+
+        uid: currentUser.uid,
+
+        fullName:
+            defaultName,
+
+        email:
+            currentUser.email || "",
+
+        phone: "",
+
+        city: "",
+
+        photoURL:
+            currentUser.photoURL || ""
+
+    };
+
+
+    /*
+    Try loading profile from:
+    users/{uid}
+    */
+
+    if (db) {
+
+        try {
+
+            const userRef =
+                ref(
+                    db,
+                    `users/${currentUser.uid}`
+                );
+
+
+            const snapshot =
+                await get(userRef);
+
+
+            if (snapshot.exists()) {
+
+                const data =
+                    snapshot.val();
+
+
+                currentProfile = {
+
+                    ...currentProfile,
+
+                    ...data
+
+                };
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Could not load user profile:",
+                error
             );
 
-            const ordersSnapshot =
-                await get(ordersRef);
+        }
 
-            if (ordersSnapshot.exists()) {
+    }
 
-                orders =
-                    convertObjectToArray(
-                        ordersSnapshot.val()
+
+    updateProfileUI();
+
+}
+
+
+/*==================================================
+FEATURE: UPDATE PROFILE UI
+==================================================*/
+
+function updateProfileUI() {
+
+    const fullName =
+        currentProfile.fullName ||
+        currentUser?.displayName ||
+        "SmartBazaar User";
+
+
+    const email =
+        currentProfile.email ||
+        currentUser?.email ||
+        "";
+
+
+    /*
+    Hero profile.
+    */
+
+    const profileName =
+        $("profileName");
+
+
+    const profileEmail =
+        $("profileEmail");
+
+
+    const avatarLetter =
+        $("profileAvatarLetter");
+
+
+    if (profileName) {
+
+        profileName.textContent =
+            fullName;
+
+    }
+
+
+    if (profileEmail) {
+
+        profileEmail.textContent =
+            email;
+
+    }
+
+
+    if (avatarLetter) {
+
+        avatarLetter.textContent =
+            getInitial(
+                fullName
+            );
+
+    }
+
+
+    /*
+    Form fields.
+    */
+
+    const nameInput =
+        $("accountFullName");
+
+
+    const emailInput =
+        $("accountEmail");
+
+
+    const phoneInput =
+        $("accountPhone");
+
+
+    const cityInput =
+        $("accountCity");
+
+
+    if (nameInput) {
+
+        nameInput.value =
+            currentProfile.fullName || "";
+
+    }
+
+
+    if (emailInput) {
+
+        emailInput.value =
+            email;
+
+    }
+
+
+    if (phoneInput) {
+
+        phoneInput.value =
+            currentProfile.phone || "";
+
+    }
+
+
+    if (cityInput) {
+
+        cityInput.value =
+            currentProfile.city || "";
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: INITIAL LETTER
+==================================================*/
+
+function getInitial(name) {
+
+    if (!name) {
+
+        return "U";
+
+    }
+
+
+    const cleanName =
+        String(name).trim();
+
+
+    if (!cleanName) {
+
+        return "U";
+
+    }
+
+
+    return cleanName
+        .charAt(0)
+        .toUpperCase();
+
+}
+
+
+/*==================================================
+FEATURE: PROFILE FORM
+==================================================*/
+
+function setupProfileForm() {
+
+    const form =
+        $("profileForm");
+
+
+    if (!form) {
+
+        return;
+
+    }
+
+
+    form.addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+
+            if (!currentUser) {
+
+                alert(
+                    "Please login first."
+                );
+
+                return;
+
+            }
+
+
+            if (isSavingProfile) {
+
+                return;
+
+            }
+
+
+            const fullName =
+                $("accountFullName")?.value.trim() || "";
+
+
+            const phone =
+                $("accountPhone")?.value.trim() || "";
+
+
+            const city =
+                $("accountCity")?.value.trim() || "";
+
+
+            if (!fullName) {
+
+                alert(
+                    "Please enter your full name."
+                );
+
+                return;
+
+            }
+
+
+            if (
+                phone &&
+                !/^03\d{9}$/.test(phone)
+            ) {
+
+                alert(
+                    "Please enter a valid Pakistani mobile number, e.g. 03XXXXXXXXX."
+                );
+
+                return;
+
+            }
+
+
+            isSavingProfile = true;
+
+
+            const saveButton =
+                form.querySelector(
+                    ".save-button"
+                );
+
+
+            const originalText =
+                saveButton
+                    ? saveButton.innerHTML
+                    : "";
+
+
+            if (saveButton) {
+
+                saveButton.disabled = true;
+
+                saveButton.innerHTML =
+                    `<i class="fa-solid fa-spinner fa-spin"></i>
+                     Saving...`;
+
+            }
+
+
+            try {
+
+                currentProfile = {
+
+                    ...currentProfile,
+
+                    fullName,
+
+                    phone,
+
+                    city,
+
+                    email:
+                        currentUser.email || "",
+
+                    uid:
+                        currentUser.uid
+
+                };
+
+
+                /*
+                Update Firebase Authentication
+                display name.
+                */
+
+                await updateProfile(
+                    currentUser,
+                    {
+                        displayName:
+                            fullName
+                    }
+                );
+
+
+                /*
+                Save extended profile.
+                */
+
+                if (db) {
+
+                    await update(
+                        ref(
+                            db,
+                            `users/${currentUser.uid}`
+                        ),
+                        {
+
+                            uid:
+                                currentUser.uid,
+
+                            fullName,
+
+                            email:
+                                currentUser.email || "",
+
+                            phone,
+
+                            city,
+
+                            updatedAt:
+                                Date.now()
+
+                        }
                     );
+
+                }
+
+
+                updateProfileUI();
+
+
+                alert(
+                    "Profile updated successfully."
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Profile save error:",
+                    error
+                );
+
+
+                alert(
+                    getFirebaseErrorMessage(
+                        error
+                    )
+                );
+
+            } finally {
+
+                isSavingProfile = false;
+
+
+                if (saveButton) {
+
+                    saveButton.disabled = false;
+
+                    saveButton.innerHTML =
+                        originalText;
+
+                }
 
             }
 
         }
-
-        currentOrders = orders;
-
-        renderOrders();
-
-        updateStatistics();
-
-    } catch (error) {
-
-        console.error(
-            "Orders loading error:",
-            error
-        );
-
-        currentOrders = [];
-
-        renderOrders();
-
-        updateStatistics();
-
-    }
+    );
 
 }
 
 
 /*==================================================
-UTILITY: OBJECT TO ARRAY
+FEATURE: ORDERS
 ==================================================*/
 
-function convertObjectToArray(data) {
+async function loadOrders() {
 
-    if (!data) return [];
+    accountOrders = [];
+
+
+    if (!currentUser) {
+
+        return;
+
+    }
+
+
+    if (!db) {
+
+        renderOrders();
+
+        updateStatistics();
+
+        return;
+
+    }
+
+
+    /*
+    First try root orders.
+    Most ecommerce checkout systems save:
+    orders/{orderId}
+    */
+
+    try {
+
+        const ordersRef =
+            ref(
+                db,
+                "orders"
+            );
+
+
+        const snapshot =
+            await get(ordersRef);
+
+
+        if (snapshot.exists()) {
+
+            const data =
+                snapshot.val();
+
+
+            const ordersArray =
+                objectToArray(data);
+
+
+            accountOrders =
+                ordersArray.filter(
+                    order => {
+
+                        return orderBelongsToUser(
+                            order,
+                            currentUser
+                        );
+
+                    }
+                );
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Root orders could not be loaded:",
+            error
+        );
+
+    }
+
+
+    /*
+    If root orders did not work,
+    try users/{uid}/orders.
+    */
+
+    if (
+        accountOrders.length === 0
+    ) {
+
+        try {
+
+            const userOrdersRef =
+                ref(
+                    db,
+                    `users/${currentUser.uid}/orders`
+                );
+
+
+            const snapshot =
+                await get(userOrdersRef);
+
+
+            if (snapshot.exists()) {
+
+                accountOrders =
+                    objectToArray(
+                        snapshot.val()
+                    );
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "User orders could not be loaded:",
+                error
+            );
+
+        }
+
+    }
+
+
+    /*
+    Newest first.
+    */
+
+    accountOrders.sort(
+        (a, b) => {
+
+            const dateA =
+                Number(
+                    a.createdAt ||
+                    a.timestamp ||
+                    a.dateTimestamp ||
+                    0
+                );
+
+
+            const dateB =
+                Number(
+                    b.createdAt ||
+                    b.timestamp ||
+                    b.dateTimestamp ||
+                    0
+                );
+
+
+            return dateB - dateA;
+
+        }
+    );
+
+
+    renderOrders();
+
+    updateStatistics();
+
+}
+
+
+/*==================================================
+FEATURE: CHECK ORDER OWNER
+==================================================*/
+
+function orderBelongsToUser(
+    order,
+    user
+) {
+
+    if (!order || !user) {
+
+        return false;
+
+    }
+
+
+    const uid =
+        user.uid;
+
+
+    const email =
+        String(
+            user.email || ""
+        ).toLowerCase();
+
+
+    const possibleUIDs = [
+
+        order.uid,
+
+        order.userId,
+
+        order.customerUid,
+
+        order.customerId,
+
+        order.buyerUid,
+
+        order.buyerId,
+
+        order.createdBy
+
+    ];
+
+
+    const uidMatch =
+        possibleUIDs.some(
+            value =>
+                value &&
+                String(value) === uid
+        );
+
+
+    if (uidMatch) {
+
+        return true;
+
+    }
+
+
+    const possibleEmails = [
+
+        order.email,
+
+        order.customerEmail,
+
+        order.buyerEmail,
+
+        order.userEmail
+
+    ];
+
+
+    const emailMatch =
+        possibleEmails.some(
+            value =>
+                value &&
+                String(value).toLowerCase() === email
+        );
+
+
+    return emailMatch;
+
+}
+
+
+/*==================================================
+FEATURE: OBJECT TO ARRAY
+==================================================*/
+
+function objectToArray(data) {
+
+    if (!data) {
+
+        return [];
+
+    }
+
 
     if (Array.isArray(data)) {
 
         return data
             .filter(Boolean)
-            .map((item, index) => ({
-                id: item?.id || String(index),
-                ...item
-            }));
+            .map(
+                (item, index) => ({
+                    ...item,
+                    _key:
+                        item?._key ||
+                        String(index)
+                })
+            );
 
     }
 
+
     return Object.entries(data)
-        .map(([id, value]) => {
+        .map(
+            ([key, value]) => ({
 
-            if (
-                value &&
-                typeof value === "object"
-            ) {
+                ...(value || {}),
 
-                return {
-                    id,
-                    ...value
-                };
+                _key: key
 
-            }
-
-            return {
-                id,
-                value
-            };
-
-        });
+            })
+        );
 
 }
 
@@ -534,77 +1359,83 @@ FEATURE: RENDER ORDERS
 
 function renderOrders() {
 
-    if (!accountOrdersList) return;
+    const container =
+        $("accountOrdersList");
 
-    if (!currentOrders.length) {
 
-        accountOrdersList.innerHTML = `
+    const recentContainer =
+        $("recentOrders");
 
-            <div class="empty-state">
 
-                <i class="fa-solid fa-box-open"></i>
-
-                <h4>
-                    No Orders Yet
-                </h4>
-
-                <p>
-                    Orders you place will appear here.
-                </p>
-
-            </div>
-
-        `;
-
-        if (recentOrders) {
-
-            recentOrders.innerHTML = `
-
-                <div class="empty-state">
-
-                    <i class="fa-solid fa-box-open"></i>
-
-                    <h4>
-                        No Orders Yet
-                    </h4>
-
-                    <p>
-                        Your recent orders will appear here.
-                    </p>
-
-                </div>
-
-            `;
-
-        }
+    if (!container) {
 
         return;
 
     }
 
 
-    const sortedOrders =
-        [...currentOrders]
-        .sort(
-            (a, b) =>
-                safeNumber(b.createdAt || b.timestamp) -
-                safeNumber(a.createdAt || a.timestamp)
-        );
+    if (
+        !accountOrders ||
+        accountOrders.length === 0
+    ) {
 
+        container.innerHTML =
+            emptyStateHTML(
+                "fa-solid fa-box-open",
+                "No Orders Yet",
+                "Orders you place will appear here."
+            );
 
-    accountOrdersList.innerHTML =
-        sortedOrders
-        .map(createOrderCard)
-        .join("");
+    } else {
 
-
-    if (recentOrders) {
-
-        recentOrders.innerHTML =
-            sortedOrders
-                .slice(0, 5)
-                .map(createRecentOrder)
+        container.innerHTML =
+            accountOrders
+                .map(
+                    order =>
+                        orderCardHTML(
+                            order
+                        )
+                )
                 .join("");
+
+    }
+
+
+    /*
+    Recent orders on Overview.
+    */
+
+    if (recentContainer) {
+
+        const recent =
+            accountOrders.slice(
+                0,
+                3
+            );
+
+
+        if (recent.length === 0) {
+
+            recentContainer.innerHTML =
+                emptyStateHTML(
+                    "fa-solid fa-box-open",
+                    "No Orders Yet",
+                    "Your recent orders will appear here."
+                );
+
+        } else {
+
+            recentContainer.innerHTML =
+                recent
+                    .map(
+                        order =>
+                            recentOrderHTML(
+                                order
+                            )
+                    )
+                    .join("");
+
+        }
 
     }
 
@@ -615,108 +1446,111 @@ function renderOrders() {
 FEATURE: ORDER CARD
 ==================================================*/
 
-function createOrderCard(order) {
+function orderCardHTML(order) {
 
     const orderId =
         order.orderId ||
         order.id ||
-        order.orderID ||
+        order._key ||
         "Order";
 
+
     const status =
-        String(
-            order.status ||
-            "pending"
-        ).toLowerCase();
+        normalizeStatus(
+            order.status
+        );
+
+
+    const payment =
+        order.paymentMethod ||
+        order.payment ||
+        "—";
+
 
     const total =
-        order.total ||
-        order.grandTotal ||
-        order.amount ||
+        order.total ??
+        order.totalAmount ??
+        order.grandTotal ??
+        order.amount ??
         0;
 
+
     const date =
-        order.createdAt ||
-        order.timestamp ||
-        order.date;
+        formatDate(
+            order.createdAt ||
+            order.timestamp ||
+            order.date
+        );
+
+
+    const productName =
+        getOrderProductName(
+            order
+        );
+
 
     return `
 
-        <article class="account-order-card">
+        <article
+            class="account-order-item"
+            data-order-id="${escapeHTML(orderId)}"
+        >
 
-            <div class="order-card-top">
+            <div class="account-order-icon">
 
-                <div>
+                <i class="fa-solid fa-box-open"></i>
 
-                    <span class="order-label">
-                        Order ID
-                    </span>
+            </div>
+
+
+            <div class="account-order-main">
+
+                <div class="account-order-top">
 
                     <strong>
                         ${escapeHTML(orderId)}
                     </strong>
 
+                    <span class="order-status status-${escapeHTML(status)}">
+                        ${escapeHTML(capitalize(status))}
+                    </span>
+
                 </div>
 
-                <span class="
-                    order-status
-                    status-${escapeHTML(status)}
-                ">
 
-                    ${escapeHTML(
-                        capitalize(status)
-                    )}
+                <div class="account-order-product">
 
-                </span>
+                    ${escapeHTML(productName)}
+
+                </div>
+
+
+                <div class="account-order-meta">
+
+                    <span>
+                        <i class="fa-regular fa-calendar"></i>
+                        ${escapeHTML(date)}
+                    </span>
+
+                    <span>
+                        <i class="fa-solid fa-credit-card"></i>
+                        ${escapeHTML(payment)}
+                    </span>
+
+                </div>
 
             </div>
 
 
-            <div class="order-card-info">
+            <div class="account-order-total">
 
-                <div>
+                <span>
+                    Total
+                </span>
 
-                    <span>
-                        Date
-                    </span>
-
-                    <strong>
-                        ${escapeHTML(
-                            formatDate(date)
-                        )}
-                    </strong>
-
-                </div>
-
-
-                <div>
-
-                    <span>
-                        Total
-                    </span>
-
-                    <strong>
-                        Rs ${escapeHTML(
-                            formatMoney(total)
-                        )}
-                    </strong>
-
-                </div>
-
-
-                <div>
-
-                    <span>
-                        Items
-                    </span>
-
-                    <strong>
-                        ${escapeHTML(
-                            getOrderItemCount(order)
-                        )}
-                    </strong>
-
-                </div>
+                <strong>
+                    Rs ${formatMoney(total)}
+                </strong>
 
             </div>
 
@@ -731,24 +1565,28 @@ function createOrderCard(order) {
 FEATURE: RECENT ORDER
 ==================================================*/
 
-function createRecentOrder(order) {
+function recentOrderHTML(order) {
 
     const orderId =
         order.orderId ||
         order.id ||
+        order._key ||
         "Order";
 
+
     const status =
-        String(
-            order.status ||
-            "pending"
-        ).toLowerCase();
+        normalizeStatus(
+            order.status
+        );
+
 
     const total =
-        order.total ||
-        order.grandTotal ||
-        order.amount ||
+        order.total ??
+        order.totalAmount ??
+        order.grandTotal ??
+        order.amount ??
         0;
+
 
     return `
 
@@ -760,6 +1598,7 @@ function createRecentOrder(order) {
 
             </div>
 
+
             <div class="recent-order-info">
 
                 <strong>
@@ -767,23 +1606,29 @@ function createRecentOrder(order) {
                 </strong>
 
                 <span>
-                    Rs ${escapeHTML(
-                        formatMoney(total)
+                    ${escapeHTML(
+                        formatDate(
+                            order.createdAt ||
+                            order.timestamp ||
+                            order.date
+                        )
                     )}
                 </span>
 
             </div>
 
-            <span class="
-                order-status
-                status-${escapeHTML(status)}
-            ">
 
-                ${escapeHTML(
-                    capitalize(status)
-                )}
+            <div class="recent-order-right">
 
-            </span>
+                <strong>
+                    Rs ${formatMoney(total)}
+                </strong>
+
+                <span class="order-status status-${escapeHTML(status)}">
+                    ${escapeHTML(capitalize(status))}
+                </span>
+
+            </div>
 
         </div>
 
@@ -793,44 +1638,59 @@ function createRecentOrder(order) {
 
 
 /*==================================================
-FEATURE: ORDER ITEM COUNT
+FEATURE: GET PRODUCT NAME
 ==================================================*/
 
-function getOrderItemCount(order) {
+function getOrderProductName(order) {
 
-    if (Array.isArray(order.items)) {
+    if (order.productName) {
 
-        return order.items.reduce(
-            (total, item) =>
-                total +
-                safeNumber(
-                    item.quantity || 1
-                ),
-            0
+        return order.productName;
+
+    }
+
+
+    if (order.title) {
+
+        return order.title;
+
+    }
+
+
+    if (
+        order.product &&
+        typeof order.product === "object"
+    ) {
+
+        return (
+            order.product.name ||
+            order.product.title ||
+            "Product"
         );
 
     }
 
+
     if (
-        order.items &&
-        typeof order.items === "object"
+        Array.isArray(order.items) &&
+        order.items.length
     ) {
 
-        return Object.values(order.items)
-            .reduce(
-                (total, item) =>
-                    total +
-                    safeNumber(
-                        item?.quantity || 1
-                    ),
-                0
-            );
+        const first =
+            order.items[0];
+
+
+        return (
+            first?.productName ||
+            first?.name ||
+            first?.title ||
+            "Multiple Products"
+        );
 
     }
 
-    return safeNumber(
-        order.quantity || 1
-    );
+
+    return "SmartBazaar Order";
 
 }
 
@@ -841,49 +1701,95 @@ FEATURE: WISHLIST
 
 async function loadWishlist() {
 
-    if (!currentUser) return;
+    accountWishlist = [];
 
-    try {
 
-        const wishlistRef = ref(
-            db,
-            `users/${currentUser.uid}/wishlist`
-        );
+    if (!currentUser) {
 
-        const snapshot =
-            await get(wishlistRef);
+        return;
 
-        if (snapshot.exists()) {
+    }
 
-            currentWishlist =
-                convertObjectToArray(
-                    snapshot.val()
+
+    /*
+    Try:
+    users/{uid}/wishlist
+    */
+
+    if (db) {
+
+        try {
+
+            const wishlistRef =
+                ref(
+                    db,
+                    `users/${currentUser.uid}/wishlist`
                 );
 
-        } else {
 
-            currentWishlist = [];
+            const snapshot =
+                await get(wishlistRef);
+
+
+            if (snapshot.exists()) {
+
+                accountWishlist =
+                    objectToArray(
+                        snapshot.val()
+                    );
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Wishlist load error:",
+                error
+            );
 
         }
 
-        renderWishlist();
+    }
 
-        updateStatistics();
 
-    } catch (error) {
+    /*
+    Fallback to localStorage.
+    */
 
-        console.error(
-            "Wishlist loading error:",
-            error
-        );
+    if (
+        accountWishlist.length === 0
+    ) {
 
-        currentWishlist = [];
+        try {
 
-        renderWishlist();
+            const local =
+                localStorage.getItem(
+                    `smartbazaar_wishlist_${currentUser.uid}`
+                );
 
-        updateStatistics();
+
+            if (local) {
+
+                accountWishlist =
+                    JSON.parse(local);
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Local wishlist error:",
+                error
+            );
+
+        }
 
     }
+
+
+    renderWishlist();
+
+    updateStatistics();
 
 }
 
@@ -894,201 +1800,217 @@ FEATURE: RENDER WISHLIST
 
 function renderWishlist() {
 
-    if (!wishlistProducts) return;
+    const container =
+        $("wishlistProducts");
 
-    if (!currentWishlist.length) {
 
-        wishlistProducts.innerHTML = `
-
-            <div class="empty-state">
-
-                <i class="fa-regular fa-heart"></i>
-
-                <h4>
-                    Your Wishlist is Empty
-                </h4>
-
-                <p>
-                    Save products you love and find them here.
-                </p>
-
-                <a
-                    href="./index.html"
-                    class="empty-action-button"
-                >
-                    Browse Products
-                </a>
-
-            </div>
-
-        `;
+    if (!container) {
 
         return;
 
     }
 
 
-    wishlistProducts.innerHTML =
-        currentWishlist
-        .map(
-            product => `
+    if (
+        !accountWishlist ||
+        accountWishlist.length === 0
+    ) {
 
-                <article
-                    class="wishlist-product-card"
-                >
-
-                    ${
-                        product.image
-                        ? `
-                            <img
-                                src="${escapeHTML(product.image)}"
-                                alt="${escapeHTML(
-                                    product.name ||
-                                    "Product"
-                                )}"
-                            >
-                        `
-                        : `
-                            <div class="wishlist-no-image">
-                                <i class="fa-solid fa-image"></i>
-                            </div>
-                        `
-                    }
-
-                    <div>
-
-                        <h4>
-                            ${escapeHTML(
-                                product.name ||
-                                product.title ||
-                                "Product"
-                            )}
-                        </h4>
-
-                        <strong>
-                            Rs ${escapeHTML(
-                                formatMoney(
-                                    product.price || 0
-                                )
-                            )}
-                        </strong>
-
-                    </div>
-
-                    <button
-                        type="button"
-                        class="remove-wishlist-button"
-                        data-wishlist-id="${escapeHTML(
-                            product.id
-                        )}"
+        container.innerHTML =
+            emptyStateHTML(
+                "fa-regular fa-heart",
+                "Your Wishlist is Empty",
+                "Save products you love and find them here.",
+                `
+                    <a
+                        href="./index.html"
+                        class="empty-action-button"
                     >
-
-                        <i class="fa-solid fa-trash"></i>
-
-                    </button>
-
-                </article>
-
-            `
-        )
-        .join("");
-
-}
-
-
-/*==================================================
-FEATURE: REMOVE WISHLIST
-==================================================*/
-
-async function removeWishlistItem(id) {
-
-    if (!currentUser || !id) return;
-
-    try {
-
-        await remove(
-            ref(
-                db,
-                `users/${currentUser.uid}/wishlist/${id}`
-            )
-        );
-
-        currentWishlist =
-            currentWishlist.filter(
-                item => item.id !== id
+                        Browse Products
+                    </a>
+                `
             );
 
-        renderWishlist();
 
-        updateStatistics();
-
-        showToast(
-            "Product removed from wishlist."
-        );
-
-    } catch (error) {
-
-        console.error(error);
-
-        showToast(
-            "Unable to remove wishlist item.",
-            "error"
-        );
+        return;
 
     }
 
+
+    container.innerHTML =
+        accountWishlist
+            .map(
+                product =>
+                    wishlistProductHTML(
+                        product
+                    )
+            )
+            .join("");
+
 }
 
 
 /*==================================================
-FEATURE: LOAD ADDRESSES
+FEATURE: WISHLIST PRODUCT
+==================================================*/
+
+function wishlistProductHTML(product) {
+
+    const name =
+        product.name ||
+        product.title ||
+        "Product";
+
+
+    const image =
+        product.image ||
+        product.imageUrl ||
+        product.thumbnail ||
+        "";
+
+
+    const price =
+        product.price ||
+        product.salePrice ||
+        0;
+
+
+    const productId =
+        product.productId ||
+        product.id ||
+        product._key ||
+        "";
+
+
+    return `
+
+        <article
+            class="wishlist-product-card"
+            data-product-id="${escapeHTML(productId)}"
+        >
+
+            <div class="wishlist-product-image">
+
+                ${
+                    image
+                        ? `
+                            <img
+                                src="${escapeHTML(image)}"
+                                alt="${escapeHTML(name)}"
+                                loading="lazy"
+                            >
+                        `
+                        : `
+                            <i class="fa-solid fa-box"></i>
+                        `
+                }
+
+            </div>
+
+
+            <div class="wishlist-product-info">
+
+                <h4>
+                    ${escapeHTML(name)}
+                </h4>
+
+                <strong>
+                    Rs ${formatMoney(price)}
+                </strong>
+
+            </div>
+
+        </article>
+
+    `;
+
+}
+
+
+/*==================================================
+FEATURE: ADDRESSES
 ==================================================*/
 
 async function loadAddresses() {
 
-    if (!currentUser) return;
+    accountAddresses = [];
 
-    try {
 
-        const addressRef = ref(
-            db,
-            `users/${currentUser.uid}/addresses`
-        );
+    if (!currentUser) {
 
-        const snapshot =
-            await get(addressRef);
+        return;
 
-        if (snapshot.exists()) {
+    }
 
-            currentAddresses =
-                convertObjectToArray(
-                    snapshot.val()
+
+    if (db) {
+
+        try {
+
+            const addressesRef =
+                ref(
+                    db,
+                    `users/${currentUser.uid}/addresses`
                 );
 
-        } else {
 
-            currentAddresses = [];
+            const snapshot =
+                await get(addressesRef);
+
+
+            if (snapshot.exists()) {
+
+                accountAddresses =
+                    objectToArray(
+                        snapshot.val()
+                    );
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Address load error:",
+                error
+            );
 
         }
 
-        renderAddresses();
-
-        updateStatistics();
-
-    } catch (error) {
-
-        console.error(
-            "Address loading error:",
-            error
-        );
-
-        currentAddresses = [];
-
-        renderAddresses();
-
-        updateStatistics();
-
     }
+
+
+    accountAddresses.sort(
+        (a, b) => {
+
+            if (
+                a.isDefault &&
+                !b.isDefault
+            ) {
+
+                return -1;
+
+            }
+
+
+            if (
+                !a.isDefault &&
+                b.isDefault
+            ) {
+
+                return 1;
+
+            }
+
+
+            return 0;
+
+        }
+    );
+
+
+    renderAddresses();
+
+    updateStatistics();
 
 }
 
@@ -1099,194 +2021,691 @@ FEATURE: RENDER ADDRESSES
 
 function renderAddresses() {
 
-    if (!addressesList) return;
+    const container =
+        $("addressesList");
 
-    if (!currentAddresses.length) {
 
-        addressesList.innerHTML = `
-
-            <div class="empty-state">
-
-                <i class="fa-solid fa-location-dot"></i>
-
-                <h4>
-                    No Saved Addresses
-                </h4>
-
-                <p>
-                    Add an address for faster checkout.
-                </p>
-
-            </div>
-
-        `;
+    if (!container) {
 
         return;
 
     }
 
 
-    addressesList.innerHTML =
-        currentAddresses
-        .map(
-            address => `
+    if (
+        !accountAddresses ||
+        accountAddresses.length === 0
+    ) {
 
-                <article
-                    class="address-card"
-                >
-
-                    <div class="address-card-header">
-
-                        <div>
-
-                            <span class="address-type">
-
-                                <i class="fa-solid fa-location-dot"></i>
-
-                                ${escapeHTML(
-                                    address.title ||
-                                    "Address"
-                                )}
-
-                            </span>
-
-                            ${
-                                address.default
-                                ? `
-                                    <span class="default-address-badge">
-                                        Default
-                                    </span>
-                                `
-                                : ""
-                            }
-
-                        </div>
-
-                        <button
-                            type="button"
-                            class="delete-address-button"
-                            data-address-id="${escapeHTML(
-                                address.id
-                            )}"
-                        >
-
-                            <i class="fa-solid fa-trash"></i>
-
-                        </button>
-
-                    </div>
+        container.innerHTML =
+            emptyStateHTML(
+                "fa-solid fa-location-dot",
+                "No Saved Addresses",
+                "Add an address for faster checkout."
+            );
 
 
-                    <div class="address-details">
+        return;
 
-                        <strong>
-                            ${escapeHTML(
-                                address.name || ""
-                            )}
-                        </strong>
+    }
 
-                        <span>
-                            ${escapeHTML(
-                                address.phone || ""
-                            )}
-                        </span>
 
-                        <span>
-                            ${escapeHTML(
-                                address.city || ""
-                            )}
-                        </span>
-
-                        <p>
-                            ${escapeHTML(
-                                address.complete ||
-                                address.address ||
-                                ""
-                            )}
-                        </p>
-
-                    </div>
-
-                </article>
-
-            `
-        )
-        .join("");
+    container.innerHTML =
+        accountAddresses
+            .map(
+                address =>
+                    addressCardHTML(
+                        address
+                    )
+            )
+            .join("");
 
 }
 
 
 /*==================================================
-FEATURE: SAVE ADDRESS
+FEATURE: ADDRESS CARD
 ==================================================*/
 
-async function saveAddress(event) {
-
-    event.preventDefault();
-
-    if (!currentUser) return;
-
+function addressCardHTML(address) {
 
     const title =
-        $("#addressTitle")?.value || "Home";
+        address.title ||
+        address.name ||
+        "Address";
 
-    const name =
-        $("#addressName")?.value.trim();
+
+    const fullName =
+        address.fullName ||
+        address.recipientName ||
+        "";
+
 
     const phone =
-        $("#addressPhone")?.value.trim();
+        address.phone ||
+        address.mobile ||
+        "";
+
 
     const city =
-        $("#addressCity")?.value.trim();
+        address.city ||
+        "";
+
 
     const complete =
-        $("#addressComplete")?.value.trim();
+        address.completeAddress ||
+        address.address ||
+        address.fullAddress ||
+        "";
 
-    const isDefault =
-        $("#addressDefault")?.checked || false;
+
+    const id =
+        address.id ||
+        address._key ||
+        "";
 
 
-    if (!name || !phone || !city || !complete) {
+    return `
 
-        showToast(
-            "Please fill all required address fields.",
-            "error"
+        <article
+            class="address-card"
+            data-address-id="${escapeHTML(id)}"
+        >
+
+            <div class="address-card-header">
+
+                <div>
+
+                    <i class="fa-solid fa-location-dot"></i>
+
+                    <strong>
+                        ${escapeHTML(title)}
+                    </strong>
+
+                    ${
+                        address.isDefault
+                            ? `
+                                <span class="default-address-badge">
+                                    Default
+                                </span>
+                            `
+                            : ""
+                    }
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="delete-address-button"
+                    data-address-id="${escapeHTML(id)}"
+                    aria-label="Delete address"
+                >
+
+                    <i class="fa-solid fa-trash"></i>
+
+                </button>
+
+            </div>
+
+
+            <div class="address-card-body">
+
+                <strong>
+                    ${escapeHTML(fullName)}
+                </strong>
+
+                <span>
+                    ${escapeHTML(phone)}
+                </span>
+
+                <span>
+                    ${escapeHTML(city)}
+                </span>
+
+                <p>
+                    ${escapeHTML(complete)}
+                </p>
+
+            </div>
+
+
+            ${
+                !address.isDefault
+                    ? `
+                        <button
+                            type="button"
+                            class="set-default-address-button"
+                            data-address-id="${escapeHTML(id)}"
+                        >
+                            Make Default
+                        </button>
+                    `
+                    : ""
+            }
+
+        </article>
+
+    `;
+
+}
+
+
+/*==================================================
+FEATURE: ADDRESS MODAL
+==================================================*/
+
+function setupAddressModal() {
+
+    const modal =
+        $("addressModal");
+
+
+    const addButton =
+        $("addAddressButton");
+
+
+    const closeButton =
+        $("closeAddressModal");
+
+
+    const cancelButton =
+        $("cancelAddressButton");
+
+
+    const overlay =
+        modal
+            ? modal.querySelector(
+                ".modal-overlay"
+            )
+            : null;
+
+
+    function openModal() {
+
+        if (!modal) {
+
+            return;
+
+        }
+
+
+        modal.style.display = "flex";
+
+        document.body.classList.add(
+            "modal-open"
         );
+
+    }
+
+
+    function closeModal() {
+
+        if (!modal) {
+
+            return;
+
+        }
+
+
+        modal.style.display = "none";
+
+        document.body.classList.remove(
+            "modal-open"
+        );
+
+    }
+
+
+    if (addButton) {
+
+        addButton.addEventListener(
+            "click",
+            openModal
+        );
+
+    }
+
+
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            closeModal
+        );
+
+    }
+
+
+    if (cancelButton) {
+
+        cancelButton.addEventListener(
+            "click",
+            closeModal
+        );
+
+    }
+
+
+    if (overlay) {
+
+        overlay.addEventListener(
+            "click",
+            closeModal
+        );
+
+    }
+
+
+    setupAddressForm(
+        closeModal
+    );
+
+}
+
+
+/*==================================================
+FEATURE: ADDRESS FORM
+==================================================*/
+
+function setupAddressForm(
+    closeModal
+) {
+
+    const form =
+        $("addressForm");
+
+
+    if (!form) {
 
         return;
 
     }
 
 
-    try {
+    form.addEventListener(
+        "submit",
+        async event => {
 
-        const addressesRef = ref(
-            db,
-            `users/${currentUser.uid}/addresses`
-        );
+            event.preventDefault();
 
-        if (isDefault) {
 
-            const snapshot =
-                await get(addressesRef);
+            if (!currentUser) {
 
-            if (snapshot.exists()) {
+                alert(
+                    "Please login first."
+                );
 
-                const existing =
-                    convertObjectToArray(
-                        snapshot.val()
+                return;
+
+            }
+
+
+            const title =
+                $("addressTitle")?.value || "Home";
+
+
+            const fullName =
+                $("addressName")?.value.trim() || "";
+
+
+            const phone =
+                $("addressPhone")?.value.trim() || "";
+
+
+            const city =
+                $("addressCity")?.value.trim() || "";
+
+
+            const completeAddress =
+                $("addressComplete")?.value.trim() || "";
+
+
+            const isDefault =
+                Boolean(
+                    $("addressDefault")?.checked
+                );
+
+
+            if (
+                !fullName ||
+                !phone ||
+                !city ||
+                !completeAddress
+            ) {
+
+                alert(
+                    "Please complete all address fields."
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !/^03\d{9}$/.test(phone)
+            ) {
+
+                alert(
+                    "Please enter a valid Pakistani mobile number."
+                );
+
+                return;
+
+            }
+
+
+            if (!db) {
+
+                alert(
+                    "Firebase Database is not available."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                const addressesRef =
+                    ref(
+                        db,
+                        `users/${currentUser.uid}/addresses`
                     );
 
-                for (const address of existing) {
 
-                    await update(
+                /*
+                If this address is default,
+                remove default from previous addresses.
+                */
+
+                if (isDefault) {
+
+                    const snapshot =
+                        await get(
+                            addressesRef
+                        );
+
+
+                    if (snapshot.exists()) {
+
+                        const data =
+                            snapshot.val();
+
+
+                        const updates = {};
+
+
+                        Object.keys(data)
+                            .forEach(
+                                key => {
+
+                                    updates[
+                                        `${key}/isDefault`
+                                    ] = false;
+
+                                }
+                            );
+
+
+                        if (
+                            Object.keys(
+                                updates
+                            ).length
+                        ) {
+
+                            await update(
+                                addressesRef,
+                                updates
+                            );
+
+                        }
+
+                    }
+
+                }
+
+
+                const newAddressRef =
+                    push(
+                        addressesRef
+                    );
+
+
+                await set(
+                    newAddressRef,
+                    {
+
+                        id:
+                            newAddressRef.key,
+
+                        title,
+
+                        fullName,
+
+                        phone,
+
+                        city,
+
+                        completeAddress,
+
+                        isDefault,
+
+                        createdAt:
+                            Date.now()
+
+                    }
+                );
+
+
+                form.reset();
+
+
+                closeModal();
+
+
+                await loadAddresses();
+
+
+                alert(
+                    "Address saved successfully."
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Address save error:",
+                    error
+                );
+
+
+                alert(
+                    getFirebaseErrorMessage(
+                        error
+                    )
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: ADDRESS ACTIONS
+==================================================*/
+
+function setupAddressActions() {
+
+    document.addEventListener(
+        "click",
+        async event => {
+
+            const deleteButton =
+                event.target.closest(
+                    ".delete-address-button"
+                );
+
+
+            const defaultButton =
+                event.target.closest(
+                    ".set-default-address-button"
+                );
+
+
+            if (
+                !deleteButton &&
+                !defaultButton
+            ) {
+
+                return;
+
+            }
+
+
+            if (!currentUser || !db) {
+
+                return;
+
+            }
+
+
+            if (deleteButton) {
+
+                const id =
+                    deleteButton.dataset.addressId;
+
+
+                if (!id) {
+
+                    return;
+
+                }
+
+
+                const confirmed =
+                    confirm(
+                        "Delete this saved address?"
+                    );
+
+
+                if (!confirmed) {
+
+                    return;
+
+                }
+
+
+                try {
+
+                    await remove(
                         ref(
                             db,
-                            `users/${currentUser.uid}/addresses/${address.id}`
-                        ),
-                        {
-                            default: false
-                        }
+                            `users/${currentUser.uid}/addresses/${id}`
+                        )
+                    );
+
+
+                    await loadAddresses();
+
+                } catch (error) {
+
+                    console.error(
+                        "Address delete error:",
+                        error
+                    );
+
+
+                    alert(
+                        getFirebaseErrorMessage(
+                            error
+                        )
+                    );
+
+                }
+
+            }
+
+
+            if (defaultButton) {
+
+                const id =
+                    defaultButton.dataset.addressId;
+
+
+                if (!id) {
+
+                    return;
+
+                }
+
+
+                try {
+
+                    const addressesRef =
+                        ref(
+                            db,
+                            `users/${currentUser.uid}/addresses`
+                        );
+
+
+                    const snapshot =
+                        await get(
+                            addressesRef
+                        );
+
+
+                    if (!snapshot.exists()) {
+
+                        return;
+
+                    }
+
+
+                    const data =
+                        snapshot.val();
+
+
+                    const updates = {};
+
+
+                    Object.keys(data)
+                        .forEach(
+                            key => {
+
+                                updates[
+                                    `${key}/isDefault`
+                                ] =
+                                    key === id;
+
+                            }
+                        );
+
+
+                    await update(
+                        addressesRef,
+                        updates
+                    );
+
+
+                    await loadAddresses();
+
+                } catch (error) {
+
+                    console.error(
+                        "Default address error:",
+                        error
+                    );
+
+
+                    alert(
+                        getFirebaseErrorMessage(
+                            error
+                        )
                     );
 
                 }
@@ -1294,152 +2713,83 @@ async function saveAddress(event) {
             }
 
         }
-
-
-        const newAddressRef =
-            push(addressesRef);
-
-        await set(
-            newAddressRef,
-            {
-                title,
-                name,
-                phone,
-                city,
-                complete,
-                default: isDefault,
-                createdAt: Date.now()
-            }
-        );
-
-
-        closeAddressModal();
-
-        event.target.reset();
-
-        await loadAddresses();
-
-        showToast(
-            "Address saved successfully."
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Address save error:",
-            error
-        );
-
-        showToast(
-            "Unable to save address.",
-            "error"
-        );
-
-    }
+    );
 
 }
 
 
 /*==================================================
-FEATURE: DELETE ADDRESS
-==================================================*/
-
-async function deleteAddress(id) {
-
-    if (!currentUser || !id) return;
-
-    const confirmed =
-        window.confirm(
-            "Delete this saved address?"
-        );
-
-    if (!confirmed) return;
-
-    try {
-
-        await remove(
-            ref(
-                db,
-                `users/${currentUser.uid}/addresses/${id}`
-            )
-        );
-
-        currentAddresses =
-            currentAddresses.filter(
-                address => address.id !== id
-            );
-
-        renderAddresses();
-
-        updateStatistics();
-
-        showToast(
-            "Address deleted."
-        );
-
-    } catch (error) {
-
-        console.error(error);
-
-        showToast(
-            "Unable to delete address.",
-            "error"
-        );
-
-    }
-
-}
-
-
-/*==================================================
-FEATURE: LOAD NOTIFICATIONS
+FEATURE: NOTIFICATIONS
 ==================================================*/
 
 async function loadNotifications() {
 
-    if (!currentUser) return;
+    accountNotifications = [];
 
-    try {
 
-        const notificationsRef = ref(
-            db,
-            `users/${currentUser.uid}/notifications`
-        );
+    if (!currentUser) {
 
-        const snapshot =
-            await get(notificationsRef);
+        return;
 
-        if (snapshot.exists()) {
+    }
 
-            currentNotifications =
-                convertObjectToArray(
-                    snapshot.val()
+
+    if (db) {
+
+        try {
+
+            const notificationRef =
+                ref(
+                    db,
+                    `users/${currentUser.uid}/notifications`
                 );
 
-        } else {
 
-            currentNotifications = [];
+            const snapshot =
+                await get(
+                    notificationRef
+                );
+
+
+            if (snapshot.exists()) {
+
+                accountNotifications =
+                    objectToArray(
+                        snapshot.val()
+                    );
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Notification load error:",
+                error
+            );
 
         }
 
-        renderNotifications();
-
-        updateStatistics();
-
-    } catch (error) {
-
-        console.error(
-            "Notification loading error:",
-            error
-        );
-
-        currentNotifications = [];
-
-        renderNotifications();
-
-        updateStatistics();
-
     }
+
+
+    accountNotifications.sort(
+        (a, b) =>
+            Number(
+                b.createdAt ||
+                b.timestamp ||
+                0
+            ) -
+            Number(
+                a.createdAt ||
+                a.timestamp ||
+                0
+            )
+    );
+
+
+    renderNotifications();
+
+    updateStatistics();
 
 }
 
@@ -1450,547 +2800,437 @@ FEATURE: RENDER NOTIFICATIONS
 
 function renderNotifications() {
 
-    if (!notificationsList) return;
+    const container =
+        $("notificationsList");
 
-    if (!currentNotifications.length) {
 
-        notificationsList.innerHTML = `
-
-            <div class="empty-state">
-
-                <i class="fa-regular fa-bell"></i>
-
-                <h4>
-                    No Notifications
-                </h4>
-
-                <p>
-                    New account and order updates will appear here.
-                </p>
-
-            </div>
-
-        `;
+    if (!container) {
 
         return;
 
     }
-
-
-    const sorted =
-        [...currentNotifications]
-        .sort(
-            (a, b) =>
-                safeNumber(
-                    b.createdAt || b.timestamp
-                ) -
-                safeNumber(
-                    a.createdAt || a.timestamp
-                )
-        );
-
-
-    notificationsList.innerHTML =
-        sorted
-        .map(
-            notification => {
-
-                const read =
-                    notification.read === true;
-
-                return `
-
-                    <article class="
-                        notification-item
-                        ${read ? "read" : "unread"}
-                    ">
-
-                        <div class="notification-icon">
-
-                            <i class="fa-regular fa-bell"></i>
-
-                        </div>
-
-                        <div class="notification-content">
-
-                            <strong>
-                                ${escapeHTML(
-                                    notification.title ||
-                                    "SmartBazaar Update"
-                                )}
-                            </strong>
-
-                            <p>
-                                ${escapeHTML(
-                                    notification.message ||
-                                    notification.body ||
-                                    ""
-                                )}
-                            </p>
-
-                            <span>
-                                ${escapeHTML(
-                                    formatDate(
-                                        notification.createdAt ||
-                                        notification.timestamp
-                                    )
-                                )}
-                            </span>
-
-                        </div>
-
-                    </article>
-
-                `;
-
-            }
-        )
-        .join("");
-
-}
-
-
-/*==================================================
-FEATURE: MARK NOTIFICATIONS READ
-==================================================*/
-
-async function markNotificationsRead() {
-
-    if (!currentUser) return;
-
-    try {
-
-        const snapshot =
-            await get(
-                ref(
-                    db,
-                    `users/${currentUser.uid}/notifications`
-                )
-            );
-
-        if (!snapshot.exists()) {
-
-            showToast(
-                "No notifications to update."
-            );
-
-            return;
-
-        }
-
-
-        const notifications =
-            snapshot.val();
-
-        const updates = {};
-
-
-        Object.keys(notifications)
-            .forEach(id => {
-
-                updates[
-                    `users/${currentUser.uid}/notifications/${id}/read`
-                ] = true;
-
-            });
-
-
-        await update(
-            ref(db),
-            updates
-        );
-
-
-        currentNotifications =
-            currentNotifications.map(
-                item => ({
-                    ...item,
-                    read: true
-                })
-            );
-
-
-        renderNotifications();
-
-        updateStatistics();
-
-        showToast(
-            "All notifications marked as read."
-        );
-
-    } catch (error) {
-
-        console.error(error);
-
-        showToast(
-            "Unable to update notifications.",
-            "error"
-        );
-
-    }
-
-}
-
-
-/*==================================================
-FEATURE: LOAD SETTINGS
-==================================================*/
-
-async function loadSettings() {
-
-    if (!currentUser) return;
-
-    try {
-
-        const settingsRef = ref(
-            db,
-            `users/${currentUser.uid}/settings`
-        );
-
-        const snapshot =
-            await get(settingsRef);
-
-        if (snapshot.exists()) {
-
-            currentSettings = {
-                ...currentSettings,
-                ...snapshot.val()
-            };
-
-        }
-
-        renderSettings();
-
-    } catch (error) {
-
-        console.error(
-            "Settings loading error:",
-            error
-        );
-
-        renderSettings();
-
-    }
-
-}
-
-
-/*==================================================
-FEATURE: RENDER SETTINGS
-==================================================*/
-
-function renderSettings() {
-
-    const orderToggle =
-        $("#orderNotificationsToggle");
-
-    const deliveryToggle =
-        $("#deliveryNotificationsToggle");
-
-    const promotionalToggle =
-        $("#promotionalNotificationsToggle");
-
-
-    if (orderToggle) {
-
-        orderToggle.checked =
-            currentSettings.orderNotifications !== false;
-
-    }
-
-    if (deliveryToggle) {
-
-        deliveryToggle.checked =
-            currentSettings.deliveryNotifications !== false;
-
-    }
-
-    if (promotionalToggle) {
-
-        promotionalToggle.checked =
-            currentSettings.promotionalNotifications === true;
-
-    }
-
-}
-
-
-/*==================================================
-FEATURE: SAVE SETTINGS
-==================================================*/
-
-async function saveSettings() {
-
-    if (!currentUser) return;
-
-    const orderNotifications =
-        $("#orderNotificationsToggle")?.checked ?? true;
-
-    const deliveryNotifications =
-        $("#deliveryNotificationsToggle")?.checked ?? true;
-
-    const promotionalNotifications =
-        $("#promotionalNotificationsToggle")?.checked ?? false;
-
-
-    currentSettings = {
-        orderNotifications,
-        deliveryNotifications,
-        promotionalNotifications
-    };
-
-
-    try {
-
-        await set(
-            ref(
-                db,
-                `users/${currentUser.uid}/settings`
-            ),
-            currentSettings
-        );
-
-        showToast(
-            "Account settings saved."
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Settings save error:",
-            error
-        );
-
-        showToast(
-            "Unable to save settings.",
-            "error"
-        );
-
-    }
-
-}
-
-
-/*==================================================
-FEATURE: SAVE PROFILE
-==================================================*/
-
-async function saveProfile(event) {
-
-    event.preventDefault();
-
-    if (!currentUser) return;
-
-
-    const fullName =
-        accountFullName?.value.trim() || "";
-
-    const phone =
-        accountPhone?.value.trim() || "";
-
-    const city =
-        accountCity?.value.trim() || "";
-
-
-    if (!fullName) {
-
-        showToast(
-            "Please enter your full name.",
-            "error"
-        );
-
-        return;
-
-    }
-
-
-    try {
-
-        await updateProfile(
-            currentUser,
-            {
-                displayName: fullName
-            }
-        );
-
-
-        await update(
-            ref(
-                db,
-                `users/${currentUser.uid}`
-            ),
-            {
-                fullName,
-                name: fullName,
-                phone,
-                city,
-                email: currentUser.email || "",
-                updatedAt: Date.now()
-            }
-        );
-
-
-        currentUserData = {
-            ...currentUserData,
-            fullName,
-            name: fullName,
-            phone,
-            city
-        };
-
-
-        renderUserProfile(
-            currentUser
-        );
-
-
-        showToast(
-            "Profile updated successfully."
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Profile save error:",
-            error
-        );
-
-        showToast(
-            "Unable to update profile.",
-            "error"
-        );
-
-    }
-
-}
-
-
-/*==================================================
-FEATURE: CHANGE PASSWORD
-==================================================*/
-
-async function changePassword(event) {
-
-    event.preventDefault();
-
-    if (!currentUser) return;
-
-
-    const currentPassword =
-        $("#currentPassword")?.value || "";
-
-    const newPassword =
-        $("#newPassword")?.value || "";
-
-    const confirmPassword =
-        $("#confirmPassword")?.value || "";
 
 
     if (
-        !currentPassword ||
-        !newPassword ||
-        !confirmPassword
+        !accountNotifications ||
+        accountNotifications.length === 0
     ) {
 
-        showToast(
-            "Please fill all password fields.",
-            "error"
-        );
-
-        return;
-
-    }
-
-
-    if (newPassword.length < 6) {
-
-        showToast(
-            "New password must be at least 6 characters.",
-            "error"
-        );
-
-        return;
-
-    }
-
-
-    if (newPassword !== confirmPassword) {
-
-        showToast(
-            "New passwords do not match.",
-            "error"
-        );
-
-        return;
-
-    }
-
-
-    try {
-
-        const credential =
-            EmailAuthProvider.credential(
-                currentUser.email,
-                currentPassword
+        container.innerHTML =
+            emptyStateHTML(
+                "fa-regular fa-bell",
+                "No Notifications",
+                "New account and order updates will appear here."
             );
 
 
-        await reauthenticateWithCredential(
-            currentUser,
-            credential
+        return;
+
+    }
+
+
+    container.innerHTML =
+        accountNotifications
+            .map(
+                notification =>
+                    notificationHTML(
+                        notification
+                    )
+            )
+            .join("");
+
+}
+
+
+/*==================================================
+FEATURE: NOTIFICATION CARD
+==================================================*/
+
+function notificationHTML(
+    notification
+) {
+
+    const title =
+        notification.title ||
+        "SmartBazaar Update";
+
+
+    const message =
+        notification.message ||
+        notification.text ||
+        "";
+
+
+    const date =
+        formatDate(
+            notification.createdAt ||
+            notification.timestamp
         );
 
 
-        await updatePassword(
-            currentUser,
-            newPassword
-        );
+    const unread =
+        notification.read === false;
 
 
-        event.target.reset();
+    return `
 
-        closePasswordModal();
+        <article
+            class="notification-item ${
+                unread
+                    ? "unread"
+                    : ""
+            }"
+        >
 
-        showToast(
-            "Password changed successfully."
-        );
+            <div class="notification-icon">
 
-    } catch (error) {
+                <i class="fa-regular fa-bell"></i>
 
-        console.error(
-            "Password change error:",
-            error
-        );
-
-
-        let message =
-            "Unable to change password.";
+            </div>
 
 
-        if (
-            error.code ===
-            "auth/wrong-password"
-        ) {
+            <div class="notification-content">
 
-            message =
-                "Current password is incorrect.";
+                <strong>
+                    ${escapeHTML(title)}
+                </strong>
+
+                <p>
+                    ${escapeHTML(message)}
+                </p>
+
+                <small>
+                    ${escapeHTML(date)}
+                </small>
+
+            </div>
+
+        </article>
+
+    `;
+
+}
+
+
+/*==================================================
+FEATURE: MARK ALL NOTIFICATIONS READ
+==================================================*/
+
+function setupNotificationActions() {
+
+    const button =
+        $("markNotificationsRead");
+
+
+    if (!button) {
+
+        return;
+
+    }
+
+
+    button.addEventListener(
+        "click",
+        async () => {
+
+            if (
+                !currentUser ||
+                !db
+            ) {
+
+                return;
+
+            }
+
+
+            try {
+
+                const notificationRef =
+                    ref(
+                        db,
+                        `users/${currentUser.uid}/notifications`
+                    );
+
+
+                const snapshot =
+                    await get(
+                        notificationRef
+                    );
+
+
+                if (!snapshot.exists()) {
+
+                    return;
+
+                }
+
+
+                const data =
+                    snapshot.val();
+
+
+                const updates = {};
+
+
+                Object.keys(data)
+                    .forEach(
+                        key => {
+
+                            updates[
+                                `${key}/read`
+                            ] = true;
+
+                        }
+                    );
+
+
+                await update(
+                    notificationRef,
+                    updates
+                );
+
+
+                await loadNotifications();
+
+            } catch (error) {
+
+                console.error(
+                    "Mark notifications read error:",
+                    error
+                );
+
+            }
 
         }
+    );
 
-        if (
-            error.code ===
-            "auth/invalid-credential"
-        ) {
-
-            message =
-                "Current password is incorrect.";
-
-        }
+}
 
 
-        showToast(
-            message,
-            "error"
+/*==================================================
+FEATURE: SECURITY
+==================================================*/
+
+function setupPasswordSystem() {
+
+    const button =
+        $("changePasswordButton");
+
+
+    if (!button) {
+
+        return;
+
+    }
+
+
+    button.addEventListener(
+        "click",
+        openPasswordModal
+    );
+
+
+    setupPasswordModal();
+
+}
+
+
+/*==================================================
+FEATURE: PASSWORD MODAL
+==================================================*/
+
+function setupPasswordModal() {
+
+    const modal =
+        $("passwordModal");
+
+
+    if (!modal) {
+
+        return;
+
+    }
+
+
+    const closeButton =
+        $("closePasswordModal");
+
+
+    const cancelButton =
+        $("cancelPasswordButton");
+
+
+    const overlay =
+        modal.querySelector(
+            ".modal-overlay"
+        );
+
+
+    function closeModal() {
+
+        modal.style.display =
+            "none";
+
+        document.body.classList.remove(
+            "modal-open"
+        );
+
+    }
+
+
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            closeModal
+        );
+
+    }
+
+
+    if (cancelButton) {
+
+        cancelButton.addEventListener(
+            "click",
+            closeModal
+        );
+
+    }
+
+
+    if (overlay) {
+
+        overlay.addEventListener(
+            "click",
+            closeModal
+        );
+
+    }
+
+
+    const form =
+        $("passwordForm");
+
+
+    if (form) {
+
+        form.addEventListener(
+            "submit",
+            async event => {
+
+                event.preventDefault();
+
+
+                if (!currentUser) {
+
+                    alert(
+                        "Please login first."
+                    );
+
+                    return;
+
+                }
+
+
+                const currentPassword =
+                    $("currentPassword")?.value || "";
+
+
+                const newPassword =
+                    $("newPassword")?.value || "";
+
+
+                const confirmPassword =
+                    $("confirmPassword")?.value || "";
+
+
+                if (
+                    newPassword.length < 6
+                ) {
+
+                    alert(
+                        "New password must contain at least 6 characters."
+                    );
+
+                    return;
+
+                }
+
+
+                if (
+                    newPassword !==
+                    confirmPassword
+                ) {
+
+                    alert(
+                        "New password and confirmation do not match."
+                    );
+
+                    return;
+
+                }
+
+
+                if (
+                    !currentPassword
+                ) {
+
+                    alert(
+                        "Please enter your current password."
+                    );
+
+                    return;
+
+                }
+
+
+                try {
+
+                    const credential =
+                        EmailAuthProvider.credential(
+                            currentUser.email,
+                            currentPassword
+                        );
+
+
+                    await reauthenticateWithCredential(
+                        currentUser,
+                        credential
+                    );
+
+
+                    await updatePassword(
+                        currentUser,
+                        newPassword
+                    );
+
+
+                    form.reset();
+
+                    closeModal();
+
+
+                    alert(
+                        "Password changed successfully."
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "Password change error:",
+                        error
+                    );
+
+
+                    alert(
+                        getFirebaseErrorMessage(
+                            error
+                        )
+                    );
+
+                }
+
+            }
         );
 
     }
@@ -1999,17 +3239,25 @@ async function changePassword(event) {
 
 
 /*==================================================
-FEATURE: LOGOUT
+FEATURE: OPEN PASSWORD MODAL
 ==================================================*/
 
-function openLogoutModal() {
+function openPasswordModal() {
 
     const modal =
-        $("#logoutModal");
+        $("passwordModal");
 
-    if (!modal) return;
 
-    modal.style.display = "flex";
+    if (!modal) {
+
+        return;
+
+    }
+
+
+    modal.style.display =
+        "flex";
+
 
     document.body.classList.add(
         "modal-open"
@@ -2018,27 +3266,165 @@ function openLogoutModal() {
 }
 
 
-function closeLogoutModal() {
+/*==================================================
+FEATURE: LOGOUT SYSTEM
+==================================================*/
 
-    const modal =
-        $("#logoutModal");
+function setupLogoutSystem() {
 
-    if (!modal) return;
+    const topLogout =
+        $("logoutButtonTop");
 
-    modal.style.display = "none";
 
-    document.body.classList.remove(
-        "modal-open"
-    );
+    const sidebarLogout =
+        $("logoutButton");
+
+
+    const logoutModal =
+        $("logoutModal");
+
+
+    const cancelLogout =
+        $("cancelLogoutButton");
+
+
+    const confirmLogout =
+        $("confirmLogoutButton");
+
+
+    function openLogoutModal() {
+
+        if (!logoutModal) {
+
+            performLogout();
+
+            return;
+
+        }
+
+
+        logoutModal.style.display =
+            "flex";
+
+
+        document.body.classList.add(
+            "modal-open"
+        );
+
+    }
+
+
+    function closeLogoutModal() {
+
+        if (!logoutModal) {
+
+            return;
+
+        }
+
+
+        logoutModal.style.display =
+            "none";
+
+
+        document.body.classList.remove(
+            "modal-open"
+        );
+
+    }
+
+
+    if (topLogout) {
+
+        topLogout.addEventListener(
+            "click",
+            openLogoutModal
+        );
+
+    }
+
+
+    if (sidebarLogout) {
+
+        sidebarLogout.addEventListener(
+            "click",
+            openLogoutModal
+        );
+
+    }
+
+
+    if (cancelLogout) {
+
+        cancelLogout.addEventListener(
+            "click",
+            closeLogoutModal
+        );
+
+    }
+
+
+    if (confirmLogout) {
+
+        confirmLogout.addEventListener(
+            "click",
+            async () => {
+
+                await performLogout(
+                    closeLogoutModal
+                );
+
+            }
+        );
+
+    }
+
+
+    if (logoutModal) {
+
+        const overlay =
+            logoutModal.querySelector(
+                ".modal-overlay"
+            );
+
+
+        if (overlay) {
+
+            overlay.addEventListener(
+                "click",
+                closeLogoutModal
+            );
+
+        }
+
+    }
 
 }
 
 
-async function performLogout() {
+/*==================================================
+FEATURE: PERFORM LOGOUT
+==================================================*/
+
+async function performLogout(
+    closeModal = null
+) {
 
     try {
 
-        await signOut(auth);
+        if (closeModal) {
+
+            closeModal();
+
+        }
+
+
+        if (auth) {
+
+            await signOut(auth);
+
+        }
+
 
         window.location.href =
             "./index.html";
@@ -2050,9 +3436,11 @@ async function performLogout() {
             error
         );
 
-        showToast(
-            "Unable to logout.",
-            "error"
+
+        alert(
+            getFirebaseErrorMessage(
+                error
+            )
         );
 
     }
@@ -2061,187 +3449,118 @@ async function performLogout() {
 
 
 /*==================================================
-FEATURE: ADDRESS MODAL
-==================================================*/
-
-function openAddressModal() {
-
-    const modal =
-        $("#addressModal");
-
-    if (!modal) return;
-
-    modal.style.display = "flex";
-
-    document.body.classList.add(
-        "modal-open"
-    );
-
-}
-
-
-function closeAddressModal() {
-
-    const modal =
-        $("#addressModal");
-
-    if (!modal) return;
-
-    modal.style.display = "none";
-
-    document.body.classList.remove(
-        "modal-open"
-    );
-
-}
-
-
-/*==================================================
-FEATURE: PASSWORD MODAL
-==================================================*/
-
-function openPasswordModal() {
-
-    const modal =
-        $("#passwordModal");
-
-    if (!modal) return;
-
-    modal.style.display = "flex";
-
-    document.body.classList.add(
-        "modal-open"
-    );
-
-}
-
-
-function closePasswordModal() {
-
-    const modal =
-        $("#passwordModal");
-
-    if (!modal) return;
-
-    modal.style.display = "none";
-
-    document.body.classList.remove(
-        "modal-open"
-    );
-
-}
-
-
-/*==================================================
-FEATURE: ACCOUNT NAVIGATION
-==================================================*/
-
-function openSection(sectionName) {
-
-    if (!sectionName) return;
-
-
-    $$(".account-nav-item")
-        .forEach(item => {
-
-            item.classList.toggle(
-                "active",
-                item.dataset.section === sectionName
-            );
-
-        });
-
-
-    $$(".account-section")
-        .forEach(section => {
-
-            section.classList.toggle(
-                "active",
-                section.id ===
-                `section-${sectionName}`
-            );
-
-        });
-
-
-    const target =
-        $(`#section-${sectionName}`);
-
-
-    if (target) {
-
-        target.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-
-    }
-
-}
-
-
-/*==================================================
-FEATURE: STATISTICS
+FEATURE: ACCOUNT STATISTICS
 ==================================================*/
 
 function updateStatistics() {
 
-    const orderCount =
-        currentOrders.length;
+    /*
+    Total orders
+    */
 
-    const wishCount =
-        currentWishlist.length;
-
-    const addressTotal =
-        currentAddresses.length;
-
-    const unreadNotifications =
-        currentNotifications
-        .filter(
-            item => item.read !== true
-        )
-        .length;
+    const totalOrders =
+        $("totalOrders");
 
 
     if (totalOrders) {
 
         totalOrders.textContent =
-            orderCount;
+            String(
+                accountOrders.length
+            );
 
     }
+
+
+    /*
+    Order nav badge
+    */
+
+    const ordersBadge =
+        $("ordersNavBadge");
+
+
+    if (ordersBadge) {
+
+        ordersBadge.textContent =
+            String(
+                accountOrders.length
+            );
+
+    }
+
+
+    /*
+    Wishlist
+    */
+
+    const wishlistCount =
+        $("wishlistCount");
+
 
     if (wishlistCount) {
 
         wishlistCount.textContent =
-            wishCount;
+            String(
+                accountWishlist.length
+            );
 
     }
+
+
+    /*
+    Addresses
+    */
+
+    const addressCount =
+        $("addressCount");
+
 
     if (addressCount) {
 
         addressCount.textContent =
-            addressTotal;
+            String(
+                accountAddresses.length
+            );
 
     }
+
+
+    /*
+    Notifications
+    */
+
+    const unreadNotifications =
+        accountNotifications.filter(
+            notification =>
+                notification.read === false
+        ).length;
+
+
+    const notificationCount =
+        $("notificationCount");
+
 
     if (notificationCount) {
 
         notificationCount.textContent =
-            unreadNotifications;
+            String(
+                unreadNotifications
+            );
 
     }
 
-    if (ordersNavBadge) {
 
-        ordersNavBadge.textContent =
-            orderCount;
+    const notificationBadge =
+        $("notificationNavBadge");
 
-    }
 
-    if (notificationNavBadge) {
+    if (notificationBadge) {
 
-        notificationNavBadge.textContent =
-            unreadNotifications;
+        notificationBadge.textContent =
+            String(
+                unreadNotifications
+            );
 
     }
 
@@ -2249,39 +3568,126 @@ function updateStatistics() {
 
 
 /*==================================================
-FEATURE: REFRESH ACCOUNT
+FEATURE: ACCOUNT SETTINGS
 ==================================================*/
 
-async function refreshAccount() {
+function setupAccountSettings() {
 
-    if (!currentUser) return;
+    const orderToggle =
+        $("orderNotificationsToggle");
 
-    showAccountLoading();
+
+    const deliveryToggle =
+        $("deliveryNotificationsToggle");
+
+
+    const promotionalToggle =
+        $("promotionalNotificationsToggle");
+
+
+    if (orderToggle) {
+
+        orderToggle.checked =
+            getSetting(
+                "orderNotifications",
+                true
+            );
+
+
+        orderToggle.addEventListener(
+            "change",
+            () => {
+
+                saveSetting(
+                    "orderNotifications",
+                    orderToggle.checked
+                );
+
+            }
+        );
+
+    }
+
+
+    if (deliveryToggle) {
+
+        deliveryToggle.checked =
+            getSetting(
+                "deliveryNotifications",
+                true
+            );
+
+
+        deliveryToggle.addEventListener(
+            "change",
+            () => {
+
+                saveSetting(
+                    "deliveryNotifications",
+                    deliveryToggle.checked
+                );
+
+            }
+        );
+
+    }
+
+
+    if (promotionalToggle) {
+
+        promotionalToggle.checked =
+            getSetting(
+                "promotionalNotifications",
+                false
+            );
+
+
+        promotionalToggle.addEventListener(
+            "change",
+            () => {
+
+                saveSetting(
+                    "promotionalNotifications",
+                    promotionalToggle.checked
+                );
+
+            }
+        );
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: SETTINGS STORAGE
+==================================================*/
+
+function getSetting(
+    key,
+    defaultValue
+) {
 
     try {
 
-        await loadUserProfile(
-            currentUser
-        );
+        const value =
+            localStorage.getItem(
+                `smartbazaar_setting_${key}`
+            );
 
-        await Promise.all([
-            loadOrders(),
-            loadWishlist(),
-            loadAddresses(),
-            loadNotifications(),
-            loadSettings()
-        ]);
 
-        showAccountContent();
+        if (value === null) {
+
+            return defaultValue;
+
+        }
+
+
+        return value === "true";
 
     } catch (error) {
 
-        console.error(
-            "Account refresh error:",
-            error
-        );
-
-        showAccountContent();
+        return defaultValue;
 
     }
 
@@ -2289,383 +3695,340 @@ async function refreshAccount() {
 
 
 /*==================================================
-UTILITY: CAPITALIZE
+FEATURE: SAVE SETTING
+==================================================*/
+
+function saveSetting(
+    key,
+    value
+) {
+
+    try {
+
+        localStorage.setItem(
+            `smartbazaar_setting_${key}`,
+            String(value)
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Could not save setting."
+        );
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: CHANGE AVATAR
+FUTURE PROFILE IMAGE SYSTEM
+==================================================*/
+
+function setupAvatarButton() {
+
+    const button =
+        $("changeAvatarButton");
+
+
+    if (!button) {
+
+        return;
+
+    }
+
+
+    button.addEventListener(
+        "click",
+        () => {
+
+            /*
+            Profile image upload will be connected
+            here later with Cloudinary/Firebase Storage.
+
+            For now, do not fake an upload.
+            */
+
+            alert(
+                "Profile picture upload system will be connected in the next step."
+            );
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: EMPTY STATE
+==================================================*/
+
+function emptyStateHTML(
+    icon,
+    title,
+    message,
+    extra = ""
+) {
+
+    return `
+
+        <div class="empty-state">
+
+            <i class="${escapeHTML(icon)}"></i>
+
+            <h4>
+                ${escapeHTML(title)}
+            </h4>
+
+            <p>
+                ${escapeHTML(message)}
+            </p>
+
+            ${extra}
+
+        </div>
+
+    `;
+
+}
+
+
+/*==================================================
+FEATURE: NORMALIZE ORDER STATUS
+==================================================*/
+
+function normalizeStatus(
+    status
+) {
+
+    const value =
+        String(
+            status ||
+            "pending"
+        )
+        .trim()
+        .toLowerCase();
+
+
+    const allowed = [
+
+        "pending",
+        "confirmed",
+        "processing",
+        "shipped",
+        "delivered",
+        "cancelled",
+        "canceled"
+
+    ];
+
+
+    if (
+        !allowed.includes(
+            value
+        )
+    ) {
+
+        return "pending";
+
+    }
+
+
+    if (
+        value === "canceled"
+    ) {
+
+        return "cancelled";
+
+    }
+
+
+    return value;
+
+}
+
+
+/*==================================================
+FEATURE: CAPITALIZE
 ==================================================*/
 
 function capitalize(value) {
 
-    if (!value) return "";
+    if (!value) {
 
-    return (
-        value.charAt(0).toUpperCase() +
-        value.slice(1)
-    );
+        return "";
+
+    }
+
+
+    return String(value)
+        .charAt(0)
+        .toUpperCase() +
+        String(value)
+            .slice(1);
 
 }
 
 
 /*==================================================
-UTILITY: MONEY
+FEATURE: FORMAT MONEY
 ==================================================*/
 
-function formatMoney(value) {
+function formatMoney(
+    value
+) {
 
     const number =
-        safeNumber(value);
+        Number(value) || 0;
+
 
     return number.toLocaleString(
-        "en-PK"
+        "en-PK",
+        {
+            maximumFractionDigits: 2
+        }
     );
 
 }
 
 
 /*==================================================
-EVENT LISTENERS
+FEATURE: FORMAT DATE
 ==================================================*/
 
-function setupEventListeners() {
+function formatDate(
+    value
+) {
 
+    if (!value) {
 
-    /*----------------------------------------------
-    ACCOUNT NAVIGATION
-    ----------------------------------------------*/
+        return "Date unavailable";
 
-    $$(".account-nav-item")
-        .forEach(button => {
+    }
 
-            button.addEventListener(
-                "click",
-                () => {
 
-                    openSection(
-                        button.dataset.section
-                    );
+    let date;
 
-                }
-            );
 
-        });
+    if (
+        typeof value === "number"
+    ) {
 
+        date =
+            new Date(value);
 
-    /*----------------------------------------------
-    QUICK ACTIONS
-    ----------------------------------------------*/
+    } else {
 
-    $$(".quick-action-card")
-        .forEach(button => {
+        date =
+            new Date(value);
 
-            button.addEventListener(
-                "click",
-                () => {
+    }
 
-                    openSection(
-                        button.dataset.openSection
-                    );
 
-                }
-            );
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
 
-        });
+        return String(value);
 
+    }
 
-    /*----------------------------------------------
-    VIEW ALL
-    ----------------------------------------------*/
 
-    $$(".view-all-button")
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    openSection("orders");
-
-                }
-            );
-
-        });
-
-
-    /*----------------------------------------------
-    EDIT PROFILE
-    ----------------------------------------------*/
-
-    $("#editProfileButton")
-        ?.addEventListener(
-            "click",
-            () => {
-
-                openSection("profile");
-
-            }
-        );
-
-
-    /*----------------------------------------------
-    PROFILE FORM
-    ----------------------------------------------*/
-
-    $("#profileForm")
-        ?.addEventListener(
-            "submit",
-            saveProfile
-        );
-
-
-    /*----------------------------------------------
-    ADD ADDRESS
-    ----------------------------------------------*/
-
-    $("#addAddressButton")
-        ?.addEventListener(
-            "click",
-            openAddressModal
-        );
-
-
-    /*----------------------------------------------
-    ADDRESS FORM
-    ----------------------------------------------*/
-
-    $("#addressForm")
-        ?.addEventListener(
-            "submit",
-            saveAddress
-        );
-
-
-    /*----------------------------------------------
-    CLOSE ADDRESS
-    ----------------------------------------------*/
-
-    $("#closeAddressModal")
-        ?.addEventListener(
-            "click",
-            closeAddressModal
-        );
-
-
-    $("#cancelAddressButton")
-        ?.addEventListener(
-            "click",
-            closeAddressModal
-        );
-
-
-    /*----------------------------------------------
-    PASSWORD
-    ----------------------------------------------*/
-
-    $("#changePasswordButton")
-        ?.addEventListener(
-            "click",
-            openPasswordModal
-        );
-
-
-    $("#closePasswordModal")
-        ?.addEventListener(
-            "click",
-            closePasswordModal
-        );
-
-
-    $("#cancelPasswordButton")
-        ?.addEventListener(
-            "click",
-            closePasswordModal
-        );
-
-
-    $("#passwordForm")
-        ?.addEventListener(
-            "submit",
-            changePassword
-        );
-
-
-    /*----------------------------------------------
-    NOTIFICATIONS
-    ----------------------------------------------*/
-
-    $("#markNotificationsRead")
-        ?.addEventListener(
-            "click",
-            markNotificationsRead
-        );
-
-
-    /*----------------------------------------------
-    SETTINGS
-    ----------------------------------------------*/
-
-    $("#orderNotificationsToggle")
-        ?.addEventListener(
-            "change",
-            saveSettings
-        );
-
-
-    $("#deliveryNotificationsToggle")
-        ?.addEventListener(
-            "change",
-            saveSettings
-        );
-
-
-    $("#promotionalNotificationsToggle")
-        ?.addEventListener(
-            "change",
-            saveSettings
-        );
-
-
-    /*----------------------------------------------
-    LOGOUT
-    ----------------------------------------------*/
-
-    $("#logoutButton")
-        ?.addEventListener(
-            "click",
-            openLogoutModal
-        );
-
-
-    $("#logoutButtonTop")
-        ?.addEventListener(
-            "click",
-            openLogoutModal
-        );
-
-
-    $("#cancelLogoutButton")
-        ?.addEventListener(
-            "click",
-            closeLogoutModal
-        );
-
-
-    $("#confirmLogoutButton")
-        ?.addEventListener(
-            "click",
-            performLogout
-        );
-
-
-    /*----------------------------------------------
-    WISHLIST DELETE
-    ----------------------------------------------*/
-
-    document.addEventListener(
-        "click",
-        event => {
-
-            const button =
-                event.target.closest(
-                    ".remove-wishlist-button"
-                );
-
-            if (!button) return;
-
-            removeWishlistItem(
-                button.dataset.wishlistId
-            );
-
+    return date.toLocaleDateString(
+        "en-PK",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
         }
     );
 
+}
 
-    /*----------------------------------------------
-    ADDRESS DELETE
-    ----------------------------------------------*/
 
-    document.addEventListener(
-        "click",
-        event => {
+/*==================================================
+FEATURE: FIREBASE ERROR MESSAGE
+==================================================*/
 
-            const button =
-                event.target.closest(
-                    ".delete-address-button"
-                );
+function getFirebaseErrorMessage(
+    error
+) {
 
-            if (!button) return;
+    if (!error) {
 
-            deleteAddress(
-                button.dataset.addressId
+        return "Something went wrong.";
+
+    }
+
+
+    const code =
+        error.code || "";
+
+
+    switch (code) {
+
+        case "auth/wrong-password":
+
+            return "The current password is incorrect.";
+
+
+        case "auth/invalid-credential":
+
+            return "The current password or login credentials are incorrect.";
+
+
+        case "auth/weak-password":
+
+            return "The new password is too weak.";
+
+
+        case "auth/requires-recent-login":
+
+            return "Please login again before changing your password.";
+
+
+        case "auth/too-many-requests":
+
+            return "Too many attempts. Please try again later.";
+
+
+        case "permission-denied":
+
+            return "Firebase permission denied. Please check your Realtime Database rules.";
+
+
+        default:
+
+            return (
+                error.message ||
+                "Something went wrong. Please try again."
             );
 
-        }
-    );
+    }
+
+}
 
 
-    /*----------------------------------------------
-    MODAL OVERLAYS
-    ----------------------------------------------*/
+/*==================================================
+FEATURE: LOAD ALL ACCOUNT DATA
+==================================================*/
 
-    $$(".modal-overlay")
-        .forEach(overlay => {
+async function loadAccountData() {
 
-            overlay.addEventListener(
-                "click",
-                () => {
+    await loadProfile();
 
-                    const modal =
-                        overlay.closest(
-                            ".account-modal"
-                        );
-
-                    if (!modal) return;
-
-                    modal.style.display =
-                        "none";
-
-                    document.body.classList.remove(
-                        "modal-open"
-                    );
-
-                }
-            );
-
-        });
+    await Promise.all([
+        loadOrders(),
+        loadWishlist(),
+        loadAddresses(),
+        loadNotifications()
+    ]);
 
 
-    /*----------------------------------------------
-    ESC KEY
-    ----------------------------------------------*/
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (event.key !== "Escape") return;
-
-            closeAddressModal();
-
-            closePasswordModal();
-
-            closeLogoutModal();
-
-        }
-    );
-
-
-    /*----------------------------------------------
-    AVATAR BUTTON
-    ----------------------------------------------*/
-
-    $("#changeAvatarButton")
-        ?.addEventListener(
-            "click",
-            () => {
-
-                showToast(
-                    "Profile picture upload will be connected with Cloudinary."
-                );
-
-            }
-        );
+    updateStatistics();
 
 }
 
@@ -2674,56 +4037,109 @@ function setupEventListeners() {
 FEATURE: AUTH STATE
 ==================================================*/
 
-onAuthStateChanged(
-    auth,
-    async user => {
+async function startAccountSystem() {
 
-        if (!user) {
-
-            currentUser = null;
-
-            showAccountError(
-                "Please login to access your SmartBazaar account."
-            );
-
-            return;
-
-        }
+    showLoading();
 
 
-        currentUser = user;
+    const firebaseReady =
+        await initializeFirebase();
 
 
-        try {
+    if (!firebaseReady) {
 
-            await refreshAccount();
-
-        } catch (error) {
-
-            console.error(
-                "Account initialization error:",
-                error
-            );
-
-            showAccountError(
-                "Unable to load your account. Please try again."
-            );
-
-        }
+        return;
 
     }
-);
+
+
+    onAuthStateChanged(
+        auth,
+        async user => {
+
+            if (!user) {
+
+                currentUser = null;
+
+
+                showAccountError(
+                    "Please login to access your SmartBazaar account."
+                );
+
+
+                return;
+
+            }
+
+
+            currentUser = user;
+
+
+            try {
+
+                await loadAccountData();
+
+                showAccountContent();
+
+            } catch (error) {
+
+                console.error(
+                    "Account loading error:",
+                    error
+                );
+
+
+                showAccountContent();
+
+
+                alert(
+                    "Some account data could not be loaded. Please check your Firebase Database rules."
+                );
+
+            }
+
+        }
+    );
+
+}
 
 
 /*==================================================
-INITIALIZE
+FEATURE: INITIALIZE ACCOUNT PAGE
 ==================================================*/
 
 document.addEventListener(
     "DOMContentLoaded",
     () => {
 
-        setupEventListeners();
+        /*
+        Core UI first.
+        */
+
+        setupAccountNavigation();
+
+        setupProfileForm();
+
+        setupAddressModal();
+
+        setupAddressActions();
+
+        setupNotificationActions();
+
+        setupPasswordSystem();
+
+        setupLogoutSystem();
+
+        setupAccountSettings();
+
+        setupAvatarButton();
+
+
+        /*
+        Firebase/account system.
+        */
+
+        startAccountSystem();
 
     }
 );
@@ -2732,4 +4148,5 @@ document.addEventListener(
 /*==================================================
 SMARTBAZAAR PRO 2
 ACCOUNT.JS COMPLETE
+END OF FILE
 ==================================================*/
