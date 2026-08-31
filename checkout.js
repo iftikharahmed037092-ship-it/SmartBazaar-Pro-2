@@ -19,7 +19,7 @@ import {
     get,
     push,
     set,
-    runTransaction
+    update
 
 } from
 "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
@@ -233,22 +233,11 @@ async function initializeCheckout() {
 
     try {
 
-        /*
-         * Enable payment options for testing.
-         *
-         * IMPORTANT:
-         * Real JazzCash/EasyPaisa gateway integration
-         * will be added later.
-         */
-
         enablePaymentMethods();
-
 
         setupPaymentSelection();
 
-
         setupQuantityControls();
-
 
         await loadCheckoutProduct(
             productId
@@ -288,10 +277,6 @@ function enablePaymentMethods() {
     paymentInputs.forEach(
         input => {
 
-            /*
-             * Remove disabled attribute.
-             */
-
             input.disabled =
                 false;
 
@@ -310,10 +295,6 @@ function enablePaymentMethods() {
 
             }
 
-
-            /*
-             * Hide "Soon" badges for testing.
-             */
 
             const soon =
                 option?.querySelector(
@@ -357,7 +338,7 @@ function setupPaymentSelection() {
 
             option.addEventListener(
                 "click",
-                event => {
+                () => {
 
                     const input =
                         option.querySelector(
@@ -371,10 +352,6 @@ function setupPaymentSelection() {
 
                     }
 
-
-                    /*
-                     * Make sure the radio is selected.
-                     */
 
                     input.checked =
                         true;
@@ -394,11 +371,7 @@ function setupPaymentSelection() {
 
             input.addEventListener(
                 "change",
-                () => {
-
-                    updatePaymentSelection();
-
-                }
+                updatePaymentSelection
             );
 
         }
@@ -431,12 +404,6 @@ function updatePaymentSelection() {
                 );
 
 
-            const check =
-                option.querySelector(
-                    ".payment-check"
-                );
-
-
             if (
                 input &&
                 input.checked
@@ -446,48 +413,11 @@ function updatePaymentSelection() {
                     "active"
                 );
 
-
-                if (!check) {
-
-                    const checkElement =
-                        document.createElement(
-                            "div"
-                        );
-
-
-                    checkElement.className =
-                        "payment-check";
-
-
-                    checkElement.innerHTML =
-                        `
-                            <i class="fa-solid fa-circle-check"></i>
-                        `;
-
-
-                    option.appendChild(
-                        checkElement
-                    );
-
-                }
-
             } else {
 
                 option.classList.remove(
                     "active"
                 );
-
-
-                if (
-                    check &&
-                    input?.value !== "cod"
-                ) {
-
-                    /*
-                     * Keep DOM clean.
-                     */
-
-                }
 
             }
 
@@ -763,9 +693,7 @@ FEATURE: SETUP QUANTITY CONTROLS
 
 function setupQuantityControls() {
 
-    if (
-        increaseQuantity
-    ) {
+    if (increaseQuantity) {
 
         increaseQuantity.addEventListener(
             "click",
@@ -775,9 +703,7 @@ function setupQuantityControls() {
     }
 
 
-    if (
-        decreaseQuantity
-    ) {
+    if (decreaseQuantity) {
 
         decreaseQuantity.addEventListener(
             "click",
@@ -787,9 +713,7 @@ function setupQuantityControls() {
     }
 
 
-    if (
-        checkoutQuantity
-    ) {
+    if (checkoutQuantity) {
 
         checkoutQuantity.addEventListener(
             "change",
@@ -821,15 +745,11 @@ function increaseProductQuantity() {
 
 
     if (
-        quantity < currentStock
+        quantity <
+        currentStock
     ) {
 
         quantity++;
-
-    } else {
-
-        quantity =
-            currentStock;
 
     }
 
@@ -874,7 +794,7 @@ function decreaseProductQuantity() {
 
 
 /*==================================================
-FEATURE: QUANTITY INPUT VALIDATION
+FEATURE: QUANTITY VALIDATION
 ==================================================*/
 
 function validateQuantityInput() {
@@ -994,26 +914,24 @@ function updateSummary() {
 
 /*==================================================
 FEATURE: PLACE ORDER
-==================================================*/
-
-/*==================================================
-SMARTBAZAAR PRO 2
-FEATURE: PLACE ORDER
 FEATURE: FINAL ORDER CREATION
-FEATURE: STOCK VALIDATION
-FEATURE: FIREBASE ORDER SAVE
 ==================================================*/
 
 checkoutForm.addEventListener(
     "submit",
-    async (event) => {
+    async event => {
 
         event.preventDefault();
 
 
-        /*==================================================
-        FEATURE: BASIC PRODUCT CHECK
-        ==================================================*/
+        if (
+            orderBeingPlaced
+        ) {
+
+            return;
+
+        }
+
 
         if (!currentProduct) {
 
@@ -1026,48 +944,51 @@ checkoutForm.addEventListener(
         }
 
 
-        if (placeOrderButton.disabled) {
-
-            return;
-
-        }
-
-
         /*==================================================
         FEATURE: CUSTOMER INFORMATION
         ==================================================*/
 
         const customerName =
             document
-                .getElementById("customerName")
+                .getElementById(
+                    "customerName"
+                )
                 .value
                 .trim();
 
 
         const customerPhone =
             document
-                .getElementById("customerPhone")
+                .getElementById(
+                    "customerPhone"
+                )
                 .value
                 .trim();
 
 
         const customerCity =
             document
-                .getElementById("customerCity")
+                .getElementById(
+                    "customerCity"
+                )
                 .value
                 .trim();
 
 
         const customerAddress =
             document
-                .getElementById("customerAddress")
+                .getElementById(
+                    "customerAddress"
+                )
                 .value
                 .trim();
 
 
         const customerNote =
             document
-                .getElementById("customerNote")
+                .getElementById(
+                    "customerNote"
+                )
                 .value
                 .trim();
 
@@ -1099,7 +1020,7 @@ checkoutForm.addEventListener(
 
 
         /*==================================================
-        FEATURE: CUSTOMER VALIDATION
+        FEATURE: VALIDATION
         ==================================================*/
 
         if (
@@ -1160,14 +1081,33 @@ checkoutForm.addEventListener(
             quantity < 1
         ) {
 
-            quantity = 1;
+            quantity =
+                1;
+
+        }
+
+
+        if (
+            quantity >
+            currentStock
+        ) {
+
+            alert(
+                `Only ${currentStock} item(s) are currently available.`
+            );
+
+            return;
 
         }
 
 
         /*==================================================
-        FEATURE: BUTTON LOADING
+        FEATURE: START ORDER
         ==================================================*/
+
+        orderBeingPlaced =
+            true;
+
 
         placeOrderButton.disabled =
             true;
@@ -1215,7 +1155,7 @@ checkoutForm.addEventListener(
 
 
             /*==================================================
-            FEATURE: LATEST STOCK
+            FEATURE: CHECK LATEST STOCK
             ==================================================*/
 
             const latestStock =
@@ -1236,7 +1176,8 @@ checkoutForm.addEventListener(
 
 
             if (
-                quantity > latestStock
+                quantity >
+                latestStock
             ) {
 
                 throw new Error(
@@ -1247,7 +1188,7 @@ checkoutForm.addEventListener(
 
 
             /*==================================================
-            FEATURE: LATEST PRICE
+            FEATURE: CALCULATE TOTAL
             ==================================================*/
 
             const price =
@@ -1257,73 +1198,12 @@ checkoutForm.addEventListener(
 
 
             const total =
-                price * quantity;
+                price *
+                quantity;
 
 
             /*==================================================
-            FEATURE: STOCK TRANSACTION
-            ==================================================*/
-
-            const stockResult =
-                await runTransaction(
-                    productRef,
-                    (product) => {
-
-                        if (
-                            product === null
-                        ) {
-
-                            return;
-
-                        }
-
-
-                        const stock =
-                            Number(
-                                product.stock || 0
-                            );
-
-
-                        if (
-                            stock < quantity
-                        ) {
-
-                            return;
-
-                        }
-
-
-                        product.stock =
-                            stock - quantity;
-
-
-                        product.updatedAt =
-                            Date.now();
-
-
-                        return product;
-
-                    }
-                );
-
-
-            /*==================================================
-            FEATURE: TRANSACTION RESULT
-            ==================================================*/
-
-            if (
-                !stockResult.committed
-            ) {
-
-                throw new Error(
-                    "The product stock could not be updated. Please try again."
-                );
-
-            }
-
-
-            /*==================================================
-            FEATURE: CREATE ORDER REFERENCE
+            FEATURE: CREATE ORDER ID
             ==================================================*/
 
             const ordersRef =
@@ -1425,13 +1305,44 @@ checkoutForm.addEventListener(
 
 
             /*==================================================
-            FEATURE: SAVE ORDER TO FIREBASE
+            FEATURE: SAVE ORDER
             ==================================================*/
 
             await set(
                 newOrderRef,
                 orderData
             );
+
+
+            /*==================================================
+            FEATURE: UPDATE STOCK
+            ==================================================*/
+
+            const newStock =
+                latestStock -
+                quantity;
+
+
+            await update(
+                productRef,
+                {
+
+                    stock:
+                        newStock,
+
+                    updatedAt:
+                        Date.now()
+
+                }
+            );
+
+
+            /*==================================================
+            FEATURE: UPDATE LOCAL STOCK
+            ==================================================*/
+
+            currentStock =
+                newStock;
 
 
             /*==================================================
@@ -1459,9 +1370,9 @@ checkoutForm.addEventListener(
             );
 
 
-            /*==================================================
-            FEATURE: RESTORE BUTTON
-            ==================================================*/
+            orderBeingPlaced =
+                false;
+
 
             placeOrderButton.disabled =
                 false;
@@ -1480,7 +1391,7 @@ checkoutForm.addEventListener(
 
 
 /*==================================================
-FEATURE: SUCCESS PAGE
+FEATURE: ORDER SUCCESS
 ==================================================*/
 
 function showOrderSuccess(
@@ -1549,8 +1460,11 @@ function formatPrice(
 
     return (
         "Rs. " +
-        Number(price)
-            .toLocaleString("en-PK")
+        Number(
+            price
+        ).toLocaleString(
+            "en-PK"
+        )
     );
 
 }
@@ -1580,5 +1494,3 @@ function showCheckoutError(
         message;
 
 }
-
-
