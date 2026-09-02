@@ -207,31 +207,40 @@ FEATURE: ACCOUNT PAGE
 
                 <!-- AVATAR -->
 
-                <div class="profile-avatar">
+            <div class="profile-avatar">
 
-                    <span id="profileAvatarLetter">
-                        U
-                    </span>
+    <span id="profileAvatarLetter">U</span>
 
-                    <button
-                        type="button"
-                        id="changeAvatarButton"
-                        class="avatar-edit-button"
-                        aria-label="Change profile picture"
-                    >
+    <!--==================================================
+     FEATURE: PROFILE PICTURE DISPLAY
+    ==================================================-->
 
-                        <i class="fa-solid fa-camera"></i>
+    <img
+        id="profileAvatarImage"
+        class="profile-avatar-image"
+        alt="Profile Picture"
+        hidden
+    >
 
-                    </button>
+    <button
+        type="button"
+        id="changeAvatarButton"
+        class="avatar-edit-button"
+        aria-label="Change profile picture"
+    >
+        <i class="fa-solid fa-camera"></i>
+    </button>
+<!--==================================================
+ FEATURE: PROFILE PICTURE FILE INPUT
+==================================================-->
 
-                    <input
+<input
     type="file"
     id="profilePictureInput"
     accept="image/*"
     hidden
 >
-
-                </div>
+</div>
 
 
                 <!-- PROFILE INFO -->
