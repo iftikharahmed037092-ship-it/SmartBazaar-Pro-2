@@ -3786,9 +3786,11 @@ function saveSetting(
 }
 
 
+
+
 /*==================================================
 FEATURE: CHANGE AVATAR
-FUTURE PROFILE IMAGE SYSTEM
+CLOUDINARY PROFILE PICTURE UPLOAD
 ==================================================*/
 
 function setupAvatarButton() {
@@ -3796,28 +3798,225 @@ function setupAvatarButton() {
     const button =
         $("changeAvatarButton");
 
+    const input =
+        $("profilePictureInput");
 
-    if (!button) {
+
+    if (!button || !input) {
 
         return;
 
     }
 
 
+    /*
+    Open file selector.
+    */
+
     button.addEventListener(
         "click",
         () => {
 
-            /*
-            Profile image upload will be connected
-            here later with Cloudinary/Firebase Storage.
+            input.click();
 
-            For now, do not fake an upload.
+        }
+    );
+
+
+    /*
+    Profile picture selected.
+    */
+
+    input.addEventListener(
+        "change",
+        async () => {
+
+            const file =
+                input.files?.[0];
+
+
+            if (!file) {
+
+                return;
+
+            }
+
+
+            if (!currentUser) {
+
+                alert(
+                    "Please login first."
+                );
+
+                input.value = "";
+
+                return;
+
+            }
+
+
+            /*
+            Validate image type.
             */
 
-            alert(
-                "Profile picture upload system will be connected in the next step."
-            );
+            if (
+                !file.type.startsWith(
+                    "image/"
+                )
+            ) {
+
+                alert(
+                    "Please select a valid image file."
+                );
+
+                input.value = "";
+
+                return;
+
+            }
+
+
+            /*
+            Maximum file size: 5 MB.
+            */
+
+            const maxSize =
+                5 * 1024 * 1024;
+
+
+            if (
+                file.size > maxSize
+            ) {
+
+                alert(
+                    "Profile picture must be 5 MB or smaller."
+                );
+
+                input.value = "";
+
+                return;
+
+            }
+
+
+            const originalText =
+                button.innerHTML;
+
+
+            try {
+
+                button.disabled =
+                    true;
+
+
+                button.innerHTML =
+                    `<i class="fa-solid fa-spinner fa-spin"></i>`;
+
+
+                /*
+                Upload profile picture
+                to Cloudinary PROFILES folder.
+                */
+
+                const uploadResult =
+                    await uploadToCloudinary(
+                        file,
+                        CLOUDINARY_FOLDERS.PROFILES
+                    );
+
+
+                const photoURL =
+                    uploadResult.url;
+
+
+                /*
+                Update Firebase Authentication.
+                */
+
+                await updateProfile(
+                    currentUser,
+                    {
+                        photoURL
+                    }
+                );
+
+
+                /*
+                Update local account state.
+                */
+
+                currentProfile = {
+
+                    ...currentProfile,
+
+                    photoURL
+
+                };
+
+
+                /*
+                Save Cloudinary URL
+                in Realtime Database.
+                */
+
+                if (db) {
+
+                    await update(
+                        ref(
+                            db,
+                            `users/${currentUser.uid}`
+                        ),
+                        {
+
+                            photoURL,
+
+                            updatedAt:
+                                Date.now()
+
+                        }
+                    );
+
+                }
+
+
+                /*
+                Refresh profile UI.
+                */
+
+                updateProfileUI();
+
+
+                alert(
+                    "Profile picture updated successfully."
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Profile picture upload error:",
+                    error
+                );
+
+
+                alert(
+                    error?.message ||
+                    "Profile picture upload failed. Please try again."
+                );
+
+            } finally {
+
+                button.disabled =
+                    false;
+
+
+                button.innerHTML =
+                    originalText;
+
+
+                input.value =
+                    "";
+
+            }
 
         }
     );
