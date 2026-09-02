@@ -3879,24 +3879,18 @@ function setupAvatarButton() {
             /*
             Maximum file size: 5 MB.
             */
+const maxSize =
+    50 * 1024 * 1024;
 
-            const maxSize =
-                10 * 1024 * 1024;
-
-
-            if (
-                file.size > maxSize
-            ) {
-
-                alert(
-                    "Profile picture must be 10 MB or smaller."
-                );
-
-                input.value = "";
-
-                return;
-
-            }
+if (
+    file.size > maxSize
+) {
+    alert(
+        "Profile picture must be 50 MB or smaller."
+    );
+    input.value = "";
+    return;
+}
 
 
             const originalText =
