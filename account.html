@@ -3,12 +3,6 @@
 
 <head>
 
-    <!-- =========================================================
-    SMARTBAZAAR PRO 2
-    CUSTOMER ACCOUNT SYSTEM
-    FILE: account.html
-    ========================================================= -->
-
     <meta charset="UTF-8">
 
     <meta
@@ -18,34 +12,32 @@
 
     <meta
         name="description"
-        content="SmartBazaar Pro 2 - Complete Customer Account Dashboard"
+        content="SmartBazaar Pro Customer Account"
     >
 
-    <meta
-        name="theme-color"
-        content="#16a34a"
-    >
-
-    <title>My Account | SmartBazaar Pro 2</title>
+    <title>My Account | SmartBazaar Pro</title>
 
 
-    <!-- =========================================================
-    FONT AWESOME
-    ========================================================= -->
+    <!--==================================================
+    SMARTBAZAAR PRO 2
+    FEATURE: CUSTOMER ACCOUNT SYSTEM
+    FEATURE: ACCOUNT DASHBOARD
+    ==================================================-->
+
+
+    <!-- FONT AWESOME -->
 
     <link
         rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     >
 
 
-    <!-- =========================================================
-    ACCOUNT CSS
-    ========================================================= -->
+    <!-- ACCOUNT CSS -->
 
     <link
         rel="stylesheet"
-        href="account.css"
+        href="./account.css"
     >
 
 </head>
@@ -54,96 +46,39 @@
 <body>
 
 
-<!-- =========================================================
-FEATURE 001
-ACCOUNT PAGE LOADING
-========================================================= -->
-
-<div
-    class="page-loader"
-    id="pageLoader"
->
-
-    <div class="page-loader-inner">
-
-        <div class="loader-logo">
-            <i class="fa-solid fa-bag-shopping"></i>
-        </div>
-
-        <div class="loader-spinner"></div>
-
-        <h3>
-            Loading SmartBazaar
-        </h3>
-
-        <p>
-            Preparing your account...
-        </p>
-
-    </div>
-
-</div>
-
-
-<!-- =========================================================
-FEATURE 002
-ACCOUNT HEADER
-========================================================= -->
+<!--==================================================
+SMARTBAZAAR PRO 2
+FEATURE: ACCOUNT HEADER
+==================================================-->
 
 <header class="account-header">
 
     <div class="account-header-inner">
 
 
-        <!-- MOBILE MENU -->
-
-        <button
-            type="button"
-            class="mobile-menu-button"
-            id="mobileMenuButton"
-            aria-label="Open account menu"
-            aria-expanded="false"
-        >
-
-            <i class="fa-solid fa-bars"></i>
-
-        </button>
-
-
         <!-- LOGO -->
 
         <a
-            href="index.html"
+            href="./index.html"
             class="account-logo"
-            aria-label="SmartBazaar Home"
         >
 
-            <span class="account-logo-icon">
-                <i class="fa-solid fa-bag-shopping"></i>
-            </span>
+            <i class="fa-solid fa-store"></i>
 
-            <span class="account-logo-text">
+            <span>
                 SmartBazaar
-            </span>
-
-            <span class="account-logo-pro">
-                PRO
             </span>
 
         </a>
 
 
-        <!-- HEADER RIGHT -->
+        <!-- HEADER ACTIONS -->
 
         <div class="account-header-actions">
 
-
-            <!-- HOME -->
-
             <a
-                href="index.html"
-                class="header-action-button"
-                aria-label="Go to home"
+                href="./index.html"
+                class="header-home-button"
             >
 
                 <i class="fa-solid fa-house"></i>
@@ -155,57 +90,10 @@ ACCOUNT HEADER
             </a>
 
 
-            <!-- CART -->
-
-            <a
-                href="cart.html"
-                class="header-action-button header-cart-button"
-                aria-label="Shopping cart"
-            >
-
-                <i class="fa-solid fa-cart-shopping"></i>
-
-                <span>
-                    Cart
-                </span>
-
-                <b
-                    id="headerCartCount"
-                    class="header-count"
-                >
-                    0
-                </b>
-
-            </a>
-
-
-            <!-- NOTIFICATIONS -->
-
             <button
                 type="button"
-                class="header-icon-button"
-                id="headerNotificationButton"
-                aria-label="Notifications"
-            >
-
-                <i class="fa-solid fa-bell"></i>
-
-                <b
-                    id="headerNotificationBadge"
-                    class="header-count"
-                >
-                    0
-                </b>
-
-            </button>
-
-
-            <!-- LOGOUT -->
-
-            <button
-                type="button"
-                class="header-action-button logout-header-button"
-                id="headerLogoutButton"
+                id="logoutButtonTop"
+                class="header-logout-button"
             >
 
                 <i class="fa-solid fa-right-from-bracket"></i>
@@ -224,219 +112,122 @@ ACCOUNT HEADER
 
 
 
-<!-- =========================================================
-FEATURE 003
-MOBILE SIDEBAR OVERLAY
-========================================================= -->
-
-<div
-    class="mobile-sidebar-overlay"
-    id="mobileSidebarOverlay"
-    hidden
-></div>
-
-
-
-<!-- =========================================================
-FEATURE 004
-MAIN ACCOUNT CONTAINER
-========================================================= -->
+<!--==================================================
+FEATURE: ACCOUNT PAGE
+==================================================-->
 
 <main class="account-container">
 
 
-    <!-- =====================================================
-    ERROR STATE
-    ====================================================== -->
+    <!--==================================================
+    FEATURE: ACCOUNT LOADING
+    ==================================================-->
 
-    <div
-        class="account-error"
+    <section
+        id="accountLoading"
+        class="account-loading"
+    >
+
+        <div class="account-spinner"></div>
+
+        <h3>
+            Loading Account...
+        </h3>
+
+        <p>
+            Please wait while your account is being loaded.
+        </p>
+
+    </section>
+
+
+
+    <!--==================================================
+    FEATURE: ACCOUNT ERROR
+    ==================================================-->
+
+    <section
         id="accountError"
-        hidden
+        class="account-error"
+        style="display:none;"
     >
 
         <div class="account-error-icon">
+
             <i class="fa-solid fa-circle-exclamation"></i>
+
         </div>
 
         <h2>
-            Unable to Load Account
+            Account Access Required
         </h2>
 
         <p id="accountErrorMessage">
-            Something went wrong while loading your account.
+            Please login to access your account.
         </p>
 
-        <button
-            type="button"
-            class="primary-action-button"
-            id="accountRetryButton"
+        <a
+            href="./index.html"
+            class="account-error-button"
         >
 
-            <i class="fa-solid fa-rotate-right"></i>
+            <i class="fa-solid fa-arrow-left"></i>
 
-            Try Again
+            Back to Home
 
-        </button>
+        </a>
 
-    </div>
+    </section>
 
 
 
-    <!-- =====================================================
-    ACCOUNT APPLICATION
-    ====================================================== -->
+    <!--==================================================
+    FEATURE: ACCOUNT CONTENT
+    ==================================================-->
 
-    <div
-        id="accountApp"
-        hidden
+    <section
+        id="accountContent"
+        class="account-content"
+        style="display:none;"
     >
 
 
-        <!-- =================================================
-        FEATURE 005
-        PROFILE HERO
-        ================================================= -->
+        <!--==================================================
+        FEATURE: ACCOUNT HERO
+        ==================================================-->
 
         <section class="account-profile-card">
 
 
-            <!-- COVER -->
+            <div class="profile-background"></div>
 
-            <div
-                class="profile-background"
-                id="profileBackground"
-            >
-
-                <div class="profile-cover-overlay"></div>
-
-
-                <!-- COVER ACTIONS -->
-
-                <div class="profile-cover-actions">
-
-
-                    <button
-                        type="button"
-                        class="cover-action-button"
-                        id="profileBannerUploadButton"
-                        title="Change cover banner"
-                    >
-
-                        <i class="fa-solid fa-camera"></i>
-
-                        <span>
-                            Change Cover
-                        </span>
-
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="cover-remove-button"
-                        id="removeProfileBannerButton"
-                        title="Remove cover banner"
-                        hidden
-                    >
-
-                        <i class="fa-solid fa-trash"></i>
-
-                    </button>
-
-                </div>
-
-
-                <!-- BANNER INPUT -->
-
-                <input
-                    type="file"
-                    id="profileBannerInput"
-                    accept="image/jpeg,image/png,image/webp"
-                    hidden
-                >
-
-            </div>
-
-
-
-            <!-- PROFILE CONTENT -->
 
             <div class="profile-content">
 
 
-                <!-- =================================================
-                PROFILE AVATAR
-                ================================================= -->
+                <!-- AVATAR -->
 
-                <div class="profile-avatar-wrapper">
+                <div class="profile-avatar">
 
-                    <div
-                        class="profile-avatar"
-                        id="profileAvatar"
+                    <span id="profileAvatarLetter">
+                        U
+                    </span>
+
+                    <button
+                        type="button"
+                        id="changeAvatarButton"
+                        class="avatar-edit-button"
+                        aria-label="Change profile picture"
                     >
 
-                        <span
-                            id="profileAvatarInitial"
-                        >
-                            U
-                        </span>
+                        <i class="fa-solid fa-camera"></i>
 
-
-                        <img
-                            id="profileAvatarImage"
-                            src=""
-                            alt="Profile photo"
-                            hidden
-                        >
-
-
-                        <!-- AVATAR EDIT -->
-
-                        <button
-                            type="button"
-                            class="avatar-edit-button"
-                            id="avatarEditButton"
-                            title="Change profile photo"
-                            aria-label="Change profile photo"
-                        >
-
-                            <i class="fa-solid fa-camera"></i>
-
-                        </button>
-
-
-                        <!-- REMOVE PHOTO -->
-
-                        <button
-                            type="button"
-                            class="avatar-remove-button"
-                            id="removeProfilePhotoButton"
-                            title="Remove profile photo"
-                            hidden
-                        >
-
-                            <i class="fa-solid fa-trash"></i>
-
-                        </button>
-
-
-                        <!-- PHOTO INPUT -->
-
-                        <input
-                            type="file"
-                            id="profilePhotoInput"
-                            accept="image/jpeg,image/png,image/webp,image/gif"
-                            hidden
-                        >
-
-                    </div>
+                    </button>
 
                 </div>
 
 
-
-                <!-- PROFILE INFORMATION -->
+                <!-- PROFILE INFO -->
 
                 <div class="profile-main-info">
 
@@ -445,32 +236,19 @@ MAIN ACCOUNT CONTAINER
                     </span>
 
                     <h1 id="profileName">
-                        Customer
+                        SmartBazaar User
                     </h1>
 
                     <p id="profileEmail">
-                        Loading email...
+                        user@example.com
                     </p>
 
+                    <div class="profile-status">
 
-                    <div class="profile-meta">
+                        <span class="status-dot"></span>
 
-                        <span class="profile-status">
-
-                            <span class="status-dot"></span>
-
-                            <span id="profileStatusText">
-                                Active Account
-                            </span>
-
-                        </span>
-
-
-                        <span
-                            class="profile-member-since"
-                            id="profileMemberSince"
-                        >
-                            Member since —
+                        <span>
+                            Active Account
                         </span>
 
                     </div>
@@ -478,20 +256,17 @@ MAIN ACCOUNT CONTAINER
                 </div>
 
 
-
-                <!-- EDIT PROFILE -->
+                <!-- EDIT -->
 
                 <button
                     type="button"
-                    class="edit-profile-button"
                     id="editProfileButton"
+                    class="edit-profile-button"
                 >
 
-                    <i class="fa-solid fa-user-pen"></i>
+                    <i class="fa-solid fa-pen"></i>
 
-                    <span>
-                        Edit Profile
-                    </span>
+                    Edit Profile
 
                 </button>
 
@@ -501,104 +276,46 @@ MAIN ACCOUNT CONTAINER
 
 
 
-        <!-- =================================================
-        FEATURE 006
-        PROFILE COMPLETION
-        ================================================= -->
+        <!--==================================================
+        FEATURE: ACCOUNT STATISTICS
+        ==================================================-->
 
-        <section class="profile-completion-card">
-
-            <div class="completion-icon">
-
-                <i class="fa-solid fa-user-check"></i>
-
-            </div>
-
-            <div class="completion-content">
-
-                <div class="completion-heading">
-
-                    <div>
-
-                        <strong>
-                            Profile Completion
-                        </strong>
-
-                        <span id="profileCompletionText">
-                            Complete your profile
-                        </span>
-
-                    </div>
-
-                    <strong id="profileCompletionPercent">
-                        0%
-                    </strong>
-
-                </div>
+        <section class="account-statistics">
 
 
-                <div class="completion-progress">
-
-                    <span
-                        id="profileCompletionBar"
-                        style="width:0%;"
-                    ></span>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =================================================
-        FEATURE 007
-        ACCOUNT STATISTICS
-        ================================================= -->
-
-        <section
-            class="account-statistics"
-            aria-label="Account statistics"
-        >
-
-
-            <!-- ORDERS -->
-
-            <article class="account-stat-card">
+            <div class="account-stat-card">
 
                 <div class="account-stat-icon orders-stat-icon">
 
-                    <i class="fa-solid fa-box-open"></i>
+                    <i class="fa-solid fa-box"></i>
 
                 </div>
 
-                <div class="account-stat-content">
+                <div>
 
                     <span>
                         Total Orders
                     </span>
 
-                    <strong id="ordersCount">
+                    <strong id="totalOrders">
                         0
                     </strong>
 
                 </div>
 
-            </article>
+            </div>
 
 
-            <!-- WISHLIST -->
 
-            <article class="account-stat-card">
+            <div class="account-stat-card">
 
                 <div class="account-stat-icon wishlist-stat-icon">
 
-                    <i class="fa-solid fa-heart"></i>
+                    <i class="fa-regular fa-heart"></i>
 
                 </div>
 
-                <div class="account-stat-content">
+                <div>
 
                     <span>
                         Wishlist
@@ -610,12 +327,11 @@ MAIN ACCOUNT CONTAINER
 
                 </div>
 
-            </article>
+            </div>
 
 
-            <!-- ADDRESSES -->
 
-            <article class="account-stat-card">
+            <div class="account-stat-card">
 
                 <div class="account-stat-icon address-stat-icon">
 
@@ -623,146 +339,90 @@ MAIN ACCOUNT CONTAINER
 
                 </div>
 
-                <div class="account-stat-content">
+                <div>
 
                     <span>
-                        Addresses
+                        Saved Addresses
                     </span>
 
-                    <strong id="addressesCount">
+                    <strong id="addressCount">
                         0
                     </strong>
 
                 </div>
 
-            </article>
+            </div>
 
 
-            <!-- NOTIFICATIONS -->
 
-            <article class="account-stat-card">
+            <div class="account-stat-card">
 
                 <div class="account-stat-icon notification-stat-icon">
 
-                    <i class="fa-solid fa-bell"></i>
+                    <i class="fa-regular fa-bell"></i>
 
                 </div>
 
-                <div class="account-stat-content">
+                <div>
 
                     <span>
                         Notifications
                     </span>
 
-                    <strong id="notificationsCount">
+                    <strong id="notificationCount">
                         0
                     </strong>
 
                 </div>
 
-            </article>
+            </div>
 
         </section>
 
 
 
-        <!-- =================================================
-        FEATURE 008
-        ACCOUNT DASHBOARD LAYOUT
-        ================================================= -->
+        <!--==================================================
+        FEATURE: ACCOUNT DASHBOARD GRID
+        ==================================================-->
 
-        <section class="account-dashboard">
-
-
-            <!-- =================================================
-            SIDEBAR
-            ================================================= -->
-
-            <aside
-                class="account-sidebar"
-                id="accountSidebar"
-            >
+        <div class="account-dashboard">
 
 
-                <!-- SIDEBAR HEADER -->
+            <!--==================================================
+            FEATURE: ACCOUNT SIDEBAR
+            ==================================================-->
 
-                <div class="sidebar-header">
-
-                    <div class="sidebar-user-mini">
-
-                        <div class="sidebar-mini-avatar">
-
-                            <span id="sidebarAvatarInitial">
-                                U
-                            </span>
-
-                            <img
-                                id="sidebarAvatarImage"
-                                src=""
-                                alt=""
-                                hidden
-                            >
-
-                        </div>
-
-                        <div>
-
-                            <strong id="sidebarUserName">
-                                Customer
-                            </strong>
-
-                            <span>
-                                My Account
-                            </span>
-
-                        </div>
-
-                    </div>
+            <aside class="account-sidebar">
 
 
-                    <!-- MOBILE CLOSE -->
+                <div class="sidebar-title">
 
-                    <button
-                        type="button"
-                        class="sidebar-close-button"
-                        id="sidebarCloseButton"
-                        aria-label="Close menu"
-                    >
+                    <i class="fa-solid fa-user-circle"></i>
 
-                        <i class="fa-solid fa-xmark"></i>
-
-                    </button>
+                    <span>
+                        My Account
+                    </span>
 
                 </div>
 
 
+                <nav class="account-navigation">
 
-                <!-- NAVIGATION -->
-
-                <nav
-                    class="account-navigation"
-                    aria-label="Account navigation"
-                >
-
-
-                    <!-- DASHBOARD -->
 
                     <button
                         type="button"
                         class="account-nav-item active"
-                        data-section="dashboard"
+                        data-section="overview"
                     >
 
-                        <i class="fa-solid fa-chart-line"></i>
+                        <i class="fa-solid fa-gauge-high"></i>
 
                         <span>
-                            Dashboard
+                            Overview
                         </span>
 
                     </button>
 
-
-                    <!-- PROFILE -->
 
                     <button
                         type="button"
@@ -770,16 +430,14 @@ MAIN ACCOUNT CONTAINER
                         data-section="profile"
                     >
 
-                        <i class="fa-solid fa-user"></i>
+                        <i class="fa-regular fa-user"></i>
 
                         <span>
-                            My Profile
+                            Personal Information
                         </span>
 
                     </button>
 
-
-                    <!-- ORDERS -->
 
                     <button
                         type="button"
@@ -803,31 +461,20 @@ MAIN ACCOUNT CONTAINER
                     </button>
 
 
-                    <!-- WISHLIST -->
-
                     <button
                         type="button"
                         class="account-nav-item"
                         data-section="wishlist"
                     >
 
-                        <i class="fa-solid fa-heart"></i>
+                        <i class="fa-regular fa-heart"></i>
 
                         <span>
                             Wishlist
                         </span>
 
-                        <span
-                            id="wishlistNavBadge"
-                            class="nav-badge"
-                        >
-                            0
-                        </span>
-
                     </button>
 
-
-                    <!-- ADDRESSES -->
 
                     <button
                         type="button"
@@ -838,20 +485,11 @@ MAIN ACCOUNT CONTAINER
                         <i class="fa-solid fa-location-dot"></i>
 
                         <span>
-                            Addresses
-                        </span>
-
-                        <span
-                            id="addressesNavBadge"
-                            class="nav-badge"
-                        >
-                            0
+                            My Addresses
                         </span>
 
                     </button>
 
-
-                    <!-- NOTIFICATIONS -->
 
                     <button
                         type="button"
@@ -859,14 +497,14 @@ MAIN ACCOUNT CONTAINER
                         data-section="notifications"
                     >
 
-                        <i class="fa-solid fa-bell"></i>
+                        <i class="fa-regular fa-bell"></i>
 
                         <span>
                             Notifications
                         </span>
 
                         <span
-                            id="notificationsNavBadge"
+                            id="notificationNavBadge"
                             class="nav-badge notification-badge"
                         >
                             0
@@ -874,8 +512,6 @@ MAIN ACCOUNT CONTAINER
 
                     </button>
 
-
-                    <!-- SECURITY -->
 
                     <button
                         type="button"
@@ -892,8 +528,6 @@ MAIN ACCOUNT CONTAINER
                     </button>
 
 
-                    <!-- SETTINGS -->
-
                     <button
                         type="button"
                         class="account-nav-item"
@@ -903,7 +537,7 @@ MAIN ACCOUNT CONTAINER
                         <i class="fa-solid fa-gear"></i>
 
                         <span>
-                            Settings
+                            Account Settings
                         </span>
 
                     </button>
@@ -911,42 +545,12 @@ MAIN ACCOUNT CONTAINER
                 </nav>
 
 
-
-                <!-- SIDEBAR HELP -->
-
-                <div class="sidebar-help-card">
-
-                    <div class="sidebar-help-icon">
-
-                        <i class="fa-solid fa-headset"></i>
-
-                    </div>
-
-                    <strong>
-                        Need Help?
-                    </strong>
-
-                    <span>
-                        Our support team is here for you.
-                    </span>
-
-                    <a
-                        href="contact.html"
-                        class="sidebar-help-button"
-                    >
-                        Contact Support
-                    </a>
-
-                </div>
-
-
-
                 <!-- LOGOUT -->
 
                 <button
                     type="button"
+                    id="logoutButton"
                     class="account-logout-button"
-                    id="sidebarLogoutButton"
                 >
 
                     <i class="fa-solid fa-right-from-bracket"></i>
@@ -957,26 +561,25 @@ MAIN ACCOUNT CONTAINER
 
                 </button>
 
+
             </aside>
 
 
 
-            <!-- =================================================
-            MAIN PANEL
-            ================================================= -->
+            <!--==================================================
+            FEATURE: ACCOUNT MAIN PANEL
+            ==================================================-->
 
             <div class="account-main-panel">
 
 
-                <!-- =================================================
-                SECTION 01
-                DASHBOARD
-                ================================================= -->
+                <!--==================================================
+                FEATURE: OVERVIEW
+                ==================================================-->
 
                 <section
                     class="account-section active"
-                    id="section-dashboard"
-                    data-section-content="dashboard"
+                    id="section-overview"
                 >
 
                     <div class="section-heading">
@@ -984,21 +587,20 @@ MAIN ACCOUNT CONTAINER
                         <div>
 
                             <span class="section-label">
-                                Account Overview
+                                Dashboard
                             </span>
 
                             <h2>
-                                Dashboard
+                                Account Overview
                             </h2>
 
                             <p>
-                                Manage your SmartBazaar account from one place.
+                                Manage your SmartBazaar account and activity.
                             </p>
 
                         </div>
 
                     </div>
-
 
 
                     <!-- QUICK ACTIONS -->
@@ -1009,52 +611,26 @@ MAIN ACCOUNT CONTAINER
                         <button
                             type="button"
                             class="quick-action-card"
-                            data-open-section="profile"
-                        >
-
-                            <span class="quick-action-icon">
-                                <i class="fa-solid fa-user-pen"></i>
-                            </span>
-
-                            <span class="quick-action-content">
-
-                                <strong>
-                                    Edit Profile
-                                </strong>
-
-                                <span>
-                                    Update your personal information
-                                </span>
-
-                            </span>
-
-                            <i class="fa-solid fa-chevron-right"></i>
-
-                        </button>
-
-
-
-                        <button
-                            type="button"
-                            class="quick-action-card"
                             data-open-section="orders"
                         >
 
-                            <span class="quick-action-icon">
-                                <i class="fa-solid fa-box-open"></i>
-                            </span>
+                            <div class="quick-action-icon">
 
-                            <span class="quick-action-content">
+                                <i class="fa-solid fa-box-open"></i>
+
+                            </div>
+
+                            <div>
 
                                 <strong>
                                     My Orders
                                 </strong>
 
                                 <span>
-                                    Track and manage your orders
+                                    Track your purchases
                                 </span>
 
-                            </span>
+                            </div>
 
                             <i class="fa-solid fa-chevron-right"></i>
 
@@ -1068,21 +644,23 @@ MAIN ACCOUNT CONTAINER
                             data-open-section="wishlist"
                         >
 
-                            <span class="quick-action-icon">
-                                <i class="fa-solid fa-heart"></i>
-                            </span>
+                            <div class="quick-action-icon">
 
-                            <span class="quick-action-content">
+                                <i class="fa-regular fa-heart"></i>
+
+                            </div>
+
+                            <div>
 
                                 <strong>
                                     Wishlist
                                 </strong>
 
                                 <span>
-                                    View your saved products
+                                    Your saved products
                                 </span>
 
-                            </span>
+                            </div>
 
                             <i class="fa-solid fa-chevron-right"></i>
 
@@ -1096,11 +674,13 @@ MAIN ACCOUNT CONTAINER
                             data-open-section="addresses"
                         >
 
-                            <span class="quick-action-icon">
-                                <i class="fa-solid fa-location-dot"></i>
-                            </span>
+                            <div class="quick-action-icon">
 
-                            <span class="quick-action-content">
+                                <i class="fa-solid fa-location-dot"></i>
+
+                            </div>
+
+                            <div>
 
                                 <strong>
                                     Addresses
@@ -1110,190 +690,43 @@ MAIN ACCOUNT CONTAINER
                                     Manage delivery addresses
                                 </span>
 
-                            </span>
+                            </div>
+
+                            <i class="fa-solid fa-chevron-right"></i>
+
+                        </button>
+
+
+
+                        <button
+                            type="button"
+                            class="quick-action-card"
+                            data-open-section="security"
+                        >
+
+                            <div class="quick-action-icon">
+
+                                <i class="fa-solid fa-shield-halved"></i>
+
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Security
+                                </strong>
+
+                                <span>
+                                    Password and account security
+                                </span>
+
+                            </div>
 
                             <i class="fa-solid fa-chevron-right"></i>
 
                         </button>
 
                     </div>
-
-
-
-                    <!-- ORDER SUMMARY -->
-
-                    <div class="dashboard-summary-grid">
-
-
-                        <div class="account-card">
-
-                            <div class="account-card-heading">
-
-                                <div>
-
-                                    <h3>
-                                        Order Summary
-                                    </h3>
-
-                                    <p>
-                                        Overview of your shopping activity.
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="order-status-summary">
-
-
-                                <div class="order-status-box">
-
-                                    <span class="order-status-icon pending">
-                                        <i class="fa-solid fa-clock"></i>
-                                    </span>
-
-                                    <span>
-                                        Pending
-                                    </span>
-
-                                    <strong id="pendingOrdersCount">
-                                        0
-                                    </strong>
-
-                                </div>
-
-
-                                <div class="order-status-box">
-
-                                    <span class="order-status-icon processing">
-                                        <i class="fa-solid fa-gears"></i>
-                                    </span>
-
-                                    <span>
-                                        Processing
-                                    </span>
-
-                                    <strong id="processingOrdersCount">
-                                        0
-                                    </strong>
-
-                                </div>
-
-
-                                <div class="order-status-box">
-
-                                    <span class="order-status-icon shipped">
-                                        <i class="fa-solid fa-truck"></i>
-                                    </span>
-
-                                    <span>
-                                        Shipped
-                                    </span>
-
-                                    <strong id="shippedOrdersCount">
-                                        0
-                                    </strong>
-
-                                </div>
-
-
-                                <div class="order-status-box">
-
-                                    <span class="order-status-icon delivered">
-                                        <i class="fa-solid fa-circle-check"></i>
-                                    </span>
-
-                                    <span>
-                                        Delivered
-                                    </span>
-
-                                    <strong id="deliveredOrdersCount">
-                                        0
-                                    </strong>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-
-                        <!-- ACCOUNT HEALTH -->
-
-                        <div class="account-card">
-
-                            <div class="account-card-heading">
-
-                                <div>
-
-                                    <h3>
-                                        Account Status
-                                    </h3>
-
-                                    <p>
-                                        Your account security and profile.
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="account-health-list">
-
-
-                                <div class="health-item">
-
-                                    <i class="fa-solid fa-circle-check"></i>
-
-                                    <span>
-                                        Account Active
-                                    </span>
-
-                                    <strong>
-                                        Good
-                                    </strong>
-
-                                </div>
-
-
-                                <div class="health-item">
-
-                                    <i class="fa-solid fa-envelope-circle-check"></i>
-
-                                    <span>
-                                        Email Verification
-                                    </span>
-
-                                    <strong id="dashboardEmailStatus">
-                                        Checking
-                                    </strong>
-
-                                </div>
-
-
-                                <div class="health-item">
-
-                                    <i class="fa-solid fa-shield-halved"></i>
-
-                                    <span>
-                                        Security
-                                    </span>
-
-                                    <strong>
-                                        Protected
-                                    </strong>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
 
 
                     <!-- RECENT ORDERS -->
@@ -1309,7 +742,7 @@ MAIN ACCOUNT CONTAINER
                                 </h3>
 
                                 <p>
-                                    Your latest shopping activity.
+                                    Your latest SmartBazaar purchases
                                 </p>
 
                             </div>
@@ -1330,8 +763,8 @@ MAIN ACCOUNT CONTAINER
 
 
                         <div
-                            class="account-orders-list"
-                            id="dashboardRecentOrders"
+                            id="recentOrders"
+                            class="recent-orders"
                         >
 
                             <div class="empty-state">
@@ -1339,19 +772,12 @@ MAIN ACCOUNT CONTAINER
                                 <i class="fa-solid fa-box-open"></i>
 
                                 <h4>
-                                    No orders yet
+                                    No Orders Yet
                                 </h4>
 
                                 <p>
                                     Your recent orders will appear here.
                                 </p>
-
-                                <a
-                                    href="index.html"
-                                    class="empty-action-button"
-                                >
-                                    Start Shopping
-                                </a>
 
                             </div>
 
@@ -1363,15 +789,13 @@ MAIN ACCOUNT CONTAINER
 
 
 
-                <!-- =================================================
-                SECTION 02
-                PROFILE
-                ================================================= -->
+                <!--==================================================
+                FEATURE: PERSONAL INFORMATION
+                ==================================================-->
 
                 <section
                     class="account-section"
                     id="section-profile"
-                    data-section-content="profile"
                 >
 
                     <div class="section-heading">
@@ -1379,15 +803,15 @@ MAIN ACCOUNT CONTAINER
                         <div>
 
                             <span class="section-label">
-                                Personal Information
+                                Profile
                             </span>
 
                             <h2>
-                                My Profile
+                                Personal Information
                             </h2>
 
                             <p>
-                                Update your personal account information.
+                                Manage your personal account information.
                             </p>
 
                         </div>
@@ -1395,362 +819,94 @@ MAIN ACCOUNT CONTAINER
                     </div>
 
 
-
-                    <!-- PERSONAL INFORMATION -->
-
                     <div class="account-card">
 
-                        <div class="account-card-heading">
 
-                            <div>
+                        <form id="profileForm">
 
-                                <h3>
-                                    Personal Information
-                                </h3>
-
-                                <p>
-                                    Keep your account details up to date.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-
-                        <form
-                            id="profileForm"
-                            novalidate
-                        >
 
                             <div class="profile-form-grid">
 
 
-                                <!-- FULL NAME -->
-
                                 <div class="form-group">
 
-                                    <label for="profileNameInput">
+                                    <label for="accountFullName">
                                         Full Name
                                     </label>
 
-                                    <div class="input-wrapper">
-
-                                        <i class="fa-solid fa-user"></i>
-
-                                        <input
-                                            type="text"
-                                            id="profileNameInput"
-                                            name="displayName"
-                                            placeholder="Enter your full name"
-                                            autocomplete="name"
-                                            maxlength="80"
-                                            required
-                                        >
-
-                                    </div>
-
-                                    <small
-                                        class="form-error"
-                                        id="profileNameError"
-                                    ></small>
+                                    <input
+                                        type="text"
+                                        id="accountFullName"
+                                        placeholder="Your full name"
+                                        autocomplete="name"
+                                    >
 
                                 </div>
 
 
-
-                                <!-- EMAIL -->
-
                                 <div class="form-group">
 
-                                    <label for="profileEmailInput">
+                                    <label for="accountEmail">
                                         Email Address
                                     </label>
 
-                                    <div class="input-wrapper">
-
-                                        <i class="fa-solid fa-envelope"></i>
-
-                                        <input
-                                            type="email"
-                                            id="profileEmailInput"
-                                            name="email"
-                                            placeholder="Your email address"
-                                            autocomplete="email"
-                                            readonly
-                                        >
-
-                                    </div>
+                                    <input
+                                        type="email"
+                                        id="accountEmail"
+                                        placeholder="Your email"
+                                        autocomplete="email"
+                                        readonly
+                                    >
 
                                     <small>
-                                        Email is managed by your login account.
+                                        Your login email cannot be changed here.
                                     </small>
 
                                 </div>
 
 
-
-                                <!-- PHONE -->
-
                                 <div class="form-group">
 
-                                    <label for="profilePhoneInput">
-                                        Phone Number
+                                    <label for="accountPhone">
+                                        Mobile Number
                                     </label>
 
-                                    <div class="input-wrapper">
-
-                                        <i class="fa-solid fa-phone"></i>
-
-                                        <input
-                                            type="tel"
-                                            id="profilePhoneInput"
-                                            name="phone"
-                                            placeholder="03XX XXXXXXX"
-                                            autocomplete="tel"
-                                            maxlength="20"
-                                        >
-
-                                    </div>
+                                    <input
+                                        type="tel"
+                                        id="accountPhone"
+                                        placeholder="03XXXXXXXXX"
+                                        maxlength="11"
+                                        inputmode="numeric"
+                                        autocomplete="tel"
+                                    >
 
                                 </div>
 
 
-
-                                <!-- COUNTRY -->
-
                                 <div class="form-group">
 
-                                    <label for="profileCountryInput">
-                                        Country
-                                    </label>
-
-                                    <div class="input-wrapper">
-
-                                        <i class="fa-solid fa-globe"></i>
-
-                                        <select
-                                            id="profileCountryInput"
-                                            name="country"
-                                        >
-
-                                            <option value="">
-                                                Select Country
-                                            </option>
-
-                                            <option value="Pakistan">
-                                                Pakistan
-                                            </option>
-
-                                            <option value="United Arab Emirates">
-                                                United Arab Emirates
-                                            </option>
-
-                                            <option value="Saudi Arabia">
-                                                Saudi Arabia
-                                            </option>
-
-                                            <option value="United Kingdom">
-                                                United Kingdom
-                                            </option>
-
-                                            <option value="United States">
-                                                United States
-                                            </option>
-
-                                            <option value="Canada">
-                                                Canada
-                                            </option>
-
-                                            <option value="Australia">
-                                                Australia
-                                            </option>
-
-                                            <option value="Other">
-                                                Other
-                                            </option>
-
-                                        </select>
-
-                                    </div>
-
-                                </div>
-
-
-
-                                <!-- CITY -->
-
-                                <div class="form-group">
-
-                                    <label for="profileCityInput">
+                                    <label for="accountCity">
                                         City
                                     </label>
 
-                                    <div class="input-wrapper">
-
-                                        <i class="fa-solid fa-city"></i>
-
-                                        <input
-                                            type="text"
-                                            id="profileCityInput"
-                                            name="city"
-                                            placeholder="Enter your city"
-                                            autocomplete="address-level2"
-                                            maxlength="60"
-                                        >
-
-                                    </div>
+                                    <input
+                                        type="text"
+                                        id="accountCity"
+                                        placeholder="Your city"
+                                        autocomplete="address-level2"
+                                    >
 
                                 </div>
 
-
-
-                                <!-- DATE OF BIRTH -->
-
-                                <div class="form-group">
-
-                                    <label for="profileDobInput">
-                                        Date of Birth
-                                    </label>
-
-                                    <div class="input-wrapper">
-
-                                        <i class="fa-solid fa-calendar-days"></i>
-
-                                        <input
-                                            type="date"
-                                            id="profileDobInput"
-                                            name="dateOfBirth"
-                                        >
-
-                                    </div>
-
-                                </div>
-
-
-
-                                <!-- GENDER -->
-
-                                <div class="form-group">
-
-                                    <label for="profileGenderInput">
-                                        Gender
-                                    </label>
-
-                                    <div class="input-wrapper">
-
-                                        <i class="fa-solid fa-venus-mars"></i>
-
-                                        <select
-                                            id="profileGenderInput"
-                                            name="gender"
-                                        >
-
-                                            <option value="">
-                                                Prefer not to say
-                                            </option>
-
-                                            <option value="male">
-                                                Male
-                                            </option>
-
-                                            <option value="female">
-                                                Female
-                                            </option>
-
-                                            <option value="other">
-                                                Other
-                                            </option>
-
-                                        </select>
-
-                                    </div>
-
-                                </div>
-
-
-
-                                <!-- POSTAL CODE -->
-
-                                <div class="form-group">
-
-                                    <label for="profilePostalCodeInput">
-                                        Postal Code
-                                    </label>
-
-                                    <div class="input-wrapper">
-
-                                        <i class="fa-solid fa-hashtag"></i>
-
-                                        <input
-                                            type="text"
-                                            id="profilePostalCodeInput"
-                                            name="postalCode"
-                                            placeholder="Postal code"
-                                            maxlength="15"
-                                        >
-
-                                    </div>
-
-                                </div>
-
-
-
-                                <!-- BIO -->
-
-                                <div
-                                    class="form-group form-group-full"
-                                >
-
-                                    <label for="profileBioInput">
-                                        About You
-                                    </label>
-
-                                    <textarea
-                                        id="profileBioInput"
-                                        name="bio"
-                                        placeholder="Tell us a little about yourself..."
-                                        maxlength="500"
-                                        rows="5"
-                                    ></textarea>
-
-                                    <div class="textarea-footer">
-
-                                        <small>
-                                            Maximum 500 characters.
-                                        </small>
-
-                                        <span id="bioCharacterCount">
-                                            0 / 500
-                                        </span>
-
-                                    </div>
-
-                                </div>
 
                             </div>
 
 
-
-                            <!-- FORM ACTIONS -->
-
                             <div class="form-actions">
 
                                 <button
-                                    type="button"
-                                    class="secondary-action-button"
-                                    id="resetProfileButton"
-                                >
-
-                                    <i class="fa-solid fa-rotate-left"></i>
-
-                                    Reset
-
-                                </button>
-
-                                <button
                                     type="submit"
-                                    class="primary-action-button"
-                                    id="saveProfileButton"
+                                    class="save-button"
                                 >
 
                                     <i class="fa-solid fa-floppy-disk"></i>
@@ -1765,167 +921,17 @@ MAIN ACCOUNT CONTAINER
 
                     </div>
 
-
-
-                    <!-- =================================================
-                    PROFILE MEDIA
-                    ================================================= -->
-
-                    <div class="account-card">
-
-                        <div class="account-card-heading">
-
-                            <div>
-
-                                <h3>
-                                    Profile Appearance
-                                </h3>
-
-                                <p>
-                                    Personalize your profile photo and cover banner.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="profile-media-grid">
-
-
-                            <!-- PHOTO -->
-
-                            <div class="media-upload-card">
-
-                                <div class="media-preview avatar-preview">
-
-                                    <img
-                                        id="profileMediaPreview"
-                                        src=""
-                                        alt="Profile photo preview"
-                                        hidden
-                                    >
-
-                                    <span
-                                        id="profileMediaInitial"
-                                    >
-                                        U
-                                    </span>
-
-                                </div>
-
-                                <h4>
-                                    Profile Photo
-                                </h4>
-
-                                <p>
-                                    JPG, PNG, WEBP or GIF. Maximum 5MB.
-                                </p>
-
-                                <div class="media-actions">
-
-                                    <button
-                                        type="button"
-                                        class="primary-action-button"
-                                        id="profilePhotoUploadButton"
-                                    >
-
-                                        <i class="fa-solid fa-camera"></i>
-
-                                        Change Photo
-
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        class="danger-outline-button"
-                                        id="profilePhotoRemoveButton"
-                                        hidden
-                                    >
-
-                                        <i class="fa-solid fa-trash"></i>
-
-                                        Remove
-
-                                    </button>
-
-                                </div>
-
-                            </div>
-
-
-
-                            <!-- BANNER -->
-
-                            <div class="media-upload-card banner-media-card">
-
-                                <div
-                                    class="media-preview banner-preview"
-                                    id="profileBannerPreview"
-                                >
-
-                                    <span>
-                                        Cover Banner
-                                    </span>
-
-                                </div>
-
-                                <h4>
-                                    Cover Banner
-                                </h4>
-
-                                <p>
-                                    JPG, PNG or WEBP. Maximum 8MB.
-                                </p>
-
-                                <div class="media-actions">
-
-                                    <button
-                                        type="button"
-                                        class="primary-action-button"
-                                        id="profileBannerMediaUploadButton"
-                                    >
-
-                                        <i class="fa-solid fa-image"></i>
-
-                                        Change Banner
-
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        class="danger-outline-button"
-                                        id="profileBannerMediaRemoveButton"
-                                        hidden
-                                    >
-
-                                        <i class="fa-solid fa-trash"></i>
-
-                                        Remove
-
-                                    </button>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
                 </section>
 
 
 
-                <!-- =================================================
-                SECTION 03
-                ORDERS
-                ================================================= -->
+                <!--==================================================
+                FEATURE: MY ORDERS
+                ==================================================-->
 
                 <section
                     class="account-section"
                     id="section-orders"
-                    data-section-content="orders"
                 >
 
                     <div class="section-heading">
@@ -1933,7 +939,7 @@ MAIN ACCOUNT CONTAINER
                         <div>
 
                             <span class="section-label">
-                                Shopping History
+                                Shopping
                             </span>
 
                             <h2>
@@ -1949,106 +955,11 @@ MAIN ACCOUNT CONTAINER
                     </div>
 
 
-
-                    <!-- ORDER FILTERS -->
-
-                    <div class="account-card order-filter-card">
-
-                        <div class="order-filter-row">
-
-
-                            <div class="search-field">
-
-                                <i class="fa-solid fa-magnifying-glass"></i>
-
-                                <input
-                                    type="search"
-                                    id="orderSearchInput"
-                                    placeholder="Search order ID or product..."
-                                    autocomplete="off"
-                                >
-
-                            </div>
-
-
-                            <select
-                                id="orderStatusFilter"
-                                class="filter-select"
-                            >
-
-                                <option value="all">
-                                    All Orders
-                                </option>
-
-                                <option value="pending">
-                                    Pending
-                                </option>
-
-                                <option value="processing">
-                                    Processing
-                                </option>
-
-                                <option value="shipped">
-                                    Shipped
-                                </option>
-
-                                <option value="delivered">
-                                    Delivered
-                                </option>
-
-                                <option value="cancelled">
-                                    Cancelled
-                                </option>
-
-                                <option value="returned">
-                                    Returned
-                                </option>
-
-                            </select>
-
-
-                            <button
-                                type="button"
-                                class="secondary-action-button"
-                                id="refreshOrdersButton"
-                            >
-
-                                <i class="fa-solid fa-rotate"></i>
-
-                                Refresh
-
-                            </button>
-
-                        </div>
-
-                    </div>
-
-
-
-                    <!-- ORDERS -->
-
                     <div class="account-card">
 
-                        <div class="account-card-heading">
-
-                            <div>
-
-                                <h3>
-                                    All Orders
-                                </h3>
-
-                                <p id="ordersResultText">
-                                    Your complete order history.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-
                         <div
+                            id="accountOrdersList"
                             class="account-orders-list"
-                            id="ordersList"
                         >
 
                             <div class="empty-state">
@@ -2056,19 +967,12 @@ MAIN ACCOUNT CONTAINER
                                 <i class="fa-solid fa-box-open"></i>
 
                                 <h4>
-                                    No orders found
+                                    No Orders Yet
                                 </h4>
 
                                 <p>
-                                    You have not placed any orders yet.
+                                    Orders you place will appear here.
                                 </p>
-
-                                <a
-                                    href="index.html"
-                                    class="empty-action-button"
-                                >
-                                    Start Shopping
-                                </a>
 
                             </div>
 
@@ -2080,15 +984,13 @@ MAIN ACCOUNT CONTAINER
 
 
 
-                <!-- =================================================
-                SECTION 04
-                WISHLIST
-                ================================================= -->
+                <!--==================================================
+                FEATURE: WISHLIST
+                ==================================================-->
 
                 <section
                     class="account-section"
                     id="section-wishlist"
-                    data-section-content="wishlist"
                 >
 
                     <div class="section-heading">
@@ -2096,7 +998,7 @@ MAIN ACCOUNT CONTAINER
                         <div>
 
                             <span class="section-label">
-                                Saved Products
+                                Saved
                             </span>
 
                             <h2>
@@ -2109,70 +1011,35 @@ MAIN ACCOUNT CONTAINER
 
                         </div>
 
-                        <button
-                            type="button"
-                            class="secondary-action-button"
-                            id="clearWishlistButton"
-                        >
-
-                            <i class="fa-solid fa-trash"></i>
-
-                            Clear Wishlist
-
-                        </button>
-
                     </div>
-
 
 
                     <div class="account-card">
 
-                        <div class="account-card-heading">
-
-                            <div>
-
-                                <h3>
-                                    Saved Products
-                                </h3>
-
-                                <p>
-                                    Your favorite products.
-                                </p>
-
-                            </div>
-
-                            <span
-                                class="item-count-label"
-                                id="wishlistItemCount"
-                            >
-                                0 items
-                            </span>
-
-                        </div>
-
-
                         <div
-                            class="wishlist-products"
                             id="wishlistProducts"
+                            class="wishlist-products"
                         >
 
                             <div class="empty-state">
 
-                                <i class="fa-solid fa-heart"></i>
+                                <i class="fa-regular fa-heart"></i>
 
                                 <h4>
-                                    Your wishlist is empty
+                                    Your Wishlist is Empty
                                 </h4>
 
                                 <p>
-                                    Save products you love and find them here later.
+                                    Save products you love and find them here.
                                 </p>
 
                                 <a
-                                    href="index.html"
+                                    href="./index.html"
                                     class="empty-action-button"
                                 >
+
                                     Browse Products
+
                                 </a>
 
                             </div>
@@ -2185,15 +1052,13 @@ MAIN ACCOUNT CONTAINER
 
 
 
-                <!-- =================================================
-                SECTION 05
-                ADDRESSES
-                ================================================= -->
+                <!--==================================================
+                FEATURE: ADDRESSES
+                ==================================================-->
 
                 <section
                     class="account-section"
                     id="section-addresses"
-                    data-section-content="addresses"
                 >
 
                     <div class="section-heading">
@@ -2201,7 +1066,7 @@ MAIN ACCOUNT CONTAINER
                         <div>
 
                             <span class="section-label">
-                                Delivery Information
+                                Delivery
                             </span>
 
                             <h2>
@@ -2209,7 +1074,7 @@ MAIN ACCOUNT CONTAINER
                             </h2>
 
                             <p>
-                                Manage your delivery and shipping addresses.
+                                Manage your saved delivery addresses.
                             </p>
 
                         </div>
@@ -2217,8 +1082,8 @@ MAIN ACCOUNT CONTAINER
 
                         <button
                             type="button"
-                            class="primary-action-button"
                             id="addAddressButton"
+                            class="primary-action-button"
                         >
 
                             <i class="fa-solid fa-plus"></i>
@@ -2230,52 +1095,22 @@ MAIN ACCOUNT CONTAINER
                     </div>
 
 
+                    <div
+                        id="addressesList"
+                        class="addresses-list"
+                    >
 
-                    <div class="account-card">
+                        <div class="empty-state">
 
-                        <div class="account-card-heading">
+                            <i class="fa-solid fa-location-dot"></i>
 
-                            <div>
+                            <h4>
+                                No Saved Addresses
+                            </h4>
 
-                                <h3>
-                                    Saved Addresses
-                                </h3>
-
-                                <p>
-                                    Select a default address for faster checkout.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-
-                        <div
-                            class="addresses-list"
-                            id="addressesList"
-                        >
-
-                            <div class="empty-state">
-
-                                <i class="fa-solid fa-location-dot"></i>
-
-                                <h4>
-                                    No addresses saved
-                                </h4>
-
-                                <p>
-                                    Add your first delivery address.
-                                </p>
-
-                                <button
-                                    type="button"
-                                    class="empty-action-button"
-                                    id="emptyAddAddressButton"
-                                >
-                                    Add Address
-                                </button>
-
-                            </div>
+                            <p>
+                                Add an address for faster checkout.
+                            </p>
 
                         </div>
 
@@ -2285,15 +1120,13 @@ MAIN ACCOUNT CONTAINER
 
 
 
-                <!-- =================================================
-                SECTION 06
-                NOTIFICATIONS
-                ================================================= -->
+                <!--==================================================
+                FEATURE: NOTIFICATIONS
+                ==================================================-->
 
                 <section
                     class="account-section"
                     id="section-notifications"
-                    data-section-content="notifications"
                 >
 
                     <div class="section-heading">
@@ -2301,7 +1134,7 @@ MAIN ACCOUNT CONTAINER
                         <div>
 
                             <span class="section-label">
-                                Updates & Alerts
+                                Updates
                             </span>
 
                             <h2>
@@ -2315,58 +1148,37 @@ MAIN ACCOUNT CONTAINER
                         </div>
 
 
-                        <div class="heading-actions">
+                        <button
+                            type="button"
+                            id="markNotificationsRead"
+                            class="secondary-action-button"
+                        >
 
-                            <button
-                                type="button"
-                                class="secondary-action-button"
-                                id="markAllNotificationsRead"
-                            >
+                            <i class="fa-solid fa-check-double"></i>
 
-                                <i class="fa-solid fa-check-double"></i>
+                            Mark All Read
 
-                                Mark All Read
-
-                            </button>
-
-                            <button
-                                type="button"
-                                class="danger-outline-button"
-                                id="clearNotificationsButton"
-                            >
-
-                                <i class="fa-solid fa-trash"></i>
-
-                                Clear
-
-                            </button>
-
-                        </div>
+                        </button>
 
                     </div>
 
 
+                    <div
+                        id="notificationsList"
+                        class="notifications-list"
+                    >
 
-                    <div class="account-card">
+                        <div class="empty-state">
 
-                        <div
-                            class="notifications-list"
-                            id="notificationsList"
-                        >
+                            <i class="fa-regular fa-bell"></i>
 
-                            <div class="empty-state">
+                            <h4>
+                                No Notifications
+                            </h4>
 
-                                <i class="fa-solid fa-bell"></i>
-
-                                <h4>
-                                    No notifications
-                                </h4>
-
-                                <p>
-                                    New account and order notifications will appear here.
-                                </p>
-
-                            </div>
+                            <p>
+                                New account and order updates will appear here.
+                            </p>
 
                         </div>
 
@@ -2376,15 +1188,13 @@ MAIN ACCOUNT CONTAINER
 
 
 
-                <!-- =================================================
-                SECTION 07
-                SECURITY
-                ================================================= -->
+                <!--==================================================
+                FEATURE: SECURITY
+                ==================================================-->
 
                 <section
                     class="account-section"
                     id="section-security"
-                    data-section-content="security"
                 >
 
                     <div class="section-heading">
@@ -2392,15 +1202,15 @@ MAIN ACCOUNT CONTAINER
                         <div>
 
                             <span class="section-label">
-                                Account Protection
+                                Protection
                             </span>
 
                             <h2>
-                                Security
+                                Account Security
                             </h2>
 
                             <p>
-                                Manage your account security and authentication.
+                                Keep your SmartBazaar account secure.
                             </p>
 
                         </div>
@@ -2408,41 +1218,8 @@ MAIN ACCOUNT CONTAINER
                     </div>
 
 
-
-                    <!-- SECURITY STATUS -->
-
-                    <div class="security-overview-card">
-
-                        <div class="security-overview-icon">
-
-                            <i class="fa-solid fa-shield-halved"></i>
-
-                        </div>
-
-                        <div>
-
-                            <strong>
-                                Your Account Is Protected
-                            </strong>
-
-                            <span>
-                                Keep your email verified and password secure.
-                            </span>
-
-                        </div>
-
-                        <span class="security-active">
-                            Protected
-                        </span>
-
-                    </div>
-
-
-
                     <div class="account-card security-card">
 
-
-                        <!-- PASSWORD -->
 
                         <div class="security-item">
 
@@ -2452,22 +1229,22 @@ MAIN ACCOUNT CONTAINER
 
                             </div>
 
-                            <div class="security-item-content">
+                            <div>
 
                                 <strong>
                                     Password
                                 </strong>
 
                                 <span>
-                                    Change your account password regularly.
+                                    Keep your password private and secure.
                                 </span>
 
                             </div>
 
                             <button
                                 type="button"
-                                class="secondary-action-button"
                                 id="changePasswordButton"
+                                class="secondary-action-button"
                             >
 
                                 Change Password
@@ -2477,100 +1254,29 @@ MAIN ACCOUNT CONTAINER
                         </div>
 
 
-
-                        <!-- EMAIL -->
-
                         <div class="security-item">
 
                             <div class="security-item-icon">
 
-                                <i class="fa-solid fa-envelope-circle-check"></i>
+                                <i class="fa-solid fa-shield-halved"></i>
 
                             </div>
 
-                            <div class="security-item-content">
-
-                                <strong>
-                                    Email Verification
-                                </strong>
-
-                                <span id="emailVerificationText">
-                                    Checking verification status...
-                                </span>
-
-                            </div>
-
-                            <span
-                                class="security-active"
-                                id="emailVerificationBadge"
-                            >
-                                Checking
-                            </span>
-
-                            <button
-                                type="button"
-                                class="secondary-action-button"
-                                id="verifyEmailButton"
-                                hidden
-                            >
-                                Verify Email
-                            </button>
-
-                        </div>
-
-
-
-                        <!-- ACCOUNT -->
-
-                        <div class="security-item">
-
-                            <div class="security-item-icon">
-
-                                <i class="fa-solid fa-user-shield"></i>
-
-                            </div>
-
-                            <div class="security-item-content">
+                            <div>
 
                                 <strong>
                                     Account Protection
                                 </strong>
 
                                 <span>
-                                    Your SmartBazaar account is protected.
+                                    Your account information is protected by Firebase authentication.
                                 </span>
 
                             </div>
 
                             <span class="security-active">
-                                Active
+                                Protected
                             </span>
-
-                        </div>
-
-
-
-                        <!-- LAST LOGIN -->
-
-                        <div class="security-item">
-
-                            <div class="security-item-icon">
-
-                                <i class="fa-solid fa-clock-rotate-left"></i>
-
-                            </div>
-
-                            <div class="security-item-content">
-
-                                <strong>
-                                    Last Login
-                                </strong>
-
-                                <span id="lastLoginText">
-                                    Loading...
-                                </span>
-
-                            </div>
 
                         </div>
 
@@ -2580,15 +1286,13 @@ MAIN ACCOUNT CONTAINER
 
 
 
-                <!-- =================================================
-                SECTION 08
-                SETTINGS
-                ================================================= -->
+                <!--==================================================
+                FEATURE: ACCOUNT SETTINGS
+                ==================================================-->
 
                 <section
                     class="account-section"
                     id="section-settings"
-                    data-section-content="settings"
                 >
 
                     <div class="section-heading">
@@ -2600,11 +1304,11 @@ MAIN ACCOUNT CONTAINER
                             </span>
 
                             <h2>
-                                Settings
+                                Account Settings
                             </h2>
 
                             <p>
-                                Control your account preferences.
+                                Customize your SmartBazaar account preferences.
                             </p>
 
                         </div>
@@ -2612,75 +1316,22 @@ MAIN ACCOUNT CONTAINER
                     </div>
 
 
-
                     <div class="account-card settings-card">
 
 
-                        <!-- EMAIL -->
-
                         <div class="setting-row">
 
-                            <div class="setting-info">
+                            <div>
 
-                                <span class="setting-icon">
-                                    <i class="fa-solid fa-envelope"></i>
+                                <strong>
+                                    Order Notifications
+                                </strong>
+
+                                <span>
+                                    Receive updates about your orders.
                                 </span>
 
-                                <div>
-
-                                    <strong>
-                                        Email Notifications
-                                    </strong>
-
-                                    <span>
-                                        Receive important account and order updates.
-                                    </span>
-
-                                </div>
-
                             </div>
-
-
-                            <label class="toggle-switch">
-
-                                <input
-                                    type="checkbox"
-                                    id="emailNotificationsToggle"
-                                    checked
-                                >
-
-                                <span class="toggle-slider"></span>
-
-                            </label>
-
-                        </div>
-
-
-
-                        <!-- ORDER -->
-
-                        <div class="setting-row">
-
-                            <div class="setting-info">
-
-                                <span class="setting-icon">
-                                    <i class="fa-solid fa-box"></i>
-                                </span>
-
-                                <div>
-
-                                    <strong>
-                                        Order Updates
-                                    </strong>
-
-                                    <span>
-                                        Get notifications about order status changes.
-                                    </span>
-
-                                </div>
-
-                            </div>
-
 
                             <label class="toggle-switch">
 
@@ -2697,31 +1348,48 @@ MAIN ACCOUNT CONTAINER
                         </div>
 
 
-
-                        <!-- PROMOTIONAL -->
-
                         <div class="setting-row">
 
-                            <div class="setting-info">
+                            <div>
 
-                                <span class="setting-icon">
-                                    <i class="fa-solid fa-tag"></i>
+                                <strong>
+                                    Delivery Updates
+                                </strong>
+
+                                <span>
+                                    Get notified when your order status changes.
                                 </span>
-
-                                <div>
-
-                                    <strong>
-                                        Promotional Offers
-                                    </strong>
-
-                                    <span>
-                                        Receive special offers and shopping deals.
-                                    </span>
-
-                                </div>
 
                             </div>
 
+                            <label class="toggle-switch">
+
+                                <input
+                                    type="checkbox"
+                                    id="deliveryNotificationsToggle"
+                                    checked
+                                >
+
+                                <span class="toggle-slider"></span>
+
+                            </label>
+
+                        </div>
+
+
+                        <div class="setting-row">
+
+                            <div>
+
+                                <strong>
+                                    Promotional Notifications
+                                </strong>
+
+                                <span>
+                                    Receive special offers and product updates.
+                                </span>
+
+                            </div>
 
                             <label class="toggle-switch">
 
@@ -2737,66 +1405,6 @@ MAIN ACCOUNT CONTAINER
                         </div>
 
 
-
-                        <!-- WISHLIST -->
-
-                        <div class="setting-row">
-
-                            <div class="setting-info">
-
-                                <span class="setting-icon">
-                                    <i class="fa-solid fa-heart"></i>
-                                </span>
-
-                                <div>
-
-                                    <strong>
-                                        Wishlist Alerts
-                                    </strong>
-
-                                    <span>
-                                        Receive updates about saved products.
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-
-                            <label class="toggle-switch">
-
-                                <input
-                                    type="checkbox"
-                                    id="wishlistNotificationsToggle"
-                                    checked
-                                >
-
-                                <span class="toggle-slider"></span>
-
-                            </label>
-
-                        </div>
-
-
-
-                        <!-- SAVE SETTINGS -->
-
-                        <div class="settings-save-area">
-
-                            <button
-                                type="button"
-                                class="primary-action-button"
-                                id="saveSettingsButton"
-                            >
-
-                                <i class="fa-solid fa-floppy-disk"></i>
-
-                                Save Settings
-
-                            </button>
-
-                        </div>
-
                     </div>
 
                 </section>
@@ -2804,36 +1412,27 @@ MAIN ACCOUNT CONTAINER
 
             </div>
 
-        </section>
+        </div>
 
-    </div>
+    </section>
 
 </main>
 
 
 
-<!-- =========================================================
-FEATURE 009
-ADDRESS MODAL
-========================================================= -->
+<!--==================================================
+FEATURE: ADDRESS MODAL
+==================================================-->
 
 <div
-    class="account-modal"
     id="addressModal"
-    hidden
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="addressModalTitle"
+    class="account-modal"
+    style="display:none;"
 >
 
-    <div
-        class="modal-overlay"
-        data-close-modal="addressModal"
-    ></div>
-
+    <div class="modal-overlay"></div>
 
     <div class="modal-box">
-
 
         <div class="modal-header">
 
@@ -2843,18 +1442,16 @@ ADDRESS MODAL
                     Delivery Address
                 </span>
 
-                <h3 id="addressModalTitle">
+                <h3>
                     Add New Address
                 </h3>
 
             </div>
 
-
             <button
                 type="button"
+                id="closeAddressModal"
                 class="modal-close"
-                data-close-modal="addressModal"
-                aria-label="Close"
             >
 
                 <i class="fa-solid fa-xmark"></i>
@@ -2864,122 +1461,67 @@ ADDRESS MODAL
         </div>
 
 
-
-        <form
-            id="addressForm"
-            novalidate
-        >
-
-            <input
-                type="hidden"
-                id="editingAddressId"
-                value=""
-            >
+        <form id="addressForm">
 
 
-            <!-- ADDRESS NAME -->
+            <div class="form-group">
+
+                <label for="addressTitle">
+                    Address Name
+                </label>
+
+                <select id="addressTitle">
+
+                    <option value="Home">
+                        Home
+                    </option>
+
+                    <option value="Office">
+                        Office
+                    </option>
+
+                    <option value="Other">
+                        Other
+                    </option>
+
+                </select>
+
+            </div>
+
 
             <div class="form-group">
 
                 <label for="addressName">
-                    Address Name
+                    Full Name
                 </label>
 
-                <div class="input-wrapper">
-
-                    <i class="fa-solid fa-bookmark"></i>
-
-                    <input
-                        type="text"
-                        id="addressName"
-                        name="name"
-                        placeholder="e.g. Home"
-                        maxlength="40"
-                        required
-                    >
-
-                </div>
+                <input
+                    type="text"
+                    id="addressName"
+                    placeholder="Recipient name"
+                    required
+                >
 
             </div>
 
-
-
-            <!-- FULL NAME -->
-
-            <div class="form-group">
-
-                <label for="addressFullName">
-                    Recipient Name
-                </label>
-
-                <div class="input-wrapper">
-
-                    <i class="fa-solid fa-user"></i>
-
-                    <input
-                        type="text"
-                        id="addressFullName"
-                        name="fullName"
-                        placeholder="Full name"
-                        maxlength="80"
-                        required
-                    >
-
-                </div>
-
-            </div>
-
-
-
-            <!-- PHONE -->
 
             <div class="form-group">
 
                 <label for="addressPhone">
-                    Phone Number
+                    Mobile Number
                 </label>
 
-                <div class="input-wrapper">
-
-                    <i class="fa-solid fa-phone"></i>
-
-                    <input
-                        type="tel"
-                        id="addressPhone"
-                        name="phone"
-                        placeholder="03XX XXXXXXX"
-                        maxlength="20"
-                        required
-                    >
-
-                </div>
-
-            </div>
-
-
-
-            <!-- ADDRESS -->
-
-            <div class="form-group">
-
-                <label for="addressLine">
-                    Full Address
-                </label>
-
-                <textarea
-                    id="addressLine"
-                    name="address"
-                    placeholder="Enter your complete delivery address"
-                    maxlength="300"
-                    rows="4"
+                <input
+                    type="tel"
+                    id="addressPhone"
+                    placeholder="03XXXXXXXXX"
+                    maxlength="11"
+                    inputmode="numeric"
                     required
-                ></textarea>
+                >
 
             </div>
 
-
-
-            <!-- CITY -->
 
             <div class="form-group">
 
@@ -2987,85 +1529,37 @@ ADDRESS MODAL
                     City
                 </label>
 
-                <div class="input-wrapper">
-
-                    <i class="fa-solid fa-city"></i>
-
-                    <input
-                        type="text"
-                        id="addressCity"
-                        name="city"
-                        placeholder="Enter city"
-                        maxlength="60"
-                        required
-                    >
-
-                </div>
+                <input
+                    type="text"
+                    id="addressCity"
+                    placeholder="City"
+                    required
+                >
 
             </div>
 
-
-
-            <!-- AREA -->
 
             <div class="form-group">
 
-                <label for="addressArea">
-                    Area / Town
+                <label for="addressComplete">
+                    Complete Address
                 </label>
 
-                <div class="input-wrapper">
-
-                    <i class="fa-solid fa-map"></i>
-
-                    <input
-                        type="text"
-                        id="addressArea"
-                        name="area"
-                        placeholder="Area / Town / Village"
-                        maxlength="80"
-                    >
-
-                </div>
+                <textarea
+                    id="addressComplete"
+                    rows="4"
+                    placeholder="House number, street, area, landmark..."
+                    required
+                ></textarea>
 
             </div>
 
-
-
-            <!-- POSTAL -->
-
-            <div class="form-group">
-
-                <label for="addressPostalCode">
-                    Postal Code
-                </label>
-
-                <div class="input-wrapper">
-
-                    <i class="fa-solid fa-hashtag"></i>
-
-                    <input
-                        type="text"
-                        id="addressPostalCode"
-                        name="postalCode"
-                        placeholder="Postal code"
-                        maxlength="15"
-                    >
-
-                </div>
-
-            </div>
-
-
-
-            <!-- DEFAULT -->
 
             <label class="default-address-option">
 
                 <input
                     type="checkbox"
                     id="addressDefault"
-                    name="isDefault"
                 >
 
                 <span>
@@ -3075,30 +1569,26 @@ ADDRESS MODAL
             </label>
 
 
-
-            <!-- ACTIONS -->
-
             <div class="modal-actions">
 
                 <button
                     type="button"
+                    id="cancelAddressButton"
                     class="modal-cancel-button"
-                    data-close-modal="addressModal"
                 >
+
                     Cancel
+
                 </button>
 
                 <button
                     type="submit"
-                    class="primary-action-button"
-                    id="saveAddressButton"
+                    class="save-button"
                 >
 
-                    <i class="fa-solid fa-location-dot"></i>
+                    <i class="fa-solid fa-floppy-disk"></i>
 
-                    <span>
-                        Save Address
-                    </span>
+                    Save Address
 
                 </button>
 
@@ -3112,94 +1602,19 @@ ADDRESS MODAL
 
 
 
-<!-- =========================================================
-FEATURE 010
-DELETE ADDRESS MODAL
-========================================================= -->
+<!--==================================================
+FEATURE: PASSWORD MODAL
+==================================================-->
 
 <div
-    class="account-modal"
-    id="deleteAddressModal"
-    hidden
-    role="dialog"
-    aria-modal="true"
->
-
-    <div
-        class="modal-overlay"
-        data-close-modal="deleteAddressModal"
-    ></div>
-
-
-    <div class="confirmation-modal-box">
-
-        <div class="confirmation-icon danger">
-
-            <i class="fa-solid fa-trash"></i>
-
-        </div>
-
-        <h3>
-            Delete Address?
-        </h3>
-
-        <p>
-            This address will be permanently removed from your account.
-        </p>
-
-
-        <div class="modal-actions">
-
-            <button
-                type="button"
-                class="modal-cancel-button"
-                data-close-modal="deleteAddressModal"
-            >
-                Cancel
-            </button>
-
-            <button
-                type="button"
-                class="danger-button"
-                id="confirmDeleteAddressButton"
-            >
-
-                <i class="fa-solid fa-trash"></i>
-
-                Delete Address
-
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
-<!-- =========================================================
-FEATURE 011
-CHANGE PASSWORD MODAL
-========================================================= -->
-
-<div
-    class="account-modal"
     id="passwordModal"
-    hidden
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="passwordModalTitle"
+    class="account-modal"
+    style="display:none;"
 >
 
-    <div
-        class="modal-overlay"
-        data-close-modal="passwordModal"
-    ></div>
-
+    <div class="modal-overlay"></div>
 
     <div class="modal-box">
-
 
         <div class="modal-header">
 
@@ -3209,18 +1624,16 @@ CHANGE PASSWORD MODAL
                     Account Security
                 </span>
 
-                <h3 id="passwordModalTitle">
+                <h3>
                     Change Password
                 </h3>
 
             </div>
 
-
             <button
                 type="button"
+                id="closePasswordModal"
                 class="modal-close"
-                data-close-modal="passwordModal"
-                aria-label="Close"
             >
 
                 <i class="fa-solid fa-xmark"></i>
@@ -3230,14 +1643,8 @@ CHANGE PASSWORD MODAL
         </div>
 
 
+        <form id="passwordForm">
 
-        <form
-            id="passwordForm"
-            novalidate
-        >
-
-
-            <!-- CURRENT PASSWORD -->
 
             <div class="form-group">
 
@@ -3245,36 +1652,15 @@ CHANGE PASSWORD MODAL
                     Current Password
                 </label>
 
-                <div class="password-input-wrapper">
-
-                    <i class="fa-solid fa-lock"></i>
-
-                    <input
-                        type="password"
-                        id="currentPassword"
-                        autocomplete="current-password"
-                        placeholder="Enter current password"
-                        required
-                    >
-
-                    <button
-                        type="button"
-                        class="password-toggle"
-                        data-password-target="currentPassword"
-                        aria-label="Show password"
-                    >
-
-                        <i class="fa-solid fa-eye"></i>
-
-                    </button>
-
-                </div>
+                <input
+                    type="password"
+                    id="currentPassword"
+                    autocomplete="current-password"
+                    required
+                >
 
             </div>
 
-
-
-            <!-- NEW PASSWORD -->
 
             <div class="form-group">
 
@@ -3282,57 +1668,16 @@ CHANGE PASSWORD MODAL
                     New Password
                 </label>
 
-                <div class="password-input-wrapper">
-
-                    <i class="fa-solid fa-key"></i>
-
-                    <input
-                        type="password"
-                        id="newPassword"
-                        autocomplete="new-password"
-                        placeholder="Enter new password"
-                        minlength="6"
-                        required
-                    >
-
-                    <button
-                        type="button"
-                        class="password-toggle"
-                        data-password-target="newPassword"
-                        aria-label="Show password"
-                    >
-
-                        <i class="fa-solid fa-eye"></i>
-
-                    </button>
-
-                </div>
-
-
-                <!-- PASSWORD STRENGTH -->
-
-                <div class="password-strength">
-
-                    <div class="strength-bars">
-
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                        <span></span>
-
-                    </div>
-
-                    <span id="passwordStrengthText">
-                        Password strength
-                    </span>
-
-                </div>
+                <input
+                    type="password"
+                    id="newPassword"
+                    autocomplete="new-password"
+                    minlength="6"
+                    required
+                >
 
             </div>
 
-
-
-            <!-- CONFIRM -->
 
             <div class="form-group">
 
@@ -3340,50 +1685,32 @@ CHANGE PASSWORD MODAL
                     Confirm New Password
                 </label>
 
-                <div class="password-input-wrapper">
-
-                    <i class="fa-solid fa-lock"></i>
-
-                    <input
-                        type="password"
-                        id="confirmPassword"
-                        autocomplete="new-password"
-                        placeholder="Confirm new password"
-                        minlength="6"
-                        required
-                    >
-
-                    <button
-                        type="button"
-                        class="password-toggle"
-                        data-password-target="confirmPassword"
-                        aria-label="Show password"
-                    >
-
-                        <i class="fa-solid fa-eye"></i>
-
-                    </button>
-
-                </div>
+                <input
+                    type="password"
+                    id="confirmPassword"
+                    autocomplete="new-password"
+                    minlength="6"
+                    required
+                >
 
             </div>
-
 
 
             <div class="modal-actions">
 
                 <button
                     type="button"
+                    id="cancelPasswordButton"
                     class="modal-cancel-button"
-                    data-close-modal="passwordModal"
                 >
+
                     Cancel
+
                 </button>
 
                 <button
                     type="submit"
-                    class="primary-action-button"
-                    id="savePasswordButton"
+                    class="save-button"
                 >
 
                     <i class="fa-solid fa-key"></i>
@@ -3402,28 +1729,19 @@ CHANGE PASSWORD MODAL
 
 
 
-<!-- =========================================================
-FEATURE 012
-LOGOUT CONFIRMATION
-========================================================= -->
+<!--==================================================
+FEATURE: LOGOUT CONFIRMATION
+==================================================-->
 
 <div
-    class="account-modal"
     id="logoutModal"
-    hidden
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="logoutModalTitle"
+    class="account-modal"
+    style="display:none;"
 >
 
-    <div
-        class="modal-overlay"
-        data-close-modal="logoutModal"
-    ></div>
-
+    <div class="modal-overlay"></div>
 
     <div class="logout-confirm-box">
-
 
         <div class="logout-icon">
 
@@ -3431,36 +1749,30 @@ LOGOUT CONFIRMATION
 
         </div>
 
-
-        <h3 id="logoutModalTitle">
+        <h3>
             Logout from SmartBazaar?
         </h3>
 
-
         <p>
-            Are you sure you want to sign out of your account?
+            You will need to login again to access your account.
         </p>
-
-
 
         <div class="modal-actions">
 
-
             <button
                 type="button"
+                id="cancelLogoutButton"
                 class="modal-cancel-button"
-                data-close-modal="logoutModal"
             >
 
-                Stay Logged In
+                Cancel
 
             </button>
 
-
             <button
                 type="button"
-                class="danger-button"
                 id="confirmLogoutButton"
+                class="danger-button"
             >
 
                 <i class="fa-solid fa-right-from-bracket"></i>
@@ -3477,285 +1789,13 @@ LOGOUT CONFIRMATION
 
 
 
-<!-- =========================================================
-FEATURE 013
-CLEAR WISHLIST CONFIRMATION
-========================================================= -->
-
-<div
-    class="account-modal"
-    id="clearWishlistModal"
-    hidden
-    role="dialog"
-    aria-modal="true"
->
-
-    <div
-        class="modal-overlay"
-        data-close-modal="clearWishlistModal"
-    ></div>
-
-
-    <div class="confirmation-modal-box">
-
-        <div class="confirmation-icon">
-
-            <i class="fa-solid fa-heart-crack"></i>
-
-        </div>
-
-        <h3>
-            Clear Wishlist?
-        </h3>
-
-        <p>
-            All saved products will be removed from your wishlist.
-        </p>
-
-
-        <div class="modal-actions">
-
-            <button
-                type="button"
-                class="modal-cancel-button"
-                data-close-modal="clearWishlistModal"
-            >
-                Cancel
-            </button>
-
-            <button
-                type="button"
-                class="danger-button"
-                id="confirmClearWishlistButton"
-            >
-
-                <i class="fa-solid fa-trash"></i>
-
-                Clear Wishlist
-
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
-<!-- =========================================================
-FEATURE 014
-DELETE NOTIFICATIONS CONFIRMATION
-========================================================= -->
-
-<div
-    class="account-modal"
-    id="clearNotificationsModal"
-    hidden
-    role="dialog"
-    aria-modal="true"
->
-
-    <div
-        class="modal-overlay"
-        data-close-modal="clearNotificationsModal"
-    ></div>
-
-
-    <div class="confirmation-modal-box">
-
-        <div class="confirmation-icon">
-
-            <i class="fa-solid fa-bell-slash"></i>
-
-        </div>
-
-        <h3>
-            Clear Notifications?
-        </h3>
-
-        <p>
-            Your notification history will be cleared.
-        </p>
-
-
-        <div class="modal-actions">
-
-            <button
-                type="button"
-                class="modal-cancel-button"
-                data-close-modal="clearNotificationsModal"
-            >
-                Cancel
-            </button>
-
-            <button
-                type="button"
-                class="danger-button"
-                id="confirmClearNotificationsButton"
-            >
-
-                <i class="fa-solid fa-trash"></i>
-
-                Clear
-
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
-<!-- =========================================================
-FEATURE 015
-GENERIC CONFIRMATION MODAL
-========================================================= -->
-
-<div
-    class="account-modal"
-    id="genericConfirmModal"
-    hidden
-    role="dialog"
-    aria-modal="true"
->
-
-    <div
-        class="modal-overlay"
-        data-close-modal="genericConfirmModal"
-    ></div>
-
-
-    <div class="confirmation-modal-box">
-
-        <div
-            class="confirmation-icon"
-            id="genericConfirmIcon"
-        >
-
-            <i class="fa-solid fa-circle-question"></i>
-
-        </div>
-
-        <h3 id="genericConfirmTitle">
-            Are you sure?
-        </h3>
-
-        <p id="genericConfirmMessage">
-            Please confirm this action.
-        </p>
-
-
-        <div class="modal-actions">
-
-            <button
-                type="button"
-                class="modal-cancel-button"
-                data-close-modal="genericConfirmModal"
-            >
-                Cancel
-            </button>
-
-            <button
-                type="button"
-                class="primary-action-button"
-                id="genericConfirmButton"
-            >
-                Confirm
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
-<!-- =========================================================
-FEATURE 016
-TOAST CONTAINER
-========================================================= -->
-
-<div
-    id="accountToastContainer"
-    class="account-toast-container"
-    aria-live="polite"
-    aria-atomic="true"
-></div>
-
-
-
-<!-- =========================================================
-FEATURE 017
-GLOBAL UPLOAD PROGRESS
-========================================================= -->
-
-<div
-    class="upload-progress-modal"
-    id="uploadProgressModal"
-    hidden
->
-
-    <div class="upload-progress-box">
-
-        <div class="upload-progress-icon">
-
-            <i
-                class="fa-solid fa-cloud-arrow-up"
-                id="uploadProgressIcon"
-            ></i>
-
-        </div>
-
-        <h3 id="uploadProgressTitle">
-            Uploading...
-        </h3>
-
-        <p id="uploadProgressText">
-            Please wait while your image is uploaded.
-        </p>
-
-
-        <div class="upload-progress-track">
-
-            <span
-                id="uploadProgressBar"
-                style="width:0%;"
-            ></span>
-
-        </div>
-
-
-        <strong id="uploadProgressPercent">
-            0%
-        </strong>
-
-    </div>
-
-</div>
-
-
-
-<!-- =========================================================
-FIREBASE CONFIG
-========================================================= -->
+<!--==================================================
+FEATURE: ACCOUNT JAVASCRIPT
+==================================================-->
 
 <script
     type="module"
-    src="firebase-config.js"
-></script>
-
-
-<!-- =========================================================
-ACCOUNT JAVASCRIPT
-========================================================= -->
-
-<script
-    type="module"
-    src="account.js"
+    src="./account.js"
 ></script>
 
 
