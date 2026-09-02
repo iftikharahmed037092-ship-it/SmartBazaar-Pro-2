@@ -3881,7 +3881,7 @@ function setupAvatarButton() {
             */
 
             const maxSize =
-                5 * 1024 * 1024;
+                10 * 1024 * 1024;
 
 
             if (
@@ -3889,7 +3889,7 @@ function setupAvatarButton() {
             ) {
 
                 alert(
-                    "Profile picture must be 5 MB or smaller."
+                    "Profile picture must be 10 MB or smaller."
                 );
 
                 input.value = "";
