@@ -1,1550 +1,1892 @@
-/* =========================================================
-   SMARTBAZAAR PRO 2
-   CUSTOMER ACCOUNT SYSTEM
-   FILE: account.js
-
-   FEATURES:
-   001  Account Loading
-   002  Header
-   003  Mobile Sidebar
-   004  Account Application
-   005  Profile Hero
-   006  Profile Completion
-   007  Statistics
-   008  Dashboard / Navigation
-   009  Address Management
-   010  Delete Address
-   011  Password Management
-   012  Logout
-   013  Wishlist
-   014  Notifications
-   015  Generic Confirmation
-   016  Toast System
-   017  Upload Progress
-
-   IMPORTANT:
-   - Existing HTML classes/IDs are preserved.
-   - Firebase configuration is loaded from firebase-config.js.
-========================================================= */
-
-import {
-    auth,
-    db,
-    storage
-} from "./firebase-config.js";
+/*==================================================
+SMARTBAZAAR PRO 2
+FEATURE: CUSTOMER ACCOUNT SYSTEM
+FEATURE: ACCOUNT DASHBOARD
+FEATURE: ACCOUNT NAVIGATION
+FEATURE: PROFILE MANAGEMENT
+FEATURE: ORDERS INTEGRATION
+FEATURE: WISHLIST
+FEATURE: ADDRESSES
+FEATURE: NOTIFICATIONS
+FEATURE: ACCOUNT SECURITY
+FEATURE: ACCOUNT SETTINGS
+==================================================*/
 
 import {
     onAuthStateChanged,
+    signOut,
     updateProfile,
-    sendEmailVerification,
-    EmailAuthProvider,
-    reauthenticateWithCredential,
     updatePassword,
-    signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    reauthenticateWithCredential,
+    EmailAuthProvider
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 import {
     ref,
     get,
     set,
+    push,
     update,
     remove,
-    onValue
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-import {
-    ref as storageRef,
-    uploadBytesResumable,
-    getDownloadURL,
-    deleteObject
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+    query,
+    orderByChild,
+    equalTo
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 
 
-/* =========================================================
-   FEATURE 001
-   GLOBAL STATE
-========================================================= */
+/*==================================================
+FEATURE: FIREBASE CONFIG LOADER
+==================================================*/
+
+let firebaseConfigModule = null;
+
+let auth = null;
+let db = null;
+
+
+/*==================================================
+FEATURE: GLOBAL ACCOUNT STATE
+==================================================*/
 
 let currentUser = null;
 
 let currentProfile = {};
 
-let currentOrders = {};
+let accountOrders = [];
 
-let currentWishlist = {};
+let accountWishlist = [];
 
-let currentAddresses = {};
+let accountAddresses = [];
 
-let currentNotifications = {};
+let accountNotifications = [];
 
-let currentSettings = {};
-
-let editingAddressId = null;
-
-let addressToDelete = null;
-
-let genericConfirmAction = null;
-
-let profileOriginalData = {};
-
-let listenersStarted = false;
+let isSavingProfile = false;
 
 
-/* =========================================================
-   DOM HELPERS
-========================================================= */
+/*==================================================
+FEATURE: DOM HELPER
+==================================================*/
 
-const $ = (id) => document.getElementById(id);
+function $(id) {
 
-const $$ = (selector) =>
-    Array.from(document.querySelectorAll(selector));
+    return document.getElementById(id);
 
-
-/* =========================================================
-   FEATURE 016
-   TOAST SYSTEM
-========================================================= */
-
-function showToast(message, type = "success") {
-
-    const container = $("accountToastContainer");
-
-    if (!container) return;
-
-    const toast = document.createElement("div");
-
-    toast.className = `account-toast ${type}`;
-
-    let icon = "fa-circle-check";
-
-    if (type === "error") {
-        icon = "fa-circle-exclamation";
-    }
-
-    if (type === "warning") {
-        icon = "fa-triangle-exclamation";
-    }
-
-    if (type === "info") {
-        icon = "fa-circle-info";
-    }
-
-    toast.innerHTML = `
-        <span class="toast-icon">
-            <i class="fa-solid ${icon}"></i>
-        </span>
-
-        <span class="toast-message"></span>
-
-        <button
-            type="button"
-            class="toast-close"
-            aria-label="Close notification"
-        >
-            <i class="fa-solid fa-xmark"></i>
-        </button>
-    `;
-
-    toast.querySelector(".toast-message").textContent = message;
-
-    container.appendChild(toast);
-
-    requestAnimationFrame(() => {
-        toast.classList.add("show");
-    });
-
-    const closeToast = () => {
-
-        toast.classList.remove("show");
-
-        setTimeout(() => {
-            toast.remove();
-        }, 300);
-    };
-
-    toast
-        .querySelector(".toast-close")
-        .addEventListener("click", closeToast);
-
-    setTimeout(closeToast, 4000);
 }
 
 
-/* =========================================================
-   FEATURE 001
-   LOADER
-========================================================= */
+/*==================================================
+FEATURE: SAFE TEXT
+==================================================*/
 
-function hideLoader() {
+function escapeHTML(value) {
 
-    const loader = $("pageLoader");
+    if (value === null || value === undefined) {
+        return "";
+    }
 
-    if (!loader) return;
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 
-    loader.classList.add("hidden");
-
-    setTimeout(() => {
-        loader.style.display = "none";
-    }, 400);
 }
 
 
-function showLoader() {
-
-    const loader = $("pageLoader");
-
-    if (!loader) return;
-
-    loader.style.display = "flex";
-
-    requestAnimationFrame(() => {
-        loader.classList.remove("hidden");
-    });
-}
-
-
-/* =========================================================
-   FEATURE 004
-   ACCOUNT ERROR
-========================================================= */
-
-function showAccountError(message) {
-
-    const errorBox = $("accountError");
-    const app = $("accountApp");
-
-    if (errorBox) {
-        errorBox.hidden = false;
-    }
-
-    if (app) {
-        app.hidden = true;
-    }
-
-    const messageElement = $("accountErrorMessage");
-
-    if (messageElement) {
-        messageElement.textContent = message;
-    }
-
-    hideLoader();
-}
-
-
-function hideAccountError() {
-
-    const errorBox = $("accountError");
-    const app = $("accountApp");
-
-    if (errorBox) {
-        errorBox.hidden = true;
-    }
-
-    if (app) {
-        app.hidden = false;
-    }
-}
-
-
-/* =========================================================
-   FEATURE 003
-   MOBILE SIDEBAR
-========================================================= */
-
-function openMobileSidebar() {
-
-    const sidebar = $("accountSidebar");
-    const overlay = $("mobileSidebarOverlay");
-    const button = $("mobileMenuButton");
-
-    if (!sidebar) return;
-
-    sidebar.classList.add("mobile-open");
-
-    if (overlay) {
-        overlay.hidden = false;
-
-        requestAnimationFrame(() => {
-            overlay.classList.add("show");
-        });
-    }
-
-    if (button) {
-        button.setAttribute("aria-expanded", "true");
-    }
-
-    document.body.classList.add("account-menu-open");
-}
-
-
-function closeMobileSidebar() {
-
-    const sidebar = $("accountSidebar");
-    const overlay = $("mobileSidebarOverlay");
-    const button = $("mobileMenuButton");
-
-    if (sidebar) {
-        sidebar.classList.remove("mobile-open");
-    }
-
-    if (overlay) {
-
-        overlay.classList.remove("show");
-
-        setTimeout(() => {
-            overlay.hidden = true;
-        }, 250);
-    }
-
-    if (button) {
-        button.setAttribute("aria-expanded", "false");
-    }
-
-    document.body.classList.remove("account-menu-open");
-}
-
-
-/* =========================================================
-   FEATURE 008
-   SECTION NAVIGATION
-========================================================= */
-
-function openSection(sectionName) {
-
-    if (!sectionName) return;
-
-    const sections = $$(".account-section");
-
-    sections.forEach(section => {
-
-        const isActive =
-            section.dataset.sectionContent === sectionName;
-
-        section.classList.toggle("active", isActive);
-    });
-
-
-    const navItems = $$(".account-nav-item");
-
-    navItems.forEach(item => {
-
-        const isActive =
-            item.dataset.section === sectionName;
-
-        item.classList.toggle("active", isActive);
-    });
-
-
-    closeMobileSidebar();
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
-
-    if (sectionName === "orders") {
-        renderOrders();
-    }
-
-    if (sectionName === "wishlist") {
-        renderWishlist();
-    }
-
-    if (sectionName === "addresses") {
-        renderAddresses();
-    }
-
-    if (sectionName === "notifications") {
-        renderNotifications();
-    }
-}
-
-
-/* =========================================================
-   FEATURE 005
-   PROFILE INITIAL
-========================================================= */
-
-function getUserInitial(name = "U") {
-
-    const cleanName = String(name).trim();
-
-    if (!cleanName) {
-        return "U";
-    }
-
-    return cleanName.charAt(0).toUpperCase();
-}
-
-
-/* =========================================================
-   FEATURE 005
-   PROFILE DATA
-========================================================= */
-
-function getProfilePath() {
-
-    if (!currentUser) return null;
-
-    return `users/${currentUser.uid}/profile`;
-}
-
-
-async function loadProfile() {
-
-    if (!currentUser) return;
+/*==================================================
+FEATURE: INITIALIZE FIREBASE
+==================================================*/
+
+async function initializeFirebase() {
 
     try {
 
-        const profileRef = ref(db, getProfilePath());
+        firebaseConfigModule = await import("./firebase-config.js");
 
-        const snapshot = await get(profileRef);
+        /*
+        Support multiple common export names.
+        */
 
-        if (snapshot.exists()) {
-            currentProfile = snapshot.val() || {};
-        } else {
-            currentProfile = {};
+        auth =
+            firebaseConfigModule.auth ||
+            firebaseConfigModule.firebaseAuth ||
+            firebaseConfigModule.authentication ||
+            null;
+
+
+        db =
+            firebaseConfigModule.db ||
+            firebaseConfigModule.database ||
+            firebaseConfigModule.firebaseDB ||
+            null;
+
+
+        /*
+        If firebase-config exports firebaseConfig
+        but does not export initialized services,
+        initialize them here.
+        */
+
+        if (!auth || !db) {
+
+            const firebaseConfig =
+                firebaseConfigModule.firebaseConfig ||
+                firebaseConfigModule.config ||
+                firebaseConfigModule.default ||
+                null;
+
+
+            if (firebaseConfig) {
+
+                const appModule =
+                    await import(
+                        "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"
+                    );
+
+
+                const {
+                    initializeApp,
+                    getApps
+                } = appModule;
+
+
+                const databaseModule =
+                    await import(
+                        "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js"
+                    );
+
+
+                const authModule =
+                    await import(
+                        "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js"
+                    );
+
+
+                const app =
+                    getApps().length
+                        ? getApps()[0]
+                        : initializeApp(firebaseConfig);
+
+
+                if (!auth) {
+
+                    auth =
+                        authModule.getAuth(app);
+
+                }
+
+
+                if (!db) {
+
+                    db =
+                        databaseModule.getDatabase(app);
+
+                }
+
+            }
+
         }
 
-        profileOriginalData = {
-            ...currentProfile
-        };
 
-        renderProfile();
+        if (!auth) {
+
+            throw new Error(
+                "Firebase Authentication is not available."
+            );
+
+        }
+
+
+        if (!db) {
+
+            console.warn(
+                "Firebase Realtime Database is not available. Account UI will still work."
+            );
+
+        }
+
+
+        return true;
 
     } catch (error) {
 
-        console.error("Profile load error:", error);
-
-        showToast(
-            "Unable to load profile information.",
-            "error"
+        console.error(
+            "Firebase initialization error:",
+            error
         );
+
+        showAccountError(
+            "Firebase could not be initialized. Please check firebase-config.js."
+        );
+
+        return false;
+
     }
+
 }
 
 
-/* =========================================================
-   FEATURE 005
-   RENDER PROFILE
-========================================================= */
+/*==================================================
+FEATURE: ACCOUNT LOADING
+==================================================*/
 
-function renderProfile() {
+function showLoading() {
 
-    if (!currentUser) return;
+    const loading = $("accountLoading");
+    const content = $("accountContent");
+    const error = $("accountError");
 
-    const name =
-        currentProfile.displayName ||
-        currentUser.displayName ||
-        "Customer";
+    if (loading) {
 
-    const email =
-        currentUser.email ||
-        currentProfile.email ||
-        "No email";
+        loading.style.display = "grid";
 
-    const initial = getUserInitial(name);
-
-
-    /* PROFILE HERO */
-
-    if ($("profileName")) {
-        $("profileName").textContent = name;
     }
 
-    if ($("profileEmail")) {
-        $("profileEmail").textContent = email;
+    if (content) {
+
+        content.style.display = "none";
+
     }
 
-    if ($("profileAvatarInitial")) {
-        $("profileAvatarInitial").textContent = initial;
+    if (error) {
+
+        error.style.display = "none";
+
     }
 
-    if ($("sidebarAvatarInitial")) {
-        $("sidebarAvatarInitial").textContent = initial;
-    }
-
-    if ($("sidebarUserName")) {
-        $("sidebarUserName").textContent = name;
-    }
-
-    if ($("profileMediaInitial")) {
-        $("profileMediaInitial").textContent = initial;
-    }
-
-
-    /* EMAIL */
-
-    if ($("profileEmailInput")) {
-        $("profileEmailInput").value = email;
-    }
-
-
-    /* FORM */
-
-    if ($("profileNameInput")) {
-        $("profileNameInput").value =
-            currentProfile.displayName ||
-            currentUser.displayName ||
-            "";
-    }
-
-    if ($("profilePhoneInput")) {
-        $("profilePhoneInput").value =
-            currentProfile.phone || "";
-    }
-
-    if ($("profileCountryInput")) {
-        $("profileCountryInput").value =
-            currentProfile.country || "";
-    }
-
-    if ($("profileCityInput")) {
-        $("profileCityInput").value =
-            currentProfile.city || "";
-    }
-
-    if ($("profileDobInput")) {
-        $("profileDobInput").value =
-            currentProfile.dateOfBirth || "";
-    }
-
-    if ($("profileGenderInput")) {
-        $("profileGenderInput").value =
-            currentProfile.gender || "";
-    }
-
-    if ($("profilePostalCodeInput")) {
-        $("profilePostalCodeInput").value =
-            currentProfile.postalCode || "";
-    }
-
-    if ($("profileBioInput")) {
-        $("profileBioInput").value =
-            currentProfile.bio || "";
-    }
-
-
-    /* MEMBER DATE */
-
-    const createdAt =
-        currentProfile.createdAt ||
-        currentUser.metadata?.creationTime;
-
-    if ($("profileMemberSince")) {
-
-        $("profileMemberSince").textContent =
-            createdAt
-                ? `Member since ${formatDate(createdAt)}`
-                : "Member since —";
-    }
-
-
-    /* LAST LOGIN */
-
-    if ($("lastLoginText")) {
-
-        const loginTime =
-            currentUser.metadata?.lastSignInTime;
-
-        $("lastLoginText").textContent =
-            loginTime
-                ? formatDateTime(loginTime)
-                : "Not available";
-    }
-
-
-    /* EMAIL VERIFICATION */
-
-    updateEmailVerificationUI();
-
-    /* MEDIA */
-
-    renderProfilePhoto();
-
-    renderProfileBanner();
-
-    /* COMPLETION */
-
-    calculateProfileCompletion();
-
-    /* BIO COUNTER */
-
-    updateBioCounter();
 }
 
 
-/* =========================================================
-   FEATURE 005
-   PROFILE PHOTO
-========================================================= */
+/*==================================================
+FEATURE: SHOW ACCOUNT CONTENT
+==================================================*/
 
-function renderProfilePhoto() {
+function showAccountContent() {
 
-    const url =
-        currentProfile.photoURL ||
-        currentUser?.photoURL ||
-        "";
+    const loading = $("accountLoading");
+    const content = $("accountContent");
+    const error = $("accountError");
 
-    const heroImage = $("profileAvatarImage");
-    const heroInitial = $("profileAvatarInitial");
+    if (loading) {
 
-    const sidebarImage = $("sidebarAvatarImage");
-    const sidebarInitial = $("sidebarAvatarInitial");
+        loading.style.display = "none";
 
-    const mediaImage = $("profileMediaPreview");
-    const mediaInitial = $("profileMediaInitial");
-
-
-    if (url) {
-
-        if (heroImage) {
-            heroImage.src = url;
-            heroImage.hidden = false;
-        }
-
-        if (heroInitial) {
-            heroInitial.hidden = true;
-        }
-
-        if (sidebarImage) {
-            sidebarImage.src = url;
-            sidebarImage.hidden = false;
-        }
-
-        if (sidebarInitial) {
-            sidebarInitial.hidden = true;
-        }
-
-        if (mediaImage) {
-            mediaImage.src = url;
-            mediaImage.hidden = false;
-        }
-
-        if (mediaInitial) {
-            mediaInitial.hidden = true;
-        }
-
-        toggleElement(
-            "removeProfilePhotoButton",
-            false
-        );
-
-        toggleElement(
-            "profilePhotoRemoveButton",
-            false
-        );
-
-    } else {
-
-        if (heroImage) {
-            heroImage.hidden = true;
-            heroImage.removeAttribute("src");
-        }
-
-        if (heroInitial) {
-            heroInitial.hidden = false;
-        }
-
-        if (sidebarImage) {
-            sidebarImage.hidden = true;
-            sidebarImage.removeAttribute("src");
-        }
-
-        if (sidebarInitial) {
-            sidebarInitial.hidden = false;
-        }
-
-        if (mediaImage) {
-            mediaImage.hidden = true;
-            mediaImage.removeAttribute("src");
-        }
-
-        if (mediaInitial) {
-            mediaInitial.hidden = false;
-        }
-
-        toggleElement(
-            "removeProfilePhotoButton",
-            true
-        );
-
-        toggleElement(
-            "profilePhotoRemoveButton",
-            true
-        );
     }
+
+    if (error) {
+
+        error.style.display = "none";
+
+    }
+
+    if (content) {
+
+        content.style.display = "block";
+
+    }
+
 }
 
 
-/* =========================================================
-   FEATURE 005
-   PROFILE BANNER
-========================================================= */
+/*==================================================
+FEATURE: ACCOUNT ERROR
+==================================================*/
 
-function renderProfileBanner() {
+function showAccountError(message) {
 
-    const url =
-        currentProfile.bannerURL || "";
+    const loading = $("accountLoading");
+    const content = $("accountContent");
+    const error = $("accountError");
+    const errorMessage = $("accountErrorMessage");
 
-    const background =
-        $("profileBackground");
+    if (loading) {
 
-    const preview =
-        $("profileBannerPreview");
+        loading.style.display = "none";
 
-    if (background) {
-
-        if (url) {
-
-            background.style.backgroundImage =
-                `url("${url}")`;
-
-            background.classList.add(
-                "has-banner"
-            );
-
-        } else {
-
-            background.style.backgroundImage =
-                "";
-
-            background.classList.remove(
-                "has-banner"
-            );
-        }
     }
 
+    if (content) {
 
-    if (preview) {
+        content.style.display = "none";
 
-        if (url) {
+    }
 
-            preview.style.backgroundImage =
-                `url("${url}")`;
+    if (error) {
 
-            preview.classList.add(
-                "has-banner"
-            );
+        error.style.display = "flex";
 
-            const span =
-                preview.querySelector("span");
+    }
 
-            if (span) {
-                span.style.display = "none";
+    if (errorMessage) {
+
+        errorMessage.textContent = message;
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: ACCOUNT NAVIGATION
+IMPORTANT:
+ONLY ONE BUTTON CAN BE ACTIVE AT A TIME
+==================================================*/
+
+function setupAccountNavigation() {
+
+    const navItems =
+        document.querySelectorAll(
+            ".account-nav-item"
+        );
+
+
+    const sections =
+        document.querySelectorAll(
+            ".account-section"
+        );
+
+
+    function openSection(sectionName) {
+
+        if (!sectionName) {
+
+            sectionName = "overview";
+
+        }
+
+
+        /*
+        Remove active from ALL navigation items first.
+        */
+
+        navItems.forEach(item => {
+
+            item.classList.remove("active");
+
+        });
+
+
+        /*
+        Add active ONLY to selected navigation item.
+        */
+
+        navItems.forEach(item => {
+
+            if (
+                item.dataset.section === sectionName
+            ) {
+
+                item.classList.add("active");
+
             }
 
-        } else {
+        });
 
-            preview.style.backgroundImage =
-                "";
 
-            preview.classList.remove(
-                "has-banner"
+        /*
+        Hide ALL account sections.
+        */
+
+        sections.forEach(section => {
+
+            section.classList.remove("active");
+
+        });
+
+
+        /*
+        Show ONLY selected section.
+        */
+
+        const targetSection =
+            $(
+                `section-${sectionName}`
             );
 
-            const span =
-                preview.querySelector("span");
 
-            if (span) {
-                span.style.display = "";
-            }
+        if (targetSection) {
+
+            targetSection.classList.add("active");
+
         }
+
+
+        /*
+        Also scroll to section on mobile.
+        */
+
+        if (
+            window.innerWidth <= 767 &&
+            targetSection
+        ) {
+
+            setTimeout(() => {
+
+                targetSection.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+            }, 80);
+
+        }
+
+
+        /*
+        Save currently selected section.
+        */
+
+        try {
+
+            localStorage.setItem(
+                "smartbazaar_account_section",
+                sectionName
+            );
+
+        } catch (error) {
+
+            console.warn(
+                "Could not save account section."
+            );
+
+        }
+
+
+        /*
+        Refresh dynamic content.
+        */
+
+        if (sectionName === "orders") {
+
+            renderOrders();
+
+        }
+
+
+        if (sectionName === "wishlist") {
+
+            renderWishlist();
+
+        }
+
+
+        if (sectionName === "addresses") {
+
+            renderAddresses();
+
+        }
+
+
+        if (sectionName === "notifications") {
+
+            renderNotifications();
+
+        }
+
     }
 
 
-    toggleElement(
-        "removeProfileBannerButton",
-        !url
-    );
+    /*
+    Sidebar navigation click.
+    */
 
-    toggleElement(
-        "profileBannerMediaRemoveButton",
-        !url
-    );
-}
+    navItems.forEach(item => {
+
+        item.addEventListener(
+            "click",
+            () => {
+
+                openSection(
+                    item.dataset.section
+                );
+
+            }
+        );
+
+    });
 
 
-/* =========================================================
-   FEATURE 006
-   PROFILE COMPLETION
-========================================================= */
+    /*
+    Quick action buttons.
+    */
 
-function calculateProfileCompletion() {
+    const quickActions =
+        document.querySelectorAll(
+            "[data-open-section]"
+        );
 
-    const fields = [
 
-        currentProfile.displayName ||
-        currentUser?.displayName,
+    quickActions.forEach(button => {
 
-        currentProfile.phone,
+        button.addEventListener(
+            "click",
+            () => {
 
-        currentProfile.country,
+                const sectionName =
+                    button.dataset.openSection;
 
-        currentProfile.city,
 
-        currentProfile.dateOfBirth,
+                openSection(sectionName);
 
-        currentProfile.gender,
+            }
+        );
 
-        currentProfile.postalCode,
+    });
 
-        currentProfile.bio,
 
-        currentProfile.photoURL ||
-        currentUser?.photoURL
+    /*
+    Edit Profile opens Profile section.
+    */
+
+    const editProfileButton =
+        $("editProfileButton");
+
+
+    if (editProfileButton) {
+
+        editProfileButton.addEventListener(
+            "click",
+            () => {
+
+                openSection("profile");
+
+            }
+        );
+
+    }
+
+
+    /*
+    Restore previous section.
+    */
+
+    let savedSection = "overview";
+
+    try {
+
+        savedSection =
+            localStorage.getItem(
+                "smartbazaar_account_section"
+            ) || "overview";
+
+    } catch (error) {
+
+        savedSection = "overview";
+
+    }
+
+
+    /*
+    Validate section.
+    */
+
+    const validSections = [
+        "overview",
+        "profile",
+        "orders",
+        "wishlist",
+        "addresses",
+        "notifications",
+        "security",
+        "settings"
     ];
 
-    const completed =
-        fields.filter(value =>
-            value !== undefined &&
-            value !== null &&
-            String(value).trim() !== ""
-        ).length;
 
-    const total = fields.length;
+    if (
+        !validSections.includes(
+            savedSection
+        )
+    ) {
 
-    const percentage =
-        total > 0
-            ? Math.round((completed / total) * 100)
-            : 0;
+        savedSection = "overview";
 
-
-    if ($("profileCompletionPercent")) {
-        $("profileCompletionPercent").textContent =
-            `${percentage}%`;
     }
 
-    if ($("profileCompletionBar")) {
-        $("profileCompletionBar").style.width =
-            `${percentage}%`;
-    }
 
-    if ($("profileCompletionText")) {
+    openSection(savedSection);
 
-        if (percentage === 100) {
-            $("profileCompletionText").textContent =
-                "Your profile is complete.";
-        } else {
-            $("profileCompletionText").textContent =
-                "Complete your profile for a better experience.";
-        }
-    }
 }
 
 
-/* =========================================================
-   FEATURE 005
-   SAVE PROFILE
-========================================================= */
+/*==================================================
+FEATURE: PROFILE LOAD
+==================================================*/
 
-async function saveProfile(event) {
+async function loadProfile() {
 
-    if (event) {
-        event.preventDefault();
-    }
-
-    if (!currentUser) return;
-
-    const nameInput =
-        $("profileNameInput");
-
-    const name =
-        nameInput?.value.trim() || "";
-
-    if (!name) {
-
-        showToast(
-            "Please enter your full name.",
-            "warning"
-        );
-
-        nameInput?.focus();
+    if (!currentUser) {
 
         return;
+
     }
 
 
-    const profileData = {
+    const defaultName =
+        currentUser.displayName ||
+        currentUser.email?.split("@")[0] ||
+        "SmartBazaar User";
 
-        displayName: name,
+
+    currentProfile = {
+
+        uid: currentUser.uid,
+
+        fullName:
+            defaultName,
 
         email:
             currentUser.email || "",
 
-        phone:
-            $("profilePhoneInput")?.value.trim() || "",
+        phone: "",
 
-        country:
-            $("profileCountryInput")?.value || "",
+        city: "",
 
-        city:
-            $("profileCityInput")?.value.trim() || "",
+        photoURL:
+            currentUser.photoURL || ""
 
-        dateOfBirth:
-            $("profileDobInput")?.value || "",
-
-        gender:
-            $("profileGenderInput")?.value || "",
-
-        postalCode:
-            $("profilePostalCodeInput")?.value.trim() || "",
-
-        bio:
-            $("profileBioInput")?.value.trim() || "",
-
-        updatedAt:
-            new Date().toISOString()
     };
 
 
-    const button =
-        $("saveProfileButton");
+    /*
+    Try loading profile from:
+    users/{uid}
+    */
 
-    setButtonLoading(
-        button,
-        true,
-        "Saving..."
-    );
+    if (db) {
 
+        try {
 
-    try {
-
-        await update(
-            ref(db, getProfilePath()),
-            profileData
-        );
+            const userRef =
+                ref(
+                    db,
+                    `users/${currentUser.uid}`
+                );
 
 
-        if (
-            currentUser.displayName !== name
-        ) {
+            const snapshot =
+                await get(userRef);
 
-            await updateProfile(
-                currentUser,
-                {
-                    displayName: name
-                }
+
+            if (snapshot.exists()) {
+
+                const data =
+                    snapshot.val();
+
+
+                currentProfile = {
+
+                    ...currentProfile,
+
+                    ...data
+
+                };
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Could not load user profile:",
+                error
             );
+
         }
 
-
-        currentProfile = {
-            ...currentProfile,
-            ...profileData
-        };
-
-        profileOriginalData = {
-            ...currentProfile
-        };
-
-        renderProfile();
-
-        showToast(
-            "Profile updated successfully.",
-            "success"
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Save profile error:",
-            error
-        );
-
-        showToast(
-            "Unable to save your profile.",
-            "error"
-        );
-
-    } finally {
-
-        setButtonLoading(
-            button,
-            false,
-            "Save Changes"
-        );
     }
+
+
+    updateProfileUI();
+
 }
 
 
-/* =========================================================
-   RESET PROFILE
-========================================================= */
+/*==================================================
+FEATURE: UPDATE PROFILE UI
+==================================================*/
 
-function resetProfile() {
+function updateProfileUI() {
 
-    renderProfile();
+    const fullName =
+        currentProfile.fullName ||
+        currentUser?.displayName ||
+        "SmartBazaar User";
 
-    showToast(
-        "Profile changes have been reset.",
-        "info"
+
+    const email =
+        currentProfile.email ||
+        currentUser?.email ||
+        "";
+
+
+    /*
+    Hero profile.
+    */
+
+    const profileName =
+        $("profileName");
+
+
+    const profileEmail =
+        $("profileEmail");
+
+
+    const avatarLetter =
+        $("profileAvatarLetter");
+
+
+    if (profileName) {
+
+        profileName.textContent =
+            fullName;
+
+    }
+
+
+    if (profileEmail) {
+
+        profileEmail.textContent =
+            email;
+
+    }
+
+
+    if (avatarLetter) {
+
+        avatarLetter.textContent =
+            getInitial(
+                fullName
+            );
+
+    }
+
+
+    /*
+    Form fields.
+    */
+
+    const nameInput =
+        $("accountFullName");
+
+
+    const emailInput =
+        $("accountEmail");
+
+
+    const phoneInput =
+        $("accountPhone");
+
+
+    const cityInput =
+        $("accountCity");
+
+
+    if (nameInput) {
+
+        nameInput.value =
+            currentProfile.fullName || "";
+
+    }
+
+
+    if (emailInput) {
+
+        emailInput.value =
+            email;
+
+    }
+
+
+    if (phoneInput) {
+
+        phoneInput.value =
+            currentProfile.phone || "";
+
+    }
+
+
+    if (cityInput) {
+
+        cityInput.value =
+            currentProfile.city || "";
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: INITIAL LETTER
+==================================================*/
+
+function getInitial(name) {
+
+    if (!name) {
+
+        return "U";
+
+    }
+
+
+    const cleanName =
+        String(name).trim();
+
+
+    if (!cleanName) {
+
+        return "U";
+
+    }
+
+
+    return cleanName
+        .charAt(0)
+        .toUpperCase();
+
+}
+
+
+/*==================================================
+FEATURE: PROFILE FORM
+==================================================*/
+
+function setupProfileForm() {
+
+    const form =
+        $("profileForm");
+
+
+    if (!form) {
+
+        return;
+
+    }
+
+
+    form.addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+
+            if (!currentUser) {
+
+                alert(
+                    "Please login first."
+                );
+
+                return;
+
+            }
+
+
+            if (isSavingProfile) {
+
+                return;
+
+            }
+
+
+            const fullName =
+                $("accountFullName")?.value.trim() || "";
+
+
+            const phone =
+                $("accountPhone")?.value.trim() || "";
+
+
+            const city =
+                $("accountCity")?.value.trim() || "";
+
+
+            if (!fullName) {
+
+                alert(
+                    "Please enter your full name."
+                );
+
+                return;
+
+            }
+
+
+            if (
+                phone &&
+                !/^03\d{9}$/.test(phone)
+            ) {
+
+                alert(
+                    "Please enter a valid Pakistani mobile number, e.g. 03XXXXXXXXX."
+                );
+
+                return;
+
+            }
+
+
+            isSavingProfile = true;
+
+
+            const saveButton =
+                form.querySelector(
+                    ".save-button"
+                );
+
+
+            const originalText =
+                saveButton
+                    ? saveButton.innerHTML
+                    : "";
+
+
+            if (saveButton) {
+
+                saveButton.disabled = true;
+
+                saveButton.innerHTML =
+                    `<i class="fa-solid fa-spinner fa-spin"></i>
+                     Saving...`;
+
+            }
+
+
+            try {
+
+                currentProfile = {
+
+                    ...currentProfile,
+
+                    fullName,
+
+                    phone,
+
+                    city,
+
+                    email:
+                        currentUser.email || "",
+
+                    uid:
+                        currentUser.uid
+
+                };
+
+
+                /*
+                Update Firebase Authentication
+                display name.
+                */
+
+                await updateProfile(
+                    currentUser,
+                    {
+                        displayName:
+                            fullName
+                    }
+                );
+
+
+                /*
+                Save extended profile.
+                */
+
+                if (db) {
+
+                    await update(
+                        ref(
+                            db,
+                            `users/${currentUser.uid}`
+                        ),
+                        {
+
+                            uid:
+                                currentUser.uid,
+
+                            fullName,
+
+                            email:
+                                currentUser.email || "",
+
+                            phone,
+
+                            city,
+
+                            updatedAt:
+                                Date.now()
+
+                        }
+                    );
+
+                }
+
+
+                updateProfileUI();
+
+
+                alert(
+                    "Profile updated successfully."
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Profile save error:",
+                    error
+                );
+
+
+                alert(
+                    getFirebaseErrorMessage(
+                        error
+                    )
+                );
+
+            } finally {
+
+                isSavingProfile = false;
+
+
+                if (saveButton) {
+
+                    saveButton.disabled = false;
+
+                    saveButton.innerHTML =
+                        originalText;
+
+                }
+
+            }
+
+        }
     );
+
 }
 
 
-/* =========================================================
-   FEATURE 006
-   BIO COUNTER
-========================================================= */
-
-function updateBioCounter() {
-
-    const textarea =
-        $("profileBioInput");
-
-    const counter =
-        $("bioCharacterCount");
-
-    if (!textarea || !counter) return;
-
-    counter.textContent =
-        `${textarea.value.length} / 500`;
-}
-
-
-/* =========================================================
-   FEATURE 007
-   LOAD ORDERS
-========================================================= */
+/*==================================================
+FEATURE: ORDERS
+==================================================*/
 
 async function loadOrders() {
 
-    if (!currentUser) return;
+    accountOrders = [];
+
+
+    if (!currentUser) {
+
+        return;
+
+    }
+
+
+    if (!db) {
+
+        renderOrders();
+
+        updateStatistics();
+
+        return;
+
+    }
+
+
+    /*
+    First try root orders.
+    Most ecommerce checkout systems save:
+    orders/{orderId}
+    */
 
     try {
 
-        const snapshot =
-            await get(
-                ref(
-                    db,
-                    `users/${currentUser.uid}/orders`
-                )
+        const ordersRef =
+            ref(
+                db,
+                "orders"
             );
 
-        currentOrders =
-            snapshot.exists()
-                ? snapshot.val() || {}
-                : {};
 
-        renderOrders();
+        const snapshot =
+            await get(ordersRef);
 
-        updateOrderStatistics();
+
+        if (snapshot.exists()) {
+
+            const data =
+                snapshot.val();
+
+
+            const ordersArray =
+                objectToArray(data);
+
+
+            accountOrders =
+                ordersArray.filter(
+                    order => {
+
+                        return orderBelongsToUser(
+                            order,
+                            currentUser
+                        );
+
+                    }
+                );
+
+        }
 
     } catch (error) {
 
-        console.error(
-            "Orders load error:",
+        console.warn(
+            "Root orders could not be loaded:",
             error
         );
 
-        currentOrders = {};
-
-        renderOrders();
     }
+
+
+    /*
+    If root orders did not work,
+    try users/{uid}/orders.
+    */
+
+    if (
+        accountOrders.length === 0
+    ) {
+
+        try {
+
+            const userOrdersRef =
+                ref(
+                    db,
+                    `users/${currentUser.uid}/orders`
+                );
+
+
+            const snapshot =
+                await get(userOrdersRef);
+
+
+            if (snapshot.exists()) {
+
+                accountOrders =
+                    objectToArray(
+                        snapshot.val()
+                    );
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "User orders could not be loaded:",
+                error
+            );
+
+        }
+
+    }
+
+
+    /*
+    Newest first.
+    */
+
+    accountOrders.sort(
+        (a, b) => {
+
+            const dateA =
+                Number(
+                    a.createdAt ||
+                    a.timestamp ||
+                    a.dateTimestamp ||
+                    0
+                );
+
+
+            const dateB =
+                Number(
+                    b.createdAt ||
+                    b.timestamp ||
+                    b.dateTimestamp ||
+                    0
+                );
+
+
+            return dateB - dateA;
+
+        }
+    );
+
+
+    renderOrders();
+
+    updateStatistics();
+
 }
 
 
-/* =========================================================
-   FEATURE 007
-   ORDER STATISTICS
-========================================================= */
+/*==================================================
+FEATURE: CHECK ORDER OWNER
+==================================================*/
 
-function updateOrderStatistics() {
+function orderBelongsToUser(
+    order,
+    user
+) {
 
-    const orders =
-        Object.values(currentOrders || {});
+    if (!order || !user) {
 
-    let pending = 0;
-    let processing = 0;
-    let shipped = 0;
-    let delivered = 0;
+        return false;
 
-    orders.forEach(order => {
-
-        const status =
-            String(
-                order.status || "pending"
-            ).toLowerCase();
-
-        if (status === "pending") {
-            pending++;
-        }
-
-        if (status === "processing") {
-            processing++;
-        }
-
-        if (
-            status === "shipped" ||
-            status === "out_for_delivery"
-        ) {
-            shipped++;
-        }
-
-        if (status === "delivered") {
-            delivered++;
-        }
-    });
+    }
 
 
-    setText(
-        "ordersCount",
-        orders.length
-    );
-
-    setText(
-        "ordersNavBadge",
-        orders.length
-    );
-
-    setText(
-        "pendingOrdersCount",
-        pending
-    );
-
-    setText(
-        "processingOrdersCount",
-        processing
-    );
-
-    setText(
-        "shippedOrdersCount",
-        shipped
-    );
-
-    setText(
-        "deliveredOrdersCount",
-        delivered
-    );
+    const uid =
+        user.uid;
 
 
-    renderRecentOrders(
-        orders
-            .sort(
-                (a, b) =>
-                    getTimestamp(b.createdAt) -
-                    getTimestamp(a.createdAt)
-            )
-            .slice(0, 5)
-    );
+    const email =
+        String(
+            user.email || ""
+        ).toLowerCase();
+
+
+    const possibleUIDs = [
+
+        order.uid,
+
+        order.userId,
+
+        order.customerUid,
+
+        order.customerId,
+
+        order.buyerUid,
+
+        order.buyerId,
+
+        order.createdBy
+
+    ];
+
+
+    const uidMatch =
+        possibleUIDs.some(
+            value =>
+                value &&
+                String(value) === uid
+        );
+
+
+    if (uidMatch) {
+
+        return true;
+
+    }
+
+
+    const possibleEmails = [
+
+        order.email,
+
+        order.customerEmail,
+
+        order.buyerEmail,
+
+        order.userEmail
+
+    ];
+
+
+    const emailMatch =
+        possibleEmails.some(
+            value =>
+                value &&
+                String(value).toLowerCase() === email
+        );
+
+
+    return emailMatch;
+
 }
 
 
-/* =========================================================
-   FEATURE 008
-   RENDER ORDERS
-========================================================= */
+/*==================================================
+FEATURE: OBJECT TO ARRAY
+==================================================*/
+
+function objectToArray(data) {
+
+    if (!data) {
+
+        return [];
+
+    }
+
+
+    if (Array.isArray(data)) {
+
+        return data
+            .filter(Boolean)
+            .map(
+                (item, index) => ({
+                    ...item,
+                    _key:
+                        item?._key ||
+                        String(index)
+                })
+            );
+
+    }
+
+
+    return Object.entries(data)
+        .map(
+            ([key, value]) => ({
+
+                ...(value || {}),
+
+                _key: key
+
+            })
+        );
+
+}
+
+
+/*==================================================
+FEATURE: RENDER ORDERS
+==================================================*/
 
 function renderOrders() {
 
     const container =
-        $("ordersList");
-
-    if (!container) return;
-
-    const search =
-        $("orderSearchInput")
-            ?.value
-            .trim()
-            .toLowerCase() || "";
-
-    const status =
-        $("orderStatusFilter")
-            ?.value || "all";
+        $("accountOrdersList");
 
 
-    let orders =
-        Object.entries(
-            currentOrders || {}
-        ).map(([id, order]) => ({
-            id,
-            ...order
-        }));
+    const recentContainer =
+        $("recentOrders");
 
 
-    orders = orders.filter(order => {
-
-        const orderStatus =
-            String(
-                order.status || "pending"
-            ).toLowerCase();
-
-        const matchesStatus =
-            status === "all" ||
-            orderStatus === status;
-
-        const searchable =
-            `${order.id} ${
-                order.orderId || ""
-            } ${
-                order.productName || ""
-            }`.toLowerCase();
-
-        const matchesSearch =
-            !search ||
-            searchable.includes(search);
-
-        return (
-            matchesStatus &&
-            matchesSearch
-        );
-    });
-
-
-    orders.sort(
-        (a, b) =>
-            getTimestamp(b.createdAt) -
-            getTimestamp(a.createdAt)
-    );
-
-
-    if ($("ordersResultText")) {
-
-        $("ordersResultText").textContent =
-            `${orders.length} order${
-                orders.length === 1 ? "" : "s"
-            } found`;
-    }
-
-
-    if (!orders.length) {
-
-        container.innerHTML = `
-            <div class="empty-state">
-
-                <i class="fa-solid fa-box-open"></i>
-
-                <h4>
-                    No orders found
-                </h4>
-
-                <p>
-                    No orders match your current filters.
-                </p>
-
-                <a
-                    href="index.html"
-                    class="empty-action-button"
-                >
-                    Start Shopping
-                </a>
-
-            </div>
-        `;
+    if (!container) {
 
         return;
+
     }
 
 
-    container.innerHTML =
-        orders
-            .map(order =>
-                createOrderHTML(
-                    order
+    if (
+        !accountOrders ||
+        accountOrders.length === 0
+    ) {
+
+        container.innerHTML =
+            emptyStateHTML(
+                "fa-solid fa-box-open",
+                "No Orders Yet",
+                "Orders you place will appear here."
+            );
+
+    } else {
+
+        container.innerHTML =
+            accountOrders
+                .map(
+                    order =>
+                        orderCardHTML(
+                            order
+                        )
                 )
-            )
-            .join("");
-}
+                .join("");
 
-
-/* =========================================================
-   RECENT ORDERS
-========================================================= */
-
-function renderRecentOrders(orders) {
-
-    const container =
-        $("dashboardRecentOrders");
-
-    if (!container) return;
-
-    if (!orders.length) {
-
-        container.innerHTML = `
-            <div class="empty-state">
-
-                <i class="fa-solid fa-box-open"></i>
-
-                <h4>
-                    No orders yet
-                </h4>
-
-                <p>
-                    Your recent orders will appear here.
-                </p>
-
-                <a
-                    href="index.html"
-                    class="empty-action-button"
-                >
-                    Start Shopping
-                </a>
-
-            </div>
-        `;
-
-        return;
     }
 
 
-    container.innerHTML =
-        orders
-            .map(order =>
-                createOrderHTML(order)
-            )
-            .join("");
+    /*
+    Recent orders on Overview.
+    */
+
+    if (recentContainer) {
+
+        const recent =
+            accountOrders.slice(
+                0,
+                3
+            );
+
+
+        if (recent.length === 0) {
+
+            recentContainer.innerHTML =
+                emptyStateHTML(
+                    "fa-solid fa-box-open",
+                    "No Orders Yet",
+                    "Your recent orders will appear here."
+                );
+
+        } else {
+
+            recentContainer.innerHTML =
+                recent
+                    .map(
+                        order =>
+                            recentOrderHTML(
+                                order
+                            )
+                    )
+                    .join("");
+
+        }
+
+    }
+
 }
 
 
-/* =========================================================
-   ORDER HTML
-========================================================= */
+/*==================================================
+FEATURE: ORDER CARD
+==================================================*/
 
-function createOrderHTML(order) {
-
-    const status =
-        String(
-            order.status || "pending"
-        ).toLowerCase();
+function orderCardHTML(order) {
 
     const orderId =
         order.orderId ||
         order.id ||
-        "N/A";
-
-    const productName =
-        order.productName ||
-        order.product?.name ||
+        order._key ||
         "Order";
 
-    const image =
-        order.image ||
-        order.product?.image ||
-        "";
+
+    const status =
+        normalizeStatus(
+            order.status
+        );
+
+
+    const payment =
+        order.paymentMethod ||
+        order.payment ||
+        "â€”";
+
 
     const total =
         order.total ??
         order.totalAmount ??
+        order.grandTotal ??
         order.amount ??
         0;
 
+
+    const date =
+        formatDate(
+            order.createdAt ||
+            order.timestamp ||
+            order.date
+        );
+
+
+    const productName =
+        getOrderProductName(
+            order
+        );
+
+
     return `
-        <article class="order-item">
 
-            <div class="order-item-image">
+        <article
+            class="account-order-item"
+            data-order-id="${escapeHTML(orderId)}"
+        >
 
-                ${
-                    image
-                        ? `
-                            <img
-                                src="${escapeAttribute(image)}"
-                                alt="${escapeAttribute(productName)}"
-                            >
-                        `
-                        : `
-                            <i class="fa-solid fa-box"></i>
-                        `
-                }
+            <div class="account-order-icon">
+
+                <i class="fa-solid fa-box-open"></i>
 
             </div>
 
 
-            <div class="order-item-info">
+            <div class="account-order-main">
 
-                <strong>
+                <div class="account-order-top">
+
+                    <strong>
+                        ${escapeHTML(orderId)}
+                    </strong>
+
+                    <span class="order-status status-${escapeHTML(status)}">
+                        ${escapeHTML(capitalize(status))}
+                    </span>
+
+                </div>
+
+
+                <div class="account-order-product">
+
                     ${escapeHTML(productName)}
-                </strong>
+
+                </div>
+
+
+                <div class="account-order-meta">
+
+                    <span>
+                        <i class="fa-regular fa-calendar"></i>
+                        ${escapeHTML(date)}
+                    </span>
+
+                    <span>
+                        <i class="fa-solid fa-credit-card"></i>
+                        ${escapeHTML(payment)}
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="account-order-total">
 
                 <span>
-                    Order #${escapeHTML(String(orderId))}
-                </span>
-
-                <small>
-                    ${formatDate(order.createdAt)}
-                </small>
-
-            </div>
-
-
-            <div class="order-item-status">
-
-                <span class="order-status-badge ${escapeAttribute(status)}">
-                    ${formatStatus(status)}
+                    Total
                 </span>
 
                 <strong>
-                    Rs. ${formatMoney(total)}
+                    Rs ${formatMoney(total)}
                 </strong>
 
             </div>
 
         </article>
+
     `;
+
 }
 
 
-/* =========================================================
-   FEATURE 007
-   LOAD WISHLIST
-========================================================= */
+/*==================================================
+FEATURE: RECENT ORDER
+==================================================*/
+
+function recentOrderHTML(order) {
+
+    const orderId =
+        order.orderId ||
+        order.id ||
+        order._key ||
+        "Order";
+
+
+    const status =
+        normalizeStatus(
+            order.status
+        );
+
+
+    const total =
+        order.total ??
+        order.totalAmount ??
+        order.grandTotal ??
+        order.amount ??
+        0;
+
+
+    return `
+
+        <div class="recent-order-item">
+
+            <div class="recent-order-icon">
+
+                <i class="fa-solid fa-box"></i>
+
+            </div>
+
+
+            <div class="recent-order-info">
+
+                <strong>
+                    ${escapeHTML(orderId)}
+                </strong>
+
+                <span>
+                    ${escapeHTML(
+                        formatDate(
+                            order.createdAt ||
+                            order.timestamp ||
+                            order.date
+                        )
+                    )}
+                </span>
+
+            </div>
+
+
+            <div class="recent-order-right">
+
+                <strong>
+                    Rs ${formatMoney(total)}
+                </strong>
+
+                <span class="order-status status-${escapeHTML(status)}">
+                    ${escapeHTML(capitalize(status))}
+                </span>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/*==================================================
+FEATURE: GET PRODUCT NAME
+==================================================*/
+
+function getOrderProductName(order) {
+
+    if (order.productName) {
+
+        return order.productName;
+
+    }
+
+
+    if (order.title) {
+
+        return order.title;
+
+    }
+
+
+    if (
+        order.product &&
+        typeof order.product === "object"
+    ) {
+
+        return (
+            order.product.name ||
+            order.product.title ||
+            "Product"
+        );
+
+    }
+
+
+    if (
+        Array.isArray(order.items) &&
+        order.items.length
+    ) {
+
+        const first =
+            order.items[0];
+
+
+        return (
+            first?.productName ||
+            first?.name ||
+            first?.title ||
+            "Multiple Products"
+        );
+
+    }
+
+
+    return "SmartBazaar Order";
+
+}
+
+
+/*==================================================
+FEATURE: WISHLIST
+==================================================*/
 
 async function loadWishlist() {
 
-    if (!currentUser) return;
+    accountWishlist = [];
 
-    try {
 
-        const snapshot =
-            await get(
+    if (!currentUser) {
+
+        return;
+
+    }
+
+
+    /*
+    Try:
+    users/{uid}/wishlist
+    */
+
+    if (db) {
+
+        try {
+
+            const wishlistRef =
                 ref(
                     db,
                     `users/${currentUser.uid}/wishlist`
-                )
+                );
+
+
+            const snapshot =
+                await get(wishlistRef);
+
+
+            if (snapshot.exists()) {
+
+                accountWishlist =
+                    objectToArray(
+                        snapshot.val()
+                    );
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Wishlist load error:",
+                error
             );
 
-        currentWishlist =
-            snapshot.exists()
-                ? snapshot.val() || {}
-                : {};
+        }
 
-        renderWishlist();
-
-        updateWishlistStatistics();
-
-    } catch (error) {
-
-        console.error(
-            "Wishlist load error:",
-            error
-        );
-
-        currentWishlist = {};
-
-        renderWishlist();
     }
+
+
+    /*
+    Fallback to localStorage.
+    */
+
+    if (
+        accountWishlist.length === 0
+    ) {
+
+        try {
+
+            const local =
+                localStorage.getItem(
+                    `smartbazaar_wishlist_${currentUser.uid}`
+                );
+
+
+            if (local) {
+
+                accountWishlist =
+                    JSON.parse(local);
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Local wishlist error:",
+                error
+            );
+
+        }
+
+    }
+
+
+    renderWishlist();
+
+    updateStatistics();
+
 }
 
 
-/* =========================================================
-   WISHLIST STATISTICS
-========================================================= */
-
-function updateWishlistStatistics() {
-
-    const count =
-        Object.keys(
-            currentWishlist || {}
-        ).length;
-
-    setText(
-        "wishlistCount",
-        count
-    );
-
-    setText(
-        "wishlistNavBadge",
-        count
-    );
-
-    setText(
-        "wishlistItemCount",
-        `${count} item${count === 1 ? "" : "s"}`
-    );
-}
-
-
-/* =========================================================
-   FEATURE 013
-   RENDER WISHLIST
-========================================================= */
+/*==================================================
+FEATURE: RENDER WISHLIST
+==================================================*/
 
 function renderWishlist() {
 
     const container =
         $("wishlistProducts");
 
-    if (!container) return;
 
-    const items =
-        Object.entries(
-            currentWishlist || {}
-        ).map(([id, item]) => ({
-            id,
-            ...item
-        }));
-
-
-    updateWishlistStatistics();
-
-
-    if (!items.length) {
-
-        container.innerHTML = `
-            <div class="empty-state">
-
-                <i class="fa-solid fa-heart"></i>
-
-                <h4>
-                    Your wishlist is empty
-                </h4>
-
-                <p>
-                    Save products you love and find them here later.
-                </p>
-
-                <a
-                    href="index.html"
-                    class="empty-action-button"
-                >
-                    Browse Products
-                </a>
-
-            </div>
-        `;
+    if (!container) {
 
         return;
+
+    }
+
+
+    if (
+        !accountWishlist ||
+        accountWishlist.length === 0
+    ) {
+
+        container.innerHTML =
+            emptyStateHTML(
+                "fa-regular fa-heart",
+                "Your Wishlist is Empty",
+                "Save products you love and find them here.",
+                `
+                    <a
+                        href="./index.html"
+                        class="empty-action-button"
+                    >
+                        Browse Products
+                    </a>
+                `
+            );
+
+
+        return;
+
     }
 
 
     container.innerHTML =
-        items
-            .map(item =>
-                createWishlistHTML(item)
+        accountWishlist
+            .map(
+                product =>
+                    wishlistProductHTML(
+                        product
+                    )
             )
             .join("");
+
 }
 
 
-/* =========================================================
-   WISHLIST CARD
-========================================================= */
+/*==================================================
+FEATURE: WISHLIST PRODUCT
+==================================================*/
 
-function createWishlistHTML(item) {
+function wishlistProductHTML(product) {
 
     const name =
-        item.name ||
-        item.productName ||
+        product.name ||
+        product.title ||
         "Product";
 
+
     const image =
-        item.image ||
-        item.imageURL ||
+        product.image ||
+        product.imageUrl ||
+        product.thumbnail ||
         "";
 
+
     const price =
-        item.price ??
+        product.price ||
+        product.salePrice ||
         0;
 
+
     const productId =
-        item.productId ||
-        item.id;
+        product.productId ||
+        product.id ||
+        product._key ||
+        "";
 
 
     return `
+
         <article
             class="wishlist-product-card"
-            data-product-id="${escapeAttribute(productId)}"
+            data-product-id="${escapeHTML(productId)}"
         >
 
             <div class="wishlist-product-image">
@@ -1553,12 +1895,13 @@ function createWishlistHTML(item) {
                     image
                         ? `
                             <img
-                                src="${escapeAttribute(image)}"
-                                alt="${escapeAttribute(name)}"
+                                src="${escapeHTML(image)}"
+                                alt="${escapeHTML(name)}"
+                                loading="lazy"
                             >
                         `
                         : `
-                            <i class="fa-solid fa-image"></i>
+                            <i class="fa-solid fa-box"></i>
                         `
                 }
 
@@ -1572,345 +1915,236 @@ function createWishlistHTML(item) {
                 </h4>
 
                 <strong>
-                    Rs. ${formatMoney(price)}
+                    Rs ${formatMoney(price)}
                 </strong>
-
-                ${
-                    item.addedAt
-                        ? `
-                            <small>
-                                Saved ${formatDate(item.addedAt)}
-                            </small>
-                        `
-                        : ""
-                }
-
-            </div>
-
-
-            <div class="wishlist-product-actions">
-
-                <button
-                    type="button"
-                    class="danger-outline-button wishlist-remove-button"
-                    data-wishlist-id="${escapeAttribute(productId)}"
-                    title="Remove from wishlist"
-                >
-
-                    <i class="fa-solid fa-trash"></i>
-
-                </button>
 
             </div>
 
         </article>
+
     `;
+
 }
 
 
-/* =========================================================
-   REMOVE WISHLIST ITEM
-========================================================= */
-
-async function removeWishlistItem(id) {
-
-    if (!currentUser || !id) return;
-
-    try {
-
-        await remove(
-            ref(
-                db,
-                `users/${currentUser.uid}/wishlist/${id}`
-            )
-        );
-
-        delete currentWishlist[id];
-
-        renderWishlist();
-
-        showToast(
-            "Product removed from wishlist.",
-            "success"
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Wishlist remove error:",
-            error
-        );
-
-        showToast(
-            "Unable to remove product.",
-            "error"
-        );
-    }
-}
-
-
-/* =========================================================
-   FEATURE 013
-   CLEAR WISHLIST
-========================================================= */
-
-async function clearWishlist() {
-
-    if (!currentUser) return;
-
-    try {
-
-        await remove(
-            ref(
-                db,
-                `users/${currentUser.uid}/wishlist`
-            )
-        );
-
-        currentWishlist = {};
-
-        closeModal(
-            "clearWishlistModal"
-        );
-
-        renderWishlist();
-
-        showToast(
-            "Wishlist cleared successfully.",
-            "success"
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Clear wishlist error:",
-            error
-        );
-
-        showToast(
-            "Unable to clear wishlist.",
-            "error"
-        );
-    }
-}
-
-
-/* =========================================================
-   FEATURE 009
-   LOAD ADDRESSES
-========================================================= */
+/*==================================================
+FEATURE: ADDRESSES
+==================================================*/
 
 async function loadAddresses() {
 
-    if (!currentUser) return;
+    accountAddresses = [];
 
-    try {
 
-        const snapshot =
-            await get(
+    if (!currentUser) {
+
+        return;
+
+    }
+
+
+    if (db) {
+
+        try {
+
+            const addressesRef =
                 ref(
                     db,
                     `users/${currentUser.uid}/addresses`
-                )
+                );
+
+
+            const snapshot =
+                await get(addressesRef);
+
+
+            if (snapshot.exists()) {
+
+                accountAddresses =
+                    objectToArray(
+                        snapshot.val()
+                    );
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Address load error:",
+                error
             );
 
-        currentAddresses =
-            snapshot.exists()
-                ? snapshot.val() || {}
-                : {};
+        }
 
-        renderAddresses();
-
-        updateAddressStatistics();
-
-    } catch (error) {
-
-        console.error(
-            "Addresses load error:",
-            error
-        );
-
-        currentAddresses = {};
-
-        renderAddresses();
     }
+
+
+    accountAddresses.sort(
+        (a, b) => {
+
+            if (
+                a.isDefault &&
+                !b.isDefault
+            ) {
+
+                return -1;
+
+            }
+
+
+            if (
+                !a.isDefault &&
+                b.isDefault
+            ) {
+
+                return 1;
+
+            }
+
+
+            return 0;
+
+        }
+    );
+
+
+    renderAddresses();
+
+    updateStatistics();
+
 }
 
 
-/* =========================================================
-   ADDRESS STATISTICS
-========================================================= */
-
-function updateAddressStatistics() {
-
-    const count =
-        Object.keys(
-            currentAddresses || {}
-        ).length;
-
-    setText(
-        "addressesCount",
-        count
-    );
-
-    setText(
-        "addressesNavBadge",
-        count
-    );
-}
-
-
-/* =========================================================
-   FEATURE 009
-   RENDER ADDRESSES
-========================================================= */
+/*==================================================
+FEATURE: RENDER ADDRESSES
+==================================================*/
 
 function renderAddresses() {
 
     const container =
         $("addressesList");
 
-    if (!container) return;
 
-    const addresses =
-        Object.entries(
-            currentAddresses || {}
-        ).map(([id, address]) => ({
-            id,
-            ...address
-        }));
-
-
-    updateAddressStatistics();
-
-
-    if (!addresses.length) {
-
-        container.innerHTML = `
-            <div class="empty-state">
-
-                <i class="fa-solid fa-location-dot"></i>
-
-                <h4>
-                    No addresses saved
-                </h4>
-
-                <p>
-                    Add your first delivery address.
-                </p>
-
-                <button
-                    type="button"
-                    class="empty-action-button"
-                    id="emptyAddAddressButton"
-                >
-                    Add Address
-                </button>
-
-            </div>
-        `;
-
-        const button =
-            $("emptyAddAddressButton");
-
-        button?.addEventListener(
-            "click",
-            () => openAddressModal()
-        );
+    if (!container) {
 
         return;
+
     }
 
 
-    addresses.sort(
-        (a, b) =>
-            Number(Boolean(b.isDefault)) -
-            Number(Boolean(a.isDefault))
-    );
+    if (
+        !accountAddresses ||
+        accountAddresses.length === 0
+    ) {
+
+        container.innerHTML =
+            emptyStateHTML(
+                "fa-solid fa-location-dot",
+                "No Saved Addresses",
+                "Add an address for faster checkout."
+            );
+
+
+        return;
+
+    }
 
 
     container.innerHTML =
-        addresses
-            .map(address =>
-                createAddressHTML(address)
+        accountAddresses
+            .map(
+                address =>
+                    addressCardHTML(
+                        address
+                    )
             )
             .join("");
+
 }
 
 
-/* =========================================================
-   ADDRESS HTML
-========================================================= */
+/*==================================================
+FEATURE: ADDRESS CARD
+==================================================*/
 
-function createAddressHTML(address) {
+function addressCardHTML(address) {
+
+    const title =
+        address.title ||
+        address.name ||
+        "Address";
+
+
+    const fullName =
+        address.fullName ||
+        address.recipientName ||
+        "";
+
+
+    const phone =
+        address.phone ||
+        address.mobile ||
+        "";
+
+
+    const city =
+        address.city ||
+        "";
+
+
+    const complete =
+        address.completeAddress ||
+        address.address ||
+        address.fullAddress ||
+        "";
+
 
     const id =
-        address.id;
+        address.id ||
+        address._key ||
+        "";
+
 
     return `
+
         <article
             class="address-card"
-            data-address-id="${escapeAttribute(id)}"
+            data-address-id="${escapeHTML(id)}"
         >
 
             <div class="address-card-header">
 
-                <div class="address-title">
+                <div>
 
-                    <span class="address-icon">
-                        <i class="fa-solid fa-location-dot"></i>
-                    </span>
+                    <i class="fa-solid fa-location-dot"></i>
 
-                    <div>
+                    <strong>
+                        ${escapeHTML(title)}
+                    </strong>
 
-                        <h4>
-                            ${escapeHTML(
-                                address.name ||
-                                "Address"
-                            )}
-                        </h4>
-
-                        ${
-                            address.isDefault
-                                ? `
-                                    <span class="default-address-badge">
-                                        Default
-                                    </span>
-                                `
-                                : ""
-                        }
-
-                    </div>
+                    ${
+                        address.isDefault
+                            ? `
+                                <span class="default-address-badge">
+                                    Default
+                                </span>
+                            `
+                            : ""
+                    }
 
                 </div>
 
 
-                <div class="address-actions">
+                <button
+                    type="button"
+                    class="delete-address-button"
+                    data-address-id="${escapeHTML(id)}"
+                    aria-label="Delete address"
+                >
 
-                    <button
-                        type="button"
-                        class="secondary-action-button address-edit-button"
-                        data-address-id="${escapeAttribute(id)}"
-                    >
+                    <i class="fa-solid fa-trash"></i>
 
-                        <i class="fa-solid fa-pen"></i>
-
-                        Edit
-
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="danger-outline-button address-delete-button"
-                        data-address-id="${escapeAttribute(id)}"
-                    >
-
-                        <i class="fa-solid fa-trash"></i>
-
-                    </button>
-
-                </div>
+                </button>
 
             </div>
 
@@ -1918,575 +2152,739 @@ function createAddressHTML(address) {
             <div class="address-card-body">
 
                 <strong>
-                    ${escapeHTML(
-                        address.fullName ||
-                        ""
-                    )}
+                    ${escapeHTML(fullName)}
                 </strong>
 
                 <span>
-                    ${escapeHTML(
-                        address.phone ||
-                        ""
-                    )}
+                    ${escapeHTML(phone)}
+                </span>
+
+                <span>
+                    ${escapeHTML(city)}
                 </span>
 
                 <p>
-                    ${escapeHTML(
-                        address.address ||
-                        ""
-                    )}
+                    ${escapeHTML(complete)}
                 </p>
-
-                <span>
-                    ${escapeHTML(
-                        address.area ||
-                        ""
-                    )}
-                    ${
-                        address.area
-                            ? ", "
-                            : ""
-                    }
-                    ${escapeHTML(
-                        address.city ||
-                        ""
-                    )}
-                    ${
-                        address.postalCode
-                            ? ` - ${escapeHTML(
-                                address.postalCode
-                            )}`
-                            : ""
-                    }
-                </span>
 
             </div>
 
+
+            ${
+                !address.isDefault
+                    ? `
+                        <button
+                            type="button"
+                            class="set-default-address-button"
+                            data-address-id="${escapeHTML(id)}"
+                        >
+                            Make Default
+                        </button>
+                    `
+                    : ""
+            }
+
         </article>
+
     `;
+
 }
 
 
-/* =========================================================
-   OPEN ADDRESS MODAL
-========================================================= */
+/*==================================================
+FEATURE: ADDRESS MODAL
+==================================================*/
 
-function openAddressModal(addressId = null) {
+function setupAddressModal() {
+
+    const modal =
+        $("addressModal");
+
+
+    const addButton =
+        $("addAddressButton");
+
+
+    const closeButton =
+        $("closeAddressModal");
+
+
+    const cancelButton =
+        $("cancelAddressButton");
+
+
+    const overlay =
+        modal
+            ? modal.querySelector(
+                ".modal-overlay"
+            )
+            : null;
+
+
+    function openModal() {
+
+        if (!modal) {
+
+            return;
+
+        }
+
+
+        modal.style.display = "flex";
+
+        document.body.classList.add(
+            "modal-open"
+        );
+
+    }
+
+
+    function closeModal() {
+
+        if (!modal) {
+
+            return;
+
+        }
+
+
+        modal.style.display = "none";
+
+        document.body.classList.remove(
+            "modal-open"
+        );
+
+    }
+
+
+    if (addButton) {
+
+        addButton.addEventListener(
+            "click",
+            openModal
+        );
+
+    }
+
+
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            closeModal
+        );
+
+    }
+
+
+    if (cancelButton) {
+
+        cancelButton.addEventListener(
+            "click",
+            closeModal
+        );
+
+    }
+
+
+    if (overlay) {
+
+        overlay.addEventListener(
+            "click",
+            closeModal
+        );
+
+    }
+
+
+    setupAddressForm(
+        closeModal
+    );
+
+}
+
+
+/*==================================================
+FEATURE: ADDRESS FORM
+==================================================*/
+
+function setupAddressForm(
+    closeModal
+) {
 
     const form =
         $("addressForm");
 
-    if (!form) return;
 
-    editingAddressId =
-        addressId;
-
-    const title =
-        $("addressModalTitle");
-
-    if (addressId) {
-
-        const address =
-            currentAddresses[addressId];
-
-        if (!address) return;
-
-        if (title) {
-            title.textContent =
-                "Edit Address";
-        }
-
-        $("editingAddressId").value =
-            addressId;
-
-        $("addressName").value =
-            address.name || "";
-
-        $("addressFullName").value =
-            address.fullName || "";
-
-        $("addressPhone").value =
-            address.phone || "";
-
-        $("addressLine").value =
-            address.address || "";
-
-        $("addressCity").value =
-            address.city || "";
-
-        $("addressArea").value =
-            address.area || "";
-
-        $("addressPostalCode").value =
-            address.postalCode || "";
-
-        $("addressDefault").checked =
-            Boolean(address.isDefault);
-
-    } else {
-
-        if (title) {
-            title.textContent =
-                "Add New Address";
-        }
-
-        form.reset();
-
-        $("editingAddressId").value =
-            "";
-
-        editingAddressId = null;
-    }
-
-    openModal("addressModal");
-}
-
-
-/* =========================================================
-   SAVE ADDRESS
-========================================================= */
-
-async function saveAddress(event) {
-
-    event.preventDefault();
-
-    if (!currentUser) return;
-
-
-    const name =
-        $("addressName")?.value.trim();
-
-    const fullName =
-        $("addressFullName")?.value.trim();
-
-    const phone =
-        $("addressPhone")?.value.trim();
-
-    const address =
-        $("addressLine")?.value.trim();
-
-    const city =
-        $("addressCity")?.value.trim();
-
-
-    if (
-        !name ||
-        !fullName ||
-        !phone ||
-        !address ||
-        !city
-    ) {
-
-        showToast(
-            "Please complete all required address fields.",
-            "warning"
-        );
+    if (!form) {
 
         return;
+
     }
 
 
-    const addressId =
-        editingAddressId ||
-        `address_${Date.now()}`;
+    form.addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
 
 
-    const isDefault =
-        $("addressDefault")?.checked ||
-        false;
+            if (!currentUser) {
+
+                alert(
+                    "Please login first."
+                );
+
+                return;
+
+            }
 
 
-    const addressData = {
-
-        name,
-
-        fullName,
-
-        phone,
-
-        address,
-
-        city,
-
-        area:
-            $("addressArea")?.value.trim() || "",
-
-        postalCode:
-            $("addressPostalCode")
-                ?.value
-                .trim() || "",
-
-        isDefault,
-
-        updatedAt:
-            new Date().toISOString()
-    };
+            const title =
+                $("addressTitle")?.value || "Home";
 
 
-    const button =
-        $("saveAddressButton");
+            const fullName =
+                $("addressName")?.value.trim() || "";
 
-    setButtonLoading(
-        button,
-        true,
-        "Saving..."
+
+            const phone =
+                $("addressPhone")?.value.trim() || "";
+
+
+            const city =
+                $("addressCity")?.value.trim() || "";
+
+
+            const completeAddress =
+                $("addressComplete")?.value.trim() || "";
+
+
+            const isDefault =
+                Boolean(
+                    $("addressDefault")?.checked
+                );
+
+
+            if (
+                !fullName ||
+                !phone ||
+                !city ||
+                !completeAddress
+            ) {
+
+                alert(
+                    "Please complete all address fields."
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !/^03\d{9}$/.test(phone)
+            ) {
+
+                alert(
+                    "Please enter a valid Pakistani mobile number."
+                );
+
+                return;
+
+            }
+
+
+            if (!db) {
+
+                alert(
+                    "Firebase Database is not available."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                const addressesRef =
+                    ref(
+                        db,
+                        `users/${currentUser.uid}/addresses`
+                    );
+
+
+                /*
+                If this address is default,
+                remove default from previous addresses.
+                */
+
+                if (isDefault) {
+
+                    const snapshot =
+                        await get(
+                            addressesRef
+                        );
+
+
+                    if (snapshot.exists()) {
+
+                        const data =
+                            snapshot.val();
+
+
+                        const updates = {};
+
+
+                        Object.keys(data)
+                            .forEach(
+                                key => {
+
+                                    updates[
+                                        `${key}/isDefault`
+                                    ] = false;
+
+                                }
+                            );
+
+
+                        if (
+                            Object.keys(
+                                updates
+                            ).length
+                        ) {
+
+                            await update(
+                                addressesRef,
+                                updates
+                            );
+
+                        }
+
+                    }
+
+                }
+
+
+                const newAddressRef =
+                    push(
+                        addressesRef
+                    );
+
+
+                await set(
+                    newAddressRef,
+                    {
+
+                        id:
+                            newAddressRef.key,
+
+                        title,
+
+                        fullName,
+
+                        phone,
+
+                        city,
+
+                        completeAddress,
+
+                        isDefault,
+
+                        createdAt:
+                            Date.now()
+
+                    }
+                );
+
+
+                form.reset();
+
+
+                closeModal();
+
+
+                await loadAddresses();
+
+
+                alert(
+                    "Address saved successfully."
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Address save error:",
+                    error
+                );
+
+
+                alert(
+                    getFirebaseErrorMessage(
+                        error
+                    )
+                );
+
+            }
+
+        }
     );
 
-
-    try {
-
-        if (isDefault) {
-
-            await removeDefaultAddressFlags(
-                addressId
-            );
-        }
-
-
-        await set(
-            ref(
-                db,
-                `users/${currentUser.uid}/addresses/${addressId}`
-            ),
-            addressData
-        );
-
-
-        currentAddresses[addressId] =
-            addressData;
-
-
-        closeModal(
-            "addressModal"
-        );
-
-        renderAddresses();
-
-        showToast(
-            editingAddressId
-                ? "Address updated successfully."
-                : "Address added successfully.",
-            "success"
-        );
-
-
-        editingAddressId = null;
-
-    } catch (error) {
-
-        console.error(
-            "Save address error:",
-            error
-        );
-
-        showToast(
-            "Unable to save address.",
-            "error"
-        );
-
-    } finally {
-
-        setButtonLoading(
-            button,
-            false,
-            "Save Address"
-        );
-    }
 }
 
 
-/* =========================================================
-   DEFAULT ADDRESS
-========================================================= */
+/*==================================================
+FEATURE: ADDRESS ACTIONS
+==================================================*/
 
-async function removeDefaultAddressFlags(
-    exceptId = null
-) {
+function setupAddressActions() {
 
-    const updates = {};
+    document.addEventListener(
+        "click",
+        async event => {
 
-    Object.entries(
-        currentAddresses || {}
-    ).forEach(([id, address]) => {
+            const deleteButton =
+                event.target.closest(
+                    ".delete-address-button"
+                );
 
-        if (
-            id !== exceptId &&
-            address.isDefault
-        ) {
 
-            updates[
-                `users/${currentUser.uid}/addresses/${id}/isDefault`
-            ] = false;
+            const defaultButton =
+                event.target.closest(
+                    ".set-default-address-button"
+                );
+
+
+            if (
+                !deleteButton &&
+                !defaultButton
+            ) {
+
+                return;
+
+            }
+
+
+            if (!currentUser || !db) {
+
+                return;
+
+            }
+
+
+            if (deleteButton) {
+
+                const id =
+                    deleteButton.dataset.addressId;
+
+
+                if (!id) {
+
+                    return;
+
+                }
+
+
+                const confirmed =
+                    confirm(
+                        "Delete this saved address?"
+                    );
+
+
+                if (!confirmed) {
+
+                    return;
+
+                }
+
+
+                try {
+
+                    await remove(
+                        ref(
+                            db,
+                            `users/${currentUser.uid}/addresses/${id}`
+                        )
+                    );
+
+
+                    await loadAddresses();
+
+                } catch (error) {
+
+                    console.error(
+                        "Address delete error:",
+                        error
+                    );
+
+
+                    alert(
+                        getFirebaseErrorMessage(
+                            error
+                        )
+                    );
+
+                }
+
+            }
+
+
+            if (defaultButton) {
+
+                const id =
+                    defaultButton.dataset.addressId;
+
+
+                if (!id) {
+
+                    return;
+
+                }
+
+
+                try {
+
+                    const addressesRef =
+                        ref(
+                            db,
+                            `users/${currentUser.uid}/addresses`
+                        );
+
+
+                    const snapshot =
+                        await get(
+                            addressesRef
+                        );
+
+
+                    if (!snapshot.exists()) {
+
+                        return;
+
+                    }
+
+
+                    const data =
+                        snapshot.val();
+
+
+                    const updates = {};
+
+
+                    Object.keys(data)
+                        .forEach(
+                            key => {
+
+                                updates[
+                                    `${key}/isDefault`
+                                ] =
+                                    key === id;
+
+                            }
+                        );
+
+
+                    await update(
+                        addressesRef,
+                        updates
+                    );
+
+
+                    await loadAddresses();
+
+                } catch (error) {
+
+                    console.error(
+                        "Default address error:",
+                        error
+                    );
+
+
+                    alert(
+                        getFirebaseErrorMessage(
+                            error
+                        )
+                    );
+
+                }
+
+            }
+
         }
-    });
-
-
-    if (Object.keys(updates).length) {
-
-        await update(
-            ref(db),
-            updates
-        );
-    }
-}
-
-
-/* =========================================================
-   FEATURE 010
-   DELETE ADDRESS
-========================================================= */
-
-function askDeleteAddress(addressId) {
-
-    if (!addressId) return;
-
-    addressToDelete =
-        addressId;
-
-    openModal(
-        "deleteAddressModal"
     );
+
 }
 
 
-async function deleteAddress() {
-
-    if (
-        !currentUser ||
-        !addressToDelete
-    ) {
-        return;
-    }
-
-    try {
-
-        await remove(
-            ref(
-                db,
-                `users/${currentUser.uid}/addresses/${addressToDelete}`
-            )
-        );
-
-        delete currentAddresses[
-            addressToDelete
-        ];
-
-        addressToDelete = null;
-
-        closeModal(
-            "deleteAddressModal"
-        );
-
-        renderAddresses();
-
-        showToast(
-            "Address deleted successfully.",
-            "success"
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Delete address error:",
-            error
-        );
-
-        showToast(
-            "Unable to delete address.",
-            "error"
-        );
-    }
-}
-
-
-/* =========================================================
-   FEATURE 014
-   LOAD NOTIFICATIONS
-========================================================= */
+/*==================================================
+FEATURE: NOTIFICATIONS
+==================================================*/
 
 async function loadNotifications() {
 
-    if (!currentUser) return;
+    accountNotifications = [];
 
-    try {
 
-        const snapshot =
-            await get(
+    if (!currentUser) {
+
+        return;
+
+    }
+
+
+    if (db) {
+
+        try {
+
+            const notificationRef =
                 ref(
                     db,
                     `users/${currentUser.uid}/notifications`
-                )
+                );
+
+
+            const snapshot =
+                await get(
+                    notificationRef
+                );
+
+
+            if (snapshot.exists()) {
+
+                accountNotifications =
+                    objectToArray(
+                        snapshot.val()
+                    );
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Notification load error:",
+                error
             );
 
-        currentNotifications =
-            snapshot.exists()
-                ? snapshot.val() || {}
-                : {};
+        }
 
-        renderNotifications();
-
-        updateNotificationStatistics();
-
-    } catch (error) {
-
-        console.error(
-            "Notifications load error:",
-            error
-        );
-
-        currentNotifications = {};
-
-        renderNotifications();
     }
+
+
+    accountNotifications.sort(
+        (a, b) =>
+            Number(
+                b.createdAt ||
+                b.timestamp ||
+                0
+            ) -
+            Number(
+                a.createdAt ||
+                a.timestamp ||
+                0
+            )
+    );
+
+
+    renderNotifications();
+
+    updateStatistics();
+
 }
 
 
-/* =========================================================
-   NOTIFICATION STATISTICS
-========================================================= */
-
-function updateNotificationStatistics() {
-
-    const notifications =
-        Object.values(
-            currentNotifications || {}
-        );
-
-    const unread =
-        notifications.filter(
-            item => !item.read
-        ).length;
-
-    setText(
-        "notificationsCount",
-        unread
-    );
-
-    setText(
-        "notificationsNavBadge",
-        unread
-    );
-
-    setText(
-        "headerNotificationBadge",
-        unread
-    );
-}
-
-
-/* =========================================================
-   FEATURE 014
-   RENDER NOTIFICATIONS
-========================================================= */
+/*==================================================
+FEATURE: RENDER NOTIFICATIONS
+==================================================*/
 
 function renderNotifications() {
 
     const container =
         $("notificationsList");
 
-    if (!container) return;
 
-    const notifications =
-        Object.entries(
-            currentNotifications || {}
-        ).map(([id, item]) => ({
-            id,
-            ...item
-        }));
-
-
-    notifications.sort(
-        (a, b) =>
-            getTimestamp(b.createdAt) -
-            getTimestamp(a.createdAt)
-    );
-
-
-    updateNotificationStatistics();
-
-
-    if (!notifications.length) {
-
-        container.innerHTML = `
-            <div class="empty-state">
-
-                <i class="fa-solid fa-bell"></i>
-
-                <h4>
-                    No notifications
-                </h4>
-
-                <p>
-                    New account and order notifications will appear here.
-                </p>
-
-            </div>
-        `;
+    if (!container) {
 
         return;
+
+    }
+
+
+    if (
+        !accountNotifications ||
+        accountNotifications.length === 0
+    ) {
+
+        container.innerHTML =
+            emptyStateHTML(
+                "fa-regular fa-bell",
+                "No Notifications",
+                "New account and order updates will appear here."
+            );
+
+
+        return;
+
     }
 
 
     container.innerHTML =
-        notifications
+        accountNotifications
             .map(
                 notification =>
-                    createNotificationHTML(
+                    notificationHTML(
                         notification
                     )
             )
             .join("");
+
 }
 
 
-/* =========================================================
-   NOTIFICATION HTML
-========================================================= */
+/*==================================================
+FEATURE: NOTIFICATION CARD
+==================================================*/
 
-function createNotificationHTML(
+function notificationHTML(
     notification
 ) {
 
-    const type =
-        notification.type ||
-        "general";
+    const title =
+        notification.title ||
+        "SmartBazaar Update";
 
-    let icon =
-        "fa-bell";
 
-    if (type === "order") {
-        icon = "fa-box-open";
-    }
+    const message =
+        notification.message ||
+        notification.text ||
+        "";
 
-    if (type === "success") {
-        icon = "fa-circle-check";
-    }
 
-    if (type === "warning") {
-        icon = "fa-triangle-exclamation";
-    }
+    const date =
+        formatDate(
+            notification.createdAt ||
+            notification.timestamp
+        );
 
-    if (type === "security") {
-        icon = "fa-shield-halved";
-    }
+
+    const unread =
+        notification.read === false;
 
 
     return `
+
         <article
             class="notification-item ${
-                notification.read
-                    ? "read"
-                    : "unread"
+                unread
+                    ? "unread"
+                    : ""
             }"
-            data-notification-id="${escapeAttribute(
-                notification.id
-            )}"
         >
 
             <div class="notification-icon">
 
-                <i class="fa-solid ${icon}"></i>
+                <i class="fa-regular fa-bell"></i>
 
             </div>
 
@@ -2494,894 +2892,542 @@ function createNotificationHTML(
             <div class="notification-content">
 
                 <strong>
-                    ${escapeHTML(
-                        notification.title ||
-                        "Notification"
-                    )}
+                    ${escapeHTML(title)}
                 </strong>
 
                 <p>
-                    ${escapeHTML(
-                        notification.message ||
-                        ""
-                    )}
+                    ${escapeHTML(message)}
                 </p>
 
                 <small>
-                    ${formatDateTime(
-                        notification.createdAt
-                    )}
+                    ${escapeHTML(date)}
                 </small>
 
             </div>
 
-
-            <div class="notification-actions">
-
-                ${
-                    !notification.read
-                        ? `
-                            <button
-                                type="button"
-                                class="secondary-action-button notification-read-button"
-                                data-notification-id="${escapeAttribute(
-                                    notification.id
-                                )}"
-                            >
-                                Mark Read
-                            </button>
-                        `
-                        : ""
-                }
-
-                <button
-                    type="button"
-                    class="danger-outline-button notification-delete-button"
-                    data-notification-id="${escapeAttribute(
-                        notification.id
-                    )}"
-                >
-
-                    <i class="fa-solid fa-trash"></i>
-
-                </button>
-
-            </div>
-
         </article>
+
     `;
+
 }
 
 
-/* =========================================================
-   MARK NOTIFICATION READ
-========================================================= */
+/*==================================================
+FEATURE: MARK ALL NOTIFICATIONS READ
+==================================================*/
 
-async function markNotificationRead(
-    notificationId
-) {
+function setupNotificationActions() {
 
-    if (!currentUser || !notificationId) {
+    const button =
+        $("markNotificationsRead");
+
+
+    if (!button) {
+
         return;
+
     }
 
-    try {
 
-        await update(
-            ref(
-                db,
-                `users/${currentUser.uid}/notifications/${notificationId}`
-            ),
-            {
-                read: true,
-                readAt:
-                    new Date().toISOString()
+    button.addEventListener(
+        "click",
+        async () => {
+
+            if (
+                !currentUser ||
+                !db
+            ) {
+
+                return;
+
+            }
+
+
+            try {
+
+                const notificationRef =
+                    ref(
+                        db,
+                        `users/${currentUser.uid}/notifications`
+                    );
+
+
+                const snapshot =
+                    await get(
+                        notificationRef
+                    );
+
+
+                if (!snapshot.exists()) {
+
+                    return;
+
+                }
+
+
+                const data =
+                    snapshot.val();
+
+
+                const updates = {};
+
+
+                Object.keys(data)
+                    .forEach(
+                        key => {
+
+                            updates[
+                                `${key}/read`
+                            ] = true;
+
+                        }
+                    );
+
+
+                await update(
+                    notificationRef,
+                    updates
+                );
+
+
+                await loadNotifications();
+
+            } catch (error) {
+
+                console.error(
+                    "Mark notifications read error:",
+                    error
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: SECURITY
+==================================================*/
+
+function setupPasswordSystem() {
+
+    const button =
+        $("changePasswordButton");
+
+
+    if (!button) {
+
+        return;
+
+    }
+
+
+    button.addEventListener(
+        "click",
+        openPasswordModal
+    );
+
+
+    setupPasswordModal();
+
+}
+
+
+/*==================================================
+FEATURE: PASSWORD MODAL
+==================================================*/
+
+function setupPasswordModal() {
+
+    const modal =
+        $("passwordModal");
+
+
+    if (!modal) {
+
+        return;
+
+    }
+
+
+    const closeButton =
+        $("closePasswordModal");
+
+
+    const cancelButton =
+        $("cancelPasswordButton");
+
+
+    const overlay =
+        modal.querySelector(
+            ".modal-overlay"
+        );
+
+
+    function closeModal() {
+
+        modal.style.display =
+            "none";
+
+        document.body.classList.remove(
+            "modal-open"
+        );
+
+    }
+
+
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            closeModal
+        );
+
+    }
+
+
+    if (cancelButton) {
+
+        cancelButton.addEventListener(
+            "click",
+            closeModal
+        );
+
+    }
+
+
+    if (overlay) {
+
+        overlay.addEventListener(
+            "click",
+            closeModal
+        );
+
+    }
+
+
+    const form =
+        $("passwordForm");
+
+
+    if (form) {
+
+        form.addEventListener(
+            "submit",
+            async event => {
+
+                event.preventDefault();
+
+
+                if (!currentUser) {
+
+                    alert(
+                        "Please login first."
+                    );
+
+                    return;
+
+                }
+
+
+                const currentPassword =
+                    $("currentPassword")?.value || "";
+
+
+                const newPassword =
+                    $("newPassword")?.value || "";
+
+
+                const confirmPassword =
+                    $("confirmPassword")?.value || "";
+
+
+                if (
+                    newPassword.length < 6
+                ) {
+
+                    alert(
+                        "New password must contain at least 6 characters."
+                    );
+
+                    return;
+
+                }
+
+
+                if (
+                    newPassword !==
+                    confirmPassword
+                ) {
+
+                    alert(
+                        "New password and confirmation do not match."
+                    );
+
+                    return;
+
+                }
+
+
+                if (
+                    !currentPassword
+                ) {
+
+                    alert(
+                        "Please enter your current password."
+                    );
+
+                    return;
+
+                }
+
+
+                try {
+
+                    const credential =
+                        EmailAuthProvider.credential(
+                            currentUser.email,
+                            currentPassword
+                        );
+
+
+                    await reauthenticateWithCredential(
+                        currentUser,
+                        credential
+                    );
+
+
+                    await updatePassword(
+                        currentUser,
+                        newPassword
+                    );
+
+
+                    form.reset();
+
+                    closeModal();
+
+
+                    alert(
+                        "Password changed successfully."
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "Password change error:",
+                        error
+                    );
+
+
+                    alert(
+                        getFirebaseErrorMessage(
+                            error
+                        )
+                    );
+
+                }
+
             }
         );
 
-        if (
-            currentNotifications[
-                notificationId
-            ]
-        ) {
-
-            currentNotifications[
-                notificationId
-            ].read = true;
-        }
-
-        renderNotifications();
-
-    } catch (error) {
-
-        console.error(
-            "Notification read error:",
-            error
-        );
     }
+
 }
 
 
-/* =========================================================
-   MARK ALL NOTIFICATIONS READ
-========================================================= */
-
-async function markAllNotificationsRead() {
-
-    if (!currentUser) return;
-
-    const updates = {};
-
-    Object.entries(
-        currentNotifications || {}
-    ).forEach(([id, notification]) => {
-
-        if (!notification.read) {
-
-            updates[
-                `users/${currentUser.uid}/notifications/${id}/read`
-            ] = true;
-
-            updates[
-                `users/${currentUser.uid}/notifications/${id}/readAt`
-            ] = new Date().toISOString();
-
-        }
-    });
-
-
-    if (!Object.keys(updates).length) {
-
-        showToast(
-            "All notifications are already read.",
-            "info"
-        );
-
-        return;
-    }
-
-
-    try {
-
-        await update(
-            ref(db),
-            updates
-        );
-
-        Object.values(
-            currentNotifications
-        ).forEach(notification => {
-            notification.read = true;
-        });
-
-        renderNotifications();
-
-        showToast(
-            "All notifications marked as read.",
-            "success"
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Mark all read error:",
-            error
-        );
-
-        showToast(
-            "Unable to update notifications.",
-            "error"
-        );
-    }
-}
-
-
-/* =========================================================
-   DELETE NOTIFICATION
-========================================================= */
-
-async function deleteNotification(
-    notificationId
-) {
-
-    if (!currentUser || !notificationId) {
-        return;
-    }
-
-    try {
-
-        await remove(
-            ref(
-                db,
-                `users/${currentUser.uid}/notifications/${notificationId}`
-            )
-        );
-
-        delete currentNotifications[
-            notificationId
-        ];
-
-        renderNotifications();
-
-    } catch (error) {
-
-        console.error(
-            "Delete notification error:",
-            error
-        );
-
-        showToast(
-            "Unable to delete notification.",
-            "error"
-        );
-    }
-}
-
-
-/* =========================================================
-   CLEAR NOTIFICATIONS
-========================================================= */
-
-async function clearNotifications() {
-
-    if (!currentUser) return;
-
-    try {
-
-        await remove(
-            ref(
-                db,
-                `users/${currentUser.uid}/notifications`
-            )
-        );
-
-        currentNotifications = {};
-
-        closeModal(
-            "clearNotificationsModal"
-        );
-
-        renderNotifications();
-
-        showToast(
-            "Notifications cleared successfully.",
-            "success"
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Clear notifications error:",
-            error
-        );
-
-        showToast(
-            "Unable to clear notifications.",
-            "error"
-        );
-    }
-}
-
-
-/* =========================================================
-   FEATURE 008
-   SETTINGS
-========================================================= */
-
-async function loadSettings() {
-
-    if (!currentUser) return;
-
-    try {
-
-        const snapshot =
-            await get(
-                ref(
-                    db,
-                    `users/${currentUser.uid}/settings`
-                )
-            );
-
-        currentSettings =
-            snapshot.exists()
-                ? snapshot.val() || {}
-                : {};
-
-        renderSettings();
-
-    } catch (error) {
-
-        console.error(
-            "Settings load error:",
-            error
-        );
-    }
-}
-
-
-/* =========================================================
-   SETTINGS RENDER
-========================================================= */
-
-function renderSettings() {
-
-    const defaults = {
-
-        emailNotifications: true,
-
-        orderNotifications: true,
-
-        promotionalNotifications: false,
-
-        wishlistNotifications: true
-    };
-
-
-    const settings = {
-        ...defaults,
-        ...currentSettings
-    };
-
-
-    if ($("emailNotificationsToggle")) {
-        $("emailNotificationsToggle").checked =
-            Boolean(
-                settings.emailNotifications
-            );
-    }
-
-    if ($("orderNotificationsToggle")) {
-        $("orderNotificationsToggle").checked =
-            Boolean(
-                settings.orderNotifications
-            );
-    }
-
-    if ($("promotionalNotificationsToggle")) {
-        $("promotionalNotificationsToggle").checked =
-            Boolean(
-                settings.promotionalNotifications
-            );
-    }
-
-    if ($("wishlistNotificationsToggle")) {
-        $("wishlistNotificationsToggle").checked =
-            Boolean(
-                settings.wishlistNotifications
-            );
-    }
-}
-
-
-/* =========================================================
-   SAVE SETTINGS
-========================================================= */
-
-async function saveSettings() {
-
-    if (!currentUser) return;
-
-    const settings = {
-
-        emailNotifications:
-            Boolean(
-                $("emailNotificationsToggle")
-                    ?.checked
-            ),
-
-        orderNotifications:
-            Boolean(
-                $("orderNotificationsToggle")
-                    ?.checked
-            ),
-
-        promotionalNotifications:
-            Boolean(
-                $("promotionalNotificationsToggle")
-                    ?.checked
-            ),
-
-        wishlistNotifications:
-            Boolean(
-                $("wishlistNotificationsToggle")
-                    ?.checked
-            ),
-
-        updatedAt:
-            new Date().toISOString()
-    };
-
-
-    const button =
-        $("saveSettingsButton");
-
-    setButtonLoading(
-        button,
-        true,
-        "Saving..."
-    );
-
-
-    try {
-
-        await set(
-            ref(
-                db,
-                `users/${currentUser.uid}/settings`
-            ),
-            settings
-        );
-
-        currentSettings =
-            settings;
-
-        showToast(
-            "Settings saved successfully.",
-            "success"
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Save settings error:",
-            error
-        );
-
-        showToast(
-            "Unable to save settings.",
-            "error"
-        );
-
-    } finally {
-
-        setButtonLoading(
-            button,
-            false,
-            "Save Settings"
-        );
-    }
-}
-
-
-/* =========================================================
-   FEATURE 011
-   PASSWORD MODAL
-========================================================= */
+/*==================================================
+FEATURE: OPEN PASSWORD MODAL
+==================================================*/
 
 function openPasswordModal() {
 
-    $("passwordForm")?.reset();
-
-    resetPasswordStrength();
-
-    openModal(
-        "passwordModal"
-    );
-}
+    const modal =
+        $("passwordModal");
 
 
-/* =========================================================
-   PASSWORD STRENGTH
-========================================================= */
-
-function updatePasswordStrength() {
-
-    const password =
-        $("newPassword")?.value || "";
-
-    const bars =
-        $$(".strength-bars span");
-
-    const text =
-        $("passwordStrengthText");
-
-    if (!bars.length || !text) {
-        return;
-    }
-
-
-    let score = 0;
-
-    if (password.length >= 6) {
-        score++;
-    }
-
-    if (password.length >= 10) {
-        score++;
-    }
-
-    if (/[A-Z]/.test(password)) {
-        score++;
-    }
-
-    if (
-        /[0-9]/.test(password) &&
-        /[^A-Za-z0-9]/.test(password)
-    ) {
-        score++;
-    }
-
-
-    bars.forEach(
-        (bar, index) => {
-            bar.classList.toggle(
-                "active",
-                index < score
-            );
-        }
-    );
-
-
-    const labels = [
-        "Password strength",
-        "Weak",
-        "Fair",
-        "Good",
-        "Strong"
-    ];
-
-    text.textContent =
-        labels[score] ||
-        labels[0];
-}
-
-
-function resetPasswordStrength() {
-
-    const bars =
-        $$(".strength-bars span");
-
-    bars.forEach(
-        bar =>
-            bar.classList.remove(
-                "active"
-            )
-    );
-
-    setText(
-        "passwordStrengthText",
-        "Password strength"
-    );
-}
-
-
-/* =========================================================
-   PASSWORD VISIBILITY
-========================================================= */
-
-function togglePassword(
-    targetId,
-    button
-) {
-
-    const input =
-        $(targetId);
-
-    if (!input) return;
-
-    if (input.type === "password") {
-
-        input.type = "text";
-
-        button.setAttribute(
-            "aria-label",
-            "Hide password"
-        );
-
-        const icon =
-            button.querySelector("i");
-
-        if (icon) {
-            icon.className =
-                "fa-solid fa-eye-slash";
-        }
-
-    } else {
-
-        input.type = "password";
-
-        button.setAttribute(
-            "aria-label",
-            "Show password"
-        );
-
-        const icon =
-            button.querySelector("i");
-
-        if (icon) {
-            icon.className =
-                "fa-solid fa-eye";
-        }
-    }
-}
-
-
-/* =========================================================
-   CHANGE PASSWORD
-========================================================= */
-
-async function changePassword(event) {
-
-    event.preventDefault();
-
-    if (!currentUser) return;
-
-
-    const currentPassword =
-        $("currentPassword")?.value || "";
-
-    const newPassword =
-        $("newPassword")?.value || "";
-
-    const confirmPassword =
-        $("confirmPassword")?.value || "";
-
-
-    if (
-        !currentPassword ||
-        !newPassword ||
-        !confirmPassword
-    ) {
-
-        showToast(
-            "Please complete all password fields.",
-            "warning"
-        );
+    if (!modal) {
 
         return;
+
     }
 
 
-    if (newPassword.length < 6) {
-
-        showToast(
-            "New password must contain at least 6 characters.",
-            "warning"
-        );
-
-        return;
-    }
+    modal.style.display =
+        "flex";
 
 
-    if (
-        newPassword !==
-        confirmPassword
-    ) {
-
-        showToast(
-            "New passwords do not match.",
-            "warning"
-        );
-
-        return;
-    }
-
-
-    if (
-        newPassword ===
-        currentPassword
-    ) {
-
-        showToast(
-            "New password must be different.",
-            "warning"
-        );
-
-        return;
-    }
-
-
-    const button =
-        $("savePasswordButton");
-
-    setButtonLoading(
-        button,
-        true,
-        "Updating..."
+    document.body.classList.add(
+        "modal-open"
     );
 
-
-    try {
-
-        const credential =
-            EmailAuthProvider.credential(
-                currentUser.email,
-                currentPassword
-            );
-
-
-        await reauthenticateWithCredential(
-            currentUser,
-            credential
-        );
-
-
-        await updatePassword(
-            currentUser,
-            newPassword
-        );
-
-
-        closeModal(
-            "passwordModal"
-        );
-
-        $("passwordForm")?.reset();
-
-        resetPasswordStrength();
-
-        showToast(
-            "Password updated successfully.",
-            "success"
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Password update error:",
-            error
-        );
-
-
-        let message =
-            "Unable to update password.";
-
-
-        if (
-            error.code ===
-            "auth/invalid-credential"
-        ) {
-
-            message =
-                "Current password is incorrect.";
-
-        } else if (
-            error.code ===
-            "auth/wrong-password"
-        ) {
-
-            message =
-                "Current password is incorrect.";
-
-        } else if (
-            error.code ===
-            "auth/too-many-requests"
-        ) {
-
-            message =
-                "Too many attempts. Please try again later.";
-
-        } else if (
-            error.code ===
-            "auth/requires-recent-login"
-        ) {
-
-            message =
-                "Please log in again before changing your password.";
-        }
-
-
-        showToast(
-            message,
-            "error"
-        );
-
-    } finally {
-
-        setButtonLoading(
-            button,
-            false,
-            "Update Password"
-        );
-    }
 }
 
 
-/* =========================================================
-   FEATURE 011
-   EMAIL VERIFICATION
-========================================================= */
+/*==================================================
+FEATURE: LOGOUT SYSTEM
+==================================================*/
 
-function updateEmailVerificationUI() {
+function setupLogoutSystem() {
 
-    const verified =
-        Boolean(
-            currentUser?.emailVerified
-        );
+    const topLogout =
+        $("logoutButtonTop");
 
 
-    const status =
-        verified
-            ? "Verified"
-            : "Not Verified";
+    const sidebarLogout =
+        $("logoutButton");
 
 
-    setText(
-        "dashboardEmailStatus",
-        status
-    );
-
-    setText(
-        "emailVerificationText",
-        verified
-            ? "Your email address has been verified."
-            : "Your email address has not been verified yet."
-    );
-
-    setText(
-        "emailVerificationBadge",
-        status
-    );
+    const logoutModal =
+        $("logoutModal");
 
 
-    toggleElement(
-        "verifyEmailButton",
-        verified
-    );
-}
+    const cancelLogout =
+        $("cancelLogoutButton");
 
 
-async function verifyEmail() {
-
-    if (!currentUser) return;
-
-    try {
-
-        await sendEmailVerification(
-            currentUser
-        );
-
-        showToast(
-            "Verification email sent. Please check your inbox.",
-            "success"
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Email verification error:",
-            error
-        );
-
-        showToast(
-            "Unable to send verification email.",
-            "error"
-        );
-    }
-}
-
-
-/* =========================================================
-   FEATURE 012
-   LOGOUT
-========================================================= */
-
-function openLogoutModal() {
-
-    openModal(
-        "logoutModal"
-    );
-}
-
-
-async function confirmLogout() {
-
-    const button =
+    const confirmLogout =
         $("confirmLogoutButton");
 
-    setButtonLoading(
-        button,
-        true,
-        "Logging out..."
-    );
 
+    function openLogoutModal() {
+
+        if (!logoutModal) {
+
+            performLogout();
+
+            return;
+
+        }
+
+
+        logoutModal.style.display =
+            "flex";
+
+
+        document.body.classList.add(
+            "modal-open"
+        );
+
+    }
+
+
+    function closeLogoutModal() {
+
+        if (!logoutModal) {
+
+            return;
+
+        }
+
+
+        logoutModal.style.display =
+            "none";
+
+
+        document.body.classList.remove(
+            "modal-open"
+        );
+
+    }
+
+
+    if (topLogout) {
+
+        topLogout.addEventListener(
+            "click",
+            openLogoutModal
+        );
+
+    }
+
+
+    if (sidebarLogout) {
+
+        sidebarLogout.addEventListener(
+            "click",
+            openLogoutModal
+        );
+
+    }
+
+
+    if (cancelLogout) {
+
+        cancelLogout.addEventListener(
+            "click",
+            closeLogoutModal
+        );
+
+    }
+
+
+    if (confirmLogout) {
+
+        confirmLogout.addEventListener(
+            "click",
+            async () => {
+
+                await performLogout(
+                    closeLogoutModal
+                );
+
+            }
+        );
+
+    }
+
+
+    if (logoutModal) {
+
+        const overlay =
+            logoutModal.querySelector(
+                ".modal-overlay"
+            );
+
+
+        if (overlay) {
+
+            overlay.addEventListener(
+                "click",
+                closeLogoutModal
+            );
+
+        }
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: PERFORM LOGOUT
+==================================================*/
+
+async function performLogout(
+    closeModal = null
+) {
 
     try {
 
-        await signOut(auth);
+        if (closeModal) {
+
+            closeModal();
+
+        }
+
+
+        if (auth) {
+
+            await signOut(auth);
+
+        }
+
 
         window.location.href =
-            "login.html";
+            "./index.html";
 
     } catch (error) {
 
@@ -3390,845 +3436,444 @@ async function confirmLogout() {
             error
         );
 
-        showToast(
-            "Unable to logout. Please try again.",
-            "error"
-        );
 
-        setButtonLoading(
-            button,
-            false,
-            "Logout"
-        );
-    }
-}
-
-
-/* =========================================================
-   FEATURE 017
-   UPLOAD PROGRESS
-========================================================= */
-
-function showUploadProgress(
-    title = "Uploading...",
-    text = "Please wait while your image is uploaded."
-) {
-
-    const modal =
-        $("uploadProgressModal");
-
-    if (!modal) return;
-
-    setText(
-        "uploadProgressTitle",
-        title
-    );
-
-    setText(
-        "uploadProgressText",
-        text
-    );
-
-    setText(
-        "uploadProgressPercent",
-        "0%"
-    );
-
-    if ($("uploadProgressBar")) {
-        $("uploadProgressBar").style.width =
-            "0%";
-    }
-
-    modal.hidden = false;
-}
-
-
-function updateUploadProgress(
-    percentage
-) {
-
-    const value =
-        Math.max(
-            0,
-            Math.min(
-                100,
-                Math.round(
-                    percentage
-                )
+        alert(
+            getFirebaseErrorMessage(
+                error
             )
         );
 
-    if ($("uploadProgressBar")) {
-        $("uploadProgressBar").style.width =
-            `${value}%`;
     }
 
-    setText(
-        "uploadProgressPercent",
-        `${value}%`
-    );
 }
 
 
-function hideUploadProgress() {
+/*==================================================
+FEATURE: ACCOUNT STATISTICS
+==================================================*/
 
-    const modal =
-        $("uploadProgressModal");
+function updateStatistics() {
 
-    if (!modal) return;
+    /*
+    Total orders
+    */
 
-    modal.hidden = true;
+    const totalOrders =
+        $("totalOrders");
+
+
+    if (totalOrders) {
+
+        totalOrders.textContent =
+            String(
+                accountOrders.length
+            );
+
+    }
+
+
+    /*
+    Order nav badge
+    */
+
+    const ordersBadge =
+        $("ordersNavBadge");
+
+
+    if (ordersBadge) {
+
+        ordersBadge.textContent =
+            String(
+                accountOrders.length
+            );
+
+    }
+
+
+    /*
+    Wishlist
+    */
+
+    const wishlistCount =
+        $("wishlistCount");
+
+
+    if (wishlistCount) {
+
+        wishlistCount.textContent =
+            String(
+                accountWishlist.length
+            );
+
+    }
+
+
+    /*
+    Addresses
+    */
+
+    const addressCount =
+        $("addressCount");
+
+
+    if (addressCount) {
+
+        addressCount.textContent =
+            String(
+                accountAddresses.length
+            );
+
+    }
+
+
+    /*
+    Notifications
+    */
+
+    const unreadNotifications =
+        accountNotifications.filter(
+            notification =>
+                notification.read === false
+        ).length;
+
+
+    const notificationCount =
+        $("notificationCount");
+
+
+    if (notificationCount) {
+
+        notificationCount.textContent =
+            String(
+                unreadNotifications
+            );
+
+    }
+
+
+    const notificationBadge =
+        $("notificationNavBadge");
+
+
+    if (notificationBadge) {
+
+        notificationBadge.textContent =
+            String(
+                unreadNotifications
+            );
+
+    }
+
 }
 
 
-/* =========================================================
-   FEATURE 005
-   IMAGE VALIDATION
-========================================================= */
+/*==================================================
+FEATURE: ACCOUNT SETTINGS
+==================================================*/
 
-function validateImage(
-    file,
-    maxSizeMB
-) {
+function setupAccountSettings() {
 
-    if (!file) {
-        return false;
-    }
+    const orderToggle =
+        $("orderNotificationsToggle");
 
-    const allowedTypes = [
-        "image/jpeg",
-        "image/png",
-        "image/webp",
-        "image/gif"
-    ];
 
-    if (
-        !allowedTypes.includes(
-            file.type
-        )
-    ) {
+    const deliveryToggle =
+        $("deliveryNotificationsToggle");
 
-        showToast(
-            "Please select a valid image file.",
-            "warning"
+
+    const promotionalToggle =
+        $("promotionalNotificationsToggle");
+
+
+    if (orderToggle) {
+
+        orderToggle.checked =
+            getSetting(
+                "orderNotifications",
+                true
+            );
+
+
+        orderToggle.addEventListener(
+            "change",
+            () => {
+
+                saveSetting(
+                    "orderNotifications",
+                    orderToggle.checked
+                );
+
+            }
         );
 
-        return false;
     }
 
 
-    const maxBytes =
-        maxSizeMB *
-        1024 *
-        1024;
+    if (deliveryToggle) {
+
+        deliveryToggle.checked =
+            getSetting(
+                "deliveryNotifications",
+                true
+            );
 
 
-    if (
-        file.size >
-        maxBytes
-    ) {
+        deliveryToggle.addEventListener(
+            "change",
+            () => {
 
-        showToast(
-            `Image must be smaller than ${maxSizeMB}MB.`,
-            "warning"
+                saveSetting(
+                    "deliveryNotifications",
+                    deliveryToggle.checked
+                );
+
+            }
         );
 
-        return false;
     }
 
-    return true;
+
+    if (promotionalToggle) {
+
+        promotionalToggle.checked =
+            getSetting(
+                "promotionalNotifications",
+                false
+            );
+
+
+        promotionalToggle.addEventListener(
+            "change",
+            () => {
+
+                saveSetting(
+                    "promotionalNotifications",
+                    promotionalToggle.checked
+                );
+
+            }
+        );
+
+    }
+
 }
 
 
-/* =========================================================
-   PROFILE PHOTO UPLOAD
-========================================================= */
+/*==================================================
+FEATURE: SETTINGS STORAGE
+==================================================*/
 
-async function uploadProfilePhoto(
-    file
+function getSetting(
+    key,
+    defaultValue
 ) {
-
-    if (
-        !currentUser ||
-        !file
-    ) {
-        return;
-    }
-
-    if (
-        !validateImage(
-            file,
-            5
-        )
-    ) {
-        return;
-    }
-
-
-    showUploadProgress(
-        "Uploading Profile Photo...",
-        "Please wait while your profile photo is uploaded."
-    );
-
 
     try {
 
-        const filePath =
-            `users/${currentUser.uid}/profile/profile-photo-${Date.now()}`;
-
-        const imageRef =
-            storageRef(
-                storage,
-                filePath
+        const value =
+            localStorage.getItem(
+                `smartbazaar_setting_${key}`
             );
 
 
-        const uploadTask =
-            uploadBytesResumable(
-                imageRef,
-                file
-            );
+        if (value === null) {
 
+            return defaultValue;
 
-        await new Promise(
-            (
-                resolve,
-                reject
-            ) => {
-
-                uploadTask.on(
-                    "state_changed",
-
-                    snapshot => {
-
-                        const percentage =
-                            (
-                                snapshot.bytesTransferred /
-                                snapshot.totalBytes
-                            ) * 100;
-
-                        updateUploadProgress(
-                            percentage
-                        );
-                    },
-
-                    reject,
-
-                    resolve
-                );
-            }
-        );
-
-
-        const url =
-            await getDownloadURL(
-                uploadTask.snapshot.ref
-            );
-
-
-        await updateProfile(
-            currentUser,
-            {
-                photoURL: url
-            }
-        );
-
-
-        await update(
-            ref(
-                db,
-                getProfilePath()
-            ),
-            {
-                photoURL: url,
-                updatedAt:
-                    new Date().toISOString()
-            }
-        );
-
-
-        currentProfile.photoURL =
-            url;
-
-
-        renderProfile();
-
-        hideUploadProgress();
-
-        showToast(
-            "Profile photo updated successfully.",
-            "success"
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Profile photo upload error:",
-            error
-        );
-
-        hideUploadProgress();
-
-        showToast(
-            "Unable to upload profile photo.",
-            "error"
-        );
-    }
-}
-
-
-/* =========================================================
-   REMOVE PROFILE PHOTO
-========================================================= */
-
-async function removeProfilePhoto() {
-
-    if (!currentUser) return;
-
-    try {
-
-        const oldUrl =
-            currentProfile.photoURL ||
-            currentUser.photoURL;
-
-
-        await updateProfile(
-            currentUser,
-            {
-                photoURL: null
-            }
-        );
-
-
-        await update(
-            ref(
-                db,
-                getProfilePath()
-            ),
-            {
-                photoURL: null,
-                updatedAt:
-                    new Date().toISOString()
-            }
-        );
-
-
-        if (oldUrl) {
-
-            try {
-
-                const imageRef =
-                    storageRef(
-                        storage,
-                        oldUrl
-                    );
-
-                await deleteObject(
-                    imageRef
-                );
-
-            } catch (storageError) {
-
-                console.warn(
-                    "Old photo deletion skipped:",
-                    storageError
-                );
-            }
         }
 
 
-        currentProfile.photoURL =
-            "";
-
-        renderProfile();
-
-        showToast(
-            "Profile photo removed.",
-            "success"
-        );
+        return value === "true";
 
     } catch (error) {
 
-        console.error(
-            "Remove profile photo error:",
-            error
-        );
+        return defaultValue;
 
-        showToast(
-            "Unable to remove profile photo.",
-            "error"
-        );
     }
+
 }
 
 
-/* =========================================================
-   PROFILE BANNER UPLOAD
-========================================================= */
+/*==================================================
+FEATURE: SAVE SETTING
+==================================================*/
 
-async function uploadProfileBanner(
-    file
+function saveSetting(
+    key,
+    value
 ) {
-
-    if (
-        !currentUser ||
-        !file
-    ) {
-        return;
-    }
-
-    if (
-        !validateImage(
-            file,
-            8
-        )
-    ) {
-        return;
-    }
-
-
-    showUploadProgress(
-        "Uploading Cover Banner...",
-        "Please wait while your cover banner is uploaded."
-    );
-
 
     try {
 
-        const filePath =
-            `users/${currentUser.uid}/profile/profile-banner-${Date.now()}`;
-
-        const imageRef =
-            storageRef(
-                storage,
-                filePath
-            );
-
-
-        const uploadTask =
-            uploadBytesResumable(
-                imageRef,
-                file
-            );
-
-
-        await new Promise(
-            (
-                resolve,
-                reject
-            ) => {
-
-                uploadTask.on(
-                    "state_changed",
-
-                    snapshot => {
-
-                        const percentage =
-                            (
-                                snapshot.bytesTransferred /
-                                snapshot.totalBytes
-                            ) * 100;
-
-                        updateUploadProgress(
-                            percentage
-                        );
-                    },
-
-                    reject,
-
-                    resolve
-                );
-            }
-        );
-
-
-        const url =
-            await getDownloadURL(
-                uploadTask.snapshot.ref
-            );
-
-
-        await update(
-            ref(
-                db,
-                getProfilePath()
-            ),
-            {
-                bannerURL: url,
-                updatedAt:
-                    new Date().toISOString()
-            }
-        );
-
-
-        currentProfile.bannerURL =
-            url;
-
-
-        renderProfile();
-
-        hideUploadProgress();
-
-        showToast(
-            "Cover banner updated successfully.",
-            "success"
+        localStorage.setItem(
+            `smartbazaar_setting_${key}`,
+            String(value)
         );
 
     } catch (error) {
 
-        console.error(
-            "Banner upload error:",
-            error
+        console.warn(
+            "Could not save setting."
         );
 
-        hideUploadProgress();
-
-        showToast(
-            "Unable to upload cover banner.",
-            "error"
-        );
     }
+
 }
 
 
-/* =========================================================
-   REMOVE PROFILE BANNER
-========================================================= */
+/*==================================================
+FEATURE: CHANGE AVATAR
+FUTURE PROFILE IMAGE SYSTEM
+==================================================*/
 
-async function removeProfileBanner() {
+function setupAvatarButton() {
 
-    if (!currentUser) return;
-
-    try {
-
-        await update(
-            ref(
-                db,
-                getProfilePath()
-            ),
-            {
-                bannerURL: null,
-                updatedAt:
-                    new Date().toISOString()
-            }
-        );
+    const button =
+        $("changeAvatarButton");
 
 
-        currentProfile.bannerURL =
-            "";
+    if (!button) {
 
-        renderProfile();
+        return;
 
-        showToast(
-            "Cover banner removed.",
-            "success"
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Remove banner error:",
-            error
-        );
-
-        showToast(
-            "Unable to remove cover banner.",
-            "error"
-        );
     }
-}
 
 
-/* =========================================================
-   MODALS
-========================================================= */
+    button.addEventListener(
+        "click",
+        () => {
 
-function openModal(
-    modalId
-) {
+            /*
+            Profile image upload will be connected
+            here later with Cloudinary/Firebase Storage.
 
-    const modal =
-        $(modalId);
+            For now, do not fake an upload.
+            */
 
-    if (!modal) return;
-
-    modal.hidden = false;
-
-    document.body.classList.add(
-        "modal-open"
-    );
-
-    requestAnimationFrame(() => {
-        modal.classList.add("show");
-    });
-}
-
-
-function closeModal(
-    modalId
-) {
-
-    const modal =
-        $(modalId);
-
-    if (!modal) return;
-
-    modal.classList.remove(
-        "show"
-    );
-
-    setTimeout(() => {
-
-        modal.hidden = true;
-
-        const anyOpenModal =
-            $$(".account-modal:not([hidden])")
-                .length > 0;
-
-        if (!anyOpenModal) {
-
-            document.body.classList.remove(
-                "modal-open"
+            alert(
+                "Profile picture upload system will be connected in the next step."
             );
+
         }
+    );
 
-    }, 200);
 }
 
 
-/* =========================================================
-   GENERIC CONFIRMATION
-========================================================= */
+/*==================================================
+FEATURE: EMPTY STATE
+==================================================*/
 
-function openGenericConfirm(
+function emptyStateHTML(
+    icon,
     title,
     message,
-    action
+    extra = ""
 ) {
 
-    setText(
-        "genericConfirmTitle",
-        title
-    );
+    return `
 
-    setText(
-        "genericConfirmMessage",
-        message
-    );
+        <div class="empty-state">
 
-    genericConfirmAction =
-        action;
+            <i class="${escapeHTML(icon)}"></i>
 
-    openModal(
-        "genericConfirmModal"
-    );
+            <h4>
+                ${escapeHTML(title)}
+            </h4>
+
+            <p>
+                ${escapeHTML(message)}
+            </p>
+
+            ${extra}
+
+        </div>
+
+    `;
+
 }
 
 
-async function runGenericConfirm() {
+/*==================================================
+FEATURE: NORMALIZE ORDER STATUS
+==================================================*/
+
+function normalizeStatus(
+    status
+) {
+
+    const value =
+        String(
+            status ||
+            "pending"
+        )
+        .trim()
+        .toLowerCase();
+
+
+    const allowed = [
+
+        "pending",
+        "confirmed",
+        "processing",
+        "shipped",
+        "delivered",
+        "cancelled",
+        "canceled"
+
+    ];
+
 
     if (
-        typeof genericConfirmAction !==
-        "function"
-    ) {
-        return;
-    }
-
-    const action =
-        genericConfirmAction;
-
-    genericConfirmAction =
-        null;
-
-    closeModal(
-        "genericConfirmModal"
-    );
-
-    try {
-        await action();
-    } catch (error) {
-        console.error(
-            "Confirmation action error:",
-            error
-        );
-    }
-}
-
-
-/* =========================================================
-   HELPERS
-========================================================= */
-
-function setText(
-    id,
-    value
-) {
-
-    const element =
-        $(id);
-
-    if (element) {
-        element.textContent =
-            String(value);
-    }
-}
-
-
-function toggleElement(
-    id,
-    hidden
-) {
-
-    const element =
-        $(id);
-
-    if (element) {
-        element.hidden =
-            hidden;
-    }
-}
-
-
-function setButtonLoading(
-    button,
-    loading,
-    loadingText
-) {
-
-    if (!button) return;
-
-    if (loading) {
-
-        button.dataset.originalHTML =
-            button.innerHTML;
-
-        button.disabled = true;
-
-        button.innerHTML = `
-            <i class="fa-solid fa-spinner fa-spin"></i>
-            ${escapeHTML(loadingText)}
-        `;
-
-    } else {
-
-        button.disabled = false;
-
-        if (
-            button.dataset.originalHTML
-        ) {
-
-            button.innerHTML =
-                button.dataset.originalHTML;
-        }
-    }
-}
-
-
-function formatDate(
-    value
-) {
-
-    if (!value) {
-        return "—";
-    }
-
-    const date =
-        parseDate(value);
-
-    if (!date) {
-        return "—";
-    }
-
-    return new Intl.DateTimeFormat(
-        "en-US",
-        {
-            day: "numeric",
-            month: "short",
-            year: "numeric"
-        }
-    ).format(date);
-}
-
-
-function formatDateTime(
-    value
-) {
-
-    if (!value) {
-        return "—";
-    }
-
-    const date =
-        parseDate(value);
-
-    if (!date) {
-        return "—";
-    }
-
-    return new Intl.DateTimeFormat(
-        "en-US",
-        {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-            hour: "numeric",
-            minute: "2-digit"
-        }
-    ).format(date);
-}
-
-
-function parseDate(
-    value
-) {
-
-    if (
-        value instanceof Date
-    ) {
-        return value;
-    }
-
-    if (
-        typeof value === "number"
-    ) {
-        return new Date(value);
-    }
-
-    if (
-        value?.seconds
-    ) {
-        return new Date(
-            value.seconds * 1000
-        );
-    }
-
-    const date =
-        new Date(value);
-
-    if (
-        Number.isNaN(
-            date.getTime()
+        !allowed.includes(
+            value
         )
     ) {
-        return null;
+
+        return "pending";
+
     }
 
-    return date;
+
+    if (
+        value === "canceled"
+    ) {
+
+        return "cancelled";
+
+    }
+
+
+    return value;
+
 }
 
 
-function getTimestamp(
-    value
-) {
+/*==================================================
+FEATURE: CAPITALIZE
+==================================================*/
 
-    const date =
-        parseDate(value);
+function capitalize(value) {
 
-    return date
-        ? date.getTime()
-        : 0;
+    if (!value) {
+
+        return "";
+
+    }
+
+
+    return String(value)
+        .charAt(0)
+        .toUpperCase() +
+        String(value)
+            .slice(1);
+
 }
 
+
+/*==================================================
+FEATURE: FORMAT MONEY
+==================================================*/
 
 function formatMoney(
     value
@@ -4237,646 +3882,176 @@ function formatMoney(
     const number =
         Number(value) || 0;
 
+
     return number.toLocaleString(
         "en-PK",
         {
             maximumFractionDigits: 2
         }
     );
+
 }
 
 
-function formatStatus(
-    status
-) {
+/*==================================================
+FEATURE: FORMAT DATE
+==================================================*/
 
-    const value =
-        String(
-            status || "pending"
-        )
-        .replaceAll("_", " ")
-        .replace(/\b\w/g, char =>
-            char.toUpperCase()
-        );
-
-    return value;
-}
-
-
-function escapeHTML(
+function formatDate(
     value
 ) {
 
-    return String(
-        value ?? ""
-    )
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
+    if (!value) {
 
+        return "Date unavailable";
 
-function escapeAttribute(
-    value
-) {
-
-    return escapeHTML(value);
-}
-
-
-/* =========================================================
-   FEATURE 007
-   CART COUNT
-========================================================= */
-
-function loadCartCount() {
-
-    try {
-
-        const cart =
-            JSON.parse(
-                localStorage.getItem(
-                    "smartbazaar_cart"
-                ) || "[]"
-            );
-
-        let count = 0;
-
-        if (Array.isArray(cart)) {
-
-            cart.forEach(item => {
-
-                count +=
-                    Number(
-                        item.quantity || 1
-                    );
-            });
-
-        } else if (
-            cart &&
-            typeof cart === "object"
-        ) {
-
-            Object.values(cart)
-                .forEach(item => {
-
-                    count +=
-                        Number(
-                            item.quantity || 1
-                        );
-                });
-        }
-
-        setText(
-            "headerCartCount",
-            count
-        );
-
-    } catch (error) {
-
-        console.warn(
-            "Cart count error:",
-            error
-        );
-
-        setText(
-            "headerCartCount",
-            0
-        );
     }
-}
 
 
-/* =========================================================
-   EVENT LISTENERS
-========================================================= */
+    let date;
 
-function initializeEventListeners() {
 
-    /* MOBILE MENU */
+    if (
+        typeof value === "number"
+    ) {
 
-    $("mobileMenuButton")
-        ?.addEventListener(
-            "click",
-            openMobileSidebar
-        );
+        date =
+            new Date(value);
 
-    $("sidebarCloseButton")
-        ?.addEventListener(
-            "click",
-            closeMobileSidebar
-        );
+    } else {
 
-    $("mobileSidebarOverlay")
-        ?.addEventListener(
-            "click",
-            closeMobileSidebar
-        );
+        date =
+            new Date(value);
 
+    }
 
-    /* NAVIGATION */
 
-    $$(".account-nav-item")
-        .forEach(button => {
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
 
-            button.addEventListener(
-                "click",
-                () =>
-                    openSection(
-                        button.dataset.section
-                    )
-            );
-        });
+        return String(value);
 
+    }
 
-    /* QUICK ACTIONS */
 
-    $$("[data-open-section]")
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                () =>
-                    openSection(
-                        button.dataset.openSection
-                    )
-            );
-        });
-
-
-    /* PROFILE */
-
-    $("profileForm")
-        ?.addEventListener(
-            "submit",
-            saveProfile
-        );
-
-    $("resetProfileButton")
-        ?.addEventListener(
-            "click",
-            resetProfile
-        );
-
-    $("editProfileButton")
-        ?.addEventListener(
-            "click",
-            () =>
-                openSection("profile")
-        );
-
-
-    /* BIO */
-
-    $("profileBioInput")
-        ?.addEventListener(
-            "input",
-            updateBioCounter
-        );
-
-
-    /* PROFILE PHOTO */
-
-    $("avatarEditButton")
-        ?.addEventListener(
-            "click",
-            () =>
-                $("profilePhotoInput")?.click()
-        );
-
-    $("profilePhotoUploadButton")
-        ?.addEventListener(
-            "click",
-            () =>
-                $("profilePhotoInput")?.click()
-        );
-
-    $("profilePhotoInput")
-        ?.addEventListener(
-            "change",
-            event => {
-
-                const file =
-                    event.target.files?.[0];
-
-                if (file) {
-                    uploadProfilePhoto(
-                        file
-                    );
-                }
-
-                event.target.value =
-                    "";
-            }
-        );
-
-
-    $("removeProfilePhotoButton")
-        ?.addEventListener(
-            "click",
-            () =>
-                openGenericConfirm(
-                    "Remove Profile Photo?",
-                    "Your current profile photo will be removed.",
-                    removeProfilePhoto
-                )
-        );
-
-
-    $("profilePhotoRemoveButton")
-        ?.addEventListener(
-            "click",
-            () =>
-                openGenericConfirm(
-                    "Remove Profile Photo?",
-                    "Your current profile photo will be removed.",
-                    removeProfilePhoto
-                )
-        );
-
-
-    /* BANNER */
-
-    $("profileBannerUploadButton")
-        ?.addEventListener(
-            "click",
-            () =>
-                $("profileBannerInput")?.click()
-        );
-
-    $("profileBannerMediaUploadButton")
-        ?.addEventListener(
-            "click",
-            () =>
-                $("profileBannerInput")?.click()
-        );
-
-
-    $("profileBannerInput")
-        ?.addEventListener(
-            "change",
-            event => {
-
-                const file =
-                    event.target.files?.[0];
-
-                if (file) {
-                    uploadProfileBanner(
-                        file
-                    );
-                }
-
-                event.target.value =
-                    "";
-            }
-        );
-
-
-    $("removeProfileBannerButton")
-        ?.addEventListener(
-            "click",
-            () =>
-                openGenericConfirm(
-                    "Remove Cover Banner?",
-                    "Your current cover banner will be removed.",
-                    removeProfileBanner
-                )
-        );
-
-
-    $("profileBannerMediaRemoveButton")
-        ?.addEventListener(
-            "click",
-            () =>
-                openGenericConfirm(
-                    "Remove Cover Banner?",
-                    "Your current cover banner will be removed.",
-                    removeProfileBanner
-                )
-        );
-
-
-    /* ORDERS */
-
-    $("orderSearchInput")
-        ?.addEventListener(
-            "input",
-            renderOrders
-        );
-
-    $("orderStatusFilter")
-        ?.addEventListener(
-            "change",
-            renderOrders
-        );
-
-    $("refreshOrdersButton")
-        ?.addEventListener(
-            "click",
-            async () => {
-
-                await loadOrders();
-
-                showToast(
-                    "Orders refreshed.",
-                    "success"
-                );
-            }
-        );
-
-
-    /* WISHLIST */
-
-    $("clearWishlistButton")
-        ?.addEventListener(
-            "click",
-            () =>
-                openModal(
-                    "clearWishlistModal"
-                )
-        );
-
-    $("confirmClearWishlistButton")
-        ?.addEventListener(
-            "click",
-            clearWishlist
-        );
-
-
-    /* ADDRESSES */
-
-    $("addAddressButton")
-        ?.addEventListener(
-            "click",
-            () =>
-                openAddressModal()
-        );
-
-    $("addressForm")
-        ?.addEventListener(
-            "submit",
-            saveAddress
-        );
-
-    $("confirmDeleteAddressButton")
-        ?.addEventListener(
-            "click",
-            deleteAddress
-        );
-
-
-    /* NOTIFICATIONS */
-
-    $("headerNotificationButton")
-        ?.addEventListener(
-            "click",
-            () =>
-                openSection(
-                    "notifications"
-                )
-        );
-
-    $("markAllNotificationsRead")
-        ?.addEventListener(
-            "click",
-            markAllNotificationsRead
-        );
-
-    $("clearNotificationsButton")
-        ?.addEventListener(
-            "click",
-            () =>
-                openModal(
-                    "clearNotificationsModal"
-                )
-        );
-
-    $("confirmClearNotificationsButton")
-        ?.addEventListener(
-            "click",
-            clearNotifications
-        );
-
-
-    /* SECURITY */
-
-    $("changePasswordButton")
-        ?.addEventListener(
-            "click",
-            openPasswordModal
-        );
-
-    $("passwordForm")
-        ?.addEventListener(
-            "submit",
-            changePassword
-        );
-
-    $("newPassword")
-        ?.addEventListener(
-            "input",
-            updatePasswordStrength
-        );
-
-    $("verifyEmailButton")
-        ?.addEventListener(
-            "click",
-            verifyEmail
-        );
-
-
-    /* SETTINGS */
-
-    $("saveSettingsButton")
-        ?.addEventListener(
-            "click",
-            saveSettings
-        );
-
-
-    /* LOGOUT */
-
-    $("headerLogoutButton")
-        ?.addEventListener(
-            "click",
-            openLogoutModal
-        );
-
-    $("sidebarLogoutButton")
-        ?.addEventListener(
-            "click",
-            openLogoutModal
-        );
-
-    $("confirmLogoutButton")
-        ?.addEventListener(
-            "click",
-            confirmLogout
-        );
-
-
-    /* GENERIC CONFIRM */
-
-    $("genericConfirmButton")
-        ?.addEventListener(
-            "click",
-            runGenericConfirm
-        );
-
-
-    /* MODAL CLOSE */
-
-    $$("[data-close-modal]")
-        .forEach(element => {
-
-            element.addEventListener(
-                "click",
-                () => {
-
-                    const modalId =
-                        element.dataset.closeModal;
-
-                    closeModal(
-                        modalId
-                    );
-                }
-            );
-        });
-
-
-    /* PASSWORD TOGGLE */
-
-    $$("[data-password-target]")
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    togglePassword(
-                        button.dataset.passwordTarget,
-                        button
-                    );
-                }
-            );
-        });
-
-
-    /* DELEGATED CLICKS */
-
-    document.addEventListener(
-        "click",
-        event => {
-
-            const editAddress =
-                event.target.closest(
-                    ".address-edit-button"
-                );
-
-            if (editAddress) {
-
-                openAddressModal(
-                    editAddress.dataset.addressId
-                );
-
-                return;
-            }
-
-
-            const deleteAddress =
-                event.target.closest(
-                    ".address-delete-button"
-                );
-
-            if (deleteAddress) {
-
-                askDeleteAddress(
-                    deleteAddress.dataset.addressId
-                );
-
-                return;
-            }
-
-
-            const removeWishlist =
-                event.target.closest(
-                    ".wishlist-remove-button"
-                );
-
-            if (removeWishlist) {
-
-                removeWishlistItem(
-                    removeWishlist.dataset.wishlistId
-                );
-
-                return;
-            }
-
-
-            const markRead =
-                event.target.closest(
-                    ".notification-read-button"
-                );
-
-            if (markRead) {
-
-                markNotificationRead(
-                    markRead.dataset.notificationId
-                );
-
-                return;
-            }
-
-
-            const deleteNotificationButton =
-                event.target.closest(
-                    ".notification-delete-button"
-                );
-
-            if (deleteNotificationButton) {
-
-                deleteNotification(
-                    deleteNotificationButton.dataset.notificationId
-                );
-
-                return;
-            }
+    return date.toLocaleDateString(
+        "en-PK",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
         }
     );
 
-
-    /* ESCAPE KEY */
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                event.key !== "Escape"
-            ) {
-                return;
-            }
-
-            closeMobileSidebar();
-
-            $$(".account-modal:not([hidden])")
-                .forEach(modal => {
-                    closeModal(
-                        modal.id
-                    );
-                });
-        }
-    );
 }
 
 
-/* =========================================================
-   FIREBASE AUTH
-========================================================= */
+/*==================================================
+FEATURE: FIREBASE ERROR MESSAGE
+==================================================*/
 
-function initializeAuthentication() {
+function getFirebaseErrorMessage(
+    error
+) {
+
+    if (!error) {
+
+        return "Something went wrong.";
+
+    }
+
+
+    const code =
+        error.code || "";
+
+
+    switch (code) {
+
+        case "auth/wrong-password":
+
+            return "The current password is incorrect.";
+
+
+        case "auth/invalid-credential":
+
+            return "The current password or login credentials are incorrect.";
+
+
+        case "auth/weak-password":
+
+            return "The new password is too weak.";
+
+
+        case "auth/requires-recent-login":
+
+            return "Please login again before changing your password.";
+
+
+        case "auth/too-many-requests":
+
+            return "Too many attempts. Please try again later.";
+
+
+        case "permission-denied":
+
+            return "Firebase permission denied. Please check your Realtime Database rules.";
+
+
+        default:
+
+            return (
+                error.message ||
+                "Something went wrong. Please try again."
+            );
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: LOAD ALL ACCOUNT DATA
+==================================================*/
+
+async function loadAccountData() {
+
+    await loadProfile();
+
+    await Promise.all([
+        loadOrders(),
+        loadWishlist(),
+        loadAddresses(),
+        loadNotifications()
+    ]);
+
+
+    updateStatistics();
+
+}
+
+
+/*==================================================
+FEATURE: AUTH STATE
+==================================================*/
+
+async function startAccountSystem() {
+
+    showLoading();
+
+
+    const firebaseReady =
+        await initializeFirebase();
+
+
+    if (!firebaseReady) {
+
+        return;
+
+    }
+
 
     onAuthStateChanged(
         auth,
@@ -4884,182 +4059,94 @@ function initializeAuthentication() {
 
             if (!user) {
 
-                hideLoader();
+                currentUser = null;
 
-                window.location.href =
-                    "login.html";
+
+                showAccountError(
+                    "Please login to access your SmartBazaar account."
+                );
+
 
                 return;
+
             }
 
 
-            currentUser =
-                user;
+            currentUser = user;
 
 
             try {
 
-                hideAccountError();
+                await loadAccountData();
 
-                await Promise.all([
-                    loadProfile(),
-                    loadOrders(),
-                    loadWishlist(),
-                    loadAddresses(),
-                    loadNotifications(),
-                    loadSettings()
-                ]);
-
-
-                loadCartCount();
-
-                updateEmailVerificationUI();
-
-                hideLoader();
+                showAccountContent();
 
             } catch (error) {
 
                 console.error(
-                    "Account initialization error:",
+                    "Account loading error:",
                     error
                 );
 
-                showAccountError(
-                    "We could not load your account. Please try again."
+
+                showAccountContent();
+
+
+                alert(
+                    "Some account data could not be loaded. Please check your Firebase Database rules."
                 );
+
             }
+
         }
     );
+
 }
 
 
-/* =========================================================
-   RETRY
-========================================================= */
-
-async function retryAccount() {
-
-    if (!currentUser) {
-
-        window.location.reload();
-
-        return;
-    }
-
-    showLoader();
-
-    hideAccountError();
-
-    try {
-
-        await Promise.all([
-            loadProfile(),
-            loadOrders(),
-            loadWishlist(),
-            loadAddresses(),
-            loadNotifications(),
-            loadSettings()
-        ]);
-
-        hideLoader();
-
-    } catch (error) {
-
-        console.error(
-            "Retry error:",
-            error
-        );
-
-        showAccountError(
-            "Unable to reload your account."
-        );
-    }
-}
-
-
-/* =========================================================
-   WINDOW EVENTS
-========================================================= */
-
-window.addEventListener(
-    "storage",
-    event => {
-
-        if (
-            event.key ===
-            "smartbazaar_cart"
-        ) {
-            loadCartCount();
-        }
-    }
-);
-
-
-window.addEventListener(
-    "resize",
-    () => {
-
-        if (
-            window.innerWidth > 900
-        ) {
-            closeMobileSidebar();
-        }
-    }
-);
-
-
-/* =========================================================
-   INITIALIZATION
-========================================================= */
+/*==================================================
+FEATURE: INITIALIZE ACCOUNT PAGE
+==================================================*/
 
 document.addEventListener(
     "DOMContentLoaded",
     () => {
 
-        initializeEventListeners();
+        /*
+        Core UI first.
+        */
 
-        $("accountRetryButton")
-            ?.addEventListener(
-                "click",
-                retryAccount
-            );
+        setupAccountNavigation();
 
-        initializeAuthentication();
+        setupProfileForm();
+
+        setupAddressModal();
+
+        setupAddressActions();
+
+        setupNotificationActions();
+
+        setupPasswordSystem();
+
+        setupLogoutSystem();
+
+        setupAccountSettings();
+
+        setupAvatarButton();
+
+
+        /*
+        Firebase/account system.
+        */
+
+        startAccountSystem();
+
     }
 );
 
 
-/* =========================================================
-   GLOBAL DEBUG ACCESS
-   Development helper only
-========================================================= */
-
-window.SmartBazaarAccount = {
-
-    getUser: () =>
-        currentUser,
-
-    getProfile: () =>
-        currentProfile,
-
-    getOrders: () =>
-        currentOrders,
-
-    getWishlist: () =>
-        currentWishlist,
-
-    getAddresses: () =>
-        currentAddresses,
-
-    getNotifications: () =>
-        currentNotifications,
-
-    openSection,
-
-    showToast
-};
-
-
-/* =========================================================
-   END OF ACCOUNT.JS
-========================================================= */
+/*==================================================
+SMARTBAZAAR PRO 2
+ACCOUNT.JS COMPLETE
+END OF FILE
+==================================================*/
