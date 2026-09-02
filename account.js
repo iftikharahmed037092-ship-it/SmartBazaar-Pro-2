@@ -35,6 +35,15 @@ import {
 
 
 /*==================================================
+FEATURE: CLOUDINARY PROFILE PICTURE IMPORT
+==================================================*/
+
+import {
+    uploadToCloudinary,
+    CLOUDINARY_FOLDERS
+} from "./cloudinary-config.js";
+
+/*==================================================
 FEATURE: FIREBASE CONFIG LOADER
 ==================================================*/
 
