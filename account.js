@@ -81,7 +81,21 @@ function $(id) {
     return document.getElementById(id);
 
 }
+/*==================================================
+FEATURE: PROFILE PICTURE DOM ELEMENTS
+==================================================*/
 
+const profilePictureInput =
+    $("profilePictureInput");
+
+const profileAvatarImage =
+    $("profileAvatarImage");
+
+const profileAvatarLetter =
+    $("profileAvatarLetter");
+
+const changeAvatarButton =
+    $("changeAvatarButton");
 
 /*==================================================
 FEATURE: SAFE TEXT
@@ -741,26 +755,67 @@ function updateProfileUI() {
 
 
     const avatarLetter =
-        $("profileAvatarLetter");
+    $("profileAvatarLetter");
+
+const avatarImage =
+    $("profileAvatarImage");
 
 
-    if (profileName) {
+if (profileName) {
 
-        profileName.textContent =
-            fullName;
+    profileName.textContent =
+        fullName;
 
-    }
+}
 
 
-    if (profileEmail) {
+if (profileEmail) {
 
-        profileEmail.textContent =
-            email;
+    profileEmail.textContent =
+        email;
 
-    }
+}
 
+
+/*
+Profile picture display.
+*/
+
+if (
+    avatarImage &&
+    currentProfile.photoURL
+) {
+
+    avatarImage.src =
+        currentProfile.photoURL;
+
+    avatarImage.hidden =
+        false;
 
     if (avatarLetter) {
+
+        avatarLetter.hidden =
+            true;
+
+    }
+
+} else {
+
+    if (avatarImage) {
+
+        avatarImage.hidden =
+            true;
+
+        avatarImage.removeAttribute(
+            "src"
+        );
+
+    }
+
+    if (avatarLetter) {
+
+        avatarLetter.hidden =
+            false;
 
         avatarLetter.textContent =
             getInitial(
@@ -769,6 +824,7 @@ function updateProfileUI() {
 
     }
 
+}
 
     /*
     Form fields.
