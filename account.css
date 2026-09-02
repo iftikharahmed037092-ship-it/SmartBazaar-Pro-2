@@ -3215,7 +3215,34 @@ textarea:focus-visible {
     }
 
 }
+/*==================================================
+ SMARTBAZAAR PRO 2
+ FEATURE: PROFILE PICTURE DISPLAY
+==================================================*/
 
+.profile-avatar-image {
+
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+
+}
+
+
+/*==================================================
+ FEATURE: PROFILE PICTURE HIDDEN STATE
+==================================================*/
+
+.profile-avatar-image[hidden] {
+
+    display: none;
+
+}
 
 /*==================================================
 SMARTBAZAAR PRO 2
