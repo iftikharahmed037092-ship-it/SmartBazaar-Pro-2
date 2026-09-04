@@ -3244,6 +3244,332 @@ textarea:focus-visible {
 
 }
 
+
+/*==================================================
+FEATURE: MY PRODUCTS SYSTEM
+SELLER PRODUCT CARDS
+==================================================*/
+
+.my-products-container {
+    width: 100%;
+    margin-top: 20px;
+}
+
+
+/*==================================================
+MY PRODUCTS HEADER
+==================================================*/
+
+.my-products-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+
+.my-products-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.my-products-title h2 {
+    margin: 0;
+}
+
+
+.my-products-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+/*==================================================
+ADD PRODUCT BUTTON
+==================================================*/
+
+#addProductButton,
+#emptyAddProductButton {
+    cursor: pointer;
+    border: none;
+    transition: 0.25s ease;
+}
+
+
+#addProductButton:hover,
+#emptyAddProductButton:hover {
+    transform: translateY(-2px);
+}
+
+
+/*==================================================
+MY PRODUCTS GRID
+==================================================*/
+
+#myProductsList {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fill,
+        minmax(240px, 1fr)
+    );
+    gap: 20px;
+}
+
+
+/*==================================================
+PRODUCT CARD
+==================================================*/
+
+.my-product-card {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    border-radius: 18px;
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+.my-product-card:hover {
+    transform: translateY(-4px);
+}
+
+
+/*==================================================
+PRODUCT IMAGE
+==================================================*/
+
+.my-product-image {
+    width: 100%;
+    height: 210px;
+    overflow: hidden;
+}
+
+
+.my-product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+
+/*==================================================
+PRODUCT INFORMATION
+==================================================*/
+
+.my-product-info {
+    padding: 16px;
+}
+
+
+.my-product-name {
+    margin: 0 0 10px;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+
+.my-product-price {
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+
+.my-product-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+
+.my-product-category,
+.my-product-stock {
+    font-size: 13px;
+}
+
+
+.my-product-id {
+    margin-top: 10px;
+    font-size: 11px;
+    opacity: 0.65;
+    word-break: break-all;
+}
+
+
+/*==================================================
+PRODUCT STATUS
+==================================================*/
+
+.my-product-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 9px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+
+.my-product-status.published {
+    color: #ffffff;
+    background: #16a34a;
+}
+
+
+.my-product-status.unpublished {
+    color: #ffffff;
+    background: #dc2626;
+}
+
+
+/*==================================================
+EMPTY STATE
+==================================================*/
+
+.my-products-empty {
+    width: 100%;
+    padding: 45px 20px;
+    text-align: center;
+    border-radius: 18px;
+}
+
+
+.my-products-empty-icon {
+    font-size: 45px;
+    margin-bottom: 15px;
+}
+
+
+.my-products-empty h3 {
+    margin: 0 0 8px;
+    font-size: 20px;
+}
+
+
+.my-products-empty p {
+    margin: 0 0 20px;
+    line-height: 1.6;
+    opacity: 0.75;
+}
+
+
+/*==================================================
+LOADING STATE
+==================================================*/
+
+.my-products-loading {
+    width: 100%;
+    padding: 40px 20px;
+    text-align: center;
+    border-radius: 18px;
+}
+
+
+/*==================================================
+NO PRODUCTS MESSAGE
+==================================================*/
+
+.my-products-message {
+    width: 100%;
+    padding: 30px 20px;
+    text-align: center;
+    border-radius: 18px;
+}
+
+
+/*==================================================
+TABLET
+==================================================*/
+
+@media (max-width: 768px) {
+
+    #myProductsList {
+        grid-template-columns: repeat(
+            2,
+            minmax(0, 1fr)
+        );
+
+        gap: 14px;
+    }
+
+
+    .my-product-image {
+        height: 180px;
+    }
+
+
+    .my-product-info {
+        padding: 13px;
+    }
+
+
+    .my-product-name {
+        font-size: 15px;
+    }
+
+
+    .my-product-price {
+        font-size: 16px;
+    }
+
+}
+
+
+/*==================================================
+MOBILE
+==================================================*/
+
+@media (max-width: 480px) {
+
+    .my-products-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+
+    #addProductButton {
+        width: 100%;
+    }
+
+
+    #myProductsList {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+
+    .my-product-image {
+        height: 220px;
+    }
+
+
+    .my-products-empty {
+        padding: 35px 15px;
+    }
+
+}
+
 /*==================================================
 SMARTBAZAAR PRO 2
 END OF ACCOUNT CSS
