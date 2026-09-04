@@ -609,6 +609,7 @@ function setupAccountNavigation() {
         "overview",
         "profile",
         "orders",
+        "my-products",
         "wishlist",
         "addresses",
         "notifications",
