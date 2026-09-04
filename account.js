@@ -4356,10 +4356,10 @@ function loadMyProducts(
 
 
     const productsRef =
-        ref(
-            database,
-            "products"
-        );
+    ref(
+        db,
+        "products"
+    );
 
 
     myProductsListener =
