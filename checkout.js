@@ -45,9 +45,8 @@ FEATURE: ORDER SERVICE
 ==================================================*/
 
 import {
-    createOrder
+    createPendingOrder
 } from "./order-create.js";
-
 
 /*==================================================
 FEATURE: DATABASE
