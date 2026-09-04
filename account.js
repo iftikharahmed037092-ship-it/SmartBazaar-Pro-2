@@ -4813,7 +4813,6 @@ loadMyProducts(
 
 }
 
-
 /*==================================================
 FEATURE: INITIALIZE ACCOUNT PAGE
 ==================================================*/
@@ -4843,6 +4842,13 @@ document.addEventListener(
         setupAccountSettings();
 
         setupAvatarButton();
+
+
+        /*==================================================
+        FEATURE: INITIALIZE MY PRODUCTS SYSTEM
+        ==================================================*/
+
+        setupMyProductsSystem();
 
 
         /*
