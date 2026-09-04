@@ -4777,6 +4777,13 @@ async function startAccountSystem() {
 
             currentUser = user;
 
+             /*==================================================
+ FEATURE: LOAD SELLER PRODUCTS AFTER LOGIN
+==================================================*/
+
+loadMyProducts(
+    user.uid
+);
 
             try {
 
