@@ -191,7 +191,7 @@ const objectUrls =
 /*==================================================
  FEATURE: ADMIN ACCESS CONTROL
  KEEP EXISTING AUTH SYSTEM
-==================================================*/
+==================================================
 
 onAuthStateChanged(
     auth,
@@ -231,7 +231,39 @@ onAuthStateChanged(
 
     }
 );
+*/
 
+/*==================================================
+ FEATURE: AUTHENTICATED USER ACCESS CONTROL
+ ADMIN + SELLER PRODUCT EDITOR ACCESS
+==================================================*/
+
+onAuthStateChanged(
+    auth,
+    (user) => {
+
+        if (!user) {
+
+            window.location.href =
+                "./login.html";
+
+            return;
+        }
+
+
+        /*
+         Firebase Auth user exists.
+         Both Admin and authenticated Sellers
+         are allowed to use Product Editor.
+        */
+
+        setEditorStatus(
+            "Ready",
+            true
+        );
+
+    }
+);
 
 /*==================================================
  FEATURE: PRODUCT EDITOR NAVIGATION
@@ -2025,35 +2057,33 @@ if (productForm) {
                 auth.currentUser;
 
 
-            if (!currentUser) {
-
-                showMessage(
-                    "Please login as administrator first.",
-                    "error"
-                );
-
-                return;
-            }
+            const currentUser =
+    auth.currentUser;
 
 
-            const currentEmail =
-                currentUser.email
-                    ? currentUser.email.toLowerCase()
-                    : "";
+/*========================================
+ AUTHENTICATION CHECK
+ ADMIN + SELLER
+========================================*/
+
+if (!currentUser) {
+
+    showMessage(
+        "Please login before adding a product.",
+        "error"
+    );
+
+    return;
+}
 
 
-            if (
-                currentEmail !==
-                ADMIN_EMAIL.toLowerCase()
-            ) {
+/*
+ Logged-in Admin and authenticated Seller
+ are both allowed to save products.
 
-                showMessage(
-                    "You are not authorized to add products.",
-                    "error"
-                );
-
-                return;
-            }
+ Firebase UID is used as permanent
+ product ownership identity.
+*/
 
 
             /*========================================
