@@ -163,11 +163,32 @@ navigationItems.forEach((item) => {
         "click",
         (event) => {
 
-            event.preventDefault();
-
-
             const sectionName =
                 item.dataset.section;
+
+
+            /*==================================================
+            FEATURE: ANALYTICS PAGE NAVIGATION
+            ==================================================*/
+
+            if (
+                sectionName ===
+                "analytics"
+            ) {
+
+                window.location.href =
+                    "analytics.html";
+
+                return;
+
+            }
+
+
+            /*==================================================
+            FEATURE: INTERNAL ADMIN PANEL NAVIGATION
+            ==================================================*/
+
+            event.preventDefault();
 
 
             openSection(
@@ -343,6 +364,7 @@ quickActionButtons.forEach(
 
     }
 );
+
 
 /*==================================================
 FEATURE: SIDEBAR MOBILE TOGGLE
