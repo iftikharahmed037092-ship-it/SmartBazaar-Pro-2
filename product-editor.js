@@ -2057,8 +2057,7 @@ if (productForm) {
                 auth.currentUser;
 
 
-            const currentUser =
-    auth.currentUser;
+          
 
 
 /*========================================
