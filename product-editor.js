@@ -3075,6 +3075,9 @@ function hideMessage() {
  FEATURE: INITIAL UI
 ==================================================*/
 
+setupProductEditorNavigation();
+
+
 updatePricePreview();
 
 
