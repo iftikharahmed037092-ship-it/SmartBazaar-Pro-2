@@ -633,6 +633,45 @@ function setupAccountNavigation() {
 
 }
 
+/*==================================================
+FEATURE: OPEN ACCOUNT SECTION FROM HASH
+==================================================*/
+
+function openAccountSectionFromHash() {
+
+    const sectionName =
+        window.location.hash
+            .replace("#", "")
+            .trim();
+
+
+    if (!sectionName) {
+        return;
+    }
+
+
+    const targetButton =
+        document.querySelector(
+            `.account-nav-item[data-section="${sectionName}"]`
+        );
+
+
+    if (targetButton) {
+
+        setTimeout(
+            () => {
+
+                targetButton.click();
+
+            },
+            100
+        );
+
+    }
+
+}
+
+
 
 /*==================================================
 FEATURE: PROFILE LOAD
@@ -4850,7 +4889,7 @@ document.addEventListener(
 
         setupMyProductsSystem();
 
-
+         openAccountSectionFromHash();
         /*
         Firebase/account system.
         */
