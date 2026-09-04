@@ -4,7 +4,9 @@ FEATURE: CHECKOUT / ORDER SYSTEM
 FEATURE: FIREBASE ORDER CREATION
 FEATURE: STOCK VALIDATION
 FEATURE: PAYMENT METHOD SELECTION
+FEATURE: JAZZCASH PAYMENT CONNECTION
 FEATURE: ORDER SUCCESS SYSTEM
+FEATURE: SELLER CONNECTION
 ==================================================*/
 
 
@@ -13,14 +15,10 @@ FEATURE: FIREBASE IMPORT
 ==================================================*/
 
 import {
-
     getDatabase,
     ref,
     get,
-    push,
-    set,
     update
-
 } from
 "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
 
@@ -28,6 +26,24 @@ import {
 import {
     app
 } from "./firebase-config.js";
+
+
+/*==================================================
+FEATURE: ORDER SERVICE
+==================================================*/
+
+import {
+    createOrder
+} from "./order-create.js";
+
+
+/*==================================================
+FEATURE: JAZZCASH PAYMENT
+==================================================*/
+
+import {
+    processJazzCashPayment
+} from "./jazzcash-payment.js";
 
 
 /*==================================================
@@ -914,7 +930,6 @@ function updateSummary() {
 
 /*==================================================
 FEATURE: PLACE ORDER
-FEATURE: FINAL ORDER CREATION
 ==================================================*/
 
 checkoutForm.addEventListener(
@@ -1102,7 +1117,7 @@ checkoutForm.addEventListener(
 
 
         /*==================================================
-        FEATURE: START ORDER
+        FEATURE: START PROCESS
         ==================================================*/
 
         orderBeingPlaced =
@@ -1116,7 +1131,7 @@ checkoutForm.addEventListener(
         placeOrderButton.innerHTML =
             `
                 <i class="fa-solid fa-spinner fa-spin"></i>
-                Processing Order...
+                Processing...
             `;
 
 
@@ -1155,7 +1170,7 @@ checkoutForm.addEventListener(
 
 
             /*==================================================
-            FEATURE: CHECK LATEST STOCK
+            FEATURE: LATEST STOCK
             ==================================================*/
 
             const latestStock =
@@ -1188,7 +1203,7 @@ checkoutForm.addEventListener(
 
 
             /*==================================================
-            FEATURE: CALCULATE TOTAL
+            FEATURE: PRICE
             ==================================================*/
 
             const price =
@@ -1203,34 +1218,10 @@ checkoutForm.addEventListener(
 
 
             /*==================================================
-            FEATURE: CREATE ORDER ID
+            FEATURE: ORDER PAYLOAD
             ==================================================*/
 
-            const ordersRef =
-                ref(
-                    db,
-                    "orders"
-                );
-
-
-            const newOrderRef =
-                push(
-                    ordersRef
-                );
-
-
-            const orderId =
-                newOrderRef.key;
-
-
-            /*==================================================
-            FEATURE: ORDER DATA
-            ==================================================*/
-
-            const orderData = {
-
-                orderId:
-                    orderId,
+            const orderPayload = {
 
                 productId:
                     productId,
@@ -1276,15 +1267,6 @@ checkoutForm.addEventListener(
                 paymentMethod:
                     paymentMethod,
 
-                paymentStatus:
-                    "pending",
-
-                status:
-                    "pending",
-
-                deliveryStatus:
-                    "pending",
-
                 sellerId:
                     latestProduct.sellerId ||
                     latestProduct.seller ||
@@ -1293,65 +1275,186 @@ checkoutForm.addEventListener(
                 sellerName:
                     latestProduct.sellerName ||
                     latestProduct.seller ||
-                    "",
-
-                createdAt:
-                    Date.now(),
-
-                updatedAt:
-                    Date.now()
+                    ""
 
             };
 
 
             /*==================================================
-            FEATURE: SAVE ORDER
+            FEATURE: COD FLOW
             ==================================================*/
 
-            await set(
-                newOrderRef,
-                orderData
-            );
+            if (
+                paymentMethod ===
+                "cod"
+            ) {
+
+                const createdOrder =
+                    await createOrder(
+                        orderPayload
+                    );
+
+
+                const orderId =
+                    createdOrder.orderId;
+
+
+                /*==================================================
+                IMPORTANT:
+                COD STOCK UPDATE
+                ==================================================*/
+
+                const newStock =
+                    latestStock -
+                    quantity;
+
+
+                await update(
+                    productRef,
+                    {
+
+                        stock:
+                            newStock,
+
+                        updatedAt:
+                            Date.now()
+
+                    }
+                );
+
+
+                currentStock =
+                    newStock;
+
+
+                showOrderSuccess(
+                    orderId,
+                    total
+                );
+
+
+                return;
+
+            }
 
 
             /*==================================================
-            FEATURE: UPDATE STOCK
+            FEATURE: JAZZCASH FLOW
             ==================================================*/
 
-            const newStock =
-                latestStock -
-                quantity;
+            if (
+                paymentMethod ===
+                "jazzcash"
+            ) {
+
+                /*
+                 * IMPORTANT:
+                 *
+                 * Order/payment creation is delegated
+                 * to the secure payment architecture.
+                 *
+                 * Frontend must NEVER contain:
+                 *
+                 * - Merchant Password
+                 * - Integrity Salt
+                 * - Secret API Key
+                 * - Private credentials
+                 */
 
 
-            await update(
-                productRef,
-                {
+                const paymentResult =
+                    await processJazzCashPayment(
+                        {
 
-                    stock:
-                        newStock,
+                            ...orderPayload,
 
-                    updatedAt:
-                        Date.now()
+                            productStock:
+                                latestStock
+
+                        }
+                    );
+
+
+                if (
+                    !paymentResult ||
+                    !paymentResult.success
+                ) {
+
+                    throw new Error(
+                        paymentResult?.message ||
+                        "JazzCash payment could not be started."
+                    );
 
                 }
-            );
+
+
+                /*
+                 * IMPORTANT:
+                 *
+                 * Do NOT reduce stock here.
+                 *
+                 * Do NOT mark order as paid here.
+                 *
+                 * Secure backend verification must
+                 * confirm the payment first.
+                 */
+
+
+                if (
+                    paymentResult.redirectUrl
+                ) {
+
+                    window.location.href =
+                        paymentResult.redirectUrl;
+
+                    return;
+
+                }
+
+
+                if (
+                    paymentResult.paymentUrl
+                ) {
+
+                    window.location.href =
+                        paymentResult.paymentUrl;
+
+                    return;
+
+                }
+
+
+                alert(
+                    "JazzCash payment has been started. Please complete the payment."
+                );
+
+
+                orderBeingPlaced =
+                    false;
+
+
+                placeOrderButton.disabled =
+                    false;
+
+
+                placeOrderButton.innerHTML =
+                    `
+                        <i class="fa-solid fa-lock"></i>
+                        Place Order
+                    `;
+
+
+                return;
+
+            }
 
 
             /*==================================================
-            FEATURE: UPDATE LOCAL STOCK
+            FEATURE: UNSUPPORTED PAYMENT
             ==================================================*/
 
-            currentStock =
-                newStock;
-
-
-            /*==================================================
-            FEATURE: SHOW SUCCESS
-            ==================================================*/
-
-            showOrderSuccess(
-                orderId,
-                total
+            throw new Error(
+                "Selected payment method is not available."
             );
 
         }
@@ -1359,14 +1462,14 @@ checkoutForm.addEventListener(
         catch (error) {
 
             console.error(
-                "FINAL ORDER ERROR:",
+                "FINAL CHECKOUT ERROR:",
                 error
             );
 
 
             alert(
                 error.message ||
-                "Unable to place your order. Please try again."
+                "Unable to complete checkout."
             );
 
 
