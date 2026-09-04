@@ -1022,7 +1022,82 @@ FEATURE: ACCOUNT PAGE
 
                 </section>
 
+<!--==================================================
+    FEATURE: MY PRODUCTS
+==================================================-->
 
+<section
+    class="account-section"
+    id="section-my-products"
+    data-section="my-products"
+>
+
+    <div class="account-card">
+
+        <div class="my-products-header">
+
+            <div>
+
+                <h2>
+                    My Products
+                </h2>
+
+                <p>
+                    Manage the products you have uploaded.
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                id="addProductButton"
+                class="primary-action-button"
+            >
+
+                <i class="fa-solid fa-plus"></i>
+
+                Add New Product
+
+            </button>
+
+        </div>
+
+        <div class="my-products-summary">
+
+            <div class="my-products-count-card">
+
+                <i class="fa-solid fa-box"></i>
+
+                <div>
+
+                    <strong id="myProductsCount">
+                        0
+                    </strong>
+
+                    <span>
+                        Products Uploaded
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div
+            id="myProductsList"
+            class="my-products-list"
+        >
+
+            <div class="my-products-loading">
+                Loading your products...
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
 
                 <!--==================================================
                 FEATURE: WISHLIST
