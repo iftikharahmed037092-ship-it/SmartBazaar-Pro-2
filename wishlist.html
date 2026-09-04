@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="SmartBazaar Pro 2 Wishlist"
+    >
+
+    <title>
+        My Wishlist - SmartBazaar Pro 2
+    </title>
+
+
+    <!--==================================================
+    SMARTBAZAAR PRO 2
+    FEATURE: WISHLIST PAGE
+    ==================================================-->
+
+    <link
+        rel="stylesheet"
+        href="wishlist.css"
+    >
+
+
+    <!--==================================================
+    FEATURE: FONT AWESOME
+    ==================================================-->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!--==================================================
+    SMARTBAZAAR PRO 2
+    FEATURE: WISHLIST PAGE CONTAINER
+    ==================================================-->
+
+    <main class="wishlist-page">
+
+
+        <!--==================================================
+        FEATURE: WISHLIST HEADER
+        ==================================================-->
+
+        <section class="wishlist-header">
+
+            <div class="wishlist-header-content">
+
+                <div class="wishlist-title-area">
+
+                    <div class="wishlist-icon">
+
+                        <i class="fa-solid fa-heart"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <h1>
+                            My Wishlist
+                        </h1>
+
+                        <p>
+                            Save your favorite products for later
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!--==================================================
+                FEATURE: WISHLIST COUNT
+                ==================================================-->
+
+                <div
+                    class="wishlist-count"
+                    id="wishlistCount"
+                >
+
+                    <span id="wishlistCountNumber">
+                        0
+                    </span>
+
+                    <span>
+                        Items
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!--==================================================
+        FEATURE: WISHLIST TOOLBAR
+        ==================================================-->
+
+        <section class="wishlist-toolbar">
+
+            <div class="wishlist-toolbar-left">
+
+                <button
+                    type="button"
+                    class="wishlist-filter-btn active"
+                    data-filter="all"
+                >
+
+                    <i class="fa-solid fa-border-all"></i>
+
+                    <span>
+                        All
+                    </span>
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="wishlist-filter-btn"
+                    data-filter="available"
+                >
+
+                    <i class="fa-solid fa-box-open"></i>
+
+                    <span>
+                        Available
+                    </span>
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="wishlist-filter-btn"
+                    data-filter="outofstock"
+                >
+
+                    <i class="fa-solid fa-box"></i>
+
+                    <span>
+                        Out of Stock
+                    </span>
+
+                </button>
+
+            </div>
+
+
+            <div class="wishlist-toolbar-right">
+
+                <button
+                    type="button"
+                    class="wishlist-action-btn"
+                    id="addAllToCartBtn"
+                >
+
+                    <i class="fa-solid fa-cart-plus"></i>
+
+                    <span>
+                        Add All to Cart
+                    </span>
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="wishlist-action-btn danger"
+                    id="clearWishlistBtn"
+                >
+
+                    <i class="fa-solid fa-trash"></i>
+
+                    <span>
+                        Clear Wishlist
+                    </span>
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!--==================================================
+        FEATURE: WISHLIST SEARCH
+        ==================================================-->
+
+        <section class="wishlist-search-section">
+
+            <div class="wishlist-search-box">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input
+                    type="search"
+                    id="wishlistSearchInput"
+                    placeholder="Search wishlist products..."
+                    autocomplete="off"
+                >
+
+                <button
+                    type="button"
+                    id="clearWishlistSearch"
+                    aria-label="Clear search"
+                >
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!--==================================================
+        FEATURE: WISHLIST LOADING
+        ==================================================-->
+
+        <section
+            class="wishlist-loading"
+            id="wishlistLoading"
+        >
+
+            <div class="wishlist-loader">
+
+                <i class="fa-solid fa-spinner fa-spin"></i>
+
+                <p>
+                    Loading your wishlist...
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <!--==================================================
+        FEATURE: WISHLIST PRODUCTS
+        ==================================================-->
+
+        <section
+            class="wishlist-products-section"
+            id="wishlistProductsSection"
+        >
+
+            <div
+                class="wishlist-grid"
+                id="wishlistGrid"
+            >
+
+                <!--
+                    Wishlist products will be loaded here
+                    by wishlist.js
+                -->
+
+            </div>
+
+        </section>
+
+
+
+        <!--==================================================
+        FEATURE: EMPTY WISHLIST
+        ==================================================-->
+
+        <section
+            class="wishlist-empty"
+            id="wishlistEmpty"
+            hidden
+        >
+
+            <div class="wishlist-empty-icon">
+
+                <i class="fa-regular fa-heart"></i>
+
+            </div>
+
+
+            <h2>
+                Your Wishlist is Empty
+            </h2>
+
+
+            <p>
+                You haven't added any products to your wishlist yet.
+                Start exploring and save products you love.
+            </p>
+
+
+            <button
+                type="button"
+                class="wishlist-shop-btn"
+                id="continueShoppingBtn"
+            >
+
+                <i class="fa-solid fa-bag-shopping"></i>
+
+                <span>
+                    Continue Shopping
+                </span>
+
+            </button>
+
+        </section>
+
+
+
+        <!--==================================================
+        FEATURE: NO SEARCH RESULTS
+        ==================================================-->
+
+        <section
+            class="wishlist-no-results"
+            id="wishlistNoResults"
+            hidden
+        >
+
+            <div class="wishlist-no-results-icon">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+            </div>
+
+
+            <h2>
+                No Products Found
+            </h2>
+
+
+            <p>
+                No wishlist products match your search.
+            </p>
+
+        </section>
+
+
+
+        <!--==================================================
+        FEATURE: WISHLIST TOAST
+        ==================================================-->
+
+        <div
+            class="wishlist-toast"
+            id="wishlistToast"
+            role="status"
+            aria-live="polite"
+        >
+
+            <div class="wishlist-toast-icon">
+
+                <i
+                    class="fa-solid fa-circle-check"
+                    id="wishlistToastIcon"
+                ></i>
+
+            </div>
+
+
+            <div class="wishlist-toast-content">
+
+                <strong id="wishlistToastTitle">
+                    Success
+                </strong>
+
+                <span id="wishlistToastMessage">
+                    Product added successfully.
+                </span>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="closeWishlistToast"
+                aria-label="Close notification"
+            >
+
+                <i class="fa-solid fa-xmark"></i>
+
+            </button>
+
+        </div>
+
+
+
+        <!--==================================================
+        FEATURE: CONFIRMATION MODAL
+        ==================================================-->
+
+        <div
+            class="wishlist-modal"
+            id="wishlistConfirmModal"
+            hidden
+        >
+
+            <div
+                class="wishlist-modal-overlay"
+                id="wishlistModalOverlay"
+            ></div>
+
+
+            <div class="wishlist-modal-card">
+
+                <div class="wishlist-modal-icon">
+
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+
+                </div>
+
+
+                <h2 id="wishlistModalTitle">
+                    Clear Wishlist?
+                </h2>
+
+
+                <p id="wishlistModalMessage">
+                    Are you sure you want to remove all products
+                    from your wishlist?
+                </p>
+
+
+                <div class="wishlist-modal-actions">
+
+                    <button
+                        type="button"
+                        class="wishlist-modal-btn cancel"
+                        id="wishlistModalCancel"
+                    >
+
+                        Cancel
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="wishlist-modal-btn confirm"
+                        id="wishlistModalConfirm"
+                    >
+
+                        <i class="fa-solid fa-trash"></i>
+
+                        Clear Wishlist
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </main>
+
+
+
+    <!--==================================================
+    SMARTBAZAAR PRO 2
+    FEATURE: WISHLIST JAVASCRIPT
+    ==================================================-->
+
+    <script
+        type="module"
+        src="wishlist.js"
+    ></script>
+
+
+</body>
+
+</html>
