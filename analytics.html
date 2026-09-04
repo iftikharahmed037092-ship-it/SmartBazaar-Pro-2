@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Analytics | SmartBazaar Pro 2</title>
+
+    <!-- ==================================================
+    SMARTBAZAAR PRO 2
+    FEATURE: ANALYTICS SYSTEM
+    FILE: analytics.html
+    ================================================== -->
+
+    <link rel="stylesheet" href="analytics.css">
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+</head>
+
+<body>
+
+<main class="analytics-page">
+
+    <!-- =========================
+         ANALYTICS HEADER
+    ========================== -->
+
+    <section class="analytics-header">
+
+        <div class="analytics-header-content">
+
+            <div class="analytics-eyebrow">
+                SMARTBAZAAR PRO 2
+            </div>
+
+            <h1>
+                <i class="fa-solid fa-chart-line"></i>
+                Analytics
+            </h1>
+
+            <p>
+                Monitor sales, orders, customers, products and sellers
+                from one powerful dashboard.
+            </p>
+
+        </div>
+
+        <button
+            type="button"
+            class="analytics-refresh-btn"
+            id="analyticsRefreshBtn"
+        >
+            <i class="fa-solid fa-rotate"></i>
+            Refresh
+        </button>
+
+    </section>
+
+
+    <!-- =========================
+         ANALYTICS FILTER
+    ========================== -->
+
+    <section class="analytics-filter-card">
+
+        <div class="filter-heading">
+            <div>
+                <span class="filter-label">Analytics Period</span>
+                <strong id="selectedPeriodText">Today</strong>
+            </div>
+
+            <i class="fa-solid fa-calendar-days"></i>
+        </div>
+
+        <div class="period-buttons">
+
+            <button
+                type="button"
+                class="period-btn active"
+                data-period="today"
+            >
+                Today
+            </button>
+
+            <button
+                type="button"
+                class="period-btn"
+                data-period="yesterday"
+            >
+                Yesterday
+            </button>
+
+            <button
+                type="button"
+                class="period-btn"
+                data-period="week"
+            >
+                This Week
+            </button>
+
+            <button
+                type="button"
+                class="period-btn"
+                data-period="month"
+            >
+                This Month
+            </button>
+
+            <button
+                type="button"
+                class="period-btn"
+                data-period="year"
+            >
+                This Year
+            </button>
+
+            <button
+                type="button"
+                class="period-btn"
+                data-period="all"
+            >
+                All Time
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         OVERVIEW
+    ========================== -->
+
+    <section class="analytics-section">
+
+        <div class="section-heading">
+
+            <div>
+                <span>BUSINESS OVERVIEW</span>
+                <h2>Overview</h2>
+            </div>
+
+            <i class="fa-solid fa-chart-pie"></i>
+
+        </div>
+
+
+        <div class="stats-grid">
+
+            <!-- Revenue -->
+
+            <article class="stat-card revenue-card">
+
+                <div class="stat-icon">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+
+                <div class="stat-content">
+                    <span>Total Revenue</span>
+
+                    <strong id="totalRevenue">
+                        Rs. 0
+                    </strong>
+
+                    <small id="revenueChange">
+                        0%
+                    </small>
+                </div>
+
+            </article>
+
+
+            <!-- Orders -->
+
+            <article class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                </div>
+
+                <div class="stat-content">
+                    <span>Total Orders</span>
+
+                    <strong id="totalOrders">
+                        0
+                    </strong>
+
+                    <small id="ordersChange">
+                        0%
+                    </small>
+                </div>
+
+            </article>
+
+
+            <!-- Customers -->
+
+            <article class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+
+                <div class="stat-content">
+                    <span>Total Customers</span>
+
+                    <strong id="totalCustomers">
+                        0
+                    </strong>
+
+                    <small id="customersChange">
+                        0%
+                    </small>
+                </div>
+
+            </article>
+
+
+            <!-- Products -->
+
+            <article class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+
+                <div class="stat-content">
+                    <span>Total Products</span>
+
+                    <strong id="totalProducts">
+                        0
+                    </strong>
+                </div>
+
+            </article>
+
+
+            <!-- Sellers -->
+
+            <article class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+
+                <div class="stat-content">
+                    <span>Total Sellers</span>
+
+                    <strong id="totalSellers">
+                        0
+                    </strong>
+                </div>
+
+            </article>
+
+
+            <!-- AOV -->
+
+            <article class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="fa-solid fa-receipt"></i>
+                </div>
+
+                <div class="stat-content">
+                    <span>Average Order Value</span>
+
+                    <strong id="averageOrderValue">
+                        Rs. 0
+                    </strong>
+                </div>
+
+            </article>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         SALES OVERVIEW
+    ========================== -->
+
+    <section class="analytics-section">
+
+        <div class="section-heading">
+
+            <div>
+                <span>SALES PERFORMANCE</span>
+                <h2>Sales Overview</h2>
+            </div>
+
+            <div class="chart-period-buttons">
+
+                <button
+                    type="button"
+                    class="chart-period-btn active"
+                    data-chart-period="7"
+                >
+                    7D
+                </button>
+
+                <button
+                    type="button"
+                    class="chart-period-btn"
+                    data-chart-period="30"
+                >
+                    30D
+                </button>
+
+                <button
+                    type="button"
+                    class="chart-period-btn"
+                    data-chart-period="90"
+                >
+                    90D
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="chart-card">
+
+            <div class="chart-top">
+
+                <div>
+                    <span id="chartRevenue">
+                        Revenue
+                    </span>
+
+                    <strong id="chartGrowth">
+                        0%
+                    </strong>
+                </div>
+
+                <i class="fa-solid fa-chart-area"></i>
+
+            </div>
+
+            <div
+                id="salesChart"
+                class="sales-chart"
+            >
+                <div class="chart-placeholder">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Sales chart will appear here</span>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         ORDERS + PAYMENTS
+    ========================== -->
+
+    <section class="analytics-two-column">
+
+
+        <!-- ORDER STATUS -->
+
+        <div class="analytics-panel">
+
+            <div class="panel-header">
+
+                <div>
+                    <span>ORDER MANAGEMENT</span>
+                    <h2>Order Status</h2>
+                </div>
+
+                <i class="fa-solid fa-truck-fast"></i>
+
+            </div>
+
+
+            <div class="status-list">
+
+                <div class="status-row">
+                    <span>
+                        <i class="status-dot pending"></i>
+                        Pending
+                    </span>
+                    <strong id="pendingOrders">0</strong>
+                </div>
+
+                <div class="status-row">
+                    <span>
+                        <i class="status-dot processing"></i>
+                        Processing
+                    </span>
+                    <strong id="processingOrders">0</strong>
+                </div>
+
+                <div class="status-row">
+                    <span>
+                        <i class="status-dot shipped"></i>
+                        Shipped
+                    </span>
+                    <strong id="shippedOrders">0</strong>
+                </div>
+
+                <div class="status-row">
+                    <span>
+                        <i class="status-dot delivered"></i>
+                        Delivered
+                    </span>
+                    <strong id="deliveredOrders">0</strong>
+                </div>
+
+                <div class="status-row">
+                    <span>
+                        <i class="status-dot cancelled"></i>
+                        Cancelled
+                    </span>
+                    <strong id="cancelledOrders">0</strong>
+                </div>
+
+                <div class="status-row">
+                    <span>
+                        <i class="status-dot returned"></i>
+                        Returned
+                    </span>
+                    <strong id="returnedOrders">0</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PAYMENT METHODS -->
+
+        <div class="analytics-panel">
+
+            <div class="panel-header">
+
+                <div>
+                    <span>PAYMENT ANALYTICS</span>
+                    <h2>Payment Methods</h2>
+                </div>
+
+                <i class="fa-solid fa-credit-card"></i>
+
+            </div>
+
+
+            <div class="payment-list">
+
+                <div class="payment-row">
+
+                    <div>
+                        <strong>Cash On Delivery</strong>
+                        <span id="codOrders">
+                            0 Orders
+                        </span>
+                    </div>
+
+                    <strong id="codRevenue">
+                        Rs. 0
+                    </strong>
+
+                </div>
+
+
+                <div class="payment-row">
+
+                    <div>
+                        <strong>JazzCash</strong>
+                        <span id="jazzcashOrders">
+                            0 Orders
+                        </span>
+                    </div>
+
+                    <strong id="jazzcashRevenue">
+                        Rs. 0
+                    </strong>
+
+                </div>
+
+
+                <div class="payment-row">
+
+                    <div>
+                        <strong>EasyPaisa</strong>
+                        <span id="easypaisaOrders">
+                            0 Orders
+                        </span>
+                    </div>
+
+                    <strong id="easypaisaRevenue">
+                        Rs. 0
+                    </strong>
+
+                </div>
+
+
+                <div class="payment-row">
+
+                    <div>
+                        <strong>Other</strong>
+                        <span id="otherPaymentOrders">
+                            0 Orders
+                        </span>
+                    </div>
+
+                    <strong id="otherPaymentRevenue">
+                        Rs. 0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         PRODUCT PERFORMANCE
+    ========================== -->
+
+    <section class="analytics-section">
+
+        <div class="section-heading">
+
+            <div>
+                <span>PRODUCT INSIGHTS</span>
+                <h2>Product Performance</h2>
+            </div>
+
+            <i class="fa-solid fa-boxes-stacked"></i>
+
+        </div>
+
+
+        <div class="product-analytics-grid">
+
+
+            <div class="analytics-list-card">
+
+                <div class="list-card-header">
+                    <h3>Best Selling Products</h3>
+                    <i class="fa-solid fa-fire"></i>
+                </div>
+
+                <div
+                    id="bestSellingProducts"
+                    class="analytics-list"
+                >
+                    <div class="empty-state">
+                        No data available
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="analytics-list-card">
+
+                <div class="list-card-header">
+                    <h3>Most Viewed Products</h3>
+                    <i class="fa-solid fa-eye"></i>
+                </div>
+
+                <div
+                    id="mostViewedProducts"
+                    class="analytics-list"
+                >
+                    <div class="empty-state">
+                        No data available
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="analytics-list-card">
+
+                <div class="list-card-header">
+                    <h3>Low Stock Products</h3>
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+
+                <div
+                    id="lowStockProducts"
+                    class="analytics-list"
+                >
+                    <div class="empty-state">
+                        No data available
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         CUSTOMER ANALYTICS
+    ========================== -->
+
+    <section class="analytics-section">
+
+        <div class="section-heading">
+
+            <div>
+                <span>CUSTOMER INSIGHTS</span>
+                <h2>Customer Analytics</h2>
+            </div>
+
+            <i class="fa-solid fa-user-group"></i>
+
+        </div>
+
+
+        <div class="customer-grid">
+
+            <div class="customer-card">
+                <i class="fa-solid fa-user-plus"></i>
+
+                <span>New Customers</span>
+
+                <strong id="newCustomers">
+                    0
+                </strong>
+            </div>
+
+
+            <div class="customer-card">
+                <i class="fa-solid fa-user-check"></i>
+
+                <span>Active Customers</span>
+
+                <strong id="activeCustomers">
+                    0
+                </strong>
+            </div>
+
+
+            <div class="customer-card">
+                <i class="fa-solid fa-rotate"></i>
+
+                <span>Returning Customers</span>
+
+                <strong id="returningCustomers">
+                    0
+                </strong>
+            </div>
+
+
+            <div class="customer-card">
+                <i class="fa-solid fa-users"></i>
+
+                <span>Total Customers</span>
+
+                <strong id="customerTotalBottom">
+                    0
+                </strong>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         SELLER PERFORMANCE
+    ========================== -->
+
+    <section class="analytics-section">
+
+        <div class="section-heading">
+
+            <div>
+                <span>SELLER INSIGHTS</span>
+                <h2>Seller Performance</h2>
+            </div>
+
+            <i class="fa-solid fa-shop"></i>
+
+        </div>
+
+
+        <div class="analytics-panel seller-panel">
+
+            <div
+                id="topSellers"
+                class="seller-list"
+            >
+
+                <div class="empty-state">
+                    No seller data available
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         CATEGORY ANALYTICS
+    ========================== -->
+
+    <section class="analytics-section">
+
+        <div class="section-heading">
+
+            <div>
+                <span>CATEGORY INSIGHTS</span>
+                <h2>Category Analytics</h2>
+            </div>
+
+            <i class="fa-solid fa-layer-group"></i>
+
+        </div>
+
+
+        <div
+            id="categoryAnalytics"
+            class="category-grid"
+        >
+
+            <div class="empty-state">
+                No category data available
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- =========================
+     ANALYTICS LOADING
+========================== -->
+
+<div
+    id="analyticsLoading"
+    class="analytics-loading"
+>
+
+    <div class="loading-box">
+
+        <div class="loading-spinner"></div>
+
+        <strong>
+            Loading Analytics...
+        </strong>
+
+        <span>
+            Please wait
+        </span>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     JAVASCRIPT
+========================== -->
+
+<script
+    type="module"
+    src="analytics.js"
+></script>
+
+</body>
+</html>
