@@ -4274,6 +4274,449 @@ function getFirebaseErrorMessage(
 /*==================================================
 FEATURE: LOAD ALL ACCOUNT DATA
 ==================================================*/
+/*==================================================
+ FEATURE: MY PRODUCTS SYSTEM
+ SELLER PRODUCT CONNECTION
+==================================================*/
+
+let myProductsListener = null;
+
+
+/*==================================================
+ FEATURE: SETUP MY PRODUCTS
+==================================================*/
+
+function setupMyProductsSystem() {
+
+    const addProductButton =
+        document.getElementById(
+            "addProductButton"
+        );
+
+
+    if (
+        addProductButton &&
+        !addProductButton.dataset.bound
+    ) {
+
+        addProductButton.dataset.bound =
+            "true";
+
+
+        addProductButton.addEventListener(
+            "click",
+            () => {
+
+                window.location.href =
+                    "./product-editor.html?source=account";
+
+            }
+        );
+
+    }
+
+}
+
+
+/*==================================================
+ FEATURE: LOAD SELLER PRODUCTS
+==================================================*/
+
+function loadMyProducts(
+    userId
+) {
+
+    const productsList =
+        document.getElementById(
+            "myProductsList"
+        );
+
+
+    if (!productsList) {
+        return;
+    }
+
+
+    if (myProductsListener) {
+
+        myProductsListener();
+
+        myProductsListener =
+            null;
+
+    }
+
+
+    productsList.innerHTML = `
+        <div class="my-products-loading">
+            Loading your products...
+        </div>
+    `;
+
+
+    const productsRef =
+        ref(
+            database,
+            "products"
+        );
+
+
+    myProductsListener =
+        onValue(
+            productsRef,
+            (snapshot) => {
+
+                const data =
+                    snapshot.val() || {};
+
+
+                const products =
+                    Object.entries(data)
+                        .map(
+                            ([firebaseKey, product]) => {
+
+                                return {
+
+                                    ...(product || {}),
+
+                                    productId:
+                                        product?.productId ||
+                                        firebaseKey
+
+                                };
+
+                            }
+                        )
+                        .filter(
+                            (product) => {
+
+                                return (
+                                    product.sellerId === userId ||
+                                    product.createdBy === userId
+                                );
+
+                            }
+                        )
+                        .sort(
+                            (a, b) => {
+
+                                return (
+                                    Number(
+                                        b.createdAt || 0
+                                    ) -
+                                    Number(
+                                        a.createdAt || 0
+                                    )
+                                );
+
+                            }
+                        );
+
+
+                renderMyProducts(
+                    products
+                );
+
+            },
+
+
+            (error) => {
+
+                console.error(
+                    "My Products Error:",
+                    error
+                );
+
+
+                productsList.innerHTML = `
+                    <div class="my-products-error">
+                        Unable to load your products.
+                    </div>
+                `;
+
+            }
+
+        );
+
+}
+
+
+/*==================================================
+ FEATURE: RENDER MY PRODUCTS
+==================================================*/
+
+function renderMyProducts(
+    products
+) {
+
+    const productsList =
+        document.getElementById(
+            "myProductsList"
+        );
+
+
+    const productsCount =
+        document.getElementById(
+            "myProductsCount"
+        );
+
+
+    const productsNavBadge =
+        document.getElementById(
+            "myProductsNavBadge"
+        );
+
+
+    if (!productsList) {
+        return;
+    }
+
+
+    const total =
+        products.length;
+
+
+    if (productsCount) {
+
+        productsCount.textContent =
+            total;
+
+    }
+
+
+    if (productsNavBadge) {
+
+        productsNavBadge.textContent =
+            total;
+
+    }
+
+
+    if (
+        products.length === 0
+    ) {
+
+        productsList.innerHTML = `
+
+            <div class="my-products-empty">
+
+                <div class="my-products-empty-icon">
+
+                    <i class="fa-solid fa-box-open"></i>
+
+                </div>
+
+                <h3>
+                    No Products Yet
+                </h3>
+
+                <p>
+                    You have not uploaded any products yet.
+                </p>
+
+                <button
+                    type="button"
+                    class="primary-action-button"
+                    id="emptyAddProductButton"
+                >
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    Add Your First Product
+
+                </button>
+
+            </div>
+
+        `;
+
+
+        const emptyButton =
+            document.getElementById(
+                "emptyAddProductButton"
+            );
+
+
+        if (emptyButton) {
+
+            emptyButton.addEventListener(
+                "click",
+                () => {
+
+                    window.location.href =
+                        "./product-editor.html?source=account";
+
+                }
+            );
+
+        }
+
+
+        return;
+    }
+
+
+    productsList.innerHTML =
+        "";
+
+
+    products.forEach(
+        (product) => {
+
+            const card =
+                document.createElement(
+                    "article"
+                );
+
+
+            card.className =
+                "my-product-card";
+
+
+            const image =
+                product.image ||
+                (
+                    Array.isArray(
+                        product.images
+                    )
+                        ? product.images[0]
+                        : ""
+                );
+
+
+            const published =
+                product.published === true;
+
+
+            const stock =
+                Number(
+                    product.stock || 0
+                );
+
+
+            const price =
+                Number(
+                    product.price || 0
+                );
+
+
+            card.innerHTML = `
+
+                <div class="my-product-image">
+
+                    ${
+                        image
+                            ? `
+                                <img
+                                    src="${escapeHtml(
+                                        image
+                                    )}"
+                                    alt="${escapeHtml(
+                                        product.name ||
+                                        "Product"
+                                    )}"
+                                    loading="lazy"
+                                >
+                            `
+                            : `
+                                <div class="my-product-no-image">
+                                    <i class="fa-solid fa-image"></i>
+                                </div>
+                            `
+                    }
+
+                </div>
+
+
+                <div class="my-product-info">
+
+                    <h3>
+                        ${escapeHtml(
+                            product.name ||
+                            "Unnamed Product"
+                        )}
+                    </h3>
+
+
+                    <div class="my-product-price">
+
+                        Rs.
+                        ${price.toLocaleString("en-PK")}
+
+                    </div>
+
+
+                    <div class="my-product-meta">
+
+                        <span>
+
+                            <i class="fa-solid fa-box"></i>
+
+                            Stock:
+                            ${stock}
+
+                        </span>
+
+
+                        <span>
+
+                            <i class="fa-solid fa-tag"></i>
+
+                            ${escapeHtml(
+                                product.category ||
+                                "Uncategorized"
+                            )}
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="my-product-status">
+
+                        <span
+                            class="${
+                                published
+                                    ? "published"
+                                    : "unpublished"
+                            }"
+                        >
+
+                            ${
+                                published
+                                    ? "Published"
+                                    : "Unpublished"
+                            }
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="my-product-id">
+
+                        Product ID:
+                        ${escapeHtml(
+                            product.productId ||
+                            ""
+                        )}
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            productsList.appendChild(
+                card
+            );
+
+        }
+    );
+
+}
+
 
 async function loadAccountData() {
 
