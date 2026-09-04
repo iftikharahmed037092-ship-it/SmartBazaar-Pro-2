@@ -4,7 +4,8 @@ FEATURE: CHECKOUT / ORDER SYSTEM
 FEATURE: FIREBASE ORDER CREATION
 FEATURE: STOCK VALIDATION
 FEATURE: PAYMENT METHOD SELECTION
-FEATURE: JAZZCASH PAYMENT CONNECTION
+FEATURE: SECURE JAZZCASH CONNECTION
+FEATURE: BACKEND PAYMENT API
 FEATURE: ORDER SUCCESS SYSTEM
 FEATURE: SELLER CONNECTION
 ==================================================*/
@@ -24,8 +25,19 @@ import {
 
 
 import {
-    app
+    app,
+    auth
 } from "./firebase-config.js";
+
+
+/*==================================================
+FEATURE: FIREBASE AUTH
+==================================================*/
+
+import {
+    onAuthStateChanged
+} from
+"https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
 
 /*==================================================
@@ -38,20 +50,33 @@ import {
 
 
 /*==================================================
-FEATURE: JAZZCASH PAYMENT
-==================================================*/
-
-import {
-    processJazzCashPayment
-} from "./jazzcash-payment.js";
-
-
-/*==================================================
-FEATURE: FIREBASE DATABASE
+FEATURE: DATABASE
 ==================================================*/
 
 const db =
     getDatabase(app);
+
+
+/*==================================================
+FEATURE: BACKEND API
+==================================================*/
+
+/*
+ * IMPORTANT:
+ *
+ * اگر backend الگ server/domain پر deploy ہے
+ * تو یہاں اس کا اصل HTTPS URL لگائیں۔
+ *
+ * مثال:
+ *
+ * https://api.yourdomain.com
+ *
+ * ابھی localhost صرف local testing کے لیے ہے۔
+ */
+
+const BACKEND_API_URL =
+    window.SMARTBAZAAR_BACKEND_URL ||
+    "http://localhost:3000";
 
 
 /*==================================================
@@ -217,11 +242,50 @@ let currentStock =
 
 
 /*==================================================
+FEATURE: AUTH STATE
+==================================================*/
+
+let currentUser =
+    null;
+
+
+let authReady =
+    false;
+
+
+/*==================================================
 FEATURE: ORDER STATE
 ==================================================*/
 
 let orderBeingPlaced =
     false;
+
+
+/*==================================================
+FEATURE: AUTHENTICATION INITIALIZATION
+==================================================*/
+
+const authReadyPromise =
+    new Promise(
+        resolve => {
+
+            onAuthStateChanged(
+                auth,
+                user => {
+
+                    currentUser =
+                        user;
+
+                    authReady =
+                        true;
+
+                    resolve(user);
+
+                }
+            );
+
+        }
+    );
 
 
 /*==================================================
@@ -255,6 +319,30 @@ async function initializeCheckout() {
 
         setupQuantityControls();
 
+        /*
+         * Wait for Firebase Auth.
+         */
+
+        await authReadyPromise;
+
+
+        /*
+         * Customer checkout requires login
+         * because the secure backend verifies
+         * Firebase UID ownership.
+         */
+
+        if (!currentUser) {
+
+            showCheckoutError(
+                "Please login to your account before checkout."
+            );
+
+            return;
+
+        }
+
+
         await loadCheckoutProduct(
             productId
         );
@@ -270,6 +358,7 @@ async function initializeCheckout() {
 
 
         showCheckoutError(
+            error.message ||
             "Unable to initialize checkout."
         );
 
@@ -519,29 +608,39 @@ async function loadCheckoutProduct(
         }
 
 
-        checkoutQuantity.value =
-            requestedQuantity;
+        if (checkoutQuantity) {
 
+            checkoutQuantity.value =
+                requestedQuantity;
 
-        checkoutQuantity.min =
-            "1";
+            checkoutQuantity.min =
+                "1";
 
+            checkoutQuantity.max =
+                String(
+                    currentStock
+                );
 
-        checkoutQuantity.max =
-            String(
-                currentStock
-            );
+        }
 
 
         renderCheckoutProduct();
 
 
-        checkoutLoading.style.display =
-            "none";
+        if (checkoutLoading) {
+
+            checkoutLoading.style.display =
+                "none";
+
+        }
 
 
-        checkoutContent.style.display =
-            "grid";
+        if (checkoutContent) {
+
+            checkoutContent.style.display =
+                "grid";
+
+        }
 
     }
 
@@ -587,31 +686,46 @@ function renderCheckoutProduct() {
         );
 
 
-    checkoutProductImage.src =
-        image;
+    if (checkoutProductImage) {
+
+        checkoutProductImage.src =
+            image;
+
+        checkoutProductImage.alt =
+            currentProduct.name ||
+            currentProduct.title ||
+            "Product";
+
+    }
 
 
-    checkoutProductImage.alt =
-        currentProduct.name ||
-        currentProduct.title ||
-        "Product";
+    if (checkoutProductName) {
+
+        checkoutProductName.textContent =
+            currentProduct.name ||
+            currentProduct.title ||
+            "Product";
+
+    }
 
 
-    checkoutProductName.textContent =
-        currentProduct.name ||
-        currentProduct.title ||
-        "Product";
+    if (checkoutProductCategory) {
+
+        checkoutProductCategory.textContent =
+            currentProduct.category ||
+            "Product";
+
+    }
 
 
-    checkoutProductCategory.textContent =
-        currentProduct.category ||
-        "Product";
+    if (checkoutProductPrice) {
 
+        checkoutProductPrice.textContent =
+            formatPrice(
+                price
+            );
 
-    checkoutProductPrice.textContent =
-        formatPrice(
-            price
-        );
+    }
 
 
     updateSummary();
@@ -906,24 +1020,40 @@ function updateSummary() {
         quantity;
 
 
-    checkoutProductQuantity.textContent =
-        quantity;
+    if (checkoutProductQuantity) {
+
+        checkoutProductQuantity.textContent =
+            quantity;
+
+    }
 
 
-    summaryProductPrice.textContent =
-        formatPrice(
-            price
-        );
+    if (summaryProductPrice) {
+
+        summaryProductPrice.textContent =
+            formatPrice(
+                price
+            );
+
+    }
 
 
-    summaryQuantity.textContent =
-        quantity;
+    if (summaryQuantity) {
+
+        summaryQuantity.textContent =
+            quantity;
+
+    }
 
 
-    summaryTotal.textContent =
-        formatPrice(
-            total
-        );
+    if (summaryTotal) {
+
+        summaryTotal.textContent =
+            formatPrice(
+                total
+            );
+
+    }
 
 }
 
@@ -932,201 +1062,232 @@ function updateSummary() {
 FEATURE: PLACE ORDER
 ==================================================*/
 
-checkoutForm.addEventListener(
-    "submit",
-    async event => {
+if (checkoutForm) {
 
-        event.preventDefault();
+    checkoutForm.addEventListener(
+        "submit",
+        handleCheckoutSubmit
+    );
 
-
-        if (
-            orderBeingPlaced
-        ) {
-
-            return;
-
-        }
+}
 
 
-        if (!currentProduct) {
+/*==================================================
+FEATURE: CHECKOUT SUBMIT HANDLER
+==================================================*/
 
-            alert(
-                "Product information is not available."
-            );
+async function handleCheckoutSubmit(
+    event
+) {
 
-            return;
-
-        }
-
-
-        /*==================================================
-        FEATURE: CUSTOMER INFORMATION
-        ==================================================*/
-
-        const customerName =
-            document
-                .getElementById(
-                    "customerName"
-                )
-                .value
-                .trim();
+    event.preventDefault();
 
 
-        const customerPhone =
-            document
-                .getElementById(
-                    "customerPhone"
-                )
-                .value
-                .trim();
+    if (orderBeingPlaced) {
+
+        return;
+
+    }
 
 
-        const customerCity =
-            document
-                .getElementById(
-                    "customerCity"
-                )
-                .value
-                .trim();
+    if (!currentProduct) {
+
+        alert(
+            "Product information is not available."
+        );
+
+        return;
+
+    }
 
 
-        const customerAddress =
-            document
-                .getElementById(
-                    "customerAddress"
-                )
-                .value
-                .trim();
+    /*==================================================
+    FEATURE: AUTH CHECK
+    ==================================================*/
+
+    await authReadyPromise;
 
 
-        const customerNote =
-            document
-                .getElementById(
-                    "customerNote"
-                )
-                .value
-                .trim();
+    if (!currentUser) {
+
+        alert(
+            "Please login before placing an order."
+        );
+
+        return;
+
+    }
 
 
-        /*==================================================
-        FEATURE: PAYMENT METHOD
-        ==================================================*/
+    /*==================================================
+    FEATURE: CUSTOMER INFORMATION
+    ==================================================*/
 
-        const selectedPayment =
-            document.querySelector(
-                'input[name="paymentMethod"]:checked'
-            );
-
-
-        const paymentMethod =
-            selectedPayment
-                ? selectedPayment.value
-                : "cod";
-
-
-        /*==================================================
-        FEATURE: QUANTITY
-        ==================================================*/
-
-        let quantity =
-            Number(
-                checkoutQuantity.value
-            ) || 1;
-
-
-        /*==================================================
-        FEATURE: VALIDATION
-        ==================================================*/
-
-        if (
-            customerName.length < 2
-        ) {
-
-            alert(
-                "Please enter your full name."
-            );
-
-            return;
-
-        }
-
-
-        if (
-            !isValidPakistaniPhone(
-                customerPhone
+    const customerName =
+        document
+            .getElementById(
+                "customerName"
             )
-        ) {
-
-            alert(
-                "Please enter a valid Pakistani mobile number, for example 03001234567."
-            );
-
-            return;
-
-        }
+            ?.value
+            .trim() || "";
 
 
-        if (
-            customerCity.length < 2
-        ) {
-
-            alert(
-                "Please enter your city."
-            );
-
-            return;
-
-        }
+    const customerPhone =
+        document
+            .getElementById(
+                "customerPhone"
+            )
+            ?.value
+            .trim() || "";
 
 
-        if (
-            customerAddress.length < 5
-        ) {
-
-            alert(
-                "Please enter your complete delivery address."
-            );
-
-            return;
-
-        }
+    const customerCity =
+        document
+            .getElementById(
+                "customerCity"
+            )
+            ?.value
+            .trim() || "";
 
 
-        if (
-            quantity < 1
-        ) {
-
-            quantity =
-                1;
-
-        }
-
-
-        if (
-            quantity >
-            currentStock
-        ) {
-
-            alert(
-                `Only ${currentStock} item(s) are currently available.`
-            );
-
-            return;
-
-        }
+    const customerAddress =
+        document
+            .getElementById(
+                "customerAddress"
+            )
+            ?.value
+            .trim() || "";
 
 
-        /*==================================================
-        FEATURE: START PROCESS
-        ==================================================*/
+    const customerNote =
+        document
+            .getElementById(
+                "customerNote"
+            )
+            ?.value
+            .trim() || "";
 
-        orderBeingPlaced =
-            true;
 
+    /*==================================================
+    FEATURE: PAYMENT METHOD
+    ==================================================*/
+
+    const selectedPayment =
+        document.querySelector(
+            'input[name="paymentMethod"]:checked'
+        );
+
+
+    const paymentMethod =
+        selectedPayment
+            ? selectedPayment.value
+            : "cod";
+
+
+    /*==================================================
+    FEATURE: QUANTITY
+    ==================================================*/
+
+    let quantity =
+        Number(
+            checkoutQuantity.value
+        ) || 1;
+
+
+    /*==================================================
+    FEATURE: VALIDATION
+    ==================================================*/
+
+    if (
+        customerName.length < 2
+    ) {
+
+        alert(
+            "Please enter your full name."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !isValidPakistaniPhone(
+            customerPhone
+        )
+    ) {
+
+        alert(
+            "Please enter a valid Pakistani mobile number, for example 03001234567."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        customerCity.length < 2
+    ) {
+
+        alert(
+            "Please enter your city."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        customerAddress.length < 5
+    ) {
+
+        alert(
+            "Please enter your complete delivery address."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        quantity < 1
+    ) {
+
+        quantity =
+            1;
+
+    }
+
+
+    if (
+        quantity >
+        currentStock
+    ) {
+
+        alert(
+            `Only ${currentStock} item(s) are currently available.`
+        );
+
+        return;
+
+    }
+
+
+    /*==================================================
+    FEATURE: START PROCESS
+    ==================================================*/
+
+    orderBeingPlaced =
+        true;
+
+
+    if (placeOrderButton) {
 
         placeOrderButton.disabled =
             true;
-
 
         placeOrderButton.innerHTML =
             `
@@ -1134,352 +1295,443 @@ checkoutForm.addEventListener(
                 Processing...
             `;
 
+    }
 
-        try {
 
-            /*==================================================
-            FEATURE: GET LATEST PRODUCT
-            ==================================================*/
+    try {
 
-            const productRef =
-                ref(
-                    db,
-                    `products/${productId}`
+        /*==================================================
+        FEATURE: GET LATEST PRODUCT
+        ==================================================*/
+
+        const productRef =
+            ref(
+                db,
+                `products/${productId}`
+            );
+
+
+        const latestSnapshot =
+            await get(
+                productRef
+            );
+
+
+        if (
+            !latestSnapshot.exists()
+        ) {
+
+            throw new Error(
+                "This product is no longer available."
+            );
+
+        }
+
+
+        const latestProduct =
+            latestSnapshot.val();
+
+
+        /*==================================================
+        FEATURE: LATEST STOCK
+        ==================================================*/
+
+        const latestStock =
+            Number(
+                latestProduct.stock || 0
+            );
+
+
+        if (
+            latestStock <= 0
+        ) {
+
+            throw new Error(
+                "This product is currently out of stock."
+            );
+
+        }
+
+
+        if (
+            quantity >
+            latestStock
+        ) {
+
+            throw new Error(
+                `Only ${latestStock} item(s) are currently available.`
+            );
+
+        }
+
+
+        /*==================================================
+        FEATURE: AUTHORITATIVE PRICE
+        ==================================================*/
+
+        const price =
+            Number(
+                latestProduct.price || 0
+            );
+
+
+        if (
+            !Number.isFinite(price) ||
+            price <= 0
+        ) {
+
+            throw new Error(
+                "This product has an invalid price."
+            );
+
+        }
+
+
+        const total =
+            price *
+            quantity;
+
+
+        /*==================================================
+        FEATURE: ORDER PAYLOAD
+        ==================================================*/
+
+        const orderPayload = {
+
+            productId:
+                productId,
+
+            productName:
+                latestProduct.name ||
+                latestProduct.title ||
+                "Product",
+
+            productImage:
+                getProductImage(
+                    latestProduct
+                ),
+
+            productCategory:
+                latestProduct.category ||
+                "",
+
+            price:
+                price,
+
+            quantity:
+                quantity,
+
+            total:
+                total,
+
+            customerName:
+                customerName,
+
+            customerPhone:
+                customerPhone,
+
+            customerCity:
+                customerCity,
+
+            customerAddress:
+                customerAddress,
+
+            customerNote:
+                customerNote,
+
+            paymentMethod:
+                paymentMethod,
+
+            sellerId:
+                latestProduct.sellerId ||
+                latestProduct.seller ||
+                "",
+
+            sellerName:
+                latestProduct.sellerName ||
+                latestProduct.seller ||
+                "",
+
+            /*
+             * Firebase authenticated customer.
+             */
+
+            userId:
+                currentUser.uid,
+
+            customerId:
+                currentUser.uid
+
+        };
+
+
+        /*==================================================
+        FEATURE: COD FLOW
+        ==================================================*/
+
+        if (
+            paymentMethod ===
+            "cod"
+        ) {
+
+            const createdOrder =
+                await createOrder(
+                    orderPayload
                 );
 
 
-            const latestSnapshot =
-                await get(
-                    productRef
-                );
+            const orderId =
+                createdOrder.orderId;
 
 
-            if (
-                !latestSnapshot.exists()
-            ) {
-
-                throw new Error(
-                    "This product is no longer available."
-                );
-
-            }
+            /*
+             * COD order is confirmed for delivery.
+             *
+             * Online payment کے برعکس COD میں
+             * payment ابھی paid نہیں ہے۔
+             */
 
 
-            const latestProduct =
-                latestSnapshot.val();
-
-
-            /*==================================================
-            FEATURE: LATEST STOCK
-            ==================================================*/
-
-            const latestStock =
-                Number(
-                    latestProduct.stock || 0
-                );
-
-
-            if (
-                latestStock <= 0
-            ) {
-
-                throw new Error(
-                    "This product is currently out of stock."
-                );
-
-            }
-
-
-            if (
-                quantity >
-                latestStock
-            ) {
-
-                throw new Error(
-                    `Only ${latestStock} item(s) are currently available.`
-                );
-
-            }
-
-
-            /*==================================================
-            FEATURE: PRICE
-            ==================================================*/
-
-            const price =
-                Number(
-                    latestProduct.price || 0
-                );
-
-
-            const total =
-                price *
+            const newStock =
+                latestStock -
                 quantity;
 
 
-            /*==================================================
-            FEATURE: ORDER PAYLOAD
-            ==================================================*/
+            await update(
+                productRef,
+                {
 
-            const orderPayload = {
+                    stock:
+                        newStock,
 
-                productId:
-                    productId,
+                    updatedAt:
+                        Date.now()
 
-                productName:
-                    latestProduct.name ||
-                    latestProduct.title ||
-                    "Product",
-
-                productImage:
-                    getProductImage(
-                        latestProduct
-                    ),
-
-                productCategory:
-                    latestProduct.category ||
-                    "",
-
-                price:
-                    price,
-
-                quantity:
-                    quantity,
-
-                total:
-                    total,
-
-                customerName:
-                    customerName,
-
-                customerPhone:
-                    customerPhone,
-
-                customerCity:
-                    customerCity,
-
-                customerAddress:
-                    customerAddress,
-
-                customerNote:
-                    customerNote,
-
-                paymentMethod:
-                    paymentMethod,
-
-                sellerId:
-                    latestProduct.sellerId ||
-                    latestProduct.seller ||
-                    "",
-
-                sellerName:
-                    latestProduct.sellerName ||
-                    latestProduct.seller ||
-                    ""
-
-            };
+                }
+            );
 
 
-            /*==================================================
-            FEATURE: COD FLOW
-            ==================================================*/
+            currentStock =
+                newStock;
+
+
+            showOrderSuccess(
+                orderId,
+                total
+            );
+
+
+            return;
+
+        }
+
+
+        /*==================================================
+        FEATURE: JAZZCASH FLOW
+        ==================================================*/
+
+        if (
+            paymentMethod ===
+            "jazzcash"
+        ) {
+
+            /*----------------------------------------------
+            STEP 1:
+            CREATE PENDING ORDER
+            ----------------------------------------------*/
+
+            const createdOrder =
+                await createOrder(
+                    orderPayload
+                );
+
 
             if (
-                paymentMethod ===
-                "cod"
+                !createdOrder ||
+                !createdOrder.orderId
             ) {
 
-                const createdOrder =
-                    await createOrder(
-                        orderPayload
-                    );
+                throw new Error(
+                    "Unable to create pending order."
+                );
+
+            }
 
 
-                const orderId =
-                    createdOrder.orderId;
+            const orderId =
+                createdOrder.orderId;
 
 
-                /*==================================================
-                IMPORTANT:
-                COD STOCK UPDATE
-                ==================================================*/
+            /*----------------------------------------------
+            STEP 2:
+            GET FIREBASE ID TOKEN
+            ----------------------------------------------*/
 
-                const newStock =
-                    latestStock -
-                    quantity;
+            const idToken =
+                await currentUser.getIdToken(
+                    true
+                );
 
 
-                await update(
-                    productRef,
+            if (!idToken) {
+
+                throw new Error(
+                    "Unable to authenticate payment request."
+                );
+
+            }
+
+
+            /*----------------------------------------------
+            STEP 3:
+            CALL SECURE BACKEND
+            ----------------------------------------------*/
+
+            const response =
+                await fetch(
+                    `${BACKEND_API_URL}/api/payments/jazzcash/create`,
                     {
 
-                        stock:
-                            newStock,
+                        method:
+                            "POST",
 
-                        updatedAt:
-                            Date.now()
+                        headers: {
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Authorization":
+                                `Bearer ${idToken}`
+
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                orderId:
+                                    orderId
+
+                            })
 
                     }
                 );
 
 
-                currentStock =
-                    newStock;
+            const paymentResult =
+                await response.json();
 
 
-                showOrderSuccess(
-                    orderId,
-                    total
-                );
-
-
-                return;
-
-            }
-
-
-            /*==================================================
-            FEATURE: JAZZCASH FLOW
-            ==================================================*/
+            /*----------------------------------------------
+            STEP 4:
+            CHECK BACKEND RESPONSE
+            ----------------------------------------------*/
 
             if (
-                paymentMethod ===
-                "jazzcash"
+                !response.ok ||
+                !paymentResult ||
+                !paymentResult.success
             ) {
 
-                /*
-                 * IMPORTANT:
-                 *
-                 * Order/payment creation is delegated
-                 * to the secure payment architecture.
-                 *
-                 * Frontend must NEVER contain:
-                 *
-                 * - Merchant Password
-                 * - Integrity Salt
-                 * - Secret API Key
-                 * - Private credentials
-                 */
-
-
-                const paymentResult =
-                    await processJazzCashPayment(
-                        {
-
-                            ...orderPayload,
-
-                            productStock:
-                                latestStock
-
-                        }
-                    );
-
-
-                if (
-                    !paymentResult ||
-                    !paymentResult.success
-                ) {
-
-                    throw new Error(
-                        paymentResult?.message ||
-                        "JazzCash payment could not be started."
-                    );
-
-                }
-
-
-                /*
-                 * IMPORTANT:
-                 *
-                 * Do NOT reduce stock here.
-                 *
-                 * Do NOT mark order as paid here.
-                 *
-                 * Secure backend verification must
-                 * confirm the payment first.
-                 */
-
-
-                if (
-                    paymentResult.redirectUrl
-                ) {
-
-                    window.location.href =
-                        paymentResult.redirectUrl;
-
-                    return;
-
-                }
-
-
-                if (
-                    paymentResult.paymentUrl
-                ) {
-
-                    window.location.href =
-                        paymentResult.paymentUrl;
-
-                    return;
-
-                }
-
-
-                alert(
-                    "JazzCash payment has been started. Please complete the payment."
+                throw new Error(
+                    paymentResult?.message ||
+                    "JazzCash payment could not be started."
                 );
 
-
-                orderBeingPlaced =
-                    false;
+            }
 
 
-                placeOrderButton.disabled =
-                    false;
+            /*----------------------------------------------
+            STEP 5:
+            PAYMENT FORM / REDIRECT
+            ----------------------------------------------*/
 
+            if (
+                paymentResult.redirectUrl
+            ) {
 
-                placeOrderButton.innerHTML =
-                    `
-                        <i class="fa-solid fa-lock"></i>
-                        Place Order
-                    `;
-
+                window.location.href =
+                    paymentResult.redirectUrl;
 
                 return;
 
             }
 
 
-            /*==================================================
-            FEATURE: UNSUPPORTED PAYMENT
-            ==================================================*/
+            if (
+                paymentResult.paymentUrl
+            ) {
+
+                window.location.href =
+                    paymentResult.paymentUrl;
+
+                return;
+
+            }
+
+
+            /*
+             * JazzCash gateway normally needs
+             * the returned fields to be submitted
+             * to its payment endpoint.
+             *
+             * We handle that through a POST form
+             * instead of exposing any secret.
+             */
+
+            if (
+                paymentResult.action &&
+                paymentResult.fields
+            ) {
+
+                submitJazzCashForm(
+                    paymentResult.action,
+                    paymentResult.fields
+                );
+
+                return;
+
+            }
+
 
             throw new Error(
-                "Selected payment method is not available."
+                "JazzCash payment gateway response is incomplete."
             );
 
         }
 
-        catch (error) {
 
-            console.error(
-                "FINAL CHECKOUT ERROR:",
-                error
-            );
+        /*==================================================
+        FEATURE: UNSUPPORTED PAYMENT
+        ==================================================*/
+
+        throw new Error(
+            "Selected payment method is not available."
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "FINAL CHECKOUT ERROR:",
+            error
+        );
 
 
-            alert(
-                error.message ||
-                "Unable to complete checkout."
-            );
+        alert(
+            error.message ||
+            "Unable to complete checkout."
+        );
 
 
-            orderBeingPlaced =
-                false;
+        orderBeingPlaced =
+            false;
 
+
+        if (placeOrderButton) {
 
             placeOrderButton.disabled =
                 false;
-
 
             placeOrderButton.innerHTML =
                 `
@@ -1490,7 +1742,100 @@ checkoutForm.addEventListener(
         }
 
     }
-);
+
+}
+
+
+/*==================================================
+FEATURE: JAZZCASH POST FORM
+==================================================*/
+
+function submitJazzCashForm(
+    action,
+    fields
+) {
+
+    if (
+        !action ||
+        !fields
+    ) {
+
+        throw new Error(
+            "JazzCash payment form data is missing."
+        );
+
+    }
+
+
+    const form =
+        document.createElement(
+            "form"
+        );
+
+
+    form.method =
+        "POST";
+
+
+    form.action =
+        action;
+
+
+    form.style.display =
+        "none";
+
+
+    Object.entries(
+        fields
+    ).forEach(
+        ([name, value]) => {
+
+            if (
+                value === undefined ||
+                value === null
+            ) {
+
+                return;
+
+            }
+
+
+            const input =
+                document.createElement(
+                    "input"
+                );
+
+
+            input.type =
+                "hidden";
+
+
+            input.name =
+                name;
+
+
+            input.value =
+                String(
+                    value
+                );
+
+
+            form.appendChild(
+                input
+            );
+
+        }
+    );
+
+
+    document.body.appendChild(
+        form
+    );
+
+
+    form.submit();
+
+}
 
 
 /*==================================================
@@ -1502,30 +1847,54 @@ function showOrderSuccess(
     total
 ) {
 
-    checkoutContent.style.display =
-        "none";
+    if (checkoutContent) {
+
+        checkoutContent.style.display =
+            "none";
+
+    }
 
 
-    checkoutLoading.style.display =
-        "none";
+    if (checkoutLoading) {
+
+        checkoutLoading.style.display =
+            "none";
+
+    }
 
 
-    checkoutError.style.display =
-        "none";
+    if (checkoutError) {
+
+        checkoutError.style.display =
+            "none";
+
+    }
 
 
-    successOrderId.textContent =
-        orderId;
+    if (successOrderId) {
+
+        successOrderId.textContent =
+            orderId;
+
+    }
 
 
-    successOrderTotal.textContent =
-        formatPrice(
-            total
-        );
+    if (successOrderTotal) {
+
+        successOrderTotal.textContent =
+            formatPrice(
+                total
+            );
+
+    }
 
 
-    orderSuccess.style.display =
-        "block";
+    if (orderSuccess) {
+
+        orderSuccess.style.display =
+            "block";
+
+    }
 
 
     window.scrollTo(
@@ -1581,19 +1950,35 @@ function showCheckoutError(
     message
 ) {
 
-    checkoutLoading.style.display =
-        "none";
+    if (checkoutLoading) {
+
+        checkoutLoading.style.display =
+            "none";
+
+    }
 
 
-    checkoutContent.style.display =
-        "none";
+    if (checkoutContent) {
+
+        checkoutContent.style.display =
+            "none";
+
+    }
 
 
-    checkoutError.style.display =
-        "block";
+    if (checkoutError) {
+
+        checkoutError.style.display =
+            "block";
+
+    }
 
 
-    checkoutErrorMessage.textContent =
-        message;
+    if (checkoutErrorMessage) {
+
+        checkoutErrorMessage.textContent =
+            message;
+
+    }
 
 }
