@@ -234,6 +234,52 @@ onAuthStateChanged(
 
 
 /*==================================================
+ FEATURE: PRODUCT EDITOR NAVIGATION
+ ACCOUNT ↔ PRODUCT EDITOR
+==================================================*/
+
+function setupProductEditorNavigation() {
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    const source =
+        params.get("source");
+
+    const backButton =
+        document.getElementById(
+            "productEditorBackButton"
+        );
+
+    const backText =
+        document.getElementById(
+            "productEditorBackText"
+        );
+
+    if (!backButton) {
+        return;
+    }
+
+    if (source === "account") {
+
+        backButton.href =
+            "./account.html#my-products";
+
+        if (backText) {
+
+            backText.textContent =
+                "My Products";
+
+        }
+
+    }
+
+}
+
+
+/*==================================================
  FEATURE: MAIN IMAGE PREVIEW
 ==================================================*/
 
