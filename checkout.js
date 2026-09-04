@@ -48,6 +48,7 @@ import {
     createPendingOrder
 } from "./order-create.js";
 
+
 /*==================================================
 FEATURE: DATABASE
 ==================================================*/
@@ -59,19 +60,6 @@ const db =
 /*==================================================
 FEATURE: BACKEND API
 ==================================================*/
-
-/*
- * IMPORTANT:
- *
- * اگر backend الگ server/domain پر deploy ہے
- * تو یہاں اس کا اصل HTTPS URL لگائیں۔
- *
- * مثال:
- *
- * https://api.yourdomain.com
- *
- * ابھی localhost صرف local testing کے لیے ہے۔
- */
 
 const BACKEND_API_URL =
     window.SMARTBAZAAR_BACKEND_URL ||
@@ -248,10 +236,6 @@ let currentUser =
     null;
 
 
-let authReady =
-    false;
-
-
 /*==================================================
 FEATURE: ORDER STATE
 ==================================================*/
@@ -275,10 +259,9 @@ const authReadyPromise =
                     currentUser =
                         user;
 
-                    authReady =
-                        true;
-
-                    resolve(user);
+                    resolve(
+                        user
+                    );
 
                 }
             );
@@ -318,18 +301,17 @@ async function initializeCheckout() {
 
         setupQuantityControls();
 
-        /*
-         * Wait for Firebase Auth.
-         */
+
+        /*----------------------------------------------
+        WAIT FOR FIREBASE AUTH
+        ----------------------------------------------*/
 
         await authReadyPromise;
 
 
-        /*
-         * Customer checkout requires login
-         * because the secure backend verifies
-         * Firebase UID ownership.
-         */
+        /*----------------------------------------------
+        LOGIN REQUIRED
+        ----------------------------------------------*/
 
         if (!currentUser) {
 
@@ -341,6 +323,10 @@ async function initializeCheckout() {
 
         }
 
+
+        /*----------------------------------------------
+        LOAD PRODUCT
+        ----------------------------------------------*/
 
         await loadCheckoutProduct(
             productId
@@ -860,7 +846,10 @@ FEATURE: INCREASE QUANTITY
 
 function increaseProductQuantity() {
 
-    if (!currentProduct) {
+    if (
+        !currentProduct ||
+        !checkoutQuantity
+    ) {
 
         return;
 
@@ -898,6 +887,13 @@ FEATURE: DECREASE QUANTITY
 
 function decreaseProductQuantity() {
 
+    if (!checkoutQuantity) {
+
+        return;
+
+    }
+
+
     let quantity =
         Number(
             checkoutQuantity.value
@@ -927,6 +923,13 @@ FEATURE: QUANTITY VALIDATION
 ==================================================*/
 
 function validateQuantityInput() {
+
+    if (!checkoutQuantity) {
+
+        return;
+
+    }
+
 
     let quantity =
         Number(
@@ -970,7 +973,10 @@ FEATURE: UPDATE SUMMARY
 
 function updateSummary() {
 
-    if (!currentProduct) {
+    if (
+        !currentProduct ||
+        !checkoutQuantity
+    ) {
 
         return;
 
@@ -1100,10 +1106,6 @@ async function handleCheckoutSubmit(
     }
 
 
-    /*==================================================
-    FEATURE: AUTH CHECK
-    ==================================================*/
-
     await authReadyPromise;
 
 
@@ -1189,7 +1191,7 @@ async function handleCheckoutSubmit(
 
     let quantity =
         Number(
-            checkoutQuantity.value
+            checkoutQuantity?.value
         ) || 1;
 
 
@@ -1451,10 +1453,6 @@ async function handleCheckoutSubmit(
                 latestProduct.seller ||
                 "",
 
-            /*
-             * Firebase authenticated customer.
-             */
-
             userId:
                 currentUser.uid,
 
@@ -1474,21 +1472,13 @@ async function handleCheckoutSubmit(
         ) {
 
             const createdOrder =
-                await createOrder(
+                await createPendingOrder(
                     orderPayload
                 );
 
 
             const orderId =
                 createdOrder.orderId;
-
-
-            /*
-             * COD order is confirmed for delivery.
-             *
-             * Online payment کے برعکس COD میں
-             * payment ابھی paid نہیں ہے۔
-             */
 
 
             const newStock =
@@ -1540,7 +1530,7 @@ async function handleCheckoutSubmit(
             ----------------------------------------------*/
 
             const createdOrder =
-                await createOrder(
+                await createPendingOrder(
                     orderPayload
                 );
 
@@ -1668,15 +1658,6 @@ async function handleCheckoutSubmit(
             }
 
 
-            /*
-             * JazzCash gateway normally needs
-             * the returned fields to be submitted
-             * to its payment endpoint.
-             *
-             * We handle that through a POST form
-             * instead of exposing any secret.
-             */
-
             if (
                 paymentResult.action &&
                 paymentResult.fields
@@ -1698,10 +1679,6 @@ async function handleCheckoutSubmit(
 
         }
 
-
-        /*==================================================
-        FEATURE: UNSUPPORTED PAYMENT
-        ==================================================*/
 
         throw new Error(
             "Selected payment method is not available."
