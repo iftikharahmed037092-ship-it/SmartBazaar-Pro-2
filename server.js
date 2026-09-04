@@ -1,68 +1,88 @@
 /*==================================================
 SMARTBAZAAR PRO 2
-BACKEND
-FEATURE: EXPRESS SERVER
-FEATURE: JAZZCASH PAYMENT API
-FEATURE: JAZZCASH VERIFICATION API
+FEATURE: SECURE BACKEND API SERVER
+FEATURE: FIREBASE AUTHENTICATION
+FEATURE: JAZZCASH PAYMENT
+FEATURE: PAYMENT VERIFICATION
+FEATURE: ORDER FINALIZATION
+FEATURE: SELLER FINANCE
+FEATURE: WITHDRAWAL SYSTEM
 ==================================================*/
 
-import express from "express";
+import "dotenv/config";
 
+import express from "express";
 import cors from "cors";
 
 import {
-    createJazzCashPayment
-} from "./jazzcash-create-payment.js";
+    requireAuthentication
+} from "./server-auth.js";
 
 import {
-    verifyJazzCashPayment
-} from "./jazzcash-verify-payment.js";
+    createAuthorizedJazzCashPayment,
+    verifyAndFinalizeJazzCashPayment
+} from "./payment-flow-service.js";
+
+import {
+    createWithdrawalRequest
+} from "./withdrawal-service.js";
 
 
 /*==================================================
-FEATURE: EXPRESS APP
+SERVER INITIALIZATION
 ==================================================*/
 
-const app =
-    express();
-
-
-/*==================================================
-FEATURE: SERVER CONFIG
-==================================================*/
+const app = express();
 
 const PORT =
-    process.env.PORT || 3000;
+    Number(process.env.PORT) || 3000;
 
 
 /*==================================================
-FEATURE: MIDDLEWARE
+CORS CONFIGURATION
 ==================================================*/
+
+const allowedOrigin =
+    process.env.FRONTEND_URL || "*";
 
 app.use(
     cors({
-        origin:
-            process.env.FRONTEND_URL ||
-            "*"
-    })
-);
-
-
-app.use(
-    express.json()
-);
-
-
-app.use(
-    express.urlencoded({
-        extended:
-            true
+        origin: allowedOrigin,
+        methods: [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "OPTIONS"
+        ],
+        allowedHeaders: [
+            "Content-Type",
+            "Authorization"
+        ]
     })
 );
 
 
 /*==================================================
-FEATURE: HEALTH CHECK
+BODY PARSERS
+==================================================*/
+
+app.use(
+    express.json({
+        limit: "1mb"
+    })
+);
+
+app.use(
+    express.urlencoded({
+        extended: true,
+        limit: "1mb"
+    })
+);
+
+
+/*==================================================
+HEALTH CHECK
 ==================================================*/
 
 app.get(
@@ -71,17 +91,18 @@ app.get(
 
         res.json({
 
-            success:
-                true,
+            success: true,
 
             service:
                 "SmartBazaar Pro 2 Backend",
 
             status:
-                "online"
+                "online",
+
+            timestamp:
+                new Date().toISOString()
 
         });
-
     }
 );
 
@@ -92,26 +113,45 @@ FEATURE: CREATE JAZZCASH PAYMENT
 
 app.post(
     "/api/payments/jazzcash/create",
-    async (
-        req,
-        res
-    ) => {
+
+    requireAuthentication,
+
+    async (req, res) => {
 
         try {
 
+            const {
+                orderId
+            } = req.body;
+
+
+            if (!orderId) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Order ID is required."
+
+                });
+            }
+
+
             const result =
-                await createJazzCashPayment(
-                    req.body
-                );
+                await createAuthorizedJazzCashPayment({
+
+                    orderId,
+
+                    user:
+                        req.user
+
+                });
 
 
-            res.json(
-                result
-            );
+            return res.json(result);
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "JazzCash create error:",
@@ -119,64 +159,86 @@ app.post(
             );
 
 
-            res.status(
-                400
-            )
-            .json({
+            return res.status(
+                error.statusCode || 500
+            ).json({
 
-                success:
-                    false,
+                success: false,
 
                 message:
                     error.message ||
                     "Unable to create JazzCash payment."
 
             });
-
         }
-
     }
 );
 
 
 /*==================================================
-FEATURE: JAZZCASH RETURN / VERIFY
+FEATURE: VERIFY JAZZCASH PAYMENT
 ==================================================*/
 
 app.post(
     "/api/payments/jazzcash/verify",
-    async (
-        req,
-        res
-    ) => {
+
+    requireAuthentication,
+
+    async (req, res) => {
 
         try {
 
+            const {
+                orderId,
+                response
+            } = req.body;
+
+
+            if (!orderId) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Order ID is required."
+
+                });
+            }
+
+
+            if (
+                !response ||
+                typeof response !== "object"
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "JazzCash payment response is required."
+
+                });
+            }
+
+
             const result =
-                await verifyJazzCashPayment(
-                    req.body
-                );
+                await verifyAndFinalizeJazzCashPayment({
+
+                    orderId,
+
+                    user:
+                        req.user,
+
+                    response
+
+                });
 
 
-            /*
-             * IMPORTANT:
-             *
-             * At this stage we return the verified
-             * payment result.
-             *
-             * Firebase order/payment/wallet updates
-             * must be performed by a secure server-side
-             * transaction layer.
-             */
+            return res.json(result);
 
-
-            res.json(
-                result
-            );
-
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "JazzCash verification error:",
@@ -184,96 +246,168 @@ app.post(
             );
 
 
-            res.status(
-                400
-            )
-            .json({
+            return res.status(
+                error.statusCode || 500
+            ).json({
 
-                success:
-                    false,
-
-                verified:
-                    false,
-
-                paymentStatus:
-                    "failed",
+                success: false,
 
                 message:
                     error.message ||
-                    "Unable to verify JazzCash payment."
+                    "Unable to verify payment."
 
             });
-
         }
-
     }
 );
 
 
 /*==================================================
-FEATURE: 404
+FEATURE: SELLER WITHDRAWAL REQUEST
+==================================================*/
+
+app.post(
+    "/api/seller/withdrawals",
+
+    requireAuthentication,
+
+    async (req, res) => {
+
+        try {
+
+            const {
+                amount,
+                jazzCashNumber
+            } = req.body;
+
+
+            if (
+                amount === undefined ||
+                amount === null
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Withdrawal amount is required."
+
+                });
+            }
+
+
+            if (!jazzCashNumber) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "JazzCash number is required."
+
+                });
+            }
+
+
+            const result =
+                await createWithdrawalRequest({
+
+                    sellerId:
+                        req.user.uid,
+
+                    sellerEmail:
+                        req.user.email || "",
+
+                    amount:
+                        Number(amount),
+
+                    jazzCashNumber
+
+                });
+
+
+            return res.json({
+
+                success: true,
+
+                withdrawal:
+                    result
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Withdrawal request error:",
+                error
+            );
+
+
+            return res.status(
+                error.statusCode || 400
+            ).json({
+
+                success: false,
+
+                message:
+                    error.message ||
+                    "Unable to create withdrawal request."
+
+            });
+        }
+    }
+);
+
+
+/*==================================================
+404 HANDLER
 ==================================================*/
 
 app.use(
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
-        res.status(
-            404
-        )
-        .json({
+        res.status(404).json({
 
-            success:
-                false,
+            success: false,
 
             message:
                 "API endpoint not found."
 
         });
-
     }
 );
 
 
 /*==================================================
-FEATURE: ERROR HANDLER
+GLOBAL ERROR HANDLER
 ==================================================*/
 
 app.use(
-    (
-        error,
-        req,
-        res,
-        next
-    ) => {
+    (error, req, res, next) => {
 
         console.error(
-            "SERVER ERROR:",
+            "Backend server error:",
             error
         );
 
 
         res.status(
-            500
-        )
-        .json({
+            error.statusCode || 500
+        ).json({
 
-            success:
-                false,
+            success: false,
 
             message:
                 "Internal server error."
 
         });
-
     }
 );
 
 
 /*==================================================
-FEATURE: START SERVER
+START SERVER
 ==================================================*/
 
 app.listen(
@@ -281,7 +415,30 @@ app.listen(
     () => {
 
         console.log(
-            `SmartBazaar Pro 2 backend running on port ${PORT}`
+            "=========================================="
+        );
+
+        console.log(
+            "SMARTBAZAAR PRO 2 BACKEND"
+        );
+
+        console.log(
+            "=========================================="
+        );
+
+        console.log(
+            `Server running on port ${PORT}`
+        );
+
+        console.log(
+            `Environment: ${
+                process.env.JAZZCASH_ENVIRONMENT ||
+                "sandbox"
+            }`
+        );
+
+        console.log(
+            "=========================================="
         );
 
     }
