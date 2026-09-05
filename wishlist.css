@@ -2094,3 +2094,65 @@ FEATURE: EXTRA SMALL MOBILE
     }
 
 }
+
+
+/*==================================================
+SMARTBAZAAR PRO 2
+FEATURE: WISHLIST PRODUCT IMAGE SIZE FIX
+==================================================*/
+
+.wishlist-product-image,
+.wishlist-product-image img,
+.wishlist-card-image,
+.wishlist-card-image img {
+    width: 100%;
+    max-width: 100%;
+    height: 220px;
+    max-height: 220px;
+    object-fit: contain;
+    display: block;
+}
+
+
+/*==================================================
+FEATURE: WISHLIST IMAGE CONTAINER
+==================================================*/
+
+.wishlist-product-image,
+.wishlist-card-image {
+    overflow: hidden;
+}
+
+
+/*==================================================
+FEATURE: MOBILE WISHLIST IMAGE
+==================================================*/
+
+@media (max-width: 768px) {
+
+    .wishlist-product-image,
+    .wishlist-product-image img,
+    .wishlist-card-image,
+    .wishlist-card-image img {
+        height: 180px;
+        max-height: 180px;
+    }
+
+}
+
+
+/*==================================================
+FEATURE: SMALL MOBILE
+==================================================*/
+
+@media (max-width: 480px) {
+
+    .wishlist-product-image,
+    .wishlist-product-image img,
+    .wishlist-card-image,
+    .wishlist-card-image img {
+        height: 160px;
+        max-height: 160px;
+    }
+
+}
