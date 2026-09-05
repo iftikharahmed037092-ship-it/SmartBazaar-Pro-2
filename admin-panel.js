@@ -15,6 +15,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
 
+
+
 /*==================================================
 FEATURE: FIREBASE CONFIG
 ==================================================*/
@@ -24,12 +26,47 @@ import {
 } from "./firebase-config.js";
 
 
+
+/*==================================================
+FEATURE: FIREBASE REALTIME DATABASE
+==================================================*/
+
+import {
+    getDatabase,
+    ref,
+    onValue,
+    push,
+    set,
+    update,
+    remove,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
+
+
+
 /*==================================================
 FEATURE: ADMIN AUTHENTICATION
 ==================================================*/
 
 const auth = getAuth(app);
 
+
+/*==================================================
+FEATURE: FIREBASE DATABASE
+==================================================*/
+
+const db = getDatabase(app);
+
+
+/*==================================================
+FEATURE: CATEGORY DATABASE PATH
+==================================================*/
+
+const categoriesRef =
+    ref(
+        db,
+        "smartbazaar_pro_2/categories"
+    );
 
 /*==================================================
 FEATURE: ADMIN EMAIL
