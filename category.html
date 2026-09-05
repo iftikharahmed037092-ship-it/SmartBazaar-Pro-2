@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Categories | SmartBazaar Pro 2</title>
+
+    <!-- ==================================================
+    SMARTBAZAAR PRO 2
+    FEATURE: CATEGORY PAGE
+    ================================================== -->
+
+    <!-- Global Website CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Category Page CSS -->
+    <link rel="stylesheet" href="category.css">
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+</head>
+
+
+<body>
+
+    <!-- ==================================================
+    SMARTBAZAAR PRO 2
+    FEATURE: CATEGORY PAGE
+    ================================================== -->
+
+    <main class="category-page">
+
+
+        <!-- ==================================================
+        FEATURE: CATEGORY PAGE HEADER
+        ================================================== -->
+
+        <section class="category-header">
+
+            <div class="category-header-content">
+
+                <div class="category-title">
+
+                    <div class="category-title-icon">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+
+                    <div class="category-title-text">
+
+                        <h1>Categories</h1>
+
+                        <p>
+                            Explore products by category
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+        FEATURE: CATEGORY SEARCH
+        ================================================== -->
+
+        <section class="category-search-section">
+
+            <div class="category-search-box">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input
+                    type="search"
+                    id="categorySearch"
+                    placeholder="Search categories..."
+                    autocomplete="off"
+                >
+
+                <button
+                    type="button"
+                    id="clearCategorySearch"
+                    aria-label="Clear search"
+                >
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+        FEATURE: ALL CATEGORIES
+        ================================================== -->
+
+        <section class="categories-section">
+
+            <div class="category-section-heading">
+
+                <div>
+
+                    <h2>
+                        Shop by Category
+                    </h2>
+
+                    <p>
+                        Find products you love
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- Dynamic Category Grid -->
+
+            <div
+                class="categories-grid"
+                id="categoriesGrid"
+            >
+
+                <!--
+                    Firebase categories will be
+                    inserted here by category.js
+                -->
+
+            </div>
+
+
+            <!-- ==================================================
+            FEATURE: CATEGORY LOADING
+            ================================================== -->
+
+            <div
+                class="category-loading"
+                id="categoryLoading"
+                hidden
+            >
+
+                <div class="category-spinner"></div>
+
+                <p>
+                    Loading categories...
+                </p>
+
+            </div>
+
+
+            <!-- ==================================================
+            FEATURE: EMPTY CATEGORY
+            ================================================== -->
+
+            <div
+                class="category-empty"
+                id="categoryEmpty"
+                hidden
+            >
+
+                <div class="category-empty-icon">
+
+                    <i class="fa-solid fa-folder-open"></i>
+
+                </div>
+
+                <h3>
+                    No Categories Found
+                </h3>
+
+                <p>
+                    No category matches your search.
+                </p>
+
+                <button
+                    type="button"
+                    id="resetCategorySearch"
+                >
+
+                    <i class="fa-solid fa-rotate-left"></i>
+
+                    Show All Categories
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+        FEATURE: POPULAR CATEGORIES
+        ================================================== -->
+
+        <section class="popular-categories-section">
+
+            <div class="category-section-heading">
+
+                <div>
+
+                    <h2>
+                        Popular Categories
+                    </h2>
+
+                    <p>
+                        Explore popular sections
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="popular-categories-grid"
+                id="popularCategoriesGrid"
+            >
+
+                <!--
+                    Popular categories will be
+                    loaded dynamically by JS
+                -->
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- ==================================================
+    IMPORTANT:
+    BOTTOM HEADER / BOTTOM NAVIGATION
+    ==================================================
+
+    یہاں کوئی نیا Bottom Header نہیں بنایا گیا۔
+
+    Home Page والا existing Bottom Header
+    ہی تمام pages پر استعمال ہوگا۔
+
+    ================================================== -->
+
+
+    <!-- Category JavaScript -->
+    <script
+        type="module"
+        src="category.js"
+    ></script>
+
+
+</body>
+</html>
