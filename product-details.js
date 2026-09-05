@@ -3,6 +3,7 @@ SMARTBAZAAR PRO 2
 FEATURE: PRODUCT DETAILS SYSTEM
 FEATURE: ADVANCED PRODUCT DETAIL SUPPORT
 FEATURE: CLOUDINARY PRODUCT VIDEO SUPPORT
+FEATURE: PRODUCT WISHLIST FIREBASE INTEGRATION
 ==================================================*/
 
 
@@ -13,8 +14,16 @@ FEATURE: FIREBASE IMPORT
 import {
     getDatabase,
     ref,
-    get
+    get,
+    set,
+    remove
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
+
+
+import {
+    getAuth,
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
 
 import {
@@ -28,6 +37,23 @@ FEATURE: FIREBASE DATABASE
 
 const db =
     getDatabase(app);
+
+
+/*==================================================
+FEATURE: FIREBASE AUTH
+==================================================*/
+
+const auth =
+    getAuth(app);
+
+
+/*==================================================
+FEATURE: CURRENT USER
+==================================================*/
+
+let currentUser = null;
+
+let currentProduct = null;
 
 
 /*==================================================
@@ -167,6 +193,38 @@ const productId =
 
 
 /*==================================================
+FEATURE: FIREBASE AUTH STATE
+==================================================*/
+
+onAuthStateChanged(
+    auth,
+    user => {
+
+        currentUser =
+            user || null;
+
+
+        /*
+         * If product is already loaded,
+         * refresh Wishlist state.
+         */
+
+        if (
+            currentProduct &&
+            productId
+        ) {
+
+            loadWishlistState(
+                productId
+            );
+
+        }
+
+    }
+);
+
+
+/*==================================================
 FEATURE: LOAD PRODUCT
 ==================================================*/
 
@@ -219,8 +277,22 @@ async function loadProduct(
             snapshot.val();
 
 
+        currentProduct =
+            product;
+
+
         renderProduct(
             product,
+            id
+        );
+
+
+        /*
+         * Load Wishlist state after
+         * Product Details are rendered.
+         */
+
+        loadWishlistState(
             id
         );
 
@@ -1971,19 +2043,6 @@ function createCloudinaryVideoUrl(
     }
 
 
-    /*
-     * Add Cloudinary automatic format
-     * and quality optimization.
-     *
-     * Existing Cloudinary URL:
-     *
-     * /video/upload/...
-     *
-     * Becomes:
-     *
-     * /video/upload/f_auto,q_auto/...
-     */
-
     if (
         url.includes(
             "/video/upload/"
@@ -2473,71 +2532,572 @@ SMARTBAZAAR PRO 2
 FEATURE: BUY NOW → CHECKOUT
 ==================================================*/
 
-buyNowButton.addEventListener(
-    "click",
-    () => {
+if (buyNowButton) {
 
-        const id =
-            buyNowButton.dataset.productId;
+    buyNowButton.addEventListener(
+        "click",
+        () => {
 
-
-        const quantity =
-            Number(
-                productQuantity.value
-            ) || 1;
+            const id =
+                buyNowButton.dataset.productId;
 
 
-        if (!id) {
+            const quantity =
+                Number(
+                    productQuantity?.value
+                ) || 1;
 
-            alert(
-                "Product information is missing."
+
+            if (!id) {
+
+                alert(
+                    "Product information is missing."
+                );
+
+                return;
+
+            }
+
+
+            window.location.href =
+                `./checkout.html?id=${encodeURIComponent(id)}&quantity=${encodeURIComponent(quantity)}`;
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: WISHLIST
+FEATURE: FIREBASE WISHLIST
+PATH:
+
+users/{USER_UID}/wishlist/{PRODUCT_ID}
+
+==================================================*/
+
+
+/*==================================================
+FEATURE: LOAD WISHLIST STATE
+==================================================*/
+
+async function loadWishlistState(
+    id
+) {
+
+    if (!wishlistButton) {
+
+        return;
+
+    }
+
+
+    /*
+     * User is not logged in.
+     * Keep Wishlist inactive.
+     */
+
+    if (!currentUser) {
+
+        setWishlistButtonState(
+            false
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const wishlistRef =
+            ref(
+                db,
+                `users/${currentUser.uid}/wishlist/${id}`
             );
 
-            return;
+
+        const snapshot =
+            await get(
+                wishlistRef
+            );
+
+
+        setWishlistButtonState(
+            snapshot.exists()
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Wishlist state loading error:",
+            error
+        );
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: WISHLIST BUTTON STATE
+==================================================*/
+
+function setWishlistButtonState(
+    active
+) {
+
+    if (!wishlistButton) {
+
+        return;
+
+    }
+
+
+    const icon =
+        wishlistButton.querySelector(
+            "i"
+        );
+
+
+    if (icon) {
+
+        icon.classList.remove(
+            "fa-regular",
+            "fa-solid"
+        );
+
+
+        icon.classList.add(
+            active
+                ? "fa-solid"
+                : "fa-regular"
+        );
+
+    }
+
+
+    wishlistButton.classList.toggle(
+        "active",
+        active
+    );
+
+
+    wishlistButton.setAttribute(
+        "aria-pressed",
+        String(active)
+    );
+
+
+    wishlistButton.setAttribute(
+        "title",
+        active
+            ? "Remove from Wishlist"
+            : "Add to Wishlist"
+    );
+
+}
+
+
+/*==================================================
+FEATURE: CREATE WISHLIST PRODUCT DATA
+==================================================*/
+
+function createWishlistProductData(
+    product,
+    id
+) {
+
+    const images =
+        getProductImages(
+            product
+        );
+
+
+    const stock =
+        Number(
+            product.stock || 0
+        );
+
+
+    const price =
+        Number(
+            product.price || 0
+        );
+
+
+    const oldPrice =
+        Number(
+            product.oldPrice ||
+            product.originalPrice ||
+            0
+        );
+
+
+    const discount =
+        product.discount != null
+            ? Number(
+                product.discount
+            )
+            : (
+                oldPrice > price &&
+                oldPrice > 0
+                    ? Math.round(
+                        (
+                            (
+                                oldPrice -
+                                price
+                            )
+                            /
+                            oldPrice
+                        )
+                        *
+                        100
+                    )
+                    : 0
+            );
+
+
+    return {
+
+        productId:
+            id,
+
+        name:
+            product.name ||
+            product.title ||
+            "Product",
+
+        image:
+            images[0] ||
+            product.image ||
+            product.imageUrl ||
+            "",
+
+        images:
+            images,
+
+        price:
+            price,
+
+        oldPrice:
+            oldPrice,
+
+        discount:
+            discount,
+
+        category:
+            product.category ||
+            "",
+
+        brand:
+            product.brand ||
+            "",
+
+        sku:
+            product.sku ||
+            product.SKU ||
+            "",
+
+        condition:
+            product.condition ||
+            product.productCondition ||
+            "",
+
+        rating:
+            Number(
+                product.rating || 0
+            ),
+
+        reviews:
+            Number(
+                product.reviews || 0
+            ),
+
+        stock:
+            stock,
+
+        inStock:
+            stock > 0,
+
+        available:
+            stock > 0,
+
+        shortDescription:
+            product.shortDescription ||
+            product.short_description ||
+            "",
+
+        sellerName:
+            product.sellerName ||
+            product.seller ||
+            "SmartBazaar Seller",
+
+        sellerId:
+            product.sellerId ||
+            "",
+
+        createdBy:
+            product.createdBy ||
+            "",
+
+        freeShipping:
+            product.freeShipping === true,
+
+        featured:
+            product.featured === true,
+
+        addedAt:
+            Date.now()
+
+    };
+
+}
+
+
+/*==================================================
+FEATURE: TOGGLE WISHLIST
+==================================================*/
+
+async function toggleWishlist() {
+
+    if (!wishlistButton) {
+
+        return;
+
+    }
+
+
+    const id =
+        wishlistButton.dataset.productId;
+
+
+    if (!id) {
+
+        console.error(
+            "Wishlist product ID is missing."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Login required for Firebase Wishlist.
+     */
+
+    if (!currentUser) {
+
+        alert(
+            "Please login to add products to your Wishlist."
+        );
+
+
+        window.location.href =
+            `./login.html?redirect=${encodeURIComponent(window.location.href)}`;
+
+
+        return;
+
+    }
+
+
+    if (!currentProduct) {
+
+        alert(
+            "Product information is not available."
+        );
+
+
+        return;
+
+    }
+
+
+    const wishlistRef =
+        ref(
+            db,
+            `users/${currentUser.uid}/wishlist/${id}`
+        );
+
+
+    /*
+     * Check current state directly
+     * before deciding add/remove.
+     */
+
+    try {
+
+        const snapshot =
+            await get(
+                wishlistRef
+            );
+
+
+        if (snapshot.exists()) {
+
+            /*==================================================
+            FEATURE: REMOVE FROM WISHLIST
+            ==================================================*/
+
+            await remove(
+                wishlistRef
+            );
+
+
+            setWishlistButtonState(
+                false
+            );
+
+
+            showWishlistMessage(
+                "Removed from Wishlist."
+            );
+
+
+        } else {
+
+            /*==================================================
+            FEATURE: ADD TO WISHLIST
+            ==================================================*/
+
+            const wishlistProduct =
+                createWishlistProductData(
+                    currentProduct,
+                    id
+                );
+
+
+            await set(
+                wishlistRef,
+                wishlistProduct
+            );
+
+
+            setWishlistButtonState(
+                true
+            );
+
+
+            showWishlistMessage(
+                "Added to Wishlist."
+            );
 
         }
 
 
-        window.location.href =
-            `./checkout.html?id=${encodeURIComponent(id)}&quantity=${encodeURIComponent(quantity)}`;
+    } catch (error) {
+
+        console.error(
+            "Wishlist update error:",
+            error
+        );
+
+
+        alert(
+            "Wishlist update failed. Please try again."
+        );
 
     }
-);
+
+}
+
+
 /*==================================================
-FEATURE: WISHLIST
+FEATURE: WISHLIST MESSAGE
+==================================================*/
+
+function showWishlistMessage(
+    message
+) {
+
+    /*
+     * Use existing toast if available.
+     * Otherwise use a simple alert.
+     */
+
+    const wishlistToast =
+        document.getElementById(
+            "wishlistToast"
+        );
+
+
+    const wishlistToastMessage =
+        document.getElementById(
+            "wishlistToastMessage"
+        );
+
+
+    const wishlistToastTitle =
+        document.getElementById(
+            "wishlistToastTitle"
+        );
+
+
+    if (
+        wishlistToast &&
+        wishlistToastMessage
+    ) {
+
+        if (wishlistToastTitle) {
+
+            wishlistToastTitle.textContent =
+                "Wishlist";
+
+        }
+
+
+        wishlistToastMessage.textContent =
+            message;
+
+
+        wishlistToast.classList.add(
+            "show",
+            "active"
+        );
+
+
+        wishlistToast.style.display =
+            "flex";
+
+
+        setTimeout(
+            () => {
+
+                wishlistToast.classList.remove(
+                    "show",
+                    "active"
+                );
+
+            },
+            2500
+        );
+
+
+        return;
+
+    }
+
+
+    alert(
+        message
+    );
+
+}
+
+
+/*==================================================
+FEATURE: WISHLIST BUTTON EVENT
 ==================================================*/
 
 if (wishlistButton) {
 
     wishlistButton.addEventListener(
         "click",
-        () => {
-
-            const icon =
-                wishlistButton.querySelector(
-                    "i"
-                );
-
-
-            if (icon) {
-
-                icon.classList.toggle(
-                    "fa-regular"
-                );
-
-
-                icon.classList.toggle(
-                    "fa-solid"
-                );
-
-            }
-
-
-            wishlistButton.classList.toggle(
-                "active"
-            );
-
-        }
+        toggleWishlist
     );
 
 }
