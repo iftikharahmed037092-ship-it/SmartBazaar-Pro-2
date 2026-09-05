@@ -760,48 +760,487 @@ FEATURE: ADMIN MAIN AREA
         CATEGORIES SECTION
         ==================================================-->
 
-        <section
-            class="admin-section"
-            id="categoriesSection">
+        <!--==================================================
+FEATURE: CATEGORY MANAGEMENT
+FEATURE: CATEGORY MANAGER
+==================================================-->
+
+<section
+    class="admin-section"
+    id="categoriesSection"
+>
+
+    <div class="section-heading">
+
+        <div>
+
+            <span class="section-eyebrow">
+                CATEGORY MANAGEMENT
+            </span>
+
+            <h2>
+                Categories
+            </h2>
+
+            <p>
+                Create and manage your marketplace categories.
+            </p>
+
+        </div>
 
 
-            <div class="section-heading">
+        <button
+            type="button"
+            class="primary-action"
+            id="addCategoryButton"
+        >
+
+            <i class="fa-solid fa-plus"></i>
+
+            Add Category
+
+        </button>
+
+    </div>
+
+
+    <!--==================================================
+    FEATURE: CATEGORY STATISTICS
+    ==================================================-->
+
+    <div class="category-admin-stats">
+
+        <div class="category-admin-stat-card">
+
+            <div class="category-admin-stat-icon">
+                <i class="fa-solid fa-layer-group"></i>
+            </div>
+
+            <div>
+
+                <span>
+                    Total Categories
+                </span>
+
+                <strong id="adminCategoryTotal">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="category-admin-stat-card">
+
+            <div class="category-admin-stat-icon">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+
+            <div>
+
+                <span>
+                    Active
+                </span>
+
+                <strong id="adminCategoryActive">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="category-admin-stat-card">
+
+            <div class="category-admin-stat-icon">
+                <i class="fa-solid fa-circle-xmark"></i>
+            </div>
+
+            <div>
+
+                <span>
+                    Inactive
+                </span>
+
+                <strong id="adminCategoryInactive">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!--==================================================
+    FEATURE: CATEGORY TOOLBAR
+    ==================================================-->
+
+    <div class="category-admin-toolbar">
+
+        <div class="category-admin-search">
+
+            <i class="fa-solid fa-magnifying-glass"></i>
+
+            <input
+                type="search"
+                id="adminCategorySearch"
+                placeholder="Search categories..."
+                autocomplete="off"
+            >
+
+        </div>
+
+
+        <select
+            id="categoryStatusFilter"
+            class="category-status-filter"
+        >
+
+            <option value="all">
+                All Categories
+            </option>
+
+            <option value="active">
+                Active
+            </option>
+
+            <option value="inactive">
+                Inactive
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!--==================================================
+    FEATURE: CATEGORY LIST
+    ==================================================-->
+
+    <div
+        class="category-admin-list"
+        id="categoryAdminList"
+    >
+
+        <!-- Categories loaded by admin-panel.js -->
+
+    </div>
+
+
+    <!--==================================================
+    FEATURE: CATEGORY LOADING
+    ==================================================-->
+
+    <div
+        class="category-admin-loading"
+        id="categoryAdminLoading"
+        hidden
+    >
+
+        <div class="loading-spinner"></div>
+
+        <p>
+            Loading categories...
+        </p>
+
+    </div>
+
+
+    <!--==================================================
+    FEATURE: CATEGORY EMPTY
+    ==================================================-->
+
+    <div
+        class="category-admin-empty"
+        id="categoryAdminEmpty"
+        hidden
+    >
+
+        <div class="empty-icon">
+
+            <i class="fa-solid fa-layer-group"></i>
+
+        </div>
+
+        <h3>
+            No Categories Found
+        </h3>
+
+        <p>
+            Create your first marketplace category.
+        </p>
+
+        <button
+            type="button"
+            class="primary-action"
+            id="emptyAddCategoryButton"
+        >
+
+            <i class="fa-solid fa-plus"></i>
+
+            Add Category
+
+        </button>
+
+    </div>
+
+</section>
+
+
+<!--==================================================
+FEATURE: CATEGORY MODAL
+==================================================-->
+
+<div
+    class="category-modal"
+    id="categoryModal"
+    hidden
+>
+
+    <div class="category-modal-overlay"
+         id="categoryModalOverlay">
+    </div>
+
+
+    <div
+        class="category-modal-box"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="categoryModalTitle"
+    >
+
+        <div class="category-modal-header">
+
+            <div>
+
+                <span class="section-eyebrow">
+                    SMARTBAZAAR PRO 2
+                </span>
+
+                <h3 id="categoryModalTitle">
+                    Add Category
+                </h3>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="category-modal-close"
+                id="closeCategoryModal"
+                aria-label="Close"
+            >
+
+                <i class="fa-solid fa-xmark"></i>
+
+            </button>
+
+        </div>
+
+
+        <!--==================================================
+        FEATURE: CATEGORY FORM
+        ==================================================-->
+
+        <form
+            id="categoryForm"
+            class="category-form"
+        >
+
+            <input
+                type="hidden"
+                id="editingCategoryId"
+            >
+
+
+            <!-- Category Name -->
+
+            <div class="category-form-group">
+
+                <label for="categoryName">
+                    Category Name
+                </label>
+
+                <input
+                    type="text"
+                    id="categoryName"
+                    placeholder="e.g. Electronics"
+                    required
+                    maxlength="80"
+                >
+
+            </div>
+
+
+            <!-- Slug -->
+
+            <div class="category-form-group">
+
+                <label for="categorySlug">
+                    Category Slug
+                </label>
+
+                <input
+                    type="text"
+                    id="categorySlug"
+                    placeholder="e.g. electronics"
+                    maxlength="100"
+                >
+
+                <small>
+                    Leave empty to generate automatically.
+                </small>
+
+            </div>
+
+
+            <!-- Description -->
+
+            <div class="category-form-group">
+
+                <label for="categoryDescription">
+                    Description
+                </label>
+
+                <textarea
+                    id="categoryDescription"
+                    rows="3"
+                    placeholder="Short category description..."
+                    maxlength="300"
+                ></textarea>
+
+            </div>
+
+
+            <!-- Image URL -->
+
+            <div class="category-form-group">
+
+                <label for="categoryImageUrl">
+                    Category Image URL
+                </label>
+
+                <input
+                    type="url"
+                    id="categoryImageUrl"
+                    placeholder="https://..."
+                >
+
+            </div>
+
+
+            <!-- Icon -->
+
+            <div class="category-form-group">
+
+                <label for="categoryIcon">
+                    Font Awesome Icon
+                </label>
+
+                <input
+                    type="text"
+                    id="categoryIcon"
+                    placeholder="fa-solid fa-mobile-screen"
+                    value="fa-solid fa-layer-group"
+                >
+
+                <small>
+                    Example:
+                    fa-solid fa-mobile-screen
+                </small>
+
+            </div>
+
+
+            <!-- Sort Order -->
+
+            <div class="category-form-group">
+
+                <label for="categorySortOrder">
+                    Sort Order
+                </label>
+
+                <input
+                    type="number"
+                    id="categorySortOrder"
+                    value="0"
+                    min="0"
+                    step="1"
+                >
+
+            </div>
+
+
+            <!-- Active -->
+
+            <div class="category-form-switch">
 
                 <div>
 
-                    <span class="section-eyebrow">
-                        CATEGORY MANAGEMENT
-                    </span>
+                    <strong>
+                        Category Status
+                    </strong>
 
-                    <h2>
-                        Categories
-                    </h2>
-
-                    <p>
-                        Organize your marketplace categories.
-                    </p>
+                    <small>
+                        Show this category on the website.
+                    </small>
 
                 </div>
 
-            </div>
 
+                <label class="category-switch">
 
-            <div class="coming-soon-card">
+                    <input
+                        type="checkbox"
+                        id="categoryActive"
+                        checked
+                    >
 
-                <i class="fa-solid fa-layer-group"></i>
+                    <span></span>
 
-                <h3>
-                    Category Manager
-                </h3>
-
-                <p>
-                    Category management system will be added here.
-                </p>
+                </label>
 
             </div>
 
 
-        </section>
+            <!-- Form Actions -->
+
+            <div class="category-form-actions">
+
+                <button
+                    type="button"
+                    class="secondary-action"
+                    id="cancelCategoryButton"
+                >
+
+                    Cancel
+
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="primary-action"
+                    id="saveCategoryButton"
+                >
+
+                    <i class="fa-solid fa-floppy-disk"></i>
+
+                    Save Category
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
 
 
 
