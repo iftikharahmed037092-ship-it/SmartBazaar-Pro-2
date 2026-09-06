@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Products | SmartBazaar Pro</title>
+
+    <!--==================================================
+    FEATURE: FONT AWESOME
+    ==================================================-->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+    <!--==================================================
+    FEATURE: MAIN WEBSITE CSS
+    ==================================================-->
+
+    <link
+        rel="stylesheet"
+        href="./style.css"
+    >
+
+    <!--==================================================
+    FEATURE: PRODUCTS PAGE CSS
+    ==================================================-->
+
+    <link
+        rel="stylesheet"
+        href="./products.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!--==================================================
+    FEATURE: PRODUCTS PAGE
+    ==================================================-->
+
+    <main class="products-page">
+
+
+        <!--==================================================
+        FEATURE: PRODUCTS HEADER
+        ==================================================-->
+
+        <section class="products-header">
+
+            <div class="products-header-content">
+
+                <a
+                    href="./index.html"
+                    class="products-back-button"
+                >
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Back</span>
+                </a>
+
+
+                <div class="products-heading">
+
+                    <span class="products-eyebrow">
+                        SmartBazaar Pro
+                    </span>
+
+                    <h1 id="productsPageTitle">
+                        All Products
+                    </h1>
+
+                    <p id="productsPageSubtitle">
+                        Explore our latest products
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!--==================================================
+        FEATURE: PRODUCTS TOOLBAR
+        ==================================================-->
+
+        <section class="products-toolbar">
+
+            <div class="products-search-box">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input
+                    type="search"
+                    id="productsSearch"
+                    placeholder="Search products..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <div class="products-filter-box">
+
+                <label
+                    for="productsSort"
+                    class="products-filter-label"
+                >
+                    Sort
+                </label>
+
+                <select id="productsSort">
+
+                    <option value="newest">
+                        Newest
+                    </option>
+
+                    <option value="price-low">
+                        Price: Low to High
+                    </option>
+
+                    <option value="price-high">
+                        Price: High to Low
+                    </option>
+
+                    <option value="name">
+                        Name: A-Z
+                    </option>
+
+                </select>
+
+            </div>
+
+        </section>
+
+
+        <!--==================================================
+        FEATURE: PRODUCTS RESULT INFO
+        ==================================================-->
+
+        <section class="products-result-bar">
+
+            <div>
+
+                <span
+                    id="productsResultCount"
+                >
+                    Loading products...
+                </span>
+
+            </div>
+
+
+            <a
+                href="./category.html"
+                class="products-category-link"
+            >
+
+                <i class="fa-solid fa-layer-group"></i>
+
+                <span>
+                    Categories
+                </span>
+
+            </a>
+
+        </section>
+
+
+        <!--==================================================
+        FEATURE: PRODUCTS LOADING
+        ==================================================-->
+
+        <section
+            id="productsLoading"
+            class="products-state"
+        >
+
+            <i class="fa-solid fa-spinner fa-spin"></i>
+
+            <p>
+                Loading products...
+            </p>
+
+        </section>
+
+
+        <!--==================================================
+        FEATURE: PRODUCTS ERROR
+        ==================================================-->
+
+        <section
+            id="productsError"
+            class="products-state products-error-state"
+            hidden
+        >
+
+            <i class="fa-solid fa-triangle-exclamation"></i>
+
+            <h2>
+                Unable to load products
+            </h2>
+
+            <p>
+                Please try again.
+            </p>
+
+            <button
+                type="button"
+                id="retryProductsButton"
+            >
+                <i class="fa-solid fa-rotate-right"></i>
+                Try Again
+            </button>
+
+        </section>
+
+
+        <!--==================================================
+        FEATURE: PRODUCTS EMPTY
+        ==================================================-->
+
+        <section
+            id="productsEmpty"
+            class="products-state"
+            hidden
+        >
+
+            <i class="fa-solid fa-box-open"></i>
+
+            <h2>
+                No Products Found
+            </h2>
+
+            <p id="productsEmptyText">
+                There are no products available.
+            </p>
+
+            <a
+                href="./category.html"
+                class="products-empty-button"
+            >
+                Browse Categories
+            </a>
+
+        </section>
+
+
+        <!--==================================================
+        FEATURE: PRODUCTS GRID
+        ==================================================-->
+
+        <section
+            id="productsGrid"
+            class="products-grid"
+            aria-live="polite"
+        ></section>
+
+
+    </main>
+
+
+    <!--==================================================
+    FEATURE: BOTTOM NAVIGATION
+    ==================================================-->
+
+    <nav
+        class="bottom-nav"
+        aria-label="Main Navigation"
+    >
+
+        <a
+            href="./index.html"
+            class="bottom-nav-item"
+        >
+
+            <i class="fa-solid fa-house"></i>
+
+            <span>
+                Home
+            </span>
+
+        </a>
+
+
+        <a
+            href="./category.html"
+            class="bottom-nav-item"
+        >
+
+            <i class="fa-solid fa-layer-group"></i>
+
+            <span>
+                Categories
+            </span>
+
+        </a>
+
+
+        <a
+            href="#"
+            class="bottom-nav-item"
+        >
+
+            <i class="fa-solid fa-bolt"></i>
+
+            <span>
+                Deals
+            </span>
+
+        </a>
+
+
+        <a
+            href="./wishlist.html"
+            class="bottom-nav-item"
+        >
+
+            <i class="fa-regular fa-heart"></i>
+
+            <span>
+                Wishlist
+            </span>
+
+        </a>
+
+
+        <a
+            href="./account.html"
+            class="bottom-nav-item"
+        >
+
+            <i class="fa-regular fa-user"></i>
+
+            <span>
+                My Account
+            </span>
+
+        </a>
+
+    </nav>
+
+
+    <!--==================================================
+    FEATURE: PRODUCTS JAVASCRIPT
+    ==================================================-->
+
+    <script
+        type="module"
+        src="./products.js"
+    ></script>
+
+
+</body>
+
+</html>
