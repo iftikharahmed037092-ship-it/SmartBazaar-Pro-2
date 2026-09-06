@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+          content="SmartBazaar Pro Deals - Discover products with real discounts.">
+
+    <title>Deals | SmartBazaar Pro</title>
+
+    <!-- =====================================================
+         SMARTBAZAAR PRO 2
+         FEATURE: DEALS PAGE SYSTEM
+         ===================================================== -->
+
+    <!-- FONT AWESOME -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- GLOBAL CSS -->
+    <link rel="stylesheet"
+          href="./style.css">
+
+    <!-- DEALS CSS -->
+    <link rel="stylesheet"
+          href="./deals.css">
+</head>
+
+<body>
+
+    <!-- =====================================================
+         SMARTBAZAAR PRO 2
+         FEATURE: DEALS PAGE
+         ===================================================== -->
+
+    <main class="deals-page">
+
+        <!-- =================================================
+             FEATURE: DEALS HEADER
+             ================================================= -->
+
+        <section class="deals-header">
+
+            <div class="deals-header-content">
+
+                <a href="./index.html"
+                   class="deals-back-button">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+
+                    <span>Back</span>
+
+                </a>
+
+
+                <div class="deals-heading">
+
+                    <span class="deals-eyebrow">
+                        SmartBazaar Pro
+                    </span>
+
+                    <h1>
+                        Today's Deals
+                    </h1>
+
+                    <p>
+                        Discover products with special discounts and great prices.
+                    </p>
+
+                </div>
+
+
+                <div class="deals-header-icon">
+
+                    <i class="fa-solid fa-bolt"></i>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FEATURE: DEALS TOOLBAR
+             ================================================= -->
+
+        <section class="deals-toolbar">
+
+            <!-- SEARCH -->
+
+            <div class="deals-search-box">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input
+                    type="search"
+                    id="dealsSearch"
+                    placeholder="Search deals..."
+                    autocomplete="off"
+                    aria-label="Search deals"
+                >
+
+            </div>
+
+
+            <!-- CATEGORY -->
+
+            <div class="deals-filter-box">
+
+                <label
+                    for="dealsCategory"
+                    class="deals-filter-label">
+
+                    Category
+
+                </label>
+
+                <select id="dealsCategory">
+
+                    <option value="all">
+                        All Categories
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- DISCOUNT -->
+
+            <div class="deals-filter-box">
+
+                <label
+                    for="dealsDiscount"
+                    class="deals-filter-label">
+
+                    Discount
+
+                </label>
+
+                <select id="dealsDiscount">
+
+                    <option value="all">
+                        All Discounts
+                    </option>
+
+                    <option value="10">
+                        10% or More
+                    </option>
+
+                    <option value="20">
+                        20% or More
+                    </option>
+
+                    <option value="30">
+                        30% or More
+                    </option>
+
+                    <option value="50">
+                        50% or More
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- SORT -->
+
+            <div class="deals-filter-box">
+
+                <label
+                    for="dealsSort"
+                    class="deals-filter-label">
+
+                    Sort
+
+                </label>
+
+                <select id="dealsSort">
+
+                    <option value="newest">
+                        Newest
+                    </option>
+
+                    <option value="discount-high">
+                        Biggest Discount
+                    </option>
+
+                    <option value="price-low">
+                        Price: Low to High
+                    </option>
+
+                    <option value="price-high">
+                        Price: High to Low
+                    </option>
+
+                    <option value="name">
+                        Name: A-Z
+                    </option>
+
+                </select>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FEATURE: DEALS RESULT BAR
+             ================================================= -->
+
+        <section class="deals-result-bar">
+
+            <div class="deals-result-info">
+
+                <span id="dealsResultCount">
+                    Loading deals...
+                </span>
+
+            </div>
+
+
+            <a href="./category.html"
+               class="deals-category-link">
+
+                <i class="fa-solid fa-layer-group"></i>
+
+                <span>
+                    Categories
+                </span>
+
+            </a>
+
+        </section>
+
+
+        <!-- =================================================
+             FEATURE: DEALS QUICK FILTERS
+             ================================================= -->
+
+        <section class="deals-quick-filters"
+                 aria-label="Deal filters">
+
+            <button
+                type="button"
+                class="deals-quick-filter active"
+                data-discount="all">
+
+                <i class="fa-solid fa-bolt"></i>
+
+                All Deals
+
+            </button>
+
+
+            <button
+                type="button"
+                class="deals-quick-filter"
+                data-discount="10">
+
+                10%+
+
+            </button>
+
+
+            <button
+                type="button"
+                class="deals-quick-filter"
+                data-discount="20">
+
+                20%+
+
+            </button>
+
+
+            <button
+                type="button"
+                class="deals-quick-filter"
+                data-discount="30">
+
+                30%+
+
+            </button>
+
+
+            <button
+                type="button"
+                class="deals-quick-filter"
+                data-discount="50">
+
+                50%+
+
+            </button>
+
+        </section>
+
+
+        <!-- =================================================
+             FEATURE: DEALS LOADING
+             ================================================= -->
+
+        <section
+            id="dealsLoading"
+            class="deals-state">
+
+            <div class="deals-loading-spinner"></div>
+
+            <p>
+                Loading deals...
+            </p>
+
+        </section>
+
+
+        <!-- =================================================
+             FEATURE: DEALS ERROR
+             ================================================= -->
+
+        <section
+            id="dealsError"
+            class="deals-state deals-error-state"
+            hidden>
+
+            <i class="fa-solid fa-triangle-exclamation"></i>
+
+            <h2>
+                Unable to Load Deals
+            </h2>
+
+            <p>
+                Please check your connection and try again.
+            </p>
+
+            <button
+                type="button"
+                id="retryDealsButton"
+                class="deals-retry-button">
+
+                <i class="fa-solid fa-rotate-right"></i>
+
+                Try Again
+
+            </button>
+
+        </section>
+
+
+        <!-- =================================================
+             FEATURE: NO DEALS
+             ================================================= -->
+
+        <section
+            id="dealsEmpty"
+            class="deals-state"
+            hidden>
+
+            <i class="fa-solid fa-tags"></i>
+
+            <h2>
+                No Deals Found
+            </h2>
+
+            <p id="dealsEmptyText">
+                There are no discounted products available right now.
+            </p>
+
+            <a
+                href="./products.html"
+                class="deals-empty-button">
+
+                <i class="fa-solid fa-box-open"></i>
+
+                Browse Products
+
+            </a>
+
+        </section>
+
+
+        <!-- =================================================
+             FEATURE: BEST DEALS
+             ================================================= -->
+
+        <section
+            id="bestDealsSection"
+            class="deals-section"
+            hidden>
+
+            <div class="deals-section-heading">
+
+                <div>
+
+                    <span class="deals-section-eyebrow">
+                        Top Offers
+                    </span>
+
+                    <h2>
+                        Best Deals
+                    </h2>
+
+                </div>
+
+                <span
+                    id="bestDealsCount"
+                    class="deals-section-count">
+                </span>
+
+            </div>
+
+
+            <div
+                id="bestDealsGrid"
+                class="deals-grid deals-best-grid">
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FEATURE: ALMOST SOLD OUT
+             ================================================= -->
+
+        <section
+            id="almostSoldOutSection"
+            class="deals-section"
+            hidden>
+
+            <div class="deals-section-heading">
+
+                <div>
+
+                    <span class="deals-section-eyebrow">
+                        Limited Stock
+                    </span>
+
+                    <h2>
+                        Almost Sold Out
+                    </h2>
+
+                </div>
+
+                <span
+                    id="almostSoldOutCount"
+                    class="deals-section-count">
+                </span>
+
+            </div>
+
+
+            <div
+                id="almostSoldOutGrid"
+                class="deals-grid deals-low-stock-grid">
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FEATURE: ALL DEALS
+             ================================================= -->
+
+        <section
+            id="allDealsSection"
+            class="deals-section">
+
+            <div class="deals-section-heading">
+
+                <div>
+
+                    <span class="deals-section-eyebrow">
+                        Shop Offers
+                    </span>
+
+                    <h2>
+                        All Deals
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="dealsGrid"
+                class="deals-grid">
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         FEATURE: BOTTOM NAVIGATION
+         ===================================================== -->
+
+    <nav
+        class="bottom-nav deals-bottom-nav"
+        aria-label="Main Navigation">
+
+        <a
+            href="./index.html"
+            class="bottom-nav-item">
+
+            <i class="fa-solid fa-house"></i>
+
+            <span>
+                Home
+            </span>
+
+        </a>
+
+
+        <a
+            href="./category.html"
+            class="bottom-nav-item">
+
+            <i class="fa-solid fa-layer-group"></i>
+
+            <span>
+                Categories
+            </span>
+
+        </a>
+
+
+        <a
+            href="./deals.html"
+            class="bottom-nav-item active">
+
+            <i class="fa-solid fa-bolt"></i>
+
+            <span>
+                Deals
+            </span>
+
+        </a>
+
+
+        <a
+            href="./wishlist.html"
+            class="bottom-nav-item">
+
+            <i class="fa-regular fa-heart"></i>
+
+            <span>
+                Wishlist
+            </span>
+
+        </a>
+
+
+        <a
+            href="./account.html"
+            class="bottom-nav-item">
+
+            <i class="fa-regular fa-user"></i>
+
+            <span>
+                My Account
+            </span>
+
+        </a>
+
+    </nav>
+
+
+    <!-- =====================================================
+         FEATURE: DEALS JAVASCRIPT
+         ===================================================== -->
+
+    <script
+        type="module"
+        src="./deals.js">
+    </script>
+
+</body>
+</html>
