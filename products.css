@@ -1,0 +1,617 @@
+/*==================================================
+SMARTBAZAAR PRO 2
+FEATURE: PRODUCTS LISTING PAGE
+FEATURE: CATEGORY → PRODUCTS
+FILE: products.css
+==================================================*/
+
+
+/*==================================================
+FEATURE: ROOT
+==================================================*/
+
+.products-page {
+
+    width: 100%;
+
+    min-height: 100vh;
+
+    padding:
+        110px
+        20px
+        110px;
+
+    box-sizing: border-box;
+
+}
+
+
+/*==================================================
+FEATURE: PRODUCTS HEADER
+==================================================*/
+
+.products-header {
+
+    width: 100%;
+
+    max-width: 1400px;
+
+    margin:
+        0
+        auto
+        25px;
+
+}
+
+
+.products-header-content {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+
+}
+
+
+/*==================================================
+FEATURE: BACK BUTTON
+==================================================*/
+
+.products-back-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    min-width: 44px;
+
+    height: 44px;
+
+    padding: 0 14px;
+
+    border-radius: 14px;
+
+    text-decoration: none;
+
+    border: 1px solid
+        rgba(0, 0, 0, 0.08);
+
+    background:
+        rgba(255, 255, 255, 0.85);
+
+    color:
+        inherit;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+.products-back-button:hover {
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 8px 22px
+        rgba(0, 0, 0, 0.08);
+
+}
+
+
+/*==================================================
+FEATURE: HEADING
+==================================================*/
+
+.products-heading {
+
+    min-width: 0;
+
+}
+
+
+.products-eyebrow {
+
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+
+    opacity: 0.6;
+
+    text-transform: uppercase;
+
+}
+
+
+.products-heading h1 {
+
+    margin: 0;
+
+    font-size:
+        clamp(26px, 4vw, 42px);
+
+    line-height: 1.15;
+
+}
+
+
+.products-heading p {
+
+    margin:
+        8px
+        0
+        0;
+
+    opacity: 0.7;
+
+}
+
+
+/*==================================================
+FEATURE: TOOLBAR
+==================================================*/
+
+.products-toolbar {
+
+    width: 100%;
+
+    max-width: 1400px;
+
+    margin:
+        0
+        auto
+        20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    flex-wrap: wrap;
+
+}
+
+
+/*==================================================
+FEATURE: SEARCH
+==================================================*/
+
+.products-search-box {
+
+    flex:
+        1 1 300px;
+
+    min-width: 220px;
+
+    height: 50px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding:
+        0
+        16px;
+
+    border-radius: 15px;
+
+    border: 1px solid
+        rgba(0, 0, 0, 0.08);
+
+    background:
+        rgba(255, 255, 255, 0.9);
+
+    box-sizing: border-box;
+
+}
+
+
+.products-search-box i {
+
+    opacity: 0.55;
+
+}
+
+
+.products-search-box input {
+
+    width: 100%;
+
+    height: 100%;
+
+    border: 0;
+
+    outline: 0;
+
+    background: transparent;
+
+    font: inherit;
+
+}
+
+
+/*==================================================
+FEATURE: SORT
+==================================================*/
+
+.products-filter-box {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+
+.products-filter-label {
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    opacity: 0.7;
+
+}
+
+
+.products-filter-box select {
+
+    height: 50px;
+
+    padding:
+        0
+        14px;
+
+    border-radius: 15px;
+
+    border: 1px solid
+        rgba(0, 0, 0, 0.08);
+
+    background:
+        rgba(255, 255, 255, 0.9);
+
+    font: inherit;
+
+    outline: none;
+
+}
+
+
+/*==================================================
+FEATURE: RESULT BAR
+==================================================*/
+
+.products-result-bar {
+
+    width: 100%;
+
+    max-width: 1400px;
+
+    margin:
+        0
+        auto
+        20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+}
+
+
+#productsResultCount {
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    opacity: 0.65;
+
+}
+
+
+.products-category-link {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    color: inherit;
+
+}
+
+
+/*==================================================
+FEATURE: PRODUCTS GRID
+==================================================*/
+
+.products-grid {
+
+    width: 100%;
+
+    max-width: 1400px;
+
+    margin:
+        0
+        auto;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fill,
+            minmax(220px, 1fr)
+        );
+
+    gap: 20px;
+
+}
+
+
+/*==================================================
+FEATURE: PRODUCT CARD WRAPPER
+IMPORTANT:
+DO NOT REDEFINE .product-card
+==================================================*/
+
+.products-grid .product-card {
+
+    min-width: 0;
+
+    cursor: pointer;
+
+}
+
+
+/*==================================================
+FEATURE: STATE
+==================================================*/
+
+.products-state {
+
+    width: 100%;
+
+    max-width: 700px;
+
+    margin:
+        50px
+        auto;
+
+    padding:
+        50px
+        20px;
+
+    text-align: center;
+
+    box-sizing: border-box;
+
+}
+
+
+.products-state i {
+
+    font-size: 40px;
+
+    margin-bottom: 15px;
+
+    opacity: 0.55;
+
+}
+
+
+.products-state h2 {
+
+    margin:
+        0
+        0
+        8px;
+
+}
+
+
+.products-state p {
+
+    margin: 0;
+
+    opacity: 0.65;
+
+}
+
+
+/*==================================================
+FEATURE: ERROR BUTTON
+==================================================*/
+
+#retryProductsButton {
+
+    margin-top: 20px;
+
+    min-height: 44px;
+
+    padding:
+        0
+        18px;
+
+    border: 0;
+
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    font: inherit;
+
+    font-weight: 700;
+
+}
+
+
+/*==================================================
+FEATURE: EMPTY BUTTON
+==================================================*/
+
+.products-empty-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin-top: 20px;
+
+    min-height: 44px;
+
+    padding:
+        0
+        18px;
+
+    border-radius: 12px;
+
+    text-decoration: none;
+
+    font-weight: 700;
+
+    color: inherit;
+
+    border: 1px solid
+        rgba(0, 0, 0, 0.08);
+
+}
+
+
+/*==================================================
+FEATURE: MOBILE
+==================================================*/
+
+@media (max-width: 700px) {
+
+    .products-page {
+
+        padding:
+            90px
+            12px
+            100px;
+
+    }
+
+
+    .products-header-content {
+
+        align-items: flex-start;
+
+    }
+
+
+    .products-back-button span {
+
+        display: none;
+
+    }
+
+
+    .products-toolbar {
+
+        align-items: stretch;
+
+    }
+
+
+    .products-search-box {
+
+        flex-basis: 100%;
+
+    }
+
+
+    .products-filter-box {
+
+        width: 100%;
+
+        justify-content: space-between;
+
+    }
+
+
+    .products-filter-box select {
+
+        flex: 1;
+
+    }
+
+
+    .products-result-bar {
+
+        align-items: flex-start;
+
+    }
+
+
+    .products-grid {
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+
+        gap: 12px;
+
+    }
+
+
+    .products-state {
+
+        padding:
+            40px
+            15px;
+
+    }
+
+}
+
+
+@media (max-width: 430px) {
+
+    .products-grid {
+
+        grid-template-columns:
+            1fr 1fr;
+
+        gap: 10px;
+
+    }
+
+}
