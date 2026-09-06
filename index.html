@@ -20,7 +20,10 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="bottom-nav.css">
     <link rel="stylesheet" href="./page-transition.css">
-  
+  <link
+    rel="stylesheet"
+    href="./home-categories.css"
+>
 </head>
 
 
@@ -470,45 +473,31 @@ FEATURE: HEADER - DESKTOP NAVIGATION
 
         <!-- NAVIGATION LINKS -->
 
-        <div class="navigation-links">
+        <!--==================================================
+SMARTBAZAAR PRO 2
+FEATURE: HOME QUICK CATEGORIES
+FEATURE: FIREBASE CATEGORY CONNECTION
+FEATURE: ADMIN CATEGORY SYNC
+FEATURE: HORIZONTAL CATEGORY SCROLL
+==================================================-->
 
-            <a href="#">
-                Home
-            </a>
+<div class="mobile-category-navigation">
 
-            <a href="#">
-                Flash Sale
-            </a>
+    <div
+        class="mobile-category-scroll"
+        id="homeQuickCategories"
+    >
 
-            <a href="#">
-                New Arrivals
-            </a>
-
-            <a href="#">
-                Best Sellers
-            </a>
-
-            <a href="#">
-                Deals
-            </a>
-
-            <a href="#">
-                Brands
-            </a>
-
-            <a href="#">
-                Electronics
-            </a>
-
-            <a href="#">
-                Fashion
-            </a>
-
-            <a href="#">
-                Grocery
-            </a>
-
+        <div
+            class="home-category-loading"
+            id="homeCategoryLoading"
+        >
+            Loading...
         </div>
+
+    </div>
+
+</div>
 
 
         <!-- SELLER LINK -->
@@ -1434,5 +1423,10 @@ FOOTER PLACEHOLDER
     
   <script src="bottom-nav.js"></script>  
     <script src="./page-transition.js"></script>
+    <script
+    type="module"
+    src="./home-categories.js">
+    </script>
+    
 </body>
 </html>
