@@ -1,0 +1,188 @@
+/*==================================================
+SMARTBAZAAR PRO 2
+FEATURE: COMMON PAGE TRANSITION SYSTEM
+==================================================*/
+
+
+/*==================================================
+FEATURE: PAGE TRANSITION OVERLAY
+صرف Target Page کو سامنے لانے کے لیے
+==================================================*/
+
+#smartBazaarPageTransition {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 99999;
+
+    pointer-events: none;
+
+    overflow: hidden;
+
+    background: #ffffff;
+
+    transform: translateX(100%);
+
+    visibility: hidden;
+
+    will-change: transform;
+
+}
+
+
+/*==================================================
+FEATURE: TRANSITION ACTIVE
+==================================================*/
+
+#smartBazaarPageTransition.sb-transition-active {
+
+    visibility: visible;
+
+    pointer-events: auto;
+
+}
+
+
+/*==================================================
+FEATURE: FORWARD TRANSITION
+نیا Page دائیں طرف سے آئے گا
+==================================================*/
+
+#smartBazaarPageTransition.sb-transition-forward {
+
+    animation:
+        sbPageEnterForward
+        320ms
+        cubic-bezier(0.22, 1, 0.36, 1)
+        forwards;
+
+}
+
+
+/*==================================================
+FEATURE: BACKWARD TRANSITION
+Previous Page واپس آئے گا
+==================================================*/
+
+#smartBazaarPageTransition.sb-transition-backward {
+
+    transform: translateX(-100%);
+
+    animation:
+        sbPageEnterBackward
+        320ms
+        cubic-bezier(0.22, 1, 0.36, 1)
+        forwards;
+
+}
+
+
+/*==================================================
+FEATURE: FORWARD ANIMATION
+==================================================*/
+
+@keyframes sbPageEnterForward {
+
+    from {
+
+        transform: translateX(100%);
+
+    }
+
+    to {
+
+        transform: translateX(0);
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: BACKWARD ANIMATION
+==================================================*/
+
+@keyframes sbPageEnterBackward {
+
+    from {
+
+        transform: translateX(-100%);
+
+    }
+
+    to {
+
+        transform: translateX(0);
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: PREVENT HORIZONTAL PAGE OVERFLOW
+==================================================*/
+
+html,
+body {
+
+    max-width: 100%;
+
+    overflow-x: hidden;
+
+}
+
+
+/*==================================================
+FEATURE: REDUCE MOTION
+Accessibility
+==================================================*/
+
+@media (prefers-reduced-motion: reduce) {
+
+    #smartBazaarPageTransition {
+
+        animation-duration: 1ms !important;
+
+        transition-duration: 1ms !important;
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: MOBILE OPTIMIZATION
+==================================================*/
+
+@media (max-width: 768px) {
+
+    #smartBazaarPageTransition {
+
+        will-change: transform;
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: DESKTOP
+==================================================*/
+
+@media (min-width: 769px) {
+
+    /*
+       Desktop پر بھی horizontal transition رہے گی،
+       لیکن vertical movement نہیں ہوگی۔
+    */
+
+    #smartBazaarPageTransition {
+
+        display: block;
+
+    }
+
+}
