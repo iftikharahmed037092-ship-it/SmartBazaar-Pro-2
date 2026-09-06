@@ -1,13 +1,14 @@
 /*==================================================
 SMARTBAZAAR PRO 2
-FEATURE: CUSTOMER CATEGORY PAGE JAVASCRIPT
-FEATURE: CATEGORY DISPLAY SYSTEM
-FEATURE: FIREBASE CATEGORY INTEGRATION
+FEATURE: CATEGORY PAGE SYSTEM
+FEATURE: CATEGORY SEARCH
+FEATURE: POPULAR CATEGORIES
+FEATURE: CATEGORY → PRODUCTS CONNECTION
 ==================================================*/
 
 
 /*==================================================
-FEATURE: FIREBASE IMPORTS
+FEATURE: FIREBASE IMPORT
 ==================================================*/
 
 import {
@@ -16,10 +17,6 @@ import {
     onValue
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
 
-
-/*==================================================
-FEATURE: FIREBASE CONFIG
-==================================================*/
 
 import {
     app
@@ -30,37 +27,65 @@ import {
 FEATURE: FIREBASE DATABASE
 ==================================================*/
 
-const db = getDatabase(app);
+const database =
+    getDatabase(app);
 
 
 /*==================================================
-FEATURE: CATEGORY DATABASE PATH
+FEATURE: CATEGORIES DATABASE PATH
 ==================================================*/
 
-const categoriesRef = ref(
-    db,
-    "smartbazaar_pro_2/categories"
-);
+const categoriesRef =
+    ref(
+        database,
+        "smartbazaar_pro_2/categories"
+    );
 
 
 /*==================================================
-FEATURE: CATEGORY PAGE ELEMENTS
+FEATURE: DOM ELEMENTS
 ==================================================*/
 
-const categoryGrid =
-    document.getElementById("categoryGrid");
+const categoriesGrid =
+    document.getElementById(
+        "categoriesGrid"
+    );
+
 
 const categoryLoading =
-    document.getElementById("categoryLoading");
+    document.getElementById(
+        "categoryLoading"
+    );
+
 
 const categoryEmpty =
-    document.getElementById("categoryEmpty");
+    document.getElementById(
+        "categoryEmpty"
+    );
 
-const categoryError =
-    document.getElementById("categoryError");
 
 const categorySearch =
-    document.getElementById("categorySearch");
+    document.getElementById(
+        "categorySearch"
+    );
+
+
+const clearCategorySearch =
+    document.getElementById(
+        "clearCategorySearch"
+    );
+
+
+const resetCategorySearch =
+    document.getElementById(
+        "resetCategorySearch"
+    );
+
+
+const popularCategoriesGrid =
+    document.getElementById(
+        "popularCategoriesGrid"
+    );
 
 
 /*==================================================
@@ -71,53 +96,59 @@ let allCategories = [];
 
 
 /*==================================================
-FEATURE: HTML ESCAPE
+FEATURE: HTML SECURITY
 ==================================================*/
 
-function escapeHTML(value) {
+function escapeHTML(
+    value = ""
+) {
 
-    return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    return String(value)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
 
 
 /*==================================================
-FEATURE: SAFE URL
+FEATURE: SAFE IMAGE URL
 ==================================================*/
 
-function safeURL(value) {
+function safeImageURL(
+    value = ""
+) {
 
-    const url = String(value ?? "").trim();
+    const url =
+        String(value).trim();
 
-    if (!url) {
-        return "";
-    }
 
-    try {
+    if (
+        url.startsWith("https://") ||
+        url.startsWith("http://")
+    ) {
 
-        const parsedURL =
-            new URL(url, window.location.origin);
-
-        if (
-            parsedURL.protocol === "http:" ||
-            parsedURL.protocol === "https:"
-        ) {
-            return parsedURL.href;
-        }
-
-    } catch (error) {
-
-        console.warn(
-            "Invalid category image URL:",
-            error
-        );
+        return url;
 
     }
+
 
     return "";
 
@@ -125,25 +156,69 @@ function safeURL(value) {
 
 
 /*==================================================
-FEATURE: LOADING STATE
+FEATURE: CREATE SLUG
 ==================================================*/
 
-function showCategoryLoading() {
+function createSlug(
+    value = ""
+) {
+
+    return String(value)
+        .toLowerCase()
+        .trim()
+        .replace(
+            /\s+/g,
+            "-"
+        )
+        .replace(
+            /[^\w\-]+/g,
+            ""
+        )
+        .replace(
+            /\-\-+/g,
+            "-"
+        )
+        .replace(
+            /^-+|-+$/g,
+            "");
+
+}
+
+
+/*==================================================
+FEATURE: NORMALIZE CATEGORY
+==================================================*/
+
+function normalizeCategory(
+    value = ""
+) {
+
+    return String(value)
+        .trim()
+        .toLowerCase();
+
+}
+
+
+/*==================================================
+FEATURE: SHOW LOADING
+==================================================*/
+
+function showLoading() {
 
     if (categoryLoading) {
-        categoryLoading.hidden = false;
+
+        categoryLoading.hidden =
+            false;
+
     }
+
 
     if (categoryEmpty) {
-        categoryEmpty.hidden = true;
-    }
 
-    if (categoryError) {
-        categoryError.hidden = true;
-    }
+        categoryEmpty.hidden =
+            true;
 
-    if (categoryGrid) {
-        categoryGrid.innerHTML = "";
     }
 
 }
@@ -153,193 +228,278 @@ function showCategoryLoading() {
 FEATURE: HIDE LOADING
 ==================================================*/
 
-function hideCategoryLoading() {
+function hideLoading() {
 
     if (categoryLoading) {
-        categoryLoading.hidden = true;
+
+        categoryLoading.hidden =
+            true;
+
     }
 
 }
 
 
 /*==================================================
-FEATURE: EMPTY STATE
+FEATURE: SHOW EMPTY
 ==================================================*/
 
-function showCategoryEmpty() {
+function showEmpty() {
 
-    hideCategoryLoading();
+    hideLoading();
+
 
     if (categoryEmpty) {
-        categoryEmpty.hidden = false;
-    }
 
-    if (categoryError) {
-        categoryError.hidden = true;
-    }
+        categoryEmpty.hidden =
+            false;
 
-    if (categoryGrid) {
-        categoryGrid.innerHTML = "";
     }
 
 }
 
 
 /*==================================================
-FEATURE: ERROR STATE
+FEATURE: HIDE EMPTY
 ==================================================*/
 
-function showCategoryError() {
-
-    hideCategoryLoading();
-
-    if (categoryError) {
-        categoryError.hidden = false;
-    }
+function hideEmpty() {
 
     if (categoryEmpty) {
-        categoryEmpty.hidden = true;
-    }
 
-    if (categoryGrid) {
-        categoryGrid.innerHTML = "";
+        categoryEmpty.hidden =
+            true;
+
     }
 
 }
 
 
 /*==================================================
-FEATURE: LOAD CATEGORIES
+FEATURE: CREATE CATEGORY CARD
 ==================================================*/
 
-function loadCategories() {
+function createCategoryCard(
+    category
+) {
 
-    showCategoryLoading();
-
-    onValue(
-        categoriesRef,
-
-        (snapshot) => {
-
-            const data =
-                snapshot.val();
-
-            allCategories = [];
-
-            if (data && typeof data === "object") {
-
-                Object.entries(data).forEach(
-                    ([id, category]) => {
-
-                        if (
-                            !category ||
-                            typeof category !== "object"
-                        ) {
-                            return;
-                        }
+    const card =
+        document.createElement(
+            "article"
+        );
 
 
-                        /*==================================================
-                        FEATURE: ACTIVE CATEGORY FILTER
-                        ==================================================*/
-
-                        if (
-                            category.active === false
-                        ) {
-                            return;
-                        }
+    card.className =
+        "category-card";
 
 
-                        allCategories.push({
+    /*==================================================
+    FEATURE: CATEGORY DATA
+    ==================================================*/
 
-                            id,
-
-                            name:
-                                category.name || "Unnamed Category",
-
-                            slug:
-                                category.slug || id,
-
-                            description:
-                                category.description || "",
-
-                            imageUrl:
-                                category.imageUrl || "",
-
-                            icon:
-                                category.icon ||
-                                "fa-solid fa-layer-group",
-
-                            sortOrder:
-                                Number(category.sortOrder) || 0
-
-                        });
-
-                    }
-                );
-
-            }
+    const name =
+        String(
+            category.name || ""
+        ).trim();
 
 
-            /*==================================================
-            FEATURE: CATEGORY SORTING
-            ==================================================*/
+    const slug =
+        String(
+            category.slug ||
+            createSlug(name)
+        ).trim();
 
-            allCategories.sort(
-                (a, b) => {
 
-                    const orderDifference =
-                        a.sortOrder - b.sortOrder;
+    const description =
+        String(
+            category.description || ""
+        ).trim();
 
-                    if (orderDifference !== 0) {
-                        return orderDifference;
-                    }
 
-                    return a.name.localeCompare(
-                        b.name,
-                        undefined,
-                        {
-                            sensitivity: "base"
-                        }
-                    );
+    const icon =
+        String(
+            category.icon ||
+            "fa-layer-group"
+        ).trim();
 
+
+    const imageUrl =
+        safeImageURL(
+            category.imageUrl || ""
+        );
+
+
+    /*==================================================
+    FEATURE: CARD MEDIA
+    ==================================================*/
+
+    let mediaHTML = "";
+
+
+    if (imageUrl) {
+
+        mediaHTML =
+            `
+                <div class="category-card-image">
+
+                    <img
+                        src="${escapeHTML(imageUrl)}"
+                        alt="${escapeHTML(name)}"
+                        loading="lazy"
+                    >
+
+                </div>
+            `;
+
+    }
+
+    else {
+
+        mediaHTML =
+            `
+                <div class="category-card-icon">
+
+                    <i
+                        class="fa-solid ${escapeHTML(icon)}"
+                    ></i>
+
+                </div>
+            `;
+
+    }
+
+
+    /*==================================================
+    FEATURE: CARD HTML
+    ==================================================*/
+
+    card.innerHTML =
+        `
+            ${mediaHTML}
+
+            <div class="category-card-content">
+
+                <h3 class="category-card-title">
+                    ${escapeHTML(name)}
+                </h3>
+
+                ${
+                    description
+                    ?
+                    `
+                        <p class="category-card-description">
+                            ${escapeHTML(description)}
+                        </p>
+                    `
+                    :
+                    ""
                 }
-            );
+
+                <span class="category-card-link">
+
+                    View Products
+
+                    <i
+                        class="fa-solid fa-arrow-right"
+                    ></i>
+
+                </span>
+
+            </div>
+        `;
 
 
-            hideCategoryLoading();
+    /*==================================================
+    FEATURE: STORE CATEGORY DATA
+    ==================================================*/
+
+    card.dataset.category =
+        name;
 
 
-            if (allCategories.length === 0) {
+    card.dataset.slug =
+        slug;
 
-                showCategoryEmpty();
+
+    /*==================================================
+    FEATURE: CATEGORY → PRODUCTS
+    ==================================================*/
+
+    card.addEventListener(
+        "click",
+        () => {
+
+            if (!name) {
 
                 return;
 
             }
 
 
-            /*==================================================
-            FEATURE: INITIAL CATEGORY RENDER
-            ==================================================*/
+            /*
+             * IMPORTANT:
+             *
+             * Product Editor currently saves:
+             *
+             * category: category
+             *
+             * Therefore we pass the
+             * actual category NAME.
+             */
 
-            renderCategories(
-                allCategories
+            const params =
+                new URLSearchParams();
+
+
+            params.set(
+                "category",
+                name
             );
 
-        },
 
-        (error) => {
-
-            console.error(
-                "Category loading error:",
-                error
-            );
-
-            showCategoryError();
+            window.location.href =
+                `products.html?${params.toString()}`;
 
         }
     );
+
+
+    /*==================================================
+    FEATURE: KEYBOARD ACCESSIBILITY
+    ==================================================*/
+
+    card.setAttribute(
+        "tabindex",
+        "0"
+    );
+
+
+    card.setAttribute(
+        "role",
+        "link"
+    );
+
+
+    card.addEventListener(
+        "keydown",
+        (event) => {
+
+            if (
+                event.key === "Enter" ||
+                event.key === " "
+            ) {
+
+                event.preventDefault();
+
+                card.click();
+
+            }
+
+        }
+    );
+
+
+    return card;
 
 }
 
@@ -348,173 +508,246 @@ function loadCategories() {
 FEATURE: RENDER CATEGORIES
 ==================================================*/
 
-function renderCategories(categories) {
+function renderCategories(
+    categories
+) {
 
-    if (!categoryGrid) {
-        return;
-    }
+    if (!categoriesGrid) {
 
-
-    if (!categories.length) {
-
-        categoryGrid.innerHTML = "";
-
-        if (categoryEmpty) {
-            categoryEmpty.hidden = false;
-        }
-
-        return;
-
-    }
-
-
-    if (categoryEmpty) {
-        categoryEmpty.hidden = true;
-    }
-
-
-    categoryGrid.innerHTML =
-        categories.map(
-            (category) => {
-
-                const imageURL =
-                    safeURL(
-                        category.imageUrl
-                    );
-
-
-                const imageHTML =
-                    imageURL
-                        ? `
-                            <img
-                                src="${escapeHTML(imageURL)}"
-                                alt="${escapeHTML(category.name)}"
-                                class="category-card-image"
-                                loading="lazy"
-                            >
-                          `
-                        : `
-                            <div class="category-card-icon">
-                                <i class="${escapeHTML(category.icon)}"></i>
-                            </div>
-                          `;
-
-
-                return `
-                    <article
-                        class="category-card"
-                        data-category-id="${escapeHTML(category.id)}"
-                        data-category-slug="${escapeHTML(category.slug)}"
-                        tabindex="0"
-                        role="button"
-                        aria-label="Open ${escapeHTML(category.name)} category"
-                    >
-
-                        <div class="category-card-media">
-
-                            ${imageHTML}
-
-                        </div>
-
-
-                        <div class="category-card-content">
-
-                            <h3 class="category-card-title">
-                                ${escapeHTML(category.name)}
-                            </h3>
-
-
-                            ${
-                                category.description
-                                    ? `
-                                        <p class="category-card-description">
-                                            ${escapeHTML(category.description)}
-                                        </p>
-                                      `
-                                    : ""
-                            }
-
-
-                            <span class="category-card-link">
-
-                                Explore
-
-                                <i class="fa-solid fa-arrow-right"></i>
-
-                            </span>
-
-                        </div>
-
-                    </article>
-                `;
-
-            }
-        ).join("");
-
-
-    /*==================================================
-    FEATURE: CATEGORY CARD EVENTS
-    ==================================================*/
-
-    categoryGrid
-        .querySelectorAll(".category-card")
-        .forEach(
-            (card) => {
-
-                card.addEventListener(
-                    "click",
-                    () => {
-
-                        openCategory(
-                            card.dataset.categoryId,
-                            card.dataset.categorySlug
-                        );
-
-                    }
-                );
-
-
-                /*==================================================
-                FEATURE: KEYBOARD ACCESSIBILITY
-                ==================================================*/
-
-                card.addEventListener(
-                    "keydown",
-                    (event) => {
-
-                        if (
-                            event.key === "Enter" ||
-                            event.key === " "
-                        ) {
-
-                            event.preventDefault();
-
-                            openCategory(
-                                card.dataset.categoryId,
-                                card.dataset.categorySlug
-                            );
-
-                        }
-
-                    }
-                );
-
-            }
+        console.error(
+            "Category Error: #categoriesGrid not found."
         );
+
+        return;
+
+    }
+
+
+    categoriesGrid.innerHTML =
+        "";
+
+
+    if (
+        !categories.length
+    ) {
+
+        showEmpty();
+
+        return;
+
+    }
+
+
+    hideLoading();
+
+    hideEmpty();
+
+
+    const fragment =
+        document.createDocumentFragment();
+
+
+    categories.forEach(
+        category => {
+
+            fragment.appendChild(
+                createCategoryCard(
+                    category
+                )
+            );
+
+        }
+    );
+
+
+    categoriesGrid.appendChild(
+        fragment
+    );
 
 }
 
 
 /*==================================================
-FEATURE: CATEGORY SEARCH
+FEATURE: RENDER POPULAR CATEGORIES
 ==================================================*/
 
-function filterCategories(searchValue) {
+function renderPopularCategories(
+    categories
+) {
+
+    if (!popularCategoriesGrid) {
+
+        return;
+
+    }
+
+
+    popularCategoriesGrid.innerHTML =
+        "";
+
+
+    /*
+     * Top categories according
+     * to sortOrder.
+     *
+     * Maximum 6.
+     */
+
+    const popular =
+        [...categories]
+            .sort(
+                (a, b) =>
+                    Number(
+                        a.sortOrder || 0
+                    )
+                    -
+                    Number(
+                        b.sortOrder || 0
+                    )
+            )
+            .slice(
+                0,
+                6
+            );
+
+
+    popular.forEach(
+        category => {
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+
+            button.type =
+                "button";
+
+
+            button.className =
+                "popular-category-item";
+
+
+            const icon =
+                String(
+                    category.icon ||
+                    "fa-layer-group"
+                );
+
+
+            button.innerHTML =
+                `
+                    <i
+                        class="fa-solid ${escapeHTML(icon)}"
+                    ></i>
+
+                    <span>
+                        ${escapeHTML(
+                            category.name || ""
+                        )}
+                    </span>
+                `;
+
+
+            /*==================================================
+            FEATURE: POPULAR CATEGORY → PRODUCTS
+            ==================================================*/
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const name =
+                        String(
+                            category.name || ""
+                        ).trim();
+
+
+                    if (!name) {
+
+                        return;
+
+                    }
+
+
+                    window.location.href =
+                        `products.html?category=${encodeURIComponent(
+                            name
+                        )}`;
+
+                }
+            );
+
+
+            popularCategoriesGrid.appendChild(
+                button
+            );
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: SORT CATEGORIES
+==================================================*/
+
+function sortCategories(
+    categories
+) {
+
+    return categories.sort(
+        (a, b) => {
+
+            const orderA =
+                Number(
+                    a.sortOrder || 0
+                );
+
+
+            const orderB =
+                Number(
+                    b.sortOrder || 0
+                );
+
+
+            if (
+                orderA !== orderB
+            ) {
+
+                return (
+                    orderA -
+                    orderB
+                );
+
+            }
+
+
+            return String(
+                a.name || ""
+            ).localeCompare(
+                String(
+                    b.name || ""
+                )
+            );
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: FILTER CATEGORIES
+==================================================*/
+
+function filterCategories() {
 
     const query =
-        String(searchValue ?? "")
-            .trim()
-            .toLowerCase();
+        normalizeCategory(
+            categorySearch?.value
+        );
 
 
     if (!query) {
@@ -530,21 +763,30 @@ function filterCategories(searchValue) {
 
     const filtered =
         allCategories.filter(
-            (category) => {
+            category => {
 
                 const name =
-                    category.name.toLowerCase();
+                    normalizeCategory(
+                        category.name
+                    );
 
-                const description =
-                    category.description.toLowerCase();
 
                 const slug =
-                    category.slug.toLowerCase();
+                    normalizeCategory(
+                        category.slug
+                    );
+
+
+                const description =
+                    normalizeCategory(
+                        category.description
+                    );
+
 
                 return (
                     name.includes(query) ||
-                    description.includes(query) ||
-                    slug.includes(query)
+                    slug.includes(query) ||
+                    description.includes(query)
                 );
 
             }
@@ -559,113 +801,179 @@ function filterCategories(searchValue) {
 
 
 /*==================================================
-FEATURE: CATEGORY SEARCH EVENT
+FEATURE: CLEAR SEARCH
+==================================================*/
+
+function clearSearch() {
+
+    if (categorySearch) {
+
+        categorySearch.value =
+            "";
+
+        categorySearch.focus();
+
+    }
+
+
+    renderCategories(
+        allCategories
+    );
+
+}
+
+
+/*==================================================
+FEATURE: LOAD CATEGORIES
+==================================================*/
+
+function loadCategories() {
+
+    showLoading();
+
+
+    onValue(
+        categoriesRef,
+        (snapshot) => {
+
+            if (!snapshot.exists()) {
+
+                allCategories = [];
+
+                renderCategories([]);
+
+                if (
+                    popularCategoriesGrid
+                ) {
+
+                    popularCategoriesGrid.innerHTML =
+                        "";
+
+                }
+
+                return;
+
+            }
+
+
+            const data =
+                snapshot.val();
+
+
+            /*==================================================
+            FEATURE: FIREBASE OBJECT → ARRAY
+            ==================================================*/
+
+            allCategories =
+                Object.entries(
+                    data
+                )
+                .map(
+                    ([id, category]) => ({
+
+                        id,
+
+                        ...category
+
+                    })
+                )
+                .filter(
+                    category =>
+                        category &&
+                        category.active !== false
+                );
+
+
+            /*==================================================
+            FEATURE: SORT
+            ==================================================*/
+
+            allCategories =
+                sortCategories(
+                    allCategories
+                );
+
+
+            /*==================================================
+            FEATURE: MAIN CATEGORIES
+            ==================================================*/
+
+            renderCategories(
+                allCategories
+            );
+
+
+            /*==================================================
+            FEATURE: POPULAR CATEGORIES
+            ==================================================*/
+
+            renderPopularCategories(
+                allCategories
+            );
+
+        },
+        (error) => {
+
+            console.error(
+                "Category Firebase Error:",
+                error
+            );
+
+
+            hideLoading();
+
+            showEmpty();
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: SEARCH EVENT
 ==================================================*/
 
 if (categorySearch) {
 
     categorySearch.addEventListener(
         "input",
-        (event) => {
-
-            filterCategories(
-                event.target.value
-            );
-
-        }
+        filterCategories
     );
 
 }
 
 
 /*==================================================
-FEATURE: OPEN CATEGORY
+FEATURE: CLEAR BUTTON
 ==================================================*/
 
-function openCategory(
-    categoryId,
-    categorySlug
-) {
+if (clearCategorySearch) {
 
-    if (!categoryId) {
-        return;
-    }
-
-
-    /*==================================================
-    FEATURE: CATEGORY PRODUCT FILTER
-    ==================================================
-    The product page can read these parameters
-    and load products belonging to this category.
-    ==================================================*/
-
-    const params =
-        new URLSearchParams();
-
-    params.set(
-        "categoryId",
-        categoryId
-    );
-
-
-    if (categorySlug) {
-
-        params.set(
-            "category",
-            categorySlug
-        );
-
-    }
-
-
-    /*
-     * IMPORTANT:
-     * Keep this target connected to the existing
-     * SmartBazaar Pro 2 product/category page.
-     *
-     * Change only if the project's actual product
-     * listing filename is different.
-     */
-
-    window.location.href =
-        `products.html?${params.toString()}`;
-
-}
-
-
-/*==================================================
-FEATURE: RETRY BUTTON
-==================================================*/
-
-const retryCategoryButton =
-    document.getElementById(
-        "retryCategoryButton"
-    );
-
-
-if (retryCategoryButton) {
-
-    retryCategoryButton.addEventListener(
+    clearCategorySearch.addEventListener(
         "click",
-        () => {
-
-            loadCategories();
-
-        }
+        clearSearch
     );
 
 }
 
 
 /*==================================================
-FEATURE: INITIALIZE CATEGORY PAGE
+FEATURE: RESET SEARCH
 ==================================================*/
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
+if (resetCategorySearch) {
 
-        loadCategories();
+    resetCategorySearch.addEventListener(
+        "click",
+        clearSearch
+    );
 
-    }
-);
+}
+
+
+/*==================================================
+FEATURE: START CATEGORY SYSTEM
+==================================================*/
+
+loadCategories();
