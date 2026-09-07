@@ -4811,6 +4811,8 @@ async function startAccountSystem() {
 
                 currentUser = null;
 
+                setupAdminPanelButton();
+
 
                 showAccountError(
                     "Please login to access your SmartBazaar account."
