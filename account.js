@@ -4823,7 +4823,8 @@ async function startAccountSystem() {
 
 
             currentUser = user;
-            setupAdminPanelButton();
+
+setupAdminPanelButton();
 
              /*==================================================
  FEATURE: LOAD SELLER PRODUCTS AFTER LOGIN
@@ -4929,14 +4930,14 @@ function setupAdminPanelButton() {
 
 
     /*==================================================
-    FEATURE: HIDE FROM ALL USERS BY DEFAULT
+    FEATURE: ALWAYS HIDE FIRST
     ==================================================*/
 
     adminButton.hidden = true;
 
 
     /*==================================================
-    FEATURE: ADMIN ONLY ACCESS
+    FEATURE: SHOW ONLY AFTER ADMIN LOGIN
     ==================================================*/
 
     if (
