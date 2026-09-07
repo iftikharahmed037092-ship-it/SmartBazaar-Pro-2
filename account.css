@@ -3668,6 +3668,16 @@ FEATURE: ADMIN BUTTON MOBILE
 
 }
 
+/*==================================================
+SMARTBAZAAR PRO 2
+FEATURE: ACCOUNT ADMIN PANEL BUTTON
+FEATURE: FORCE HIDDEN STATE
+==================================================*/
+
+.header-admin-button[hidden] {
+    display: none !important;
+}
+
 
 /*==================================================
 SMARTBAZAAR PRO 2
