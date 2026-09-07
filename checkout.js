@@ -41,7 +41,17 @@ import {
 
 
 /*==================================================
-FEATURE: ORDER SERVICE
+FEATURE: PAYMENT METHODS
+==================================================*/
+
+import {
+    PAYMENT_METHODS,
+    isValidPaymentMethod
+} from "./payment-methods.js";
+
+
+/*==================================================
+FEATURE: ORDER CREATION
 ==================================================*/
 
 import {
@@ -59,6 +69,8 @@ const db =
 
 /*==================================================
 FEATURE: BACKEND API
+IMPORTANT:
+For production this MUST be an HTTPS backend URL.
 ==================================================*/
 
 const BACKEND_API_URL =
@@ -71,123 +83,64 @@ FEATURE: DOM ELEMENTS
 ==================================================*/
 
 const checkoutLoading =
-    document.getElementById(
-        "checkoutLoading"
-    );
-
+    document.getElementById("checkoutLoading");
 
 const checkoutContent =
-    document.getElementById(
-        "checkoutContent"
-    );
-
+    document.getElementById("checkoutContent");
 
 const checkoutError =
-    document.getElementById(
-        "checkoutError"
-    );
-
+    document.getElementById("checkoutError");
 
 const checkoutErrorMessage =
-    document.getElementById(
-        "checkoutErrorMessage"
-    );
-
+    document.getElementById("checkoutErrorMessage");
 
 const checkoutForm =
-    document.getElementById(
-        "checkoutForm"
-    );
-
+    document.getElementById("checkoutForm");
 
 const placeOrderButton =
-    document.getElementById(
-        "placeOrderButton"
-    );
-
+    document.getElementById("placeOrderButton");
 
 const checkoutProductImage =
-    document.getElementById(
-        "checkoutProductImage"
-    );
-
+    document.getElementById("checkoutProductImage");
 
 const checkoutProductName =
-    document.getElementById(
-        "checkoutProductName"
-    );
-
+    document.getElementById("checkoutProductName");
 
 const checkoutProductCategory =
-    document.getElementById(
-        "checkoutProductCategory"
-    );
-
+    document.getElementById("checkoutProductCategory");
 
 const checkoutProductPrice =
-    document.getElementById(
-        "checkoutProductPrice"
-    );
-
+    document.getElementById("checkoutProductPrice");
 
 const checkoutProductQuantity =
-    document.getElementById(
-        "checkoutProductQuantity"
-    );
-
+    document.getElementById("checkoutProductQuantity");
 
 const checkoutQuantity =
-    document.getElementById(
-        "checkoutQuantity"
-    );
-
+    document.getElementById("checkoutQuantity");
 
 const summaryProductPrice =
-    document.getElementById(
-        "summaryProductPrice"
-    );
-
+    document.getElementById("summaryProductPrice");
 
 const summaryQuantity =
-    document.getElementById(
-        "summaryQuantity"
-    );
-
+    document.getElementById("summaryQuantity");
 
 const summaryTotal =
-    document.getElementById(
-        "summaryTotal"
-    );
-
+    document.getElementById("summaryTotal");
 
 const increaseQuantity =
-    document.getElementById(
-        "increaseQuantity"
-    );
-
+    document.getElementById("increaseQuantity");
 
 const decreaseQuantity =
-    document.getElementById(
-        "decreaseQuantity"
-    );
-
+    document.getElementById("decreaseQuantity");
 
 const orderSuccess =
-    document.getElementById(
-        "orderSuccess"
-    );
-
+    document.getElementById("orderSuccess");
 
 const successOrderId =
-    document.getElementById(
-        "successOrderId"
-    );
-
+    document.getElementById("successOrderId");
 
 const successOrderTotal =
-    document.getElementById(
-        "successOrderTotal"
-    );
+    document.getElementById("successOrderTotal");
 
 
 /*==================================================
@@ -201,18 +154,12 @@ const urlParams =
         window.location.search
     );
 
-
 const productId =
-    urlParams.get(
-        "id"
-    );
-
+    urlParams.get("id");
 
 let requestedQuantity =
     Number(
-        urlParams.get(
-            "quantity"
-        )
+        urlParams.get("quantity")
     ) || 1;
 
 
@@ -222,7 +169,6 @@ FEATURE: PRODUCT STATE
 
 let currentProduct =
     null;
-
 
 let currentStock =
     0;
@@ -245,29 +191,25 @@ let orderBeingPlaced =
 
 
 /*==================================================
-FEATURE: AUTHENTICATION INITIALIZATION
+FEATURE: AUTH READY
 ==================================================*/
 
 const authReadyPromise =
-    new Promise(
-        resolve => {
+    new Promise(resolve => {
 
-            onAuthStateChanged(
-                auth,
-                user => {
+        onAuthStateChanged(
+            auth,
+            user => {
 
-                    currentUser =
-                        user;
+                currentUser =
+                    user;
 
-                    resolve(
-                        user
-                    );
+                resolve(user);
 
-                }
-            );
+            }
+        );
 
-        }
-    );
+    });
 
 
 /*==================================================
@@ -301,17 +243,8 @@ async function initializeCheckout() {
 
         setupQuantityControls();
 
-
-        /*----------------------------------------------
-        WAIT FOR FIREBASE AUTH
-        ----------------------------------------------*/
-
         await authReadyPromise;
 
-
-        /*----------------------------------------------
-        LOGIN REQUIRED
-        ----------------------------------------------*/
 
         if (!currentUser) {
 
@@ -323,10 +256,6 @@ async function initializeCheckout() {
 
         }
 
-
-        /*----------------------------------------------
-        LOAD PRODUCT
-        ----------------------------------------------*/
 
         await loadCheckoutProduct(
             productId
@@ -340,7 +269,6 @@ async function initializeCheckout() {
             "Checkout initialization error:",
             error
         );
-
 
         showCheckoutError(
             error.message ||
@@ -363,44 +291,43 @@ function enablePaymentMethods() {
             'input[name="paymentMethod"]'
         );
 
+    paymentInputs.forEach(input => {
 
-    paymentInputs.forEach(
-        input => {
+        input.disabled =
+            false;
 
-            input.disabled =
-                false;
+        const option =
+            input.closest(
+                ".payment-option"
+            );
 
+        if (option) {
 
-            const option =
-                input.closest(
-                    ".payment-option"
-                );
+            option.classList.remove(
+                "disabled-payment"
+            );
 
+            option.style.pointerEvents =
+                "auto";
 
-            if (option) {
-
-                option.classList.remove(
-                    "disabled-payment"
-                );
-
-            }
-
-
-            const soon =
-                option?.querySelector(
-                    ".coming-soon"
-                );
-
-
-            if (soon) {
-
-                soon.style.display =
-                    "none";
-
-            }
+            option.style.opacity =
+                "1";
 
         }
-    );
+
+        const soon =
+            option?.querySelector(
+                ".coming-soon"
+            );
+
+        if (soon) {
+
+            soon.style.display =
+                "none";
+
+        }
+
+    });
 
 }
 
@@ -416,56 +343,99 @@ function setupPaymentSelection() {
             ".payment-option"
         );
 
-
     const paymentInputs =
         document.querySelectorAll(
             'input[name="paymentMethod"]'
         );
 
 
-    paymentOptions.forEach(
-        option => {
+    paymentOptions.forEach(option => {
 
-            option.addEventListener(
-                "click",
-                () => {
+        option.addEventListener(
+            "click",
+            event => {
 
-                    const input =
-                        option.querySelector(
-                            'input[name="paymentMethod"]'
-                        );
+                const input =
+                    option.querySelector(
+                        'input[name="paymentMethod"]'
+                    );
 
+                if (!input) {
+                    return;
+                }
 
-                    if (!input) {
+                if (input.disabled) {
+                    return;
+                }
 
-                        return;
+                /*
+                Prevent another parent handler
+                from interfering with selection.
+                */
 
-                    }
+                if (
+                    event.target !== input
+                ) {
 
-
-                    input.checked =
-                        true;
-
-
-                    updatePaymentSelection();
+                    event.preventDefault();
 
                 }
+
+                input.checked =
+                    true;
+
+                input.dispatchEvent(
+                    new Event(
+                        "change",
+                        {
+                            bubbles: true
+                        }
+                    )
+                );
+
+                updatePaymentSelection();
+
+            }
+        );
+
+    });
+
+
+    paymentInputs.forEach(input => {
+
+        input.addEventListener(
+            "change",
+            updatePaymentSelection
+        );
+
+    });
+
+
+    /*
+    Default payment method:
+    COD
+    */
+
+    const checked =
+        document.querySelector(
+            'input[name="paymentMethod"]:checked'
+        );
+
+    if (!checked) {
+
+        const codInput =
+            document.querySelector(
+                'input[name="paymentMethod"][value="cod"]'
             );
 
-        }
-    );
+        if (codInput) {
 
-
-    paymentInputs.forEach(
-        input => {
-
-            input.addEventListener(
-                "change",
-                updatePaymentSelection
-            );
+            codInput.checked =
+                true;
 
         }
-    );
+
+    }
 
 
     updatePaymentSelection();
@@ -484,35 +454,53 @@ function updatePaymentSelection() {
             ".payment-option"
         );
 
+    paymentOptions.forEach(option => {
 
-    paymentOptions.forEach(
-        option => {
+        const input =
+            option.querySelector(
+                'input[name="paymentMethod"]'
+            );
 
-            const input =
-                option.querySelector(
-                    'input[name="paymentMethod"]'
-                );
+        if (
+            input &&
+            input.checked
+        ) {
 
+            option.classList.add(
+                "active"
+            );
 
-            if (
-                input &&
-                input.checked
-            ) {
+        } else {
 
-                option.classList.add(
-                    "active"
-                );
-
-            } else {
-
-                option.classList.remove(
-                    "active"
-                );
-
-            }
+            option.classList.remove(
+                "active"
+            );
 
         }
-    );
+
+    });
+
+}
+
+
+/*==================================================
+FEATURE: GET SELECTED PAYMENT METHOD
+==================================================*/
+
+function getSelectedPaymentMethod() {
+
+    const input =
+        document.querySelector(
+            'input[name="paymentMethod"]:checked'
+        );
+
+    if (!input) {
+
+        return null;
+
+    }
+
+    return input.value;
 
 }
 
@@ -521,9 +509,7 @@ function updatePaymentSelection() {
 FEATURE: LOAD PRODUCT
 ==================================================*/
 
-async function loadCheckoutProduct(
-    id
-) {
+async function loadCheckoutProduct(id) {
 
     try {
 
@@ -533,11 +519,8 @@ async function loadCheckoutProduct(
                 `products/${id}`
             );
 
-
         const snapshot =
-            await get(
-                productRef
-            );
+            await get(productRef);
 
 
         if (!snapshot.exists()) {
@@ -602,9 +585,7 @@ async function loadCheckoutProduct(
                 "1";
 
             checkoutQuantity.max =
-                String(
-                    currentStock
-                );
+                String(currentStock);
 
         }
 
@@ -636,7 +617,6 @@ async function loadCheckoutProduct(
             error
         );
 
-
         showCheckoutError(
             "Unable to load product information."
         );
@@ -653,9 +633,7 @@ FEATURE: RENDER CHECKOUT PRODUCT
 function renderCheckoutProduct() {
 
     if (!currentProduct) {
-
         return;
-
     }
 
 
@@ -706,9 +684,7 @@ function renderCheckoutProduct() {
     if (checkoutProductPrice) {
 
         checkoutProductPrice.textContent =
-            formatPrice(
-                price
-            );
+            formatPrice(price);
 
     }
 
@@ -719,12 +695,10 @@ function renderCheckoutProduct() {
 
 
 /*==================================================
-FEATURE: GET PRODUCT IMAGE
+FEATURE: PRODUCT IMAGE
 ==================================================*/
 
-function getProductImage(
-    product
-) {
+function getProductImage(product) {
 
     if (
         product.image &&
@@ -747,9 +721,7 @@ function getProductImage(
 
 
     if (
-        Array.isArray(
-            product.images
-        )
+        Array.isArray(product.images)
     ) {
 
         const validImage =
@@ -759,11 +731,8 @@ function getProductImage(
                     image.trim()
             );
 
-
         if (validImage) {
-
             return validImage;
-
         }
 
     }
@@ -779,7 +748,6 @@ function getProductImage(
                 product.images
             );
 
-
         const validImage =
             images.find(
                 image =>
@@ -787,11 +755,8 @@ function getProductImage(
                     image.trim()
             );
 
-
         if (validImage) {
-
             return validImage;
-
         }
 
     }
@@ -803,7 +768,7 @@ function getProductImage(
 
 
 /*==================================================
-FEATURE: SETUP QUANTITY CONTROLS
+FEATURE: QUANTITY CONTROLS
 ==================================================*/
 
 function setupQuantityControls() {
@@ -875,7 +840,6 @@ function increaseProductQuantity() {
     checkoutQuantity.value =
         quantity;
 
-
     updateSummary();
 
 }
@@ -888,9 +852,7 @@ FEATURE: DECREASE QUANTITY
 function decreaseProductQuantity() {
 
     if (!checkoutQuantity) {
-
         return;
-
     }
 
 
@@ -912,22 +874,19 @@ function decreaseProductQuantity() {
     checkoutQuantity.value =
         quantity;
 
-
     updateSummary();
 
 }
 
 
 /*==================================================
-FEATURE: QUANTITY VALIDATION
+FEATURE: VALIDATE QUANTITY
 ==================================================*/
 
 function validateQuantityInput() {
 
     if (!checkoutQuantity) {
-
         return;
-
     }
 
 
@@ -960,7 +919,6 @@ function validateQuantityInput() {
 
     checkoutQuantity.value =
         quantity;
-
 
     updateSummary();
 
@@ -1036,9 +994,7 @@ function updateSummary() {
     if (summaryProductPrice) {
 
         summaryProductPrice.textContent =
-            formatPrice(
-                price
-            );
+            formatPrice(price);
 
     }
 
@@ -1054,9 +1010,7 @@ function updateSummary() {
     if (summaryTotal) {
 
         summaryTotal.textContent =
-            formatPrice(
-                total
-            );
+            formatPrice(total);
 
     }
 
@@ -1064,7 +1018,7 @@ function updateSummary() {
 
 
 /*==================================================
-FEATURE: PLACE ORDER
+FEATURE: SUBMIT EVENT
 ==================================================*/
 
 if (checkoutForm) {
@@ -1078,20 +1032,16 @@ if (checkoutForm) {
 
 
 /*==================================================
-FEATURE: CHECKOUT SUBMIT HANDLER
+FEATURE: CHECKOUT SUBMIT
 ==================================================*/
 
-async function handleCheckoutSubmit(
-    event
-) {
+async function handleCheckoutSubmit(event) {
 
     event.preventDefault();
 
 
     if (orderBeingPlaced) {
-
         return;
-
     }
 
 
@@ -1126,45 +1076,35 @@ async function handleCheckoutSubmit(
 
     const customerName =
         document
-            .getElementById(
-                "customerName"
-            )
+            .getElementById("customerName")
             ?.value
             .trim() || "";
 
 
     const customerPhone =
         document
-            .getElementById(
-                "customerPhone"
-            )
+            .getElementById("customerPhone")
             ?.value
             .trim() || "";
 
 
     const customerCity =
         document
-            .getElementById(
-                "customerCity"
-            )
+            .getElementById("customerCity")
             ?.value
             .trim() || "";
 
 
     const customerAddress =
         document
-            .getElementById(
-                "customerAddress"
-            )
+            .getElementById("customerAddress")
             ?.value
             .trim() || "";
 
 
     const customerNote =
         document
-            .getElementById(
-                "customerNote"
-            )
+            .getElementById("customerNote")
             ?.value
             .trim() || "";
 
@@ -1173,16 +1113,22 @@ async function handleCheckoutSubmit(
     FEATURE: PAYMENT METHOD
     ==================================================*/
 
-    const selectedPayment =
-        document.querySelector(
-            'input[name="paymentMethod"]:checked'
+    const paymentMethod =
+        getSelectedPaymentMethod();
+
+
+    if (
+        !paymentMethod ||
+        !isValidPaymentMethod(paymentMethod)
+    ) {
+
+        alert(
+            "Please select a valid payment method."
         );
 
+        return;
 
-    const paymentMethod =
-        selectedPayment
-            ? selectedPayment.value
-            : "cod";
+    }
 
 
     /*==================================================
@@ -1196,7 +1142,7 @@ async function handleCheckoutSubmit(
 
 
     /*==================================================
-    FEATURE: VALIDATION
+    FEATURE: CUSTOMER VALIDATION
     ==================================================*/
 
     if (
@@ -1278,7 +1224,7 @@ async function handleCheckoutSubmit(
 
 
     /*==================================================
-    FEATURE: START PROCESS
+    FEATURE: LOCK SUBMIT
     ==================================================*/
 
     orderBeingPlaced =
@@ -1313,9 +1259,7 @@ async function handleCheckoutSubmit(
 
 
         const latestSnapshot =
-            await get(
-                productRef
-            );
+            await get(productRef);
 
 
         if (
@@ -1394,69 +1338,99 @@ async function handleCheckoutSubmit(
 
 
         /*==================================================
+        FEATURE: SELLER INFORMATION
+        ==================================================*/
+
+        const sellerId =
+            latestProduct.sellerId ||
+            latestProduct.createdBy ||
+            latestProduct.seller ||
+            "";
+
+
+        const sellerName =
+            latestProduct.sellerName ||
+            latestProduct.seller ||
+            "";
+
+
+        /*==================================================
         FEATURE: ORDER PAYLOAD
         ==================================================*/
 
         const orderPayload = {
 
             productId:
+
                 productId,
 
             productName:
+
                 latestProduct.name ||
                 latestProduct.title ||
                 "Product",
 
             productImage:
+
                 getProductImage(
                     latestProduct
                 ),
 
             productCategory:
+
                 latestProduct.category ||
                 "",
 
             price:
+
                 price,
 
             quantity:
+
                 quantity,
 
             total:
+
                 total,
 
             customerName:
+
                 customerName,
 
             customerPhone:
+
                 customerPhone,
 
             customerCity:
+
                 customerCity,
 
             customerAddress:
+
                 customerAddress,
 
             customerNote:
+
                 customerNote,
 
             paymentMethod:
+
                 paymentMethod,
 
             sellerId:
-                latestProduct.sellerId ||
-                latestProduct.seller ||
-                "",
+
+                sellerId,
 
             sellerName:
-                latestProduct.sellerName ||
-                latestProduct.seller ||
-                "",
+
+                sellerName,
 
             userId:
+
                 currentUser.uid,
 
             customerId:
+
                 currentUser.uid
 
         };
@@ -1468,7 +1442,7 @@ async function handleCheckoutSubmit(
 
         if (
             paymentMethod ===
-            "cod"
+            PAYMENT_METHODS.COD
         ) {
 
             const createdOrder =
@@ -1477,9 +1451,26 @@ async function handleCheckoutSubmit(
                 );
 
 
-            const orderId =
-                createdOrder.orderId;
+            if (
+                !createdOrder ||
+                !createdOrder.orderId
+            ) {
 
+                throw new Error(
+                    "Unable to create order."
+                );
+
+            }
+
+
+            /*
+            COD:
+            Payment is collected on delivery.
+
+            NOTE:
+            Current architecture keeps COD stock
+            handling here for now.
+            */
 
             const newStock =
                 latestStock -
@@ -1505,7 +1496,7 @@ async function handleCheckoutSubmit(
 
 
             showOrderSuccess(
-                orderId,
+                createdOrder.orderId,
                 total
             );
 
@@ -1521,7 +1512,7 @@ async function handleCheckoutSubmit(
 
         if (
             paymentMethod ===
-            "jazzcash"
+            PAYMENT_METHODS.JAZZCASH
         ) {
 
             /*----------------------------------------------
@@ -1537,23 +1528,39 @@ async function handleCheckoutSubmit(
 
             if (
                 !createdOrder ||
-                !createdOrder.orderId
+                !createdOrder.orderId ||
+                !createdOrder.firebaseKey
             ) {
 
                 throw new Error(
-                    "Unable to create pending order."
+                    "Unable to create pending payment order."
                 );
 
             }
 
 
-            const orderId =
-                createdOrder.orderId;
+            /*
+            IMPORTANT:
+
+            orderId =
+            Human-readable SB-XXXX reference
+
+            firebaseKey =
+            Actual Firebase orders/{key}
+
+            Backend currently loads:
+            orders/{firebaseKey}
+
+            Therefore firebaseKey MUST be sent.
+            */
+
+            const firebaseOrderKey =
+                createdOrder.firebaseKey;
 
 
             /*----------------------------------------------
             STEP 2:
-            GET FIREBASE ID TOKEN
+            FIREBASE AUTH TOKEN
             ----------------------------------------------*/
 
             const idToken =
@@ -1573,7 +1580,26 @@ async function handleCheckoutSubmit(
 
             /*----------------------------------------------
             STEP 3:
-            CALL SECURE BACKEND
+            CHECK BACKEND CONFIGURATION
+            ----------------------------------------------*/
+
+            if (
+                !BACKEND_API_URL ||
+                BACKEND_API_URL.includes(
+                    "localhost"
+                )
+            ) {
+
+                throw new Error(
+                    "Payment server is not connected. The secure backend must be deployed online before JazzCash payment can start."
+                );
+
+            }
+
+
+            /*----------------------------------------------
+            STEP 4:
+            CREATE JAZZCASH PAYMENT
             ----------------------------------------------*/
 
             const response =
@@ -1598,7 +1624,7 @@ async function handleCheckoutSubmit(
                             JSON.stringify({
 
                                 orderId:
-                                    orderId
+                                    firebaseOrderKey
 
                             })
 
@@ -1606,13 +1632,29 @@ async function handleCheckoutSubmit(
                 );
 
 
-            const paymentResult =
-                await response.json();
+            let paymentResult =
+                null;
+
+
+            try {
+
+                paymentResult =
+                    await response.json();
+
+            }
+
+            catch {
+
+                throw new Error(
+                    `Payment server returned an invalid response (${response.status}).`
+                );
+
+            }
 
 
             /*----------------------------------------------
-            STEP 4:
-            CHECK BACKEND RESPONSE
+            STEP 5:
+            BACKEND RESPONSE
             ----------------------------------------------*/
 
             if (
@@ -1630,8 +1672,8 @@ async function handleCheckoutSubmit(
 
 
             /*----------------------------------------------
-            STEP 5:
-            PAYMENT FORM / REDIRECT
+            STEP 6:
+            REDIRECT
             ----------------------------------------------*/
 
             if (
@@ -1658,6 +1700,11 @@ async function handleCheckoutSubmit(
             }
 
 
+            /*----------------------------------------------
+            STEP 7:
+            JAZZCASH FORM
+            ----------------------------------------------*/
+
             if (
                 paymentResult.action &&
                 paymentResult.fields
@@ -1674,7 +1721,7 @@ async function handleCheckoutSubmit(
 
 
             throw new Error(
-                "JazzCash payment gateway response is incomplete."
+                "JazzCash gateway response is incomplete."
             );
 
         }
@@ -1791,9 +1838,7 @@ function submitJazzCashForm(
 
 
             input.value =
-                String(
-                    value
-                );
+                String(value);
 
 
             form.appendChild(
@@ -1858,9 +1903,7 @@ function showOrderSuccess(
     if (successOrderTotal) {
 
         successOrderTotal.textContent =
-            formatPrice(
-                total
-            );
+            formatPrice(total);
 
     }
 
@@ -1873,12 +1916,10 @@ function showOrderSuccess(
     }
 
 
-    window.scrollTo(
-        {
-            top: 0,
-            behavior: "smooth"
-        }
-    );
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 
 }
 
@@ -1887,9 +1928,7 @@ function showOrderSuccess(
 FEATURE: PAKISTANI PHONE VALIDATION
 ==================================================*/
 
-function isValidPakistaniPhone(
-    phone
-) {
+function isValidPakistaniPhone(phone) {
 
     return /^03\d{9}$/.test(
         phone
@@ -1902,17 +1941,12 @@ function isValidPakistaniPhone(
 FEATURE: PRICE FORMAT
 ==================================================*/
 
-function formatPrice(
-    price
-) {
+function formatPrice(price) {
 
     return (
         "Rs. " +
-        Number(
-            price
-        ).toLocaleString(
-            "en-PK"
-        )
+        Number(price)
+            .toLocaleString("en-PK")
     );
 
 }
@@ -1922,9 +1956,7 @@ function formatPrice(
 FEATURE: CHECKOUT ERROR
 ==================================================*/
 
-function showCheckoutError(
-    message
-) {
+function showCheckoutError(message) {
 
     if (checkoutLoading) {
 
