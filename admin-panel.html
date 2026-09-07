@@ -1296,49 +1296,401 @@ FEATURE: CATEGORY MODAL
         <!--==================================================
         USERS SECTION
         ==================================================-->
+<!--==================================================
+SMARTBAZAAR PRO 2
+FEATURE: SELLER MANAGEMENT
+FEATURE: VISIT SELLER ACCOUNT
+==================================================-->
 
-        <section
-            class="admin-section"
-            id="usersSection">
+<section
+    class="admin-section"
+    id="usersSection">
+
+    <div class="section-heading">
+
+        <div>
+
+            <span class="section-eyebrow">
+                SELLER MANAGEMENT
+            </span>
+
+            <h2>
+                Seller Management
+            </h2>
+
+            <p>
+                Manage and view SmartBazaar sellers.
+            </p>
+
+        </div>
+
+    </div>
 
 
-            <div class="section-heading">
+    <!--==================================================
+    FEATURE: SELLER MANAGEMENT STATS
+    ==================================================-->
 
-                <div>
+    <div class="seller-admin-stats">
 
-                    <span class="section-eyebrow">
-                        USER MANAGEMENT
+        <div class="seller-admin-stat-card">
+
+            <div class="seller-admin-stat-icon">
+                <i class="fa-solid fa-store"></i>
+            </div>
+
+            <div>
+
+                <span>
+                    Total Sellers
+                </span>
+
+                <strong id="adminSellerCount">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="seller-admin-stat-card">
+
+            <div class="seller-admin-stat-icon">
+                <i class="fa-solid fa-box"></i>
+            </div>
+
+            <div>
+
+                <span>
+                    Seller Products
+                </span>
+
+                <strong id="adminSellerProductCount">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!--==================================================
+    FEATURE: SELLER SEARCH
+    ==================================================-->
+
+    <div class="seller-management-toolbar">
+
+        <div class="seller-search-box">
+
+            <i class="fa-solid fa-magnifying-glass"></i>
+
+            <input
+                type="search"
+                id="sellerSearchInput"
+                placeholder="Search seller by name, email or UID..."
+                autocomplete="off"
+            >
+
+        </div>
+
+    </div>
+
+
+    <!--==================================================
+    FEATURE: SELLER LIST
+    ==================================================-->
+
+    <div
+        class="seller-management-list"
+        id="sellerManagementList">
+
+        <div class="seller-admin-loading">
+
+            <i class="fa-solid fa-spinner fa-spin"></i>
+
+            <span>
+                Loading sellers...
+            </span>
+
+        </div>
+
+    </div>
+
+
+</section>
+
+
+<!--==================================================
+FEATURE: VISIT SELLER ACCOUNT MODAL
+==================================================-->
+
+<div
+    class="seller-account-modal"
+    id="sellerAccountModal"
+    aria-hidden="true"
+>
+
+    <div class="modal-overlay"></div>
+
+
+    <div class="seller-account-modal-dialog">
+
+        <button
+            type="button"
+            class="seller-account-modal-close"
+            id="closeSellerAccountModal"
+            aria-label="Close seller account"
+        >
+
+            <i class="fa-solid fa-xmark"></i>
+
+        </button>
+
+
+        <!--==================================================
+        FEATURE: SELLER ACCOUNT HEADER
+        ==================================================-->
+
+        <div class="seller-account-header">
+
+            <div class="seller-account-avatar">
+
+                <img
+                    id="sellerAccountAvatarImage"
+                    alt="Seller"
+                    hidden
+                >
+
+                <span
+                    id="sellerAccountAvatarLetter"
+                >
+                    S
+                </span>
+
+            </div>
+
+
+            <div class="seller-account-header-info">
+
+                <span class="seller-account-role">
+                    SELLER ACCOUNT
+                </span>
+
+                <h2 id="sellerAccountName">
+                    Seller
+                </h2>
+
+                <p id="sellerAccountEmail">
+                    —
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!--==================================================
+        FEATURE: SELLER PROFILE INFORMATION
+        ==================================================-->
+
+        <div class="seller-account-section">
+
+            <div class="seller-account-section-title">
+
+                <i class="fa-solid fa-user"></i>
+
+                <h3>
+                    Seller Profile
+                </h3>
+
+            </div>
+
+
+            <div class="seller-account-info-grid">
+
+                <div class="seller-account-info-item">
+
+                    <span>
+                        Full Name
                     </span>
 
-                    <h2>
-                        Users
-                    </h2>
+                    <strong id="sellerInfoName">
+                        —
+                    </strong>
 
-                    <p>
-                        Manage marketplace users.
-                    </p>
+                </div>
+
+
+                <div class="seller-account-info-item">
+
+                    <span>
+                        Email
+                    </span>
+
+                    <strong id="sellerInfoEmail">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="seller-account-info-item">
+
+                    <span>
+                        Phone
+                    </span>
+
+                    <strong id="sellerInfoPhone">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="seller-account-info-item">
+
+                    <span>
+                        City
+                    </span>
+
+                    <strong id="sellerInfoCity">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="seller-account-info-item seller-account-full">
+
+                    <span>
+                        Firebase UID
+                    </span>
+
+                    <strong
+                        id="sellerInfoUID"
+                        class="seller-uid-text"
+                    >
+                        —
+                    </strong>
 
                 </div>
 
             </div>
 
+        </div>
 
-            <div class="coming-soon-card">
 
-                <i class="fa-solid fa-users"></i>
+        <!--==================================================
+        FEATURE: SELLER STATISTICS
+        ==================================================-->
+
+        <div class="seller-account-section">
+
+            <div class="seller-account-section-title">
+
+                <i class="fa-solid fa-chart-simple"></i>
 
                 <h3>
-                    User Manager
+                    Seller Statistics
                 </h3>
-
-                <p>
-                    User management system will be added here.
-                </p>
 
             </div>
 
 
-        </section>
+            <div class="seller-account-stat-grid">
+
+                <div class="seller-account-mini-stat">
+
+                    <i class="fa-solid fa-box"></i>
+
+                    <span>
+                        Products
+                    </span>
+
+                    <strong id="sellerStatProducts">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="seller-account-mini-stat">
+
+                    <i class="fa-solid fa-cart-shopping"></i>
+
+                    <span>
+                        Orders
+                    </span>
+
+                    <strong id="sellerStatOrders">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="seller-account-mini-stat">
+
+                    <i class="fa-solid fa-money-bill-wave"></i>
+
+                    <span>
+                        Sales
+                    </span>
+
+                    <strong id="sellerStatSales">
+                        Rs 0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!--==================================================
+        FEATURE: SELLER PRODUCTS PREVIEW
+        ==================================================-->
+
+        <div class="seller-account-section">
+
+            <div class="seller-account-section-title">
+
+                <i class="fa-solid fa-box-open"></i>
+
+                <h3>
+                    Seller Products
+                </h3>
+
+            </div>
+
+
+            <div
+                class="seller-account-products"
+                id="sellerAccountProducts"
+            >
+
+                <div class="seller-admin-loading">
+
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+
+                    <span>
+                        Loading products...
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>
 
 
 
