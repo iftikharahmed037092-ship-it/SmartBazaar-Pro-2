@@ -4920,21 +4920,23 @@ function setupAdminPanelButton() {
 
     const adminButton =
         document.getElementById(
-            "accountAdminButton"
+            "adminPanelTopButton"
         );
 
     if (!adminButton) {
         return;
     }
 
+
     /*==================================================
-    DEFAULT: HIDE FROM EVERYONE
+    FEATURE: HIDE FROM ALL USERS BY DEFAULT
     ==================================================*/
 
-    adminButton.style.display = "none";
+    adminButton.hidden = true;
+
 
     /*==================================================
-    FEATURE: ADMIN EMAIL VERIFICATION
+    FEATURE: ADMIN ONLY ACCESS
     ==================================================*/
 
     if (
@@ -4944,12 +4946,11 @@ function setupAdminPanelButton() {
         ADMIN_EMAIL.trim().toLowerCase()
     ) {
 
-        adminButton.style.display = "flex";
+        adminButton.hidden = false;
 
     }
 
 }
-
 /*==================================================
 SMARTBAZAAR PRO 2
 ACCOUNT.JS COMPLETE
