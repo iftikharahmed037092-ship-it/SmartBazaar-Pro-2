@@ -4927,13 +4927,21 @@ function setupAdminPanelButton() {
         return;
     }
 
+    /*==================================================
+    DEFAULT: HIDE FROM EVERYONE
+    ==================================================*/
+
     adminButton.style.display = "none";
+
+    /*==================================================
+    FEATURE: ADMIN EMAIL VERIFICATION
+    ==================================================*/
 
     if (
         currentUser &&
         currentUser.email &&
-        currentUser.email.toLowerCase() ===
-        ADMIN_EMAIL.toLowerCase()
+        currentUser.email.trim().toLowerCase() ===
+        ADMIN_EMAIL.trim().toLowerCase()
     ) {
 
         adminButton.style.display = "flex";
@@ -4941,8 +4949,6 @@ function setupAdminPanelButton() {
     }
 
 }
-
-
 
 /*==================================================
 SMARTBAZAAR PRO 2
