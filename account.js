@@ -59,6 +59,14 @@ FEATURE: GLOBAL ACCOUNT STATE
 ==================================================*/
 
 let currentUser = null;
+/*==================================================
+SMARTBAZAAR PRO 2
+FEATURE: ACCOUNT ADMIN PANEL
+FEATURE: ADMIN EMAIL
+==================================================*/
+
+const ADMIN_EMAIL =
+    "iftikharahmed037092@gmail.com";
 
 let currentProfile = {};
 
@@ -4815,6 +4823,7 @@ async function startAccountSystem() {
 
 
             currentUser = user;
+            setupAdminPanelButton();
 
              /*==================================================
  FEATURE: LOAD SELLER PRODUCTS AFTER LOGIN
@@ -4898,6 +4907,41 @@ document.addEventListener(
 
     }
 );
+
+
+
+/*==================================================
+SMARTBAZAAR PRO 2
+FEATURE: ACCOUNT ADMIN PANEL BUTTON
+FEATURE: ADMIN ONLY VISIBILITY
+==================================================*/
+
+function setupAdminPanelButton() {
+
+    const adminButton =
+        document.getElementById(
+            "accountAdminButton"
+        );
+
+    if (!adminButton) {
+        return;
+    }
+
+    adminButton.style.display = "none";
+
+    if (
+        currentUser &&
+        currentUser.email &&
+        currentUser.email.toLowerCase() ===
+        ADMIN_EMAIL.toLowerCase()
+    ) {
+
+        adminButton.style.display = "flex";
+
+    }
+
+}
+
 
 
 /*==================================================
