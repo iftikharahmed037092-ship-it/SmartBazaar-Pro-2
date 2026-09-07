@@ -330,10 +330,10 @@ function createCategoryButton(
         ).trim();
 
 
-    const imageUrl =
+  /*  const imageUrl =
         safeImageURL(
             category.imageUrl || ""
-        );
+        );*/
 
 
     const button =
@@ -371,53 +371,21 @@ function createCategoryButton(
 
 
     /*==================================================
-    FEATURE: CATEGORY MEDIA
-    ==================================================*/
+FEATURE: CATEGORY MEDIA
+HOME پر صرف CATEGORY ICON استعمال ہوگا
+Admin کی category image استعمال نہیں ہوگی۔
+==================================================*/
 
-    let mediaHTML = "";
+const mediaHTML =
+    `
+        <span class="home-quick-category-icon">
 
+            <i
+                class="fa-solid ${escapeHTML(icon)}"
+            ></i>
 
-    /*
-     * اگر Admin نے image دی ہے
-     * تو image استعمال کریں گے۔
-     */
-
-    if (imageUrl) {
-
-        mediaHTML =
-            `
-                <span class="home-quick-category-image">
-
-                    <img
-                        src="${escapeHTML(imageUrl)}"
-                        alt="${escapeHTML(name)}"
-                        loading="lazy"
-                    >
-
-                </span>
-            `;
-
-    }
-
-    else {
-
-        /*
-         * ورنہ Admin Panel کا icon
-         * استعمال ہوگا۔
-         */
-
-        mediaHTML =
-            `
-                <span class="home-quick-category-icon">
-
-                    <i
-                        class="fa-solid ${escapeHTML(icon)}"
-                    ></i>
-
-                </span>
-            `;
-
-    }
+        </span>
+    `;
 
 
     /*==================================================
