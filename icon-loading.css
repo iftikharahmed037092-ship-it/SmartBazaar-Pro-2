@@ -1,0 +1,58 @@
+/*==================================================
+SMARTBAZAAR PRO 2
+FEATURE: FONT AWESOME ICON LOADING SYSTEM
+==================================================*/
+
+/*
+    Icons کے لیے جگہ پہلے سے محفوظ رہے گی
+    تاکہ Page Load پر layout نہ ٹوٹے۔
+*/
+
+.sb-icon-loading i,
+.sb-icon-loading .fa-solid,
+.sb-icon-loading .fa-regular,
+.sb-icon-loading .fa-brands,
+.sb-icon-loading .fa-light,
+.sb-icon-loading .fa-thin,
+.sb-icon-loading .fa-duotone {
+
+    visibility: hidden;
+
+}
+
+
+/*
+    Font Awesome تیار ہونے کے بعد
+    Icons فوراً ظاہر ہوں گے۔
+*/
+
+.sb-icons-ready i,
+.sb-icons-ready .fa-solid,
+.sb-icons-ready .fa-regular,
+.sb-icons-ready .fa-brands,
+.sb-icons-ready .fa-light,
+.sb-icons-ready .fa-thin,
+.sb-icons-ready .fa-duotone {
+
+    visibility: visible;
+
+}
+
+
+/*
+    Fallback:
+    اگر Font Awesome کسی وجہ سے load نہ ہو
+    تو پوری Website چھپی نہیں رہے گی۔
+*/
+
+.sb-icons-failed i,
+.sb-icons-failed .fa-solid,
+.sb-icons-failed .fa-regular,
+.sb-icons-failed .fa-brands,
+.sb-icons-failed .fa-light,
+.sb-icons-failed .fa-thin,
+.sb-icons-failed .fa-duotone {
+
+    visibility: visible;
+
+}
