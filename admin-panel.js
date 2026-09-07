@@ -1913,3 +1913,1553 @@ FEATURE: START CATEGORY MANAGER
 
 loadAdminCategories();
 
+
+
+/*==================================================
+SMARTBAZAAR PRO 2
+FEATURE: ADMIN SELLER MANAGEMENT
+FEATURE: VISIT SELLER ACCOUNT
+==================================================*/
+
+
+/*==================================================
+FEATURE: SELLER MANAGEMENT STATE
+==================================================*/
+
+let adminSellers = [];
+
+let adminSellerProducts = {};
+
+let selectedSeller = null;
+
+
+/*==================================================
+FEATURE: LOAD SELLERS
+==================================================*/
+
+async function loadAdminSellers() {
+
+    const list =
+        document.getElementById(
+            "sellerManagementList"
+        );
+
+
+    if (!list || !db) {
+
+        return;
+
+    }
+
+
+    list.innerHTML = `
+
+        <div class="seller-admin-loading">
+
+            <i class="fa-solid fa-spinner fa-spin"></i>
+
+            <span>
+                Loading sellers...
+            </span>
+
+        </div>
+
+    `;
+
+
+    try {
+
+        /*
+        Seller profile data is stored at:
+
+        users/{uid}
+        */
+
+        const usersSnapshot =
+            await get(
+                ref(
+                    db,
+                    "users"
+                )
+            );
+
+
+        const usersData =
+            usersSnapshot.exists()
+                ? usersSnapshot.val()
+                : {};
+
+
+        /*
+        Load products because the permanent
+        seller connection is:
+
+        products/{productId}/sellerId
+        products/{productId}/createdBy
+        */
+
+        const productsSnapshot =
+            await get(
+                ref(
+                    db,
+                    "products"
+                )
+            );
+
+
+        const productsData =
+            productsSnapshot.exists()
+                ? productsSnapshot.val()
+                : {};
+
+
+        adminSellerProducts = {};
+
+        /*
+        Build seller -> product connection.
+        */
+
+        Object.entries(
+            productsData
+        ).forEach(
+            ([productKey, product]) => {
+
+                if (!product) {
+
+                    return;
+
+                }
+
+
+                const sellerId =
+                    product.sellerId ||
+                    product.createdBy ||
+                    "";
+
+
+                if (!sellerId) {
+
+                    return;
+
+                }
+
+
+                if (
+                    !adminSellerProducts[sellerId]
+                ) {
+
+                    adminSellerProducts[sellerId] = [];
+
+                }
+
+
+                adminSellerProducts[
+                    sellerId
+                ].push({
+
+                    ...(product || {}),
+
+                    productId:
+                        product.productId ||
+                        productKey
+
+                });
+
+            }
+        );
+
+
+        /*
+        Detect sellers.
+
+        Primary method:
+        role / accountType / userType / isSeller
+
+        Fallback:
+        user is referenced by a product
+        through sellerId or createdBy.
+        */
+
+        adminSellers =
+            Object.entries(
+                usersData
+            )
+            .map(
+                ([uid, user]) => {
+
+                    const profile =
+                        user || {};
+
+
+                    const role =
+                        String(
+                            profile.role ||
+                            profile.accountType ||
+                            profile.userType ||
+                            ""
+                        )
+                        .trim()
+                        .toLowerCase();
+
+
+                    const sellerFlag =
+                        profile.isSeller === true;
+
+
+                    const hasSellerProducts =
+                        Boolean(
+                            adminSellerProducts[uid] &&
+                            adminSellerProducts[uid].length
+                        );
+
+
+                    const isSeller =
+                        role === "seller" ||
+                        sellerFlag ||
+                        hasSellerProducts;
+
+
+                    if (!isSeller) {
+
+                        return null;
+
+                    }
+
+
+                    return {
+
+                        ...profile,
+
+                        uid,
+
+                        _sellerProductCount:
+                            (
+                                adminSellerProducts[uid] ||
+                                []
+                            ).length
+
+                    };
+
+                }
+            )
+            .filter(Boolean);
+
+
+        /*
+        Newest / active sellers first where
+        possible.
+        */
+
+        adminSellers.sort(
+            (a, b) => {
+
+                return (
+                    Number(
+                        b.createdAt ||
+                        b.registeredAt ||
+                        0
+                    ) -
+                    Number(
+                        a.createdAt ||
+                        a.registeredAt ||
+                        0
+                    )
+                );
+
+            }
+        );
+
+
+        renderAdminSellers();
+
+        updateAdminSellerStats();
+
+    } catch (error) {
+
+        console.error(
+            "Admin seller loading error:",
+            error
+        );
+
+
+        list.innerHTML = `
+
+            <div class="seller-admin-empty">
+
+                <i class="fa-solid fa-triangle-exclamation"></i>
+
+                <h3>
+                    Unable to Load Sellers
+                </h3>
+
+                <p>
+                    Please check Firebase Database rules.
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: RENDER SELLERS
+==================================================*/
+
+function renderAdminSellers(
+    searchTerm = ""
+) {
+
+    const list =
+        document.getElementById(
+            "sellerManagementList"
+        );
+
+
+    if (!list) {
+
+        return;
+
+    }
+
+
+    const search =
+        String(
+            searchTerm || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    const filtered =
+        adminSellers.filter(
+            seller => {
+
+                if (!search) {
+
+                    return true;
+
+                }
+
+
+                const name =
+                    String(
+                        seller.fullName ||
+                        seller.name ||
+                        seller.displayName ||
+                        ""
+                    )
+                    .toLowerCase();
+
+
+                const email =
+                    String(
+                        seller.email ||
+                        ""
+                    )
+                    .toLowerCase();
+
+
+                const uid =
+                    String(
+                        seller.uid ||
+                        ""
+                    )
+                    .toLowerCase();
+
+
+                const city =
+                    String(
+                        seller.city ||
+                        ""
+                    )
+                    .toLowerCase();
+
+
+                return (
+                    name.includes(search) ||
+                    email.includes(search) ||
+                    uid.includes(search) ||
+                    city.includes(search)
+                );
+
+            }
+        );
+
+
+    if (!filtered.length) {
+
+        list.innerHTML = `
+
+            <div class="seller-admin-empty">
+
+                <i class="fa-solid fa-store-slash"></i>
+
+                <h3>
+                    No Sellers Found
+                </h3>
+
+                <p>
+                    No seller accounts match your search.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    list.innerHTML =
+        filtered
+            .map(
+                seller =>
+                    adminSellerCardHTML(
+                        seller
+                    )
+            )
+            .join("");
+
+}
+
+
+/*==================================================
+FEATURE: SELLER CARD
+==================================================*/
+
+function adminSellerCardHTML(
+    seller
+) {
+
+    const name =
+        seller.fullName ||
+        seller.name ||
+        seller.displayName ||
+        seller.email?.split("@")[0] ||
+        "Seller";
+
+
+    const email =
+        seller.email ||
+        "Email unavailable";
+
+
+    const city =
+        seller.city ||
+        "City unavailable";
+
+
+    const photoURL =
+        seller.photoURL ||
+        "";
+
+
+    const productCount =
+        Number(
+            seller._sellerProductCount || 0
+        );
+
+
+    const initial =
+        getAdminSellerInitial(
+            name
+        );
+
+
+    return `
+
+        <article
+            class="seller-admin-card"
+            data-seller-uid="${escapeAttribute(
+                seller.uid
+            )}"
+        >
+
+            <div class="seller-admin-avatar">
+
+                ${
+                    photoURL
+                        ? `
+
+                            <img
+                                src="${escapeAttribute(
+                                    photoURL
+                                )}"
+                                alt="${escapeAttribute(
+                                    name
+                                )}"
+                                loading="lazy"
+                            >
+
+                        `
+                        : `
+
+                            <span>
+                                ${escapeHTML(initial)}
+                            </span>
+
+                        `
+                }
+
+            </div>
+
+
+            <div class="seller-admin-info">
+
+                <h3>
+                    ${escapeHTML(name)}
+                </h3>
+
+
+                <p>
+                    ${escapeHTML(email)}
+                </p>
+
+
+                <div class="seller-admin-meta">
+
+                    <span>
+
+                        <i class="fa-solid fa-location-dot"></i>
+
+                        ${escapeHTML(city)}
+
+                    </span>
+
+
+                    <span class="seller-admin-products-count">
+
+                        <i class="fa-solid fa-box"></i>
+
+                        ${productCount}
+                        Product${productCount === 1 ? "" : "s"}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="visit-seller-account-button"
+                data-visit-seller="${escapeAttribute(
+                    seller.uid
+                )}"
+            >
+
+                <i class="fa-solid fa-user"></i>
+
+                Visit Account
+
+            </button>
+
+        </article>
+
+    `;
+
+}
+
+
+/*==================================================
+FEATURE: SELLER INITIAL
+==================================================*/
+
+function getAdminSellerInitial(
+    name
+) {
+
+    const value =
+        String(
+            name || "S"
+        )
+        .trim();
+
+
+    return value
+        ? value.charAt(0).toUpperCase()
+        : "S";
+
+}
+
+
+/*==================================================
+FEATURE: UPDATE SELLER STATS
+==================================================*/
+
+function updateAdminSellerStats() {
+
+    const sellerCount =
+        document.getElementById(
+            "adminSellerCount"
+        );
+
+
+    const productCount =
+        document.getElementById(
+            "adminSellerProductCount"
+        );
+
+
+    if (sellerCount) {
+
+        sellerCount.textContent =
+            String(
+                adminSellers.length
+            );
+
+    }
+
+
+    if (productCount) {
+
+        const total =
+            Object.values(
+                adminSellerProducts
+            )
+            .reduce(
+                (
+                    total,
+                    products
+                ) =>
+                    total +
+                    products.length,
+                0
+            );
+
+
+        productCount.textContent =
+            String(total);
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: OPEN SELLER ACCOUNT
+==================================================*/
+
+async function openAdminSellerAccount(
+    sellerUID
+) {
+
+    if (
+        !sellerUID ||
+        !db
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const seller =
+            adminSellers.find(
+                item =>
+                    String(item.uid) ===
+                    String(sellerUID)
+            );
+
+
+        if (!seller) {
+
+            return;
+
+        }
+
+
+        selectedSeller =
+            seller;
+
+
+        const modal =
+            document.getElementById(
+                "sellerAccountModal"
+            );
+
+
+        if (!modal) {
+
+            return;
+
+        }
+
+
+        renderAdminSellerProfile(
+            seller
+        );
+
+
+        const sellerProducts =
+            adminSellerProducts[
+                seller.uid
+            ] || [];
+
+
+        renderAdminSellerProducts(
+            sellerProducts
+        );
+
+
+        /*
+        Load seller-related orders.
+        This does NOT sign in as seller.
+        */
+
+        const sellerOrders =
+            await loadAdminSellerOrders(
+                seller.uid
+            );
+
+
+        renderAdminSellerStatsModal(
+            sellerProducts,
+            sellerOrders
+        );
+
+
+        modal.classList.add(
+            "active"
+        );
+
+
+        modal.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+
+        document.body.classList.add(
+            "modal-open"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Open seller account error:",
+            error
+        );
+
+        alert(
+            "Unable to open seller account."
+        );
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: RENDER SELLER PROFILE
+==================================================*/
+
+function renderAdminSellerProfile(
+    seller
+) {
+
+    const name =
+        seller.fullName ||
+        seller.name ||
+        seller.displayName ||
+        seller.email?.split("@")[0] ||
+        "Seller";
+
+
+    const email =
+        seller.email ||
+        "—";
+
+
+    const phone =
+        seller.phone ||
+        "—";
+
+
+    const city =
+        seller.city ||
+        "—";
+
+
+    const uid =
+        seller.uid ||
+        "—";
+
+
+    const avatarImage =
+        document.getElementById(
+            "sellerAccountAvatarImage"
+        );
+
+
+    const avatarLetter =
+        document.getElementById(
+            "sellerAccountAvatarLetter"
+        );
+
+
+    if (
+        avatarImage &&
+        seller.photoURL
+    ) {
+
+        avatarImage.src =
+            seller.photoURL;
+
+        avatarImage.hidden =
+            false;
+
+
+        if (avatarLetter) {
+
+            avatarLetter.hidden =
+                true;
+
+        }
+
+    } else {
+
+        if (avatarImage) {
+
+            avatarImage.hidden =
+                true;
+
+            avatarImage.removeAttribute(
+                "src"
+            );
+
+        }
+
+
+        if (avatarLetter) {
+
+            avatarLetter.hidden =
+                false;
+
+            avatarLetter.textContent =
+                getAdminSellerInitial(
+                    name
+                );
+
+        }
+
+    }
+
+
+    setAdminSellerText(
+        "sellerAccountName",
+        name
+    );
+
+
+    setAdminSellerText(
+        "sellerAccountEmail",
+        email
+    );
+
+
+    setAdminSellerText(
+        "sellerInfoName",
+        name
+    );
+
+
+    setAdminSellerText(
+        "sellerInfoEmail",
+        email
+    );
+
+
+    setAdminSellerText(
+        "sellerInfoPhone",
+        phone
+    );
+
+
+    setAdminSellerText(
+        "sellerInfoCity",
+        city
+    );
+
+
+    setAdminSellerText(
+        "sellerInfoUID",
+        uid
+    );
+
+}
+
+
+/*==================================================
+FEATURE: SAFE SELLER TEXT
+==================================================*/
+
+function setAdminSellerText(
+    id,
+    value
+) {
+
+    const element =
+        document.getElementById(
+            id
+        );
+
+
+    if (element) {
+
+        element.textContent =
+            value || "—";
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: LOAD SELLER ORDERS
+==================================================*/
+
+async function loadAdminSellerOrders(
+    sellerUID
+) {
+
+    if (!db || !sellerUID) {
+
+        return [];
+
+    }
+
+
+    try {
+
+        const snapshot =
+            await get(
+                ref(
+                    db,
+                    "orders"
+                )
+            );
+
+
+        if (!snapshot.exists()) {
+
+            return [];
+
+        }
+
+
+        const data =
+            snapshot.val();
+
+
+        return Object.entries(
+            data
+        )
+        .map(
+            ([key, order]) => ({
+
+                ...(order || {}),
+
+                _key: key
+
+            })
+        )
+        .filter(
+            order =>
+                sellerOrderBelongsToUser(
+                    order,
+                    sellerUID
+                )
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Seller orders could not be loaded:",
+            error
+        );
+
+
+        return [];
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: CHECK SELLER ORDER OWNER
+==================================================*/
+
+function sellerOrderBelongsToUser(
+    order,
+    sellerUID
+) {
+
+    if (!order || !sellerUID) {
+
+        return false;
+
+    }
+
+
+    const possibleSellerUIDs = [
+
+        order.sellerId,
+
+        order.sellerUID,
+
+        order.vendorId,
+
+        order.vendorUID,
+
+        order.merchantId,
+
+        order.merchantUID
+
+    ];
+
+
+    /*
+    Direct seller order.
+    */
+
+    if (
+        possibleSellerUIDs.some(
+            value =>
+                value &&
+                String(value) ===
+                String(sellerUID)
+        )
+    ) {
+
+        return true;
+
+    }
+
+
+    /*
+    Multi-product order support.
+    */
+
+    if (
+        Array.isArray(order.items)
+    ) {
+
+        return order.items.some(
+            item => {
+
+                const itemSellerId =
+                    item?.sellerId ||
+                    item?.sellerUID ||
+                    item?.vendorId ||
+                    item?.vendorUID ||
+                    item?.merchantId ||
+                    item?.merchantUID;
+
+
+                return (
+                    itemSellerId &&
+                    String(itemSellerId) ===
+                    String(sellerUID)
+                );
+
+            }
+        );
+
+    }
+
+
+    return false;
+
+}
+
+
+/*==================================================
+FEATURE: SELLER MODAL STATISTICS
+==================================================*/
+
+function renderAdminSellerStatsModal(
+    products,
+    orders
+) {
+
+    const productCount =
+        products.length;
+
+
+    const orderCount =
+        orders.length;
+
+
+    /*
+    Calculate visible seller sales only
+    when an order has a recognized total.
+    */
+
+    let sales =
+        0;
+
+
+    orders.forEach(
+        order => {
+
+            const total =
+                Number(
+                    order.sellerTotal ??
+                    order.sellerAmount ??
+                    order.total ??
+                    order.totalAmount ??
+                    order.grandTotal ??
+                    0
+                );
+
+
+            if (
+                Number.isFinite(total)
+            ) {
+
+                sales += total;
+
+            }
+
+        }
+    );
+
+
+    setAdminSellerText(
+        "sellerStatProducts",
+        productCount
+    );
+
+
+    setAdminSellerText(
+        "sellerStatOrders",
+        orderCount
+    );
+
+
+    setAdminSellerText(
+        "sellerStatSales",
+        `Rs ${formatAdminMoney(sales)}`
+    );
+
+}
+
+
+/*==================================================
+FEATURE: SELLER PRODUCTS
+==================================================*/
+
+function renderAdminSellerProducts(
+    products
+) {
+
+    const container =
+        document.getElementById(
+            "sellerAccountProducts"
+        );
+
+
+    if (!container) {
+
+        return;
+
+    }
+
+
+    if (
+        !products ||
+        products.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div class="seller-account-products-empty">
+
+                <i class="fa-solid fa-box-open"></i>
+
+                <p>
+                    This seller has no products yet.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    const visibleProducts =
+        products.slice(
+            0,
+            9
+        );
+
+
+    container.innerHTML =
+        visibleProducts
+            .map(
+                product =>
+                    adminSellerProductHTML(
+                        product
+                    )
+            )
+            .join("");
+
+}
+
+
+/*==================================================
+FEATURE: SELLER PRODUCT CARD
+==================================================*/
+
+function adminSellerProductHTML(
+    product
+) {
+
+    const name =
+        product.name ||
+        product.title ||
+        "Unnamed Product";
+
+
+    const image =
+        product.image ||
+        (
+            Array.isArray(
+                product.images
+            )
+                ? product.images[0]
+                : ""
+        ) ||
+        product.imageUrl ||
+        product.thumbnail ||
+        "";
+
+
+    const price =
+        Number(
+            product.price ||
+            product.salePrice ||
+            0
+        );
+
+
+    return `
+
+        <article
+            class="seller-account-product-card"
+        >
+
+            <div class="seller-account-product-image">
+
+                ${
+                    image
+                        ? `
+
+                            <img
+                                src="${escapeAttribute(
+                                    image
+                                )}"
+                                alt="${escapeAttribute(
+                                    name
+                                )}"
+                                loading="lazy"
+                            >
+
+                        `
+                        : `
+
+                            <div class="seller-account-product-no-image">
+
+                                <i class="fa-solid fa-image"></i>
+
+                            </div>
+
+                        `
+                }
+
+            </div>
+
+
+            <div class="seller-account-product-info">
+
+                <h4>
+                    ${escapeHTML(name)}
+                </h4>
+
+
+                <div class="seller-account-product-price">
+
+                    Rs ${formatAdminMoney(price)}
+
+                </div>
+
+            </div>
+
+        </article>
+
+    `;
+
+}
+
+
+/*==================================================
+FEATURE: FORMAT ADMIN MONEY
+==================================================*/
+
+function formatAdminMoney(
+    value
+) {
+
+    return (
+        Number(value) || 0
+    ).toLocaleString(
+        "en-PK",
+        {
+            maximumFractionDigits: 2
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: CLOSE SELLER ACCOUNT
+==================================================*/
+
+function closeAdminSellerAccount() {
+
+    const modal =
+        document.getElementById(
+            "sellerAccountModal"
+        );
+
+
+    if (!modal) {
+
+        return;
+
+    }
+
+
+    modal.classList.remove(
+        "active"
+    );
+
+
+    modal.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    document.body.classList.remove(
+        "modal-open"
+    );
+
+
+    selectedSeller =
+        null;
+
+}
+
+
+/*==================================================
+FEATURE: SELLER MANAGEMENT EVENTS
+==================================================*/
+
+function setupAdminSellerManagement() {
+
+    const searchInput =
+        document.getElementById(
+            "sellerSearchInput"
+        );
+
+
+    const list =
+        document.getElementById(
+            "sellerManagementList"
+        );
+
+
+    const modal =
+        document.getElementById(
+            "sellerAccountModal"
+        );
+
+
+    const closeButton =
+        document.getElementById(
+            "closeSellerAccountModal"
+        );
+
+
+    /*
+    Search.
+    */
+
+    if (searchInput) {
+
+        searchInput.addEventListener(
+            "input",
+            () => {
+
+                renderAdminSellers(
+                    searchInput.value
+                );
+
+            }
+        );
+
+    }
+
+
+    /*
+    Visit seller account.
+    */
+
+    if (list) {
+
+        list.addEventListener(
+            "click",
+            event => {
+
+                const button =
+                    event.target.closest(
+                        "[data-visit-seller]"
+                    );
+
+
+                if (!button) {
+
+                    return;
+
+                }
+
+
+                const sellerUID =
+                    button.dataset.visitSeller;
+
+
+                openAdminSellerAccount(
+                    sellerUID
+                );
+
+            }
+        );
+
+    }
+
+
+    /*
+    Close button.
+    */
+
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            closeAdminSellerAccount
+        );
+
+    }
+
+
+    /*
+    Overlay close.
+    */
+
+    if (modal) {
+
+        const overlay =
+            modal.querySelector(
+                ".modal-overlay"
+            );
+
+
+        if (overlay) {
+
+            overlay.addEventListener(
+                "click",
+                closeAdminSellerAccount
+            );
+
+        }
+
+    }
+
+
+    /*
+    Escape key.
+    */
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Escape" &&
+                modal &&
+                modal.classList.contains(
+                    "active"
+                )
+            ) {
+
+                closeAdminSellerAccount();
+
+            }
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: INITIALIZE SELLER MANAGEMENT
+==================================================*/
+
+function initializeAdminSellerManagement() {
+
+    setupAdminSellerManagement();
+
+    loadAdminSellers();
+
+}
+
+
+/*==================================================
+FEATURE: OPEN SELLER MANAGEMENT WHEN USERS SECTION OPENS
+==================================================*/
+
+const originalAdminOpenSection =
+    typeof openSection === "function"
+        ? openSection
+        : null;
+
+
+/*
+Initialize after DOM is ready.
+*/
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        initializeAdminSellerManagement();
+
+    }
+);
+
