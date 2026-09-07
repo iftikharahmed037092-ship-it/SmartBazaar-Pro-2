@@ -3570,6 +3570,105 @@ MOBILE
 
 }
 
+
+/*==================================================
+SMARTBAZAAR PRO 2
+FEATURE: ACCOUNT ADMIN PANEL BUTTON
+FEATURE: ADMIN ONLY VISIBILITY
+==================================================*/
+
+.header-admin-button {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    min-height: 42px;
+
+    padding: 0 16px;
+
+    border: 1px solid #2e7d32;
+
+    border-radius: 10px;
+
+    background: #2e7d32;
+
+    color: #ffffff;
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+.header-admin-button i {
+
+    font-size: 15px;
+
+}
+
+
+.header-admin-button:hover {
+
+    background: #256b2a;
+
+    box-shadow:
+        0 5px 14px rgba(46, 125, 50, 0.20);
+
+    transform: translateY(-1px);
+
+}
+
+
+.header-admin-button:active {
+
+    transform: translateY(0);
+
+}
+
+
+/*==================================================
+FEATURE: ADMIN BUTTON MOBILE
+==================================================*/
+
+@media (max-width: 600px) {
+
+    .header-admin-button {
+
+        min-height: 38px;
+
+        padding: 0 11px;
+
+        gap: 6px;
+
+        font-size: 12px;
+
+        border-radius: 8px;
+
+    }
+
+
+    .header-admin-button i {
+
+        font-size: 13px;
+
+    }
+
+}
+
+
 /*==================================================
 SMARTBAZAAR PRO 2
 END OF ACCOUNT CSS
