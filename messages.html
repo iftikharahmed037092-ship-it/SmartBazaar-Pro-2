@@ -1,0 +1,2774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    >
+
+    <meta
+        name="description"
+        content="SmartBazaar Pro 2 Messaging - Buyer, Seller, Order and Support Conversations"
+    >
+
+    <meta
+        name="theme-color"
+        content="#2e7d32"
+    >
+
+    <title>Messages - SmartBazaar Pro 2</title>
+
+    <!-- =========================================================
+         SMARTBAZAAR PRO 2
+         FEATURE: MESSAGING SYSTEM
+         Main Messaging Page
+         ========================================================= -->
+
+    <!-- Existing / Project CSS hooks -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="messages.css">
+
+    <!-- Font / Icon support -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+    <!-- =========================================================
+         OPTIONAL APPLE / PWA META
+         ========================================================= -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+</head>
+
+<body
+    class="messages-page"
+    data-page="messages"
+    data-module="messaging"
+>
+
+    <!-- =========================================================
+         GLOBAL APP LOADING
+         ========================================================= -->
+
+    <div
+        id="messagesPageLoader"
+        class="messages-page-loader"
+        aria-hidden="true"
+    >
+        <div class="messages-loader-spinner"></div>
+        <p>Loading messages...</p>
+    </div>
+
+
+    <!-- =========================================================
+         GLOBAL TOAST / NOTIFICATION
+         ========================================================= -->
+
+    <div
+        id="messageToast"
+        class="message-toast"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        hidden
+    >
+        <span id="messageToastIcon" class="message-toast-icon"></span>
+        <span id="messageToastText"></span>
+        <button
+            type="button"
+            id="messageToastClose"
+            class="message-toast-close"
+            aria-label="Close notification"
+        >
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+
+    <!-- =========================================================
+         APP SHELL
+         ========================================================= -->
+
+    <main
+        id="messagesApp"
+        class="messages-app"
+    >
+
+        <!-- =====================================================
+             MESSAGES HEADER
+             ===================================================== -->
+
+        <header
+            id="messagesHeader"
+            class="messages-header"
+        >
+
+            <div class="messages-header-left">
+
+                <button
+                    type="button"
+                    id="messagesMobileMenuButton"
+                    class="messages-icon-button messages-mobile-only"
+                    aria-label="Open messages menu"
+                    title="Menu"
+                >
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+
+                <a
+                    href="index.html"
+                    id="messagesLogo"
+                    class="messages-logo"
+                    aria-label="SmartBazaar Pro 2 Home"
+                >
+                    SmartBazaar
+                </a>
+
+                <div class="messages-title-wrapper">
+                    <h1>Messages</h1>
+
+                    <span
+                        id="messagesTotalUnread"
+                        class="messages-total-unread"
+                        hidden
+                    >
+                        0
+                    </span>
+                </div>
+
+            </div>
+
+
+            <div class="messages-header-actions">
+
+                <!-- Search -->
+                <button
+                    type="button"
+                    id="messagesHeaderSearchButton"
+                    class="messages-icon-button"
+                    aria-label="Search messages"
+                    title="Search"
+                >
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+
+
+                <!-- New Message -->
+                <button
+                    type="button"
+                    id="newMessageButton"
+                    class="messages-new-button"
+                >
+                    <i class="fa-solid fa-pen"></i>
+                    <span>New Message</span>
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- =====================================================
+             GLOBAL SEARCH BAR
+             ===================================================== -->
+
+        <section
+            id="messagesSearchSection"
+            class="messages-search-section"
+            aria-label="Search messages"
+        >
+
+            <div class="messages-search-box">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input
+                    type="search"
+                    id="conversationSearchInput"
+                    placeholder="Search conversations or messages..."
+                    autocomplete="off"
+                    aria-label="Search conversations or messages"
+                >
+
+                <button
+                    type="button"
+                    id="clearConversationSearch"
+                    class="messages-search-clear"
+                    aria-label="Clear search"
+                    hidden
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             MAIN MESSAGING LAYOUT
+             ===================================================== -->
+
+        <section
+            id="messagesWorkspace"
+            class="messages-workspace"
+        >
+
+
+            <!-- =================================================
+                 LEFT:
+                 CONVERSATIONS SIDEBAR
+                 ================================================= -->
+
+            <aside
+                id="conversationsSidebar"
+                class="conversations-sidebar"
+                aria-label="Conversations"
+            >
+
+                <!-- Sidebar Header -->
+                <div class="conversations-sidebar-header">
+
+                    <div>
+                        <h2>Chats</h2>
+
+                        <span
+                            id="conversationCount"
+                            class="conversation-count"
+                        >
+                            0 conversations
+                        </span>
+                    </div>
+
+                    <button
+                        type="button"
+                        id="conversationSidebarClose"
+                        class="messages-icon-button messages-mobile-only"
+                        aria-label="Close conversations"
+                    >
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+
+                </div>
+
+
+                <!-- =================================================
+                     FILTERS
+                     ================================================= -->
+
+                <nav
+                    id="conversationFilters"
+                    class="conversation-filters"
+                    aria-label="Message filters"
+                >
+
+                    <button
+                        type="button"
+                        class="conversation-filter active"
+                        data-filter="all"
+                        aria-pressed="true"
+                    >
+                        <span>All</span>
+
+                        <span
+                            id="allMessagesCount"
+                            class="filter-count"
+                            hidden
+                        >
+                            0
+                        </span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="conversation-filter"
+                        data-filter="unread"
+                        aria-pressed="false"
+                    >
+                        <span>Unread</span>
+
+                        <span
+                            id="unreadMessagesCount"
+                            class="filter-count"
+                            hidden
+                        >
+                            0
+                        </span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="conversation-filter"
+                        data-filter="buyers"
+                        aria-pressed="false"
+                    >
+                        <i class="fa-solid fa-user"></i>
+                        <span>Buyers</span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="conversation-filter"
+                        data-filter="sellers"
+                        aria-pressed="false"
+                    >
+                        <i class="fa-solid fa-store"></i>
+                        <span>Sellers</span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="conversation-filter"
+                        data-filter="support"
+                        aria-pressed="false"
+                    >
+                        <i class="fa-solid fa-headset"></i>
+                        <span>Support</span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="conversation-filter"
+                        data-filter="orders"
+                        aria-pressed="false"
+                    >
+                        <i class="fa-solid fa-box"></i>
+                        <span>Orders</span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="conversation-filter"
+                        data-filter="archived"
+                        aria-pressed="false"
+                    >
+                        <i class="fa-solid fa-box-archive"></i>
+                        <span>Archived</span>
+                    </button>
+
+                </nav>
+
+
+                <!-- =================================================
+                     CONVERSATIONS LIST
+                     ================================================= -->
+
+                <div
+                    id="conversationsList"
+                    class="conversations-list"
+                    role="list"
+                    aria-label="Your conversations"
+                >
+
+                    <!--
+                        JavaScript will render real conversations here.
+
+                        Expected conversation data hooks:
+
+                        data-conversation-id
+                        data-user-id
+                        data-user-role
+                        data-product-id
+                        data-order-id
+                    -->
+
+
+                    <!-- Empty State -->
+                    <div
+                        id="conversationsEmptyState"
+                        class="conversations-empty-state"
+                        hidden
+                    >
+
+                        <div class="empty-state-icon">
+                            <i class="fa-regular fa-comments"></i>
+                        </div>
+
+                        <h3>No conversations</h3>
+
+                        <p>
+                            Your messages and conversations will appear here.
+                        </p>
+
+                        <button
+                            type="button"
+                            id="emptyStateNewMessageButton"
+                            class="primary-message-button"
+                        >
+                            <i class="fa-solid fa-pen"></i>
+                            Start a Conversation
+                        </button>
+
+                    </div>
+
+
+                    <!-- Search Empty State -->
+                    <div
+                        id="conversationSearchEmptyState"
+                        class="conversations-empty-state"
+                        hidden
+                    >
+
+                        <div class="empty-state-icon">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </div>
+
+                        <h3>No results found</h3>
+
+                        <p>
+                            Try another search term.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+
+            <!-- =================================================
+                 RIGHT:
+                 CHAT AREA
+                 ================================================= -->
+
+            <section
+                id="chatPanel"
+                class="chat-panel"
+                aria-label="Conversation"
+            >
+
+
+                <!-- =============================================
+                     NO ACTIVE CHAT
+                     ============================================= -->
+
+                <div
+                    id="noActiveConversation"
+                    class="no-active-conversation"
+                >
+
+                    <div class="no-chat-icon">
+                        <i class="fa-regular fa-comments"></i>
+                    </div>
+
+                    <h2>Your Messages</h2>
+
+                    <p>
+                        Select a conversation to start chatting.
+                    </p>
+
+                    <button
+                        type="button"
+                        id="startNewConversationFromEmpty"
+                        class="primary-message-button"
+                    >
+                        <i class="fa-solid fa-pen"></i>
+                        New Message
+                    </button>
+
+                </div>
+
+
+                <!-- =============================================
+                     ACTIVE CHAT
+                     ============================================= -->
+
+                <div
+                    id="activeChat"
+                    class="active-chat"
+                    hidden
+                >
+
+
+                    <!-- =========================================
+                         CHAT HEADER
+                         ========================================= -->
+
+                    <header
+                        id="chatHeader"
+                        class="chat-header"
+                    >
+
+                        <div class="chat-header-left">
+
+                            <!-- Mobile Back -->
+                            <button
+                                type="button"
+                                id="mobileChatBackButton"
+                                class="messages-icon-button messages-mobile-only"
+                                aria-label="Back to conversations"
+                                title="Back"
+                            >
+                                <i class="fa-solid fa-arrow-left"></i>
+                            </button>
+
+
+                            <!-- User Avatar -->
+                            <div
+                                id="chatHeaderAvatar"
+                                class="chat-user-avatar"
+                            >
+                                <img
+                                    id="chatHeaderAvatarImage"
+                                    src=""
+                                    alt=""
+                                    hidden
+                                >
+
+                                <span
+                                    id="chatHeaderAvatarInitial"
+                                >
+                                    U
+                                </span>
+
+                                <span
+                                    id="chatHeaderOnlineIndicator"
+                                    class="chat-online-indicator"
+                                    hidden
+                                ></span>
+                            </div>
+
+
+                            <!-- User Info -->
+                            <div class="chat-user-header-info">
+
+                                <div class="chat-user-name-row">
+
+                                    <h2
+                                        id="chatHeaderUserName"
+                                        class="chat-user-name"
+                                    >
+                                        User
+                                    </h2>
+
+                                    <span
+                                        id="chatHeaderVerifiedBadge"
+                                        class="verified-badge"
+                                        hidden
+                                        title="Verified"
+                                    >
+                                        <i class="fa-solid fa-circle-check"></i>
+                                    </span>
+
+                                </div>
+
+
+                                <div
+                                    id="chatHeaderPresence"
+                                    class="chat-user-presence"
+                                >
+                                    <span id="chatHeaderStatusText">
+                                        Offline
+                                    </span>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="chat-header-actions">
+
+                            <!-- Search in Chat -->
+                            <button
+                                type="button"
+                                id="chatSearchButton"
+                                class="messages-icon-button"
+                                aria-label="Search in conversation"
+                                title="Search in conversation"
+                            >
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+
+
+                            <!-- Call - reserved for future integration -->
+                            <button
+                                type="button"
+                                id="voiceCallButton"
+                                class="messages-icon-button"
+                                aria-label="Voice call"
+                                title="Voice call"
+                            >
+                                <i class="fa-solid fa-phone"></i>
+                            </button>
+
+
+                            <!-- Video - reserved for future integration -->
+                            <button
+                                type="button"
+                                id="videoCallButton"
+                                class="messages-icon-button"
+                                aria-label="Video call"
+                                title="Video call"
+                            >
+                                <i class="fa-solid fa-video"></i>
+                            </button>
+
+
+                            <!-- Chat Info -->
+                            <button
+                                type="button"
+                                id="chatInfoButton"
+                                class="messages-icon-button"
+                                aria-label="Conversation information"
+                                title="Conversation information"
+                            >
+                                <i class="fa-solid fa-circle-info"></i>
+                            </button>
+
+
+                            <!-- More Options -->
+                            <button
+                                type="button"
+                                id="chatOptionsButton"
+                                class="messages-icon-button"
+                                aria-label="Conversation options"
+                                title="More options"
+                            >
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </button>
+
+                        </div>
+
+                    </header>
+
+
+                    <!-- =========================================
+                         CHAT SEARCH
+                         ========================================= -->
+
+                    <div
+                        id="chatSearchBar"
+                        class="chat-search-bar"
+                        hidden
+                    >
+
+                        <div class="chat-search-input-wrapper">
+
+                            <i class="fa-solid fa-magnifying-glass"></i>
+
+                            <input
+                                type="search"
+                                id="chatMessageSearchInput"
+                                placeholder="Search in this conversation..."
+                                autocomplete="off"
+                            >
+
+                            <button
+                                type="button"
+                                id="clearChatSearch"
+                                aria-label="Clear chat search"
+                                hidden
+                            >
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+
+                        </div>
+
+                        <button
+                            type="button"
+                            id="closeChatSearch"
+                            class="messages-text-button"
+                        >
+                            Cancel
+                        </button>
+
+                    </div>
+
+
+                    <!-- =========================================
+                         PRODUCT CONTEXT
+                         ========================================= -->
+
+                    <section
+                        id="chatProductContext"
+                        class="chat-context-card product-context-card"
+                        hidden
+                    >
+
+                        <div class="context-card-image">
+                            <img
+                                id="chatProductImage"
+                                src=""
+                                alt=""
+                            >
+                        </div>
+
+                        <div class="context-card-content">
+
+                            <span class="context-card-label">
+                                Product
+                            </span>
+
+                            <h3 id="chatProductName">
+                                Product Name
+                            </h3>
+
+                            <div
+                                id="chatProductPrice"
+                                class="context-card-price"
+                            >
+                                Rs. 0
+                            </div>
+
+                        </div>
+
+                        <a
+                            href="#"
+                            id="chatProductViewButton"
+                            class="context-card-action"
+                        >
+                            View Product
+                        </a>
+
+                    </section>
+
+
+                    <!-- =========================================
+                         ORDER CONTEXT
+                         ========================================= -->
+
+                    <section
+                        id="chatOrderContext"
+                        class="chat-context-card order-context-card"
+                        hidden
+                    >
+
+                        <div class="order-context-icon">
+                            <i class="fa-solid fa-box"></i>
+                        </div>
+
+                        <div class="context-card-content">
+
+                            <span class="context-card-label">
+                                Order
+                            </span>
+
+                            <h3 id="chatOrderNumber">
+                                Order #
+                            </h3>
+
+                            <div
+                                id="chatOrderStatus"
+                                class="order-status-badge"
+                            >
+                                Processing
+                            </div>
+
+                        </div>
+
+                        <a
+                            href="#"
+                            id="chatOrderViewButton"
+                            class="context-card-action"
+                        >
+                            View Order
+                        </a>
+
+                    </section>
+
+
+                    <!-- =========================================
+                         MESSAGES AREA
+                         ========================================= -->
+
+                    <div
+                        id="messagesContainer"
+                        class="messages-container"
+                        role="log"
+                        aria-live="polite"
+                        aria-relevant="additions"
+                    >
+
+                        <!-- Loading -->
+                        <div
+                            id="messagesLoadingState"
+                            class="messages-loading-state"
+                            hidden
+                        >
+                            <div class="messages-loader-spinner"></div>
+                            <p>Loading conversation...</p>
+                        </div>
+
+
+                        <!-- Message Empty State -->
+                        <div
+                            id="messagesEmptyState"
+                            class="messages-empty-state"
+                            hidden
+                        >
+
+                            <div class="messages-empty-icon">
+                                <i class="fa-regular fa-message"></i>
+                            </div>
+
+                            <h3>Start the conversation</h3>
+
+                            <p>
+                                Send a message to begin chatting.
+                            </p>
+
+                        </div>
+
+
+                        <!--
+                            JavaScript renders messages here.
+
+                            Message hooks should support:
+
+                            data-message-id
+                            data-sender-id
+                            data-message-type
+                            data-message-status
+                            data-timestamp
+                        -->
+
+                    </div>
+
+
+                    <!-- =========================================
+                         TYPING INDICATOR
+                         ========================================= -->
+
+                    <div
+                        id="typingIndicator"
+                        class="typing-indicator"
+                        hidden
+                    >
+
+                        <div class="typing-avatar">
+                            <span id="typingAvatarInitial">U</span>
+                        </div>
+
+                        <div class="typing-content">
+
+                            <span id="typingUserName">
+                                User
+                            </span>
+
+                            <span>is typing</span>
+
+                            <span class="typing-dots">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =========================================
+                         OFFER / NEGOTIATION PREVIEW
+                         ========================================= -->
+
+                    <section
+                        id="activeOfferContext"
+                        class="active-offer-context"
+                        hidden
+                    >
+
+                        <div class="offer-context-icon">
+                            <i class="fa-solid fa-tag"></i>
+                        </div>
+
+                        <div class="offer-context-content">
+
+                            <span class="offer-context-label">
+                                Active Offer
+                            </span>
+
+                            <strong id="activeOfferAmount">
+                                Rs. 0
+                            </strong>
+
+                            <span id="activeOfferStatus">
+                                Pending
+                            </span>
+
+                        </div>
+
+                        <button
+                            type="button"
+                            id="viewActiveOfferButton"
+                            class="messages-text-button"
+                        >
+                            View
+                        </button>
+
+                    </section>
+
+
+                    <!-- =========================================
+                         ATTACHMENT PREVIEW
+                         ========================================= -->
+
+                    <div
+                        id="attachmentPreviewArea"
+                        class="attachment-preview-area"
+                        hidden
+                    >
+
+                        <div
+                            id="attachmentPreviewList"
+                            class="attachment-preview-list"
+                        >
+                        </div>
+
+                        <button
+                            type="button"
+                            id="removeAllAttachmentsButton"
+                            class="remove-all-attachments-button"
+                            aria-label="Remove attachments"
+                            title="Remove attachments"
+                        >
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+
+                    </div>
+
+
+                    <!-- =========================================
+                         COMPOSER
+                         ========================================= -->
+
+                    <form
+                        id="messageComposer"
+                        class="message-composer"
+                        autocomplete="off"
+                    >
+
+                        <div class="composer-main-row">
+
+
+                            <!-- Attachment -->
+                            <div class="composer-attachment-wrapper">
+
+                                <button
+                                    type="button"
+                                    id="attachmentButton"
+                                    class="composer-icon-button"
+                                    aria-label="Attach file"
+                                    title="Attach file"
+                                >
+                                    <i class="fa-solid fa-paperclip"></i>
+                                </button>
+
+
+                                <input
+                                    type="file"
+                                    id="messageAttachmentInput"
+                                    accept="image/*,.pdf,.doc,.docx,.txt"
+                                    multiple
+                                    hidden
+                                >
+
+                            </div>
+
+
+                            <!-- Emoji -->
+                            <div class="composer-emoji-wrapper">
+
+                                <button
+                                    type="button"
+                                    id="emojiButton"
+                                    class="composer-icon-button"
+                                    aria-label="Emoji"
+                                    title="Emoji"
+                                >
+                                    <i class="fa-regular fa-face-smile"></i>
+                                </button>
+
+
+                                <!-- Emoji Picker -->
+                                <div
+                                    id="emojiPicker"
+                                    class="emoji-picker"
+                                    hidden
+                                >
+
+                                    <div class="emoji-picker-header">
+
+                                        <strong>Emoji</strong>
+
+                                        <button
+                                            type="button"
+                                            id="closeEmojiPicker"
+                                            aria-label="Close emoji picker"
+                                        >
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+
+                                    </div>
+
+                                    <div
+                                        id="emojiList"
+                                        class="emoji-list"
+                                    >
+
+                                        <button type="button" data-emoji="😀">😀</button>
+                                        <button type="button" data-emoji="😂">😂</button>
+                                        <button type="button" data-emoji="😊">😊</button>
+                                        <button type="button" data-emoji="😍">😍</button>
+                                        <button type="button" data-emoji="🥰">🥰</button>
+                                        <button type="button" data-emoji="😎">😎</button>
+                                        <button type="button" data-emoji="👍">👍</button>
+                                        <button type="button" data-emoji="👎">👎</button>
+                                        <button type="button" data-emoji="❤️">❤️</button>
+                                        <button type="button" data-emoji="🔥">🔥</button>
+                                        <button type="button" data-emoji="🎉">🎉</button>
+                                        <button type="button" data-emoji="🙏">🙏</button>
+                                        <button type="button" data-emoji="✅">✅</button>
+                                        <button type="button" data-emoji="❌">❌</button>
+                                        <button type="button" data-emoji="📦">📦</button>
+                                        <button type="button" data-emoji="💰">💰</button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Message Input -->
+                            <div class="message-input-wrapper">
+
+                                <textarea
+                                    id="messageInput"
+                                    name="message"
+                                    rows="1"
+                                    maxlength="5000"
+                                    placeholder="Type a message..."
+                                    aria-label="Type a message"
+                                    spellcheck="true"
+                                ></textarea>
+
+                                <span
+                                    id="messageCharacterCount"
+                                    class="message-character-count"
+                                >
+                                    0/5000
+                                </span>
+
+                            </div>
+
+
+                            <!-- Send -->
+                            <button
+                                type="submit"
+                                id="sendMessageButton"
+                                class="send-message-button"
+                                aria-label="Send message"
+                                title="Send message"
+                                disabled
+                            >
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+
+                        </div>
+
+
+                        <!-- Composer Hint -->
+                        <div
+                            id="composerSecurityHint"
+                            class="composer-security-hint"
+                        >
+                            <i class="fa-solid fa-shield-halved"></i>
+
+                            <span>
+                                Never share passwords, OTPs or sensitive payment information.
+                            </span>
+                        </div>
+
+                    </form>
+
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 CHAT INFO / RIGHT PANEL
+                 ================================================= -->
+
+            <aside
+                id="chatInfoPanel"
+                class="chat-info-panel"
+                aria-label="Conversation information"
+                hidden
+            >
+
+                <div class="chat-info-header">
+
+                    <h2>Conversation Info</h2>
+
+                    <button
+                        type="button"
+                        id="closeChatInfoButton"
+                        class="messages-icon-button"
+                        aria-label="Close information"
+                    >
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+
+                </div>
+
+
+                <!-- User Profile -->
+                <section class="chat-info-profile">
+
+                    <div
+                        id="chatInfoAvatar"
+                        class="chat-info-avatar"
+                    >
+                        <img
+                            id="chatInfoAvatarImage"
+                            src=""
+                            alt=""
+                            hidden
+                        >
+
+                        <span id="chatInfoAvatarInitial">
+                            U
+                        </span>
+                    </div>
+
+                    <h3 id="chatInfoUserName">
+                        User
+                    </h3>
+
+                    <p id="chatInfoUserRole">
+                        User
+                    </p>
+
+                    <a
+                        href="#"
+                        id="chatInfoProfileButton"
+                        class="secondary-message-button"
+                    >
+                        View Profile
+                    </a>
+
+                </section>
+
+
+                <!-- Product Information -->
+                <section
+                    id="chatInfoProductSection"
+                    class="chat-info-section"
+                    hidden
+                >
+
+                    <div class="chat-info-section-heading">
+
+                        <i class="fa-solid fa-box-open"></i>
+
+                        <h3>Product</h3>
+
+                    </div>
+
+                    <div
+                        id="chatInfoProduct"
+                        class="chat-info-product"
+                    >
+
+                        <img
+                            id="chatInfoProductImage"
+                            src=""
+                            alt=""
+                        >
+
+                        <div>
+                            <strong id="chatInfoProductName">
+                                Product
+                            </strong>
+
+                            <span id="chatInfoProductPrice">
+                                Rs. 0
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <a
+                        href="#"
+                        id="chatInfoProductButton"
+                        class="info-link-button"
+                    >
+                        View Product
+                    </a>
+
+                </section>
+
+
+                <!-- Order Information -->
+                <section
+                    id="chatInfoOrderSection"
+                    class="chat-info-section"
+                    hidden
+                >
+
+                    <div class="chat-info-section-heading">
+
+                        <i class="fa-solid fa-receipt"></i>
+
+                        <h3>Order</h3>
+
+                    </div>
+
+                    <div class="chat-info-order">
+
+                        <strong id="chatInfoOrderNumber">
+                            Order #
+                        </strong>
+
+                        <span id="chatInfoOrderStatus">
+                            Processing
+                        </span>
+
+                    </div>
+
+                    <a
+                        href="#"
+                        id="chatInfoOrderButton"
+                        class="info-link-button"
+                    >
+                        View Order
+                    </a>
+
+                </section>
+
+
+                <!-- Shared Media -->
+                <section class="chat-info-section">
+
+                    <div class="chat-info-section-heading">
+
+                        <i class="fa-regular fa-images"></i>
+
+                        <h3>Media & Files</h3>
+
+                    </div>
+
+                    <div
+                        id="sharedMediaGrid"
+                        class="shared-media-grid"
+                    >
+                    </div>
+
+                    <button
+                        type="button"
+                        id="viewAllSharedMediaButton"
+                        class="info-link-button"
+                    >
+                        View All
+                    </button>
+
+                </section>
+
+
+                <!-- Conversation Controls -->
+                <section class="chat-info-section">
+
+                    <div class="chat-info-section-heading">
+
+                        <i class="fa-solid fa-sliders"></i>
+
+                        <h3>Conversation</h3>
+
+                    </div>
+
+
+                    <label class="chat-control-row">
+
+                        <span>
+
+                            <i class="fa-regular fa-bell-slash"></i>
+
+                            <span>
+                                Mute notifications
+                            </span>
+
+                        </span>
+
+                        <input
+                            type="checkbox"
+                            id="muteConversationToggle"
+                        >
+
+                    </label>
+
+
+                    <button
+                        type="button"
+                        id="markConversationUnreadButton"
+                        class="chat-control-button"
+                    >
+                        <i class="fa-regular fa-envelope"></i>
+                        Mark as unread
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="archiveConversationButton"
+                        class="chat-control-button"
+                    >
+                        <i class="fa-solid fa-box-archive"></i>
+                        Archive conversation
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="clearConversationButton"
+                        class="chat-control-button danger-light"
+                    >
+                        <i class="fa-regular fa-trash-can"></i>
+                        Clear conversation
+                    </button>
+
+                </section>
+
+
+                <!-- Safety -->
+                <section class="chat-info-section safety-section">
+
+                    <div class="chat-info-section-heading">
+
+                        <i class="fa-solid fa-shield-halved"></i>
+
+                        <h3>Safety</h3>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="reportConversationButton"
+                        class="chat-control-button danger-light"
+                    >
+                        <i class="fa-regular fa-flag"></i>
+                        Report
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="blockConversationUserButton"
+                        class="chat-control-button danger-button"
+                    >
+                        <i class="fa-solid fa-ban"></i>
+                        Block User
+                    </button>
+
+                </section>
+
+            </aside>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================================================
+         NEW MESSAGE MODAL
+         ========================================================= -->
+
+    <div
+        id="newMessageModal"
+        class="message-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="newMessageModalTitle"
+        hidden
+    >
+
+        <div class="message-modal-overlay"></div>
+
+        <div class="message-modal-content">
+
+            <header class="message-modal-header">
+
+                <div>
+                    <span class="modal-eyebrow">
+                        Messaging
+                    </span>
+
+                    <h2 id="newMessageModalTitle">
+                        New Message
+                    </h2>
+                </div>
+
+                <button
+                    type="button"
+                    id="closeNewMessageModal"
+                    class="messages-icon-button"
+                    aria-label="Close"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+            </header>
+
+
+            <div class="message-modal-body">
+
+                <!-- Search User -->
+                <div class="form-field">
+
+                    <label for="newConversationUserSearch">
+                        Search User
+                    </label>
+
+                    <div class="user-search-input">
+
+                        <i class="fa-solid fa-magnifying-glass"></i>
+
+                        <input
+                            type="search"
+                            id="newConversationUserSearch"
+                            placeholder="Search buyer, seller or support..."
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- User Results -->
+                <div
+                    id="newConversationUserResults"
+                    class="new-conversation-user-results"
+                >
+                </div>
+
+
+                <!-- Product Optional -->
+                <div class="form-field">
+
+                    <label for="newConversationProductSearch">
+                        Product
+                        <span>(Optional)</span>
+                    </label>
+
+                    <div class="user-search-input">
+
+                        <i class="fa-solid fa-box-open"></i>
+
+                        <input
+                            type="search"
+                            id="newConversationProductSearch"
+                            placeholder="Attach a product to this conversation..."
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- Initial Message -->
+                <div class="form-field">
+
+                    <label for="newConversationInitialMessage">
+                        Message
+                        <span>(Optional)</span>
+                    </label>
+
+                    <textarea
+                        id="newConversationInitialMessage"
+                        rows="4"
+                        maxlength="5000"
+                        placeholder="Write your first message..."
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <footer class="message-modal-footer">
+
+                <button
+                    type="button"
+                    id="cancelNewMessage"
+                    class="secondary-message-button"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    id="startConversationButton"
+                    class="primary-message-button"
+                    disabled
+                >
+                    <i class="fa-regular fa-paper-plane"></i>
+                    Start Conversation
+                </button>
+
+            </footer>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         OFFER MODAL
+         ========================================================= -->
+
+    <div
+        id="offerModal"
+        class="message-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="offerModalTitle"
+        hidden
+    >
+
+        <div class="message-modal-overlay"></div>
+
+        <div class="message-modal-content offer-modal-content">
+
+            <header class="message-modal-header">
+
+                <div>
+                    <span class="modal-eyebrow">
+                        Marketplace
+                    </span>
+
+                    <h2 id="offerModalTitle">
+                        Make an Offer
+                    </h2>
+                </div>
+
+                <button
+                    type="button"
+                    id="closeOfferModal"
+                    class="messages-icon-button"
+                    aria-label="Close offer"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+            </header>
+
+
+            <div class="message-modal-body">
+
+                <!-- Product -->
+                <div
+                    id="offerProductPreview"
+                    class="offer-product-preview"
+                >
+
+                    <img
+                        id="offerProductImage"
+                        src=""
+                        alt=""
+                    >
+
+                    <div>
+
+                        <strong id="offerProductName">
+                            Product
+                        </strong>
+
+                        <span>
+                            Current Price:
+                        </span>
+
+                        <b id="offerCurrentPrice">
+                            Rs. 0
+                        </b>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Amount -->
+                <div class="form-field">
+
+                    <label for="offerAmount">
+                        Your Offer
+                    </label>
+
+                    <div class="price-input">
+
+                        <span>Rs.</span>
+
+                        <input
+                            type="number"
+                            id="offerAmount"
+                            min="0"
+                            step="1"
+                            placeholder="Enter amount"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- Message -->
+                <div class="form-field">
+
+                    <label for="offerMessage">
+                        Message
+                        <span>(Optional)</span>
+                    </label>
+
+                    <textarea
+                        id="offerMessage"
+                        rows="3"
+                        maxlength="1000"
+                        placeholder="Add a message with your offer..."
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <footer class="message-modal-footer">
+
+                <button
+                    type="button"
+                    id="cancelOfferButton"
+                    class="secondary-message-button"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    id="sendOfferButton"
+                    class="primary-message-button"
+                >
+                    <i class="fa-solid fa-tag"></i>
+                    Send Offer
+                </button>
+
+            </footer>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         REPORT MODAL
+         ========================================================= -->
+
+    <div
+        id="reportModal"
+        class="message-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="reportModalTitle"
+        hidden
+    >
+
+        <div class="message-modal-overlay"></div>
+
+        <div class="message-modal-content">
+
+            <header class="message-modal-header">
+
+                <div>
+
+                    <span class="modal-eyebrow">
+                        Safety
+                    </span>
+
+                    <h2 id="reportModalTitle">
+                        Report
+                    </h2>
+
+                </div>
+
+                <button
+                    type="button"
+                    id="closeReportModal"
+                    class="messages-icon-button"
+                    aria-label="Close report"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+            </header>
+
+
+            <div class="message-modal-body">
+
+                <p class="report-description">
+                    Select the reason you want to report this conversation or user.
+                </p>
+
+
+                <fieldset class="report-reasons">
+
+                    <legend>
+                        Report reason
+                    </legend>
+
+
+                    <label class="report-option">
+
+                        <input
+                            type="radio"
+                            name="reportReason"
+                            value="spam"
+                        >
+
+                        <span>
+                            Spam
+                        </span>
+
+                    </label>
+
+
+                    <label class="report-option">
+
+                        <input
+                            type="radio"
+                            name="reportReason"
+                            value="scam"
+                        >
+
+                        <span>
+                            Scam or fraud
+                        </span>
+
+                    </label>
+
+
+                    <label class="report-option">
+
+                        <input
+                            type="radio"
+                            name="reportReason"
+                            value="harassment"
+                        >
+
+                        <span>
+                            Harassment or abuse
+                        </span>
+
+                    </label>
+
+
+                    <label class="report-option">
+
+                        <input
+                            type="radio"
+                            name="reportReason"
+                            value="fake_product"
+                        >
+
+                        <span>
+                            Fake or misleading product
+                        </span>
+
+                    </label>
+
+
+                    <label class="report-option">
+
+                        <input
+                            type="radio"
+                            name="reportReason"
+                            value="off_platform_payment"
+                        >
+
+                        <span>
+                            Suspicious off-platform payment request
+                        </span>
+
+                    </label>
+
+
+                    <label class="report-option">
+
+                        <input
+                            type="radio"
+                            name="reportReason"
+                            value="other"
+                        >
+
+                        <span>
+                            Other
+                        </span>
+
+                    </label>
+
+                </fieldset>
+
+
+                <div class="form-field">
+
+                    <label for="reportDetails">
+                        Additional Details
+                        <span>(Optional)</span>
+                    </label>
+
+                    <textarea
+                        id="reportDetails"
+                        rows="4"
+                        maxlength="3000"
+                        placeholder="Tell us what happened..."
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <footer class="message-modal-footer">
+
+                <button
+                    type="button"
+                    id="cancelReportButton"
+                    class="secondary-message-button"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    id="submitReportButton"
+                    class="danger-button"
+                >
+                    <i class="fa-regular fa-flag"></i>
+                    Submit Report
+                </button>
+
+            </footer>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         BLOCK CONFIRMATION MODAL
+         ========================================================= -->
+
+    <div
+        id="blockUserModal"
+        class="message-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="blockUserModalTitle"
+        hidden
+    >
+
+        <div class="message-modal-overlay"></div>
+
+        <div class="message-modal-content confirmation-modal">
+
+            <div class="confirmation-icon danger-icon">
+                <i class="fa-solid fa-ban"></i>
+            </div>
+
+            <h2 id="blockUserModalTitle">
+                Block this user?
+            </h2>
+
+            <p>
+                You will no longer receive messages from this user.
+            </p>
+
+            <div class="confirmation-actions">
+
+                <button
+                    type="button"
+                    id="cancelBlockButton"
+                    class="secondary-message-button"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    id="confirmBlockButton"
+                    class="danger-button"
+                >
+                    Block User
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         CLEAR CONVERSATION MODAL
+         ========================================================= -->
+
+    <div
+        id="clearConversationModal"
+        class="message-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="clearConversationTitle"
+        hidden
+    >
+
+        <div class="message-modal-overlay"></div>
+
+        <div class="message-modal-content confirmation-modal">
+
+            <div class="confirmation-icon warning-icon">
+                <i class="fa-regular fa-trash-can"></i>
+            </div>
+
+            <h2 id="clearConversationTitle">
+                Clear conversation?
+            </h2>
+
+            <p>
+                This action will remove the conversation from your message view.
+            </p>
+
+            <div class="confirmation-actions">
+
+                <button
+                    type="button"
+                    id="cancelClearConversationButton"
+                    class="secondary-message-button"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    id="confirmClearConversationButton"
+                    class="danger-button"
+                >
+                    Clear Conversation
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         CHAT OPTIONS MENU
+         ========================================================= -->
+
+    <div
+        id="chatOptionsMenu"
+        class="chat-options-menu"
+        role="menu"
+        hidden
+    >
+
+        <button
+            type="button"
+            id="optionMarkUnread"
+            class="chat-option"
+            role="menuitem"
+        >
+            <i class="fa-regular fa-envelope"></i>
+            <span>Mark as unread</span>
+        </button>
+
+
+        <button
+            type="button"
+            id="optionMute"
+            class="chat-option"
+            role="menuitem"
+        >
+            <i class="fa-regular fa-bell-slash"></i>
+            <span>Mute notifications</span>
+        </button>
+
+
+        <button
+            type="button"
+            id="optionArchive"
+            class="chat-option"
+            role="menuitem"
+        >
+            <i class="fa-solid fa-box-archive"></i>
+            <span>Archive</span>
+        </button>
+
+
+        <button
+            type="button"
+            id="optionReport"
+            class="chat-option"
+            role="menuitem"
+        >
+            <i class="fa-regular fa-flag"></i>
+            <span>Report</span>
+        </button>
+
+
+        <button
+            type="button"
+            id="optionBlock"
+            class="chat-option danger-option"
+            role="menuitem"
+        >
+            <i class="fa-solid fa-ban"></i>
+            <span>Block User</span>
+        </button>
+
+    </div>
+
+
+    <!-- =========================================================
+         MESSAGE ACTION MENU
+         Used for individual message actions
+         ========================================================= -->
+
+    <div
+        id="messageActionMenu"
+        class="message-action-menu"
+        role="menu"
+        hidden
+    >
+
+        <button
+            type="button"
+            id="messageActionReply"
+            class="message-action-item"
+            role="menuitem"
+        >
+            <i class="fa-solid fa-reply"></i>
+            Reply
+        </button>
+
+
+        <button
+            type="button"
+            id="messageActionCopy"
+            class="message-action-item"
+            role="menuitem"
+        >
+            <i class="fa-regular fa-copy"></i>
+            Copy
+        </button>
+
+
+        <button
+            type="button"
+            id="messageActionForward"
+            class="message-action-item"
+            role="menuitem"
+        >
+            <i class="fa-solid fa-share"></i>
+            Forward
+        </button>
+
+
+        <button
+            type="button"
+            id="messageActionReport"
+            class="message-action-item danger-option"
+            role="menuitem"
+        >
+            <i class="fa-regular fa-flag"></i>
+            Report Message
+        </button>
+
+    </div>
+
+
+    <!-- =========================================================
+         SHARED MEDIA MODAL
+         ========================================================= -->
+
+    <div
+        id="sharedMediaModal"
+        class="message-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="sharedMediaModalTitle"
+        hidden
+    >
+
+        <div class="message-modal-overlay"></div>
+
+        <div class="message-modal-content large-modal">
+
+            <header class="message-modal-header">
+
+                <div>
+
+                    <span class="modal-eyebrow">
+                        Conversation
+                    </span>
+
+                    <h2 id="sharedMediaModalTitle">
+                        Media & Files
+                    </h2>
+
+                </div>
+
+                <button
+                    type="button"
+                    id="closeSharedMediaModal"
+                    class="messages-icon-button"
+                    aria-label="Close"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+            </header>
+
+
+            <div class="shared-media-tabs">
+
+                <button
+                    type="button"
+                    class="shared-media-tab active"
+                    data-media-filter="all"
+                >
+                    All
+                </button>
+
+                <button
+                    type="button"
+                    class="shared-media-tab"
+                    data-media-filter="images"
+                >
+                    Images
+                </button>
+
+                <button
+                    type="button"
+                    class="shared-media-tab"
+                    data-media-filter="files"
+                >
+                    Files
+                </button>
+
+                <button
+                    type="button"
+                    class="shared-media-tab"
+                    data-media-filter="links"
+                >
+                    Links
+                </button>
+
+            </div>
+
+
+            <div
+                id="sharedMediaFullList"
+                class="shared-media-full-list"
+            >
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         IMAGE PREVIEW MODAL
+         ========================================================= -->
+
+    <div
+        id="imagePreviewModal"
+        class="image-preview-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Image preview"
+        hidden
+    >
+
+        <button
+            type="button"
+            id="closeImagePreview"
+            class="image-preview-close"
+            aria-label="Close image"
+        >
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <img
+            id="imagePreview"
+            src=""
+            alt="Preview"
+        >
+
+        <div class="image-preview-actions">
+
+            <button
+                type="button"
+                id="downloadImageButton"
+                class="image-preview-action"
+            >
+                <i class="fa-solid fa-download"></i>
+                Download
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         SYSTEM MESSAGE TEMPLATES / HOOKS
+         ========================================================= -->
+
+    <template id="systemOrderConfirmedTemplate">
+
+        <div class="system-message">
+
+            <span class="system-message-icon">
+                <i class="fa-solid fa-circle-check"></i>
+            </span>
+
+            <div>
+
+                <strong>
+                    Order Confirmed
+                </strong>
+
+                <p>
+                    Your order has been confirmed.
+                </p>
+
+                <span class="system-message-order">
+                    Order #<span data-order-number></span>
+                </span>
+
+            </div>
+
+        </div>
+
+    </template>
+
+
+    <template id="systemOrderShippedTemplate">
+
+        <div class="system-message">
+
+            <span class="system-message-icon">
+                <i class="fa-solid fa-truck"></i>
+            </span>
+
+            <div>
+
+                <strong>
+                    Order Shipped
+                </strong>
+
+                <p>
+                    The seller marked this order as shipped.
+                </p>
+
+                <span class="system-message-order">
+                    Order #<span data-order-number></span>
+                </span>
+
+            </div>
+
+        </div>
+
+    </template>
+
+
+    <template id="systemOrderDeliveredTemplate">
+
+        <div class="system-message">
+
+            <span class="system-message-icon">
+                <i class="fa-solid fa-box-open"></i>
+            </span>
+
+            <div>
+
+                <strong>
+                    Order Delivered
+                </strong>
+
+                <p>
+                    This order has been delivered successfully.
+                </p>
+
+                <span class="system-message-order">
+                    Order #<span data-order-number></span>
+                </span>
+
+            </div>
+
+        </div>
+
+    </template>
+
+
+    <!-- =========================================================
+         OFFER MESSAGE TEMPLATE
+         ========================================================= -->
+
+    <template id="offerMessageTemplate">
+
+        <article
+            class="message-bubble offer-message"
+            data-message-type="offer"
+        >
+
+            <div class="offer-message-header">
+
+                <span>
+                    <i class="fa-solid fa-tag"></i>
+                    Price Offer
+                </span>
+
+            </div>
+
+            <div class="offer-message-body">
+
+                <span class="offer-message-label">
+                    Offered Price
+                </span>
+
+                <strong data-offer-amount>
+                    Rs. 0
+                </strong>
+
+                <p data-offer-message></p>
+
+            </div>
+
+            <div class="offer-message-status">
+
+                <span data-offer-status>
+                    Pending
+                </span>
+
+            </div>
+
+            <div class="offer-message-actions">
+
+                <button
+                    type="button"
+                    data-offer-action="accept"
+                    class="offer-accept-button"
+                >
+                    Accept
+                </button>
+
+                <button
+                    type="button"
+                    data-offer-action="reject"
+                    class="offer-reject-button"
+                >
+                    Reject
+                </button>
+
+            </div>
+
+        </article>
+
+    </template>
+
+
+    <!-- =========================================================
+         PRODUCT CHAT TEMPLATE
+         ========================================================= -->
+
+    <template id="productChatCardTemplate">
+
+        <article
+            class="product-chat-card"
+            data-product-card
+        >
+
+            <img
+                data-product-image
+                src=""
+                alt=""
+            >
+
+            <div class="product-chat-card-content">
+
+                <span
+                    class="product-chat-label"
+                >
+                    Product
+                </span>
+
+                <h4 data-product-name>
+                    Product Name
+                </h4>
+
+                <strong data-product-price>
+                    Rs. 0
+                </strong>
+
+            </div>
+
+            <a
+                data-product-link
+                href="#"
+                class="product-chat-view"
+            >
+                View
+            </a>
+
+        </article>
+
+    </template>
+
+
+    <!-- =========================================================
+         MESSAGE ATTACHMENT TEMPLATE
+         ========================================================= -->
+
+    <template id="messageImageAttachmentTemplate">
+
+        <div
+            class="message-image-attachment"
+            data-attachment-type="image"
+        >
+
+            <button
+                type="button"
+                class="message-image-button"
+                data-image-preview
+            >
+
+                <img
+                    data-image-src
+                    src=""
+                    alt="Message image"
+                    loading="lazy"
+                >
+
+            </button>
+
+        </div>
+
+    </template>
+
+
+    <template id="messageFileAttachmentTemplate">
+
+        <a
+            href="#"
+            class="message-file-attachment"
+            data-attachment-type="file"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+
+            <span class="file-attachment-icon">
+                <i class="fa-regular fa-file"></i>
+            </span>
+
+            <span class="file-attachment-info">
+
+                <strong data-file-name>
+                    file.pdf
+                </strong>
+
+                <small data-file-size>
+                    0 KB
+                </small>
+
+            </span>
+
+            <i class="fa-solid fa-download"></i>
+
+        </a>
+
+    </template>
+
+
+    <!-- =========================================================
+         ADMIN MODERATION PANEL HOOK
+         =========================================================
+         Hidden by default.
+
+         JS/Admin permissions can enable this area for authorized
+         administrators without creating another messages page.
+         ========================================================= -->
+
+    <section
+        id="adminMessagingModerationPanel"
+        class="admin-messaging-moderation-panel"
+        data-admin-only="true"
+        hidden
+    >
+
+        <header class="admin-moderation-header">
+
+            <div>
+
+                <span class="modal-eyebrow">
+                    Admin
+                </span>
+
+                <h2>
+                    Messaging Moderation
+                </h2>
+
+            </div>
+
+        </header>
+
+
+        <div class="admin-moderation-stats">
+
+            <div class="moderation-stat-card">
+
+                <span>
+                    Reported Messages
+                </span>
+
+                <strong id="reportedMessagesCount">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="moderation-stat-card">
+
+                <span>
+                    Reported Users
+                </span>
+
+                <strong id="reportedUsersCount">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="moderation-stat-card">
+
+                <span>
+                    Blocked Users
+                </span>
+
+                <strong id="blockedUsersCount">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="moderation-stat-card">
+
+                <span>
+                    Pending Reviews
+                </span>
+
+                <strong id="pendingModerationCount">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="adminReportedMessagesList"
+            class="admin-reported-messages-list"
+        >
+        </div>
+
+    </section>
+
+
+    <!-- =========================================================
+         AUTH / APP STATUS HOOKS
+         ========================================================= -->
+
+    <div
+        id="messageAuthRequired"
+        class="message-auth-required"
+        hidden
+    >
+
+        <div class="auth-required-icon">
+            <i class="fa-solid fa-lock"></i>
+        </div>
+
+        <h2>
+            Sign in to view your messages
+        </h2>
+
+        <p>
+            Please sign in to access your conversations.
+        </p>
+
+        <a
+            href="account.html"
+            class="primary-message-button"
+        >
+            Sign In / Account
+        </a>
+
+    </div>
+
+
+    <!-- =========================================================
+         BOTTOM NAVIGATION
+         SMARTBAZAAR PRO 2
+         Current planned mobile structure:
+         Home → Messages → Deals → Cart → Account
+         Wishlist remains in top mobile header.
+         ========================================================= -->
+
+    <nav
+        id="mobileBottomNavigation"
+        class="mobile-bottom-navigation"
+        aria-label="Main navigation"
+    >
+
+        <a
+            href="index.html"
+            class="bottom-nav-item"
+            data-nav="home"
+        >
+            <span class="bottom-nav-icon">
+                <i class="fa-solid fa-house"></i>
+            </span>
+
+            <span class="bottom-nav-label">
+                Home
+            </span>
+        </a>
+
+
+        <a
+            href="messages.html"
+            class="bottom-nav-item active"
+            data-nav="messages"
+            aria-current="page"
+        >
+            <span class="bottom-nav-icon">
+
+                <i class="fa-regular fa-comments"></i>
+
+                <span
+                    id="bottomMessagesBadge"
+                    class="bottom-nav-badge"
+                    hidden
+                >
+                    0
+                </span>
+
+            </span>
+
+            <span class="bottom-nav-label">
+                Messages
+            </span>
+        </a>
+
+
+        <a
+            href="deals.html"
+            class="bottom-nav-item"
+            data-nav="deals"
+        >
+            <span class="bottom-nav-icon">
+                <i class="fa-solid fa-fire"></i>
+            </span>
+
+            <span class="bottom-nav-label">
+                Deals
+            </span>
+        </a>
+
+
+        <a
+            href="cart.html"
+            class="bottom-nav-item"
+            data-nav="cart"
+        >
+            <span class="bottom-nav-icon">
+
+                <i class="fa-solid fa-cart-shopping"></i>
+
+                <span
+                    id="bottomCartBadge"
+                    class="bottom-nav-badge"
+                    hidden
+                >
+                    0
+                </span>
+
+            </span>
+
+            <span class="bottom-nav-label">
+                Cart
+            </span>
+        </a>
+
+
+        <a
+            href="account.html"
+            class="bottom-nav-item"
+            data-nav="account"
+        >
+            <span class="bottom-nav-icon">
+                <i class="fa-regular fa-user"></i>
+            </span>
+
+            <span class="bottom-nav-label">
+                Account
+            </span>
+        </a>
+
+    </nav>
+
+
+    <!-- =========================================================
+         DESKTOP / MOBILE ACCESSIBILITY LIVE REGION
+         ========================================================= -->
+
+    <div
+        id="messagesLiveRegion"
+        class="sr-only"
+        aria-live="polite"
+        aria-atomic="true"
+    ></div>
+
+
+    <!-- =========================================================
+         JAVASCRIPT
+         ========================================================= -->
+
+    <!-- Existing project JS -->
+    <script src="app.js"></script>
+
+    <!-- Messaging UI / interaction -->
+    <script src="messages.js"></script>
+
+</body>
+</html>
