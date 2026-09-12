@@ -17,9 +17,9 @@ import {
 
 import {
     ref,
-    get
+    get,
+    onValue
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
-
 import {
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
@@ -41,6 +41,214 @@ IMPORTANT:
 
 const BANNER_DATABASE_PATH =
     "smartbazaar_pro_2/banners";
+
+/*==================================================
+SMARTBAZAAR PRO 2
+FEATURE: HEADER DYNAMIC CATEGORIES
+FEATURE: HOME QUICK CATEGORIES
+FEATURE: FIREBASE CATEGORY CONNECTION
+FEATURE: ADMIN CATEGORY SYNC
+==================================================*/
+
+const CATEGORY_DATABASE_PATH =
+    "smartbazaar_pro_2/categories";
+
+
+const categoriesRef =
+    ref(
+        database,
+        CATEGORY_DATABASE_PATH
+    );
+
+
+/*==================================================
+FEATURE: RENDER HOME MOBILE CATEGORIES
+==================================================*/
+
+function renderHomeQuickCategories(
+    categories
+) {
+
+    const container =
+        document.getElementById(
+            "homeQuickCategories"
+        );
+
+
+    if (!container) {
+
+        return;
+
+    }
+
+
+    container.innerHTML = "";
+
+
+    /*
+     * Only categories created/managed
+     * from the existing Admin Panel
+     * are displayed here.
+     */
+
+
+    categories.forEach(
+        category => {
+
+            const name =
+                String(
+                    category.name || ""
+                ).trim();
+
+
+            if (!name) {
+
+                return;
+
+            }
+
+
+            const link =
+                document.createElement(
+                    "a"
+                );
+
+
+            link.href =
+                `products.html?category=${encodeURIComponent(
+                    name
+                )}`;
+
+
+            link.textContent =
+                name;
+
+
+            container.appendChild(
+                link
+            );
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: LOAD ADMIN CATEGORIES
+==================================================*/
+
+function loadHomeQuickCategories() {
+
+    const container =
+        document.getElementById(
+            "homeQuickCategories"
+        );
+
+
+    if (!container) {
+
+        return;
+
+    }
+
+
+    onValue(
+        categoriesRef,
+        (snapshot) => {
+
+            if (!snapshot.exists()) {
+
+                container.innerHTML = "";
+
+                return;
+
+            }
+
+
+            const data =
+                snapshot.val();
+
+
+            let categories =
+                Object.entries(
+                    data
+                )
+                .map(
+                    ([id, category]) => ({
+
+                        id,
+
+                        ...category
+
+                    })
+                )
+                .filter(
+                    category =>
+                        category &&
+                        category.active !== false
+                );
+
+
+            /*==================================================
+            FEATURE: SORT BY ADMIN CATEGORY ORDER
+            ==================================================*/
+
+            categories.sort(
+                (a, b) => {
+
+                    const orderA =
+                        Number(
+                            a.sortOrder || 0
+                        );
+
+
+                    const orderB =
+                        Number(
+                            b.sortOrder || 0
+                        );
+
+
+                    if (
+                        orderA !== orderB
+                    ) {
+
+                        return (
+                            orderA -
+                            orderB
+                        );
+
+                    }
+
+
+                    return String(
+                        a.name || ""
+                    ).localeCompare(
+                        String(
+                            b.name || ""
+                        )
+                    );
+
+                }
+            );
+
+
+            renderHomeQuickCategories(
+                categories
+            );
+
+        },
+        (error) => {
+
+            console.error(
+                "Home Category Firebase Error:",
+                error
+            );
+
+        }
+    );
+
+}
 
 
 const bannersRef =
@@ -2118,6 +2326,8 @@ document.addEventListener(
         initializeAdminAccess();
 
         loadDynamicBanners();
+
+        loadHomeQuickCategories();
 
     }
 );
