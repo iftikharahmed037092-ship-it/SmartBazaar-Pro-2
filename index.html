@@ -55,6 +55,7 @@ FEATURE: FAST FONT CONNECTION
     <link rel="stylesheet" href="css/flash-sale.css">
 
     <link rel="stylesheet" href="css/home-best-deals.css">
+    <link rel="stylesheet" href="css/home-best-selling.css">
 </head>
 
 
@@ -1588,6 +1589,67 @@ END HOME FLASH SALE
     </div>
 
 </section>
+<!-- ============================================
+     FEATURE: BEST SELLING HOME SECTION
+     ============================================ -->
+<section class="home-best-selling-section" id="homeBestSelling">
+
+    <div class="home-section-header">
+
+        <div class="home-section-title-wrap">
+            <span class="home-section-icon">🏆</span>
+
+            <div>
+                <h2 class="home-section-title">Best Selling</h2>
+                <p class="home-section-subtitle">
+                    Popular products customers love
+                </p>
+            </div>
+        </div>
+
+        <a href="deals.html" class="home-section-view-all">
+            View All
+            <span>→</span>
+        </a>
+
+    </div>
+
+    <!-- Best Selling Horizontal Products -->
+    <div class="home-best-selling-wrapper">
+
+        <div
+            class="home-best-selling-grid"
+            id="homeBestSellingGrid"
+            aria-label="Best Selling Products">
+        </div>
+
+    </div>
+
+    <!-- Loading State -->
+    <div
+        class="home-best-selling-loading"
+        id="homeBestSellingLoading">
+
+        <div class="home-best-selling-spinner"></div>
+
+        <span>Loading best selling products...</span>
+
+    </div>
+
+    <!-- Empty State -->
+    <div
+        class="home-best-selling-empty"
+        id="homeBestSellingEmpty"
+        hidden>
+
+        <span>🏆</span>
+
+        <p>No best selling products are available right now.</p>
+
+    </div>
+
+</section>
+    
 </main>
 
 
@@ -1622,6 +1684,7 @@ FOOTER PLACEHOLDER
     src="js/flash-sale.js">
     </script>
     <script type="module" src="js/home-best-deals.js"></script>
+    <script type="module" src="js/home-best-selling.js"></script>
 
 
 </body>
