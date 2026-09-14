@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#16a34a">
+    <meta name="description" content="SmartBazaar Flash Sale — Limited-time deals, huge discounts and exclusive offers.">
+    <meta name="robots" content="index, follow">
+
+    <title>Flash Sale — SmartBazaar Pro 2</title>
+
+    <!-- Main / Existing SmartBazaar Styles -->
+    <link rel="stylesheet" href="css/flash-sale.css">
+
+    <!-- Icons -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Firebase -->
+    <script type="module" src="js/firebase-config.js"></script>
+</head>
+
+<body>
+
+    <!-- =========================================================
+         FEATURE: FLASH SALE
+         PAGE: flash-sale.html
+         VERSION: SmartBazaar Pro 2
+         ========================================================= -->
+
+    <!-- =========================================================
+         TOP ANNOUNCEMENT BAR
+         ========================================================= -->
+    <div class="top-announcement" id="topAnnouncement">
+        <div class="announcement-inner">
+            <span>
+                <i class="fa-solid fa-bolt"></i>
+                Flash Sale is Live — Limited Stock Available
+            </span>
+
+            <a href="deals.html">
+                View All Deals
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+
+    <!-- =========================================================
+         MAIN HEADER
+         ========================================================= -->
+    <header class="site-header">
+
+        <div class="header-inner">
+
+            <!-- Logo -->
+            <a href="index.html" class="brand-logo" aria-label="SmartBazaar Home">
+                <span class="brand-icon">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                </span>
+
+                <span class="brand-text">
+                    Smart<span>Bazaar</span>
+                </span>
+            </a>
+
+
+            <!-- Search -->
+            <form class="header-search" id="flashSaleSearchForm">
+
+                <label for="flashSaleSearch" class="sr-only">
+                    Search Flash Sale products
+                </label>
+
+                <input
+                    type="search"
+                    id="flashSaleSearch"
+                    name="q"
+                    placeholder="Search Flash Sale products..."
+                    autocomplete="off"
+                >
+
+                <button type="submit" aria-label="Search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+
+            </form>
+
+
+            <!-- Header Actions -->
+            <div class="header-actions">
+
+                <!-- Wishlist -->
+                <a href="account.html#wishlist"
+                   class="header-action wishlist-action"
+                   aria-label="Wishlist">
+
+                    <span class="action-icon">
+                        <i class="fa-regular fa-heart"></i>
+                        <span class="header-badge" id="wishlistBadge">0</span>
+                    </span>
+
+                    <span class="action-label">Wishlist</span>
+                </a>
+
+
+                <!-- Cart -->
+                <a href="checkout.html"
+                   class="header-action cart-action"
+                   aria-label="Shopping Cart">
+
+                    <span class="action-icon">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span class="header-badge" id="cartBadge">0</span>
+                    </span>
+
+                    <span class="action-label">Cart</span>
+                </a>
+
+
+                <!-- Account -->
+                <a href="account.html"
+                   class="header-action account-action"
+                   aria-label="Account">
+
+                    <span class="action-icon">
+                        <i class="fa-regular fa-user"></i>
+                    </span>
+
+                    <span class="action-label">Account</span>
+                </a>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================================================
+         BREADCRUMBS
+         ========================================================= -->
+    <nav class="breadcrumb-wrapper" aria-label="Breadcrumb">
+
+        <div class="container">
+
+            <ol class="breadcrumb">
+
+                <li>
+                    <a href="index.html">
+                        <i class="fa-solid fa-house"></i>
+                        Home
+                    </a>
+                </li>
+
+                <li class="breadcrumb-separator">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </li>
+
+                <li aria-current="page">
+                    Flash Sale
+                </li>
+
+            </ol>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================================================
+         FLASH SALE HERO
+         ========================================================= -->
+    <main>
+
+        <section class="flash-sale-hero">
+
+            <div class="container">
+
+                <div class="flash-sale-hero-content">
+
+                    <div class="flash-sale-title-area">
+
+                        <div class="flash-sale-kicker">
+                            <i class="fa-solid fa-bolt"></i>
+                            LIMITED TIME OFFER
+                        </div>
+
+                        <h1>
+                            Flash Sale
+                            <span class="fire-icon">🔥</span>
+                        </h1>
+
+                        <p>
+                            Grab the best deals before they disappear.
+                            Limited stock. Limited time. Huge savings.
+                        </p>
+
+                    </div>
+
+
+                    <!-- Countdown -->
+                    <div class="countdown-card" id="flashSaleCountdown">
+
+                        <div class="countdown-heading">
+                            <i class="fa-regular fa-clock"></i>
+                            Sale Ends In
+                        </div>
+
+                        <div class="countdown-timer">
+
+                            <div class="countdown-unit">
+                                <strong id="countdownDays">00</strong>
+                                <span>Days</span>
+                            </div>
+
+                            <span class="countdown-colon">:</span>
+
+                            <div class="countdown-unit">
+                                <strong id="countdownHours">00</strong>
+                                <span>Hours</span>
+                            </div>
+
+                            <span class="countdown-colon">:</span>
+
+                            <div class="countdown-unit">
+                                <strong id="countdownMinutes">00</strong>
+                                <span>Min</span>
+                            </div>
+
+                            <span class="countdown-colon">:</span>
+
+                            <div class="countdown-unit">
+                                <strong id="countdownSeconds">00</strong>
+                                <span>Sec</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             SALE STATUS / INFO STRIP
+             ===================================================== -->
+        <section class="sale-info-strip">
+
+            <div class="container">
+
+                <div class="sale-info-grid">
+
+                    <div class="sale-info-item">
+
+                        <span class="sale-info-icon">
+                            <i class="fa-solid fa-tags"></i>
+                        </span>
+
+                        <div>
+                            <strong id="activeDealsCount">0</strong>
+                            <span>Active Deals</span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="sale-info-item">
+
+                        <span class="sale-info-icon">
+                            <i class="fa-solid fa-fire"></i>
+                        </span>
+
+                        <div>
+                            <strong id="hotDealsCount">0</strong>
+                            <span>Hot Deals</span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="sale-info-item">
+
+                        <span class="sale-info-icon">
+                            <i class="fa-solid fa-box-open"></i>
+                        </span>
+
+                        <div>
+                            <strong id="limitedStockCount">0</strong>
+                            <span>Limited Stock</span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="sale-info-item">
+
+                        <span class="sale-info-icon">
+                            <i class="fa-solid fa-percent"></i>
+                        </span>
+
+                        <div>
+                            <strong id="maximumDiscount">0%</strong>
+                            <span>Up To Discount</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             FLASH SALE CONTROLS
+             ===================================================== -->
+        <section class="flash-sale-controls-section">
+
+            <div class="container">
+
+                <div class="flash-sale-controls">
+
+                    <!-- Categories -->
+                    <div class="sale-categories-wrapper">
+
+                        <button
+                            class="category-scroll-button active"
+                            data-category="all"
+                            type="button">
+                            <i class="fa-solid fa-bolt"></i>
+                            All Deals
+                        </button>
+
+                        <div id="flashSaleCategories"
+                             class="sale-category-list">
+
+                            <!-- Dynamic categories will be inserted here -->
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Sort -->
+                    <div class="sale-sort">
+
+                        <label for="flashSaleSort">
+                            Sort:
+                        </label>
+
+                        <select id="flashSaleSort">
+
+                            <option value="featured">
+                                Featured
+                            </option>
+
+                            <option value="discount-high">
+                                Biggest Discount
+                            </option>
+
+                            <option value="price-low">
+                                Price: Low to High
+                            </option>
+
+                            <option value="price-high">
+                                Price: High to Low
+                            </option>
+
+                            <option value="ending-soon">
+                                Ending Soon
+                            </option>
+
+                            <option value="popular">
+                                Most Popular
+                            </option>
+
+                            <option value="selling-fast">
+                                Selling Fast
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             MAIN FLASH SALE PRODUCTS
+             ===================================================== -->
+        <section class="flash-sale-products-section">
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <div>
+                        <span class="section-kicker">
+                            <i class="fa-solid fa-fire"></i>
+                            TODAY'S HOT DEALS
+                        </span>
+
+                        <h2>
+                            Flash Sale Products
+                        </h2>
+                    </div>
+
+                    <div class="results-count">
+                        <span id="flashSaleResultsCount">
+                            0
+                        </span>
+                        products
+                    </div>
+
+                </div>
+
+
+                <!-- Loading -->
+                <div class="products-loading"
+                     id="productsLoading">
+
+                    <div class="loading-spinner">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                    </div>
+
+                    <p>
+                        Loading Flash Sale products...
+                    </p>
+
+                </div>
+
+
+                <!-- Product Grid -->
+                <div
+                    class="flash-sale-product-grid"
+                    id="flashSaleProductGrid"
+                    aria-live="polite">
+
+                    <!--
+                        Dynamic Flash Sale products will be rendered here.
+
+                        Product card structure will be generated by:
+                        js/flash-sale.js
+                    -->
+
+                </div>
+
+
+                <!-- Empty State -->
+                <div class="flash-sale-empty"
+                     id="flashSaleEmpty"
+                     hidden>
+
+                    <div class="empty-icon">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+
+                    <h3>
+                        No Flash Sale Deals Found
+                    </h3>
+
+                    <p>
+                        There are no matching Flash Sale products right now.
+                    </p>
+
+                    <a href="deals.html"
+                       class="primary-button">
+                        Explore Deals
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+
+                </div>
+
+
+                <!-- Sale Ended -->
+                <div class="flash-sale-ended"
+                     id="flashSaleEnded"
+                     hidden>
+
+                    <div class="ended-icon">
+                        <i class="fa-regular fa-clock"></i>
+                    </div>
+
+                    <h3>
+                        Flash Sale Has Ended
+                    </h3>
+
+                    <p>
+                        Don't worry — check our Deals page for more offers.
+                    </p>
+
+                    <a href="deals.html"
+                       class="primary-button">
+                        View Deals
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+
+                </div>
+
+
+                <!-- Load More -->
+                <div class="load-more-wrapper"
+                     id="loadMoreWrapper"
+                     hidden>
+
+                    <button
+                        type="button"
+                        id="loadMoreProducts"
+                        class="secondary-button">
+
+                        <span>
+                            Load More
+                        </span>
+
+                        <i class="fa-solid fa-chevron-down"></i>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             ENDING SOON SECTION
+             ===================================================== -->
+        <section class="ending-soon-section">
+
+            <div class="container">
+
+                <div class="section-heading compact">
+
+                    <div>
+
+                        <span class="section-kicker">
+                            <i class="fa-regular fa-clock"></i>
+                            DON'T MISS OUT
+                        </span>
+
+                        <h2>
+                            Ending Soon
+                        </h2>
+
+                    </div>
+
+                    <a href="#flashSaleProductGrid"
+                       class="view-all-link">
+                        View All
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+
+                </div>
+
+
+                <div
+                    class="ending-soon-grid"
+                    id="endingSoonGrid">
+
+                    <!-- Dynamic products -->
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             HOW FLASH SALE WORKS
+             ===================================================== -->
+        <section class="how-it-works-section">
+
+            <div class="container">
+
+                <div class="section-heading centered">
+
+                    <span class="section-kicker">
+                        <i class="fa-solid fa-circle-info"></i>
+                        SHOP SMART
+                    </span>
+
+                    <h2>
+                        How Flash Sale Works
+                    </h2>
+
+                    <p>
+                        Get your favorite products at special limited-time prices.
+                    </p>
+
+                </div>
+
+
+                <div class="how-it-works-grid">
+
+                    <div class="how-step">
+
+                        <span class="step-number">
+                            01
+                        </span>
+
+                        <div class="step-icon">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </div>
+
+                        <h3>
+                            Find Your Deal
+                        </h3>
+
+                        <p>
+                            Browse products available in the current Flash Sale.
+                        </p>
+
+                    </div>
+
+
+                    <div class="how-step">
+
+                        <span class="step-number">
+                            02
+                        </span>
+
+                        <div class="step-icon">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                        </div>
+
+                        <h3>
+                            Add to Cart
+                        </h3>
+
+                        <p>
+                            Choose your product and add it to your shopping cart.
+                        </p>
+
+                    </div>
+
+
+                    <div class="how-step">
+
+                        <span class="step-number">
+                            03
+                        </span>
+
+                        <div class="step-icon">
+                            <i class="fa-solid fa-credit-card"></i>
+                        </div>
+
+                        <h3>
+                            Checkout
+                        </h3>
+
+                        <p>
+                            Complete your order before the deal expires or stock runs out.
+                        </p>
+
+                    </div>
+
+
+                    <div class="how-step">
+
+                        <span class="step-number">
+                            04
+                        </span>
+
+                        <div class="step-icon">
+                            <i class="fa-solid fa-box"></i>
+                        </div>
+
+                        <h3>
+                            Get Your Order
+                        </h3>
+
+                        <p>
+                            Your seller processes the order and SmartBazaar keeps it moving.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             IMPORTANT SALE RULES
+             ===================================================== -->
+        <section class="sale-rules-section">
+
+            <div class="container">
+
+                <div class="sale-rules-card">
+
+                    <div class="rules-heading">
+
+                        <i class="fa-solid fa-shield-halved"></i>
+
+                        <div>
+                            <h2>
+                                Flash Sale Information
+                            </h2>
+
+                            <p>
+                                Please check these conditions before placing your order.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="rules-grid">
+
+                        <div class="rule-item">
+                            <i class="fa-solid fa-clock"></i>
+                            <span>
+                                Flash Sale prices are available for a limited time.
+                            </span>
+                        </div>
+
+                        <div class="rule-item">
+                            <i class="fa-solid fa-boxes-stacked"></i>
+                            <span>
+                                Deals are subject to available stock.
+                            </span>
+                        </div>
+
+                        <div class="rule-item">
+                            <i class="fa-solid fa-user-lock"></i>
+                            <span>
+                                Quantity limits may apply to selected products.
+                            </span>
+                        </div>
+
+                        <div class="rule-item">
+                            <i class="fa-solid fa-rotate"></i>
+                            <span>
+                                Final price and availability are verified at checkout.
+                            </span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================================================
+         FOOTER
+         ========================================================= -->
+    <footer class="site-footer">
+
+        <div class="container">
+
+            <div class="footer-grid">
+
+                <!-- Brand -->
+                <div class="footer-column footer-brand">
+
+                    <a href="index.html" class="footer-logo">
+                        <span class="brand-icon">
+                            <i class="fa-solid fa-bag-shopping"></i>
+                        </span>
+
+                        Smart<span>Bazaar</span>
+                    </a>
+
+                    <p>
+                        Your marketplace for great products,
+                        trusted sellers and smarter shopping.
+                    </p>
+
+                </div>
+
+
+                <!-- Shopping -->
+                <div class="footer-column">
+
+                    <h3>Shopping</h3>
+
+                    <a href="index.html">
+                        Home
+                    </a>
+
+                    <a href="category.html">
+                        Categories
+                    </a>
+
+                    <a href="deals.html">
+                        Deals
+                    </a>
+
+                    <a href="account.html#wishlist">
+                        Wishlist
+                    </a>
+
+                </div>
+
+
+                <!-- Account -->
+                <div class="footer-column">
+
+                    <h3>My Account</h3>
+
+                    <a href="account.html">
+                        Account
+                    </a>
+
+                    <a href="account.html#my-orders">
+                        My Orders
+                    </a>
+
+                    <a href="account.html#my-products">
+                        My Products
+                    </a>
+
+                </div>
+
+
+                <!-- Help -->
+                <div class="footer-column">
+
+                    <h3>Help</h3>
+
+                    <a href="account.html">
+                        Customer Support
+                    </a>
+
+                    <a href="account.html">
+                        Contact Us
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="footer-bottom">
+
+                <p>
+                    © 2026 SmartBazaar. All rights reserved.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+    <!-- =========================================================
+         MOBILE BOTTOM NAVIGATION
+         Shared SmartBazaar Navigation
+         ========================================================= -->
+    <nav class="mobile-bottom-nav"
+         id="mobileBottomNav"
+         aria-label="Mobile navigation">
+
+        <a href="index.html"
+           class="bottom-nav-item">
+
+            <i class="fa-solid fa-house"></i>
+
+            <span>
+                Home
+            </span>
+
+        </a>
+
+
+        <a href="category.html"
+           class="bottom-nav-item">
+
+            <i class="fa-solid fa-layer-group"></i>
+
+            <span>
+                Category
+            </span>
+
+        </a>
+
+
+        <a href="deals.html"
+           class="bottom-nav-item active">
+
+            <i class="fa-solid fa-bolt"></i>
+
+            <span>
+                Deals
+            </span>
+
+        </a>
+
+
+        <a href="account.html#wishlist"
+           class="bottom-nav-item">
+
+            <i class="fa-regular fa-heart"></i>
+
+            <span>
+                Wishlist
+            </span>
+
+            <span class="bottom-nav-badge"
+                  id="mobileWishlistBadge">
+                0
+            </span>
+
+        </a>
+
+
+        <a href="account.html"
+           class="bottom-nav-item">
+
+            <i class="fa-regular fa-user"></i>
+
+            <span>
+                Account
+            </span>
+
+        </a>
+
+    </nav>
+
+
+    <!-- =========================================================
+         PRODUCT QUICK VIEW MODAL
+         ========================================================= -->
+    <div class="modal-overlay"
+         id="quickViewModal"
+         hidden>
+
+        <div class="quick-view-modal"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="quickViewTitle">
+
+            <button
+                type="button"
+                class="modal-close"
+                id="closeQuickView"
+                aria-label="Close">
+
+                <i class="fa-solid fa-xmark"></i>
+
+            </button>
+
+
+            <div id="quickViewContent">
+
+                <!-- Dynamic quick-view content -->
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         TOAST / NOTIFICATION
+         ========================================================= -->
+    <div
+        class="toast-container"
+        id="toastContainer"
+        aria-live="polite"
+        aria-atomic="true">
+    </div>
+
+
+    <!-- =========================================================
+         JAVASCRIPT
+         ========================================================= -->
+
+    <!-- Existing SmartBazaar application scripts can be loaded here
+         if required after integration. -->
+
+    <script type="module" src="js/flash-sale.js"></script>
+
+</body>
+</html>
