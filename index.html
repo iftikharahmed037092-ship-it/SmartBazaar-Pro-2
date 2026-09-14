@@ -51,6 +51,8 @@ FEATURE: FAST FONT CONNECTION
     rel="stylesheet"
     href="./home-categories.css"
       >
+
+    <link rel="stylesheet" href="css/flash-sale.css">
 </head>
 
 
@@ -1343,6 +1345,129 @@ FEATURE: HERO BANNER / SLIDER SYSTEM
 </section>
 
 
+    
+<!--==================================================
+SMARTBAZAAR PRO 2
+FEATURE: HOME FLASH SALE
+POSITION: ABOVE FEATURED PRODUCTS
+==================================================-->
+
+<section
+    class="home-flash-sale-section"
+    id="homeFlashSale"
+>
+
+    <div class="home-flash-sale-container">
+
+        <!-- FLASH SALE HEADER -->
+
+        <div class="home-flash-sale-header">
+
+            <div class="home-flash-sale-title-area">
+
+                <span class="home-flash-sale-eyebrow">
+                    <i class="fa-solid fa-bolt"></i>
+                    LIMITED TIME
+                </span>
+
+                <h2 class="home-flash-sale-title">
+                    Flash Sale
+                </h2>
+
+                <p class="home-flash-sale-subtitle">
+                    Grab amazing deals before time runs out
+                </p>
+
+            </div>
+
+
+            <!-- COUNTDOWN -->
+
+            <div class="home-flash-sale-countdown">
+
+                <span class="home-flash-sale-countdown-label">
+                    Ends In
+                </span>
+
+                <div
+                    class="home-flash-sale-timer"
+                    id="homeFlashSaleTimer"
+                >
+
+                    <div class="home-flash-sale-time-box">
+                        <strong id="flashSaleHours">00</strong>
+                        <span>Hours</span>
+                    </div>
+
+                    <b>:</b>
+
+                    <div class="home-flash-sale-time-box">
+                        <strong id="flashSaleMinutes">00</strong>
+                        <span>Min</span>
+                    </div>
+
+                    <b>:</b>
+
+                    <div class="home-flash-sale-time-box">
+                        <strong id="flashSaleSeconds">00</strong>
+                        <span>Sec</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- FLASH SALE PRODUCTS -->
+
+        <div
+            class="home-flash-sale-grid"
+            id="homeFlashSaleGrid"
+        >
+
+            <div
+                class="home-flash-sale-loading"
+                id="homeFlashSaleLoading"
+            >
+
+                <span class="home-flash-sale-spinner"></span>
+
+                <p>
+                    Loading Flash Sale...
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- VIEW ALL -->
+
+        <div class="home-flash-sale-footer">
+
+            <a
+                href="flash-sale.html"
+                class="home-flash-sale-view-all"
+            >
+
+                View All Flash Sale
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!--==================================================
+END HOME FLASH SALE
+==================================================-->
+
     <!-- =========================================================
      SMARTBAZAAR PRO
      FEATURE: PRODUCT HOME SECTION
@@ -1425,6 +1550,11 @@ FOOTER PLACEHOLDER
     <script
     type="module"
     src="./home-categories.js">
+    </script>
+
+    <script
+    type="module"
+    src="js/flash-sale.js">
     </script>
 
 
