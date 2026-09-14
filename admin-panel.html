@@ -1082,6 +1082,252 @@ FEATURE: FLASH SALE ADMIN MANAGEMENT
         </div>
 
     </div>
+    <!--==================================================
+SMARTBAZAAR PRO 2
+FEATURE: FLASH SALE PRODUCT EDITOR
+==================================================--><div class="flash-sale-admin-panel"><div class="flash-sale-admin-panel-header">
+
+    <div>
+        <h2>Flash Sale Product Settings</h2>
+
+        <p>
+            منتخب product کے لیے Flash Sale price,
+            stock اور countdown timing مقرر کریں۔
+        </p>
+    </div>
+
+    <span
+        class="flash-sale-admin-status"
+        id="flashSaleProductEditorStatus">
+        No Product Selected
+    </span>
+
+</div>
+
+
+<div
+    class="flash-sale-product-editor"
+    id="flashSaleProductEditor"
+>
+
+    <div class="flash-sale-editor-empty" id="flashSaleEditorEmpty">
+
+        <div class="flash-sale-empty-icon">
+            ⚡
+        </div>
+
+        <h3>Select a Product</h3>
+
+        <p>
+            اوپر موجود Products میں سے پہلے ایک product
+            منتخب کریں۔
+        </p>
+
+    </div>
+
+
+    <div
+        class="flash-sale-editor-content"
+        id="flashSaleEditorContent"
+        hidden
+    >
+
+        <!-- PRODUCT PREVIEW -->
+
+        <div class="flash-sale-editor-product">
+
+            <div class="flash-sale-editor-product-image">
+
+                <img
+                    id="flashSaleEditorImage"
+                    src=""
+                    alt="Product"
+                >
+
+            </div>
+
+            <div class="flash-sale-editor-product-info">
+
+                <h3 id="flashSaleEditorProductName">
+                    Product Name
+                </h3>
+
+                <span id="flashSaleEditorProductId">
+                    Product ID
+                </span>
+
+                <div class="flash-sale-editor-current-price">
+                    Current Price:
+                    <strong id="flashSaleEditorCurrentPrice">
+                        Rs. 0
+                    </strong>
+                </div>
+
+                <div class="flash-sale-editor-current-stock">
+                    Available Stock:
+                    <strong id="flashSaleEditorCurrentStock">
+                        0
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- FLASH SALE SETTINGS -->
+
+        <div class="flash-sale-editor-form-grid">
+
+            <div class="admin-form-group">
+
+                <label for="flashSaleEditorSalePrice">
+                    Flash Sale Price
+                </label>
+
+                <input
+                    type="number"
+                    id="flashSaleEditorSalePrice"
+                    min="0"
+                    step="1"
+                    placeholder="مثلاً 2999"
+                >
+
+                <small>
+                    Buyer کو Flash Sale میں یہی قیمت نظر آئے گی۔
+                </small>
+
+            </div>
+
+
+            <div class="admin-form-group">
+
+                <label for="flashSaleEditorSaleStock">
+                    Flash Sale Stock
+                </label>
+
+                <input
+                    type="number"
+                    id="flashSaleEditorSaleStock"
+                    min="1"
+                    step="1"
+                    placeholder="مثلاً 10"
+                >
+
+                <small>
+                    Flash Sale کے لیے مختص quantity۔
+                </small>
+
+            </div>
+
+
+            <div class="admin-form-group">
+
+                <label for="flashSaleEditorStart">
+                    Flash Sale Start
+                </label>
+
+                <input
+                    type="datetime-local"
+                    id="flashSaleEditorStart"
+                >
+
+            </div>
+
+
+            <div class="admin-form-group">
+
+                <label for="flashSaleEditorEnd">
+                    Flash Sale End
+                </label>
+
+                <input
+                    type="datetime-local"
+                    id="flashSaleEditorEnd"
+                >
+
+            </div>
+
+
+            <div class="admin-form-group">
+
+                <label for="flashSaleEditorEnabled">
+                    Product Flash Sale Status
+                </label>
+
+                <label class="flash-sale-admin-switch">
+
+                    <input
+                        type="checkbox"
+                        id="flashSaleEditorEnabled"
+                    >
+
+                    <span></span>
+
+                    <strong>
+                        Enable for this product
+                    </strong>
+
+                </label>
+
+            </div>
+
+        </div>
+
+
+        <!-- DISCOUNT PREVIEW -->
+
+        <div class="flash-sale-editor-discount">
+
+            <span>
+                Discount
+            </span>
+
+            <strong id="flashSaleEditorDiscount">
+                0%
+            </strong>
+
+            <span>
+                Saving
+            </span>
+
+            <strong id="flashSaleEditorSaving">
+                Rs. 0
+            </strong>
+
+        </div>
+
+
+        <!-- ACTIONS -->
+
+        <div class="flash-sale-admin-actions">
+
+            <button
+                type="button"
+                class="admin-primary-button"
+                id="flashSaleEditorSaveButton"
+            >
+                Save Product Flash Sale
+            </button>
+
+            <button
+                type="button"
+                class="admin-secondary-button"
+                id="flashSaleEditorCancelButton"
+            >
+                Clear
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+<!--==================================================
+END FLASH SALE PRODUCT EDITOR
+==================================================-->
 
 </section>
 
