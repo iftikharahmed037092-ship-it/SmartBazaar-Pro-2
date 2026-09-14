@@ -129,6 +129,13 @@ FEATURE: ADMIN SIDEBAR
 
         </a>
 
+        <a href="#"
+   class="admin-nav-item"
+   data-section="flash-sale">
+    <span class="admin-nav-icon">⚡</span>
+    <span class="admin-nav-text">Flash Sale</span>
+        </a>
+
 
         <a href="#"
            class="admin-nav-item"
@@ -754,7 +761,327 @@ FEATURE: ADMIN MAIN AREA
 
         </section>
 
+       <!-- ==================================================
+SMARTBAZAAR PRO 2
+FEATURE: FLASH SALE ADMIN MANAGEMENT
+================================================== -->
 
+<section class="admin-section" id="flash-saleSection">
+
+    <div class="admin-section-heading">
+
+        <div>
+            <h1>Flash Sale</h1>
+            <p>
+                Manage limited-time Flash Sale products,
+                discounts, stock and sale timing.
+            </p>
+        </div>
+
+        <button
+            type="button"
+            class="admin-primary-button"
+            id="flashSaleAddProductButton">
+            + Add Flash Sale Product
+        </button>
+
+    </div>
+
+
+    <!-- FLASH SALE OVERVIEW -->
+
+    <div class="flash-sale-admin-stats">
+
+        <div class="flash-sale-admin-stat-card">
+            <div class="flash-sale-admin-stat-icon">⚡</div>
+            <div>
+                <span>Active Products</span>
+                <strong id="flashSaleActiveCount">0</strong>
+            </div>
+        </div>
+
+        <div class="flash-sale-admin-stat-card">
+            <div class="flash-sale-admin-stat-icon">🔥</div>
+            <div>
+                <span>Hot Deals</span>
+                <strong id="flashSaleHotCount">0</strong>
+            </div>
+        </div>
+
+        <div class="flash-sale-admin-stat-card">
+            <div class="flash-sale-admin-stat-icon">%</div>
+            <div>
+                <span>Highest Discount</span>
+                <strong id="flashSaleHighestDiscount">0%</strong>
+            </div>
+        </div>
+
+        <div class="flash-sale-admin-stat-card">
+            <div class="flash-sale-admin-stat-icon">⏱</div>
+            <div>
+                <span>Sale Status</span>
+                <strong id="flashSaleStatus">Not Configured</strong>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- FLASH SALE CONTROL PANEL -->
+
+    <div class="flash-sale-admin-panel">
+
+        <div class="flash-sale-admin-panel-header">
+
+            <div>
+                <h2>Flash Sale Configuration</h2>
+                <p>
+                    Configure the Flash Sale campaign and
+                    select products for the sale.
+                </p>
+            </div>
+
+            <span
+                class="flash-sale-admin-status"
+                id="flashSaleAdminStatus">
+                Not Configured
+            </span>
+
+        </div>
+
+
+        <div class="flash-sale-admin-form-grid">
+
+            <!-- SALE TITLE -->
+
+            <div class="admin-form-group">
+
+                <label for="flashSaleTitle">
+                    Sale Title
+                </label>
+
+                <input
+                    type="text"
+                    id="flashSaleTitle"
+                    placeholder="Flash Sale">
+
+            </div>
+
+
+            <!-- SALE SUBTITLE -->
+
+            <div class="admin-form-group">
+
+                <label for="flashSaleSubtitle">
+                    Subtitle
+                </label>
+
+                <input
+                    type="text"
+                    id="flashSaleSubtitle"
+                    placeholder="Limited time deals">
+
+            </div>
+
+
+            <!-- START DATE -->
+
+            <div class="admin-form-group">
+
+                <label for="flashSaleStart">
+                    Start Date & Time
+                </label>
+
+                <input
+                    type="datetime-local"
+                    id="flashSaleStart">
+
+            </div>
+
+
+            <!-- END DATE -->
+
+            <div class="admin-form-group">
+
+                <label for="flashSaleEnd">
+                    End Date & Time
+                </label>
+
+                <input
+                    type="datetime-local"
+                    id="flashSaleEnd">
+
+            </div>
+
+
+            <!-- MAX DISCOUNT -->
+
+            <div class="admin-form-group">
+
+                <label for="flashSaleMaxDiscount">
+                    Maximum Discount
+                </label>
+
+                <input
+                    type="number"
+                    id="flashSaleMaxDiscount"
+                    min="0"
+                    max="100"
+                    placeholder="70">
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div class="admin-form-group">
+
+                <label for="flashSaleEnabled">
+                    Campaign Status
+                </label>
+
+                <label class="flash-sale-admin-switch">
+
+                    <input
+                        type="checkbox"
+                        id="flashSaleEnabled">
+
+                    <span></span>
+
+                    <strong>
+                        Enable Flash Sale
+                    </strong>
+
+                </label>
+
+            </div>
+
+        </div>
+
+
+        <!-- CAMPAIGN ACTIONS -->
+
+        <div class="flash-sale-admin-actions">
+
+            <button
+                type="button"
+                class="admin-primary-button"
+                id="flashSaleSaveButton">
+                Save Flash Sale
+            </button>
+
+            <button
+                type="button"
+                class="admin-secondary-button"
+                id="flashSaleResetButton">
+                Reset
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- PRODUCT SELECTION -->
+
+    <div class="flash-sale-admin-panel">
+
+        <div class="flash-sale-admin-panel-header">
+
+            <div>
+                <h2>Flash Sale Products</h2>
+                <p>
+                    Select products from your existing marketplace
+                    products.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="flash-sale-product-toolbar">
+
+            <div class="flash-sale-product-search">
+
+                <span>🔍</span>
+
+                <input
+                    type="search"
+                    id="flashSaleProductSearch"
+                    placeholder="Search products...">
+
+            </div>
+
+
+            <select
+                id="flashSaleProductCategory">
+
+                <option value="all">
+                    All Categories
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div
+            class="flash-sale-admin-product-list"
+            id="flashSaleAdminProductList">
+
+            <div class="flash-sale-admin-loading">
+                Loading products...
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- SELECTED PRODUCTS -->
+
+    <div class="flash-sale-admin-panel">
+
+        <div class="flash-sale-admin-panel-header">
+
+            <div>
+                <h2>Selected Products</h2>
+                <p>
+                    Products currently selected for this Flash Sale.
+                </p>
+            </div>
+
+            <span
+                class="flash-sale-selected-count"
+                id="flashSaleSelectedCount">
+                0 selected
+            </span>
+
+        </div>
+
+
+        <div
+            class="flash-sale-selected-products"
+            id="flashSaleSelectedProducts">
+
+            <div class="flash-sale-admin-empty">
+
+                <div class="flash-sale-empty-icon">⚡</div>
+
+                <h3>No Flash Sale Products</h3>
+
+                <p>
+                    Select products above to add them to
+                    the Flash Sale.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
 
         <!--==================================================
         CATEGORIES SECTION
