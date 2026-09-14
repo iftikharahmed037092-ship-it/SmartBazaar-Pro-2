@@ -2720,8 +2720,1078 @@ function getValidDashboardSections() {
 }
 
 
+
 /*==================================================
 FEATURE: OPEN DASHBOARD SECTION
 ==================================================*/
 
-function openDashboardSection
+function openDashboardSection(
+    section,
+    updateHash = true
+) {
+
+    const validSections =
+        getValidDashboardSections();
+
+
+    if (
+        !validSections.includes(section)
+    ) {
+
+        section = "overview";
+
+    }
+
+
+    /*
+    Hide all dashboard sections.
+    */
+
+    validSections.forEach(
+        sectionName => {
+
+            const sectionElement =
+                document.getElementById(
+                    `sellerDashboard${capitalize(sectionName)}Section`
+                );
+
+
+            if (sectionElement) {
+
+                sectionElement.style.display =
+                    sectionName === section
+                        ? ""
+                        : "none";
+
+            }
+
+        }
+    );
+
+
+    /*
+    Update sidebar active state.
+    */
+
+    document
+        .querySelectorAll(
+            "#sellerDashboardSidebar [data-section]"
+        )
+        .forEach(
+            item => {
+
+                const active =
+                    item.dataset.section ===
+                    section;
+
+
+                item.classList.toggle(
+                    "active",
+                    active
+                );
+
+
+                item.setAttribute(
+                    "aria-current",
+                    active
+                        ? "page"
+                        : "false"
+                );
+
+            }
+        );
+
+
+    /*
+    Update section title if matching
+    dashboard page heading exists.
+    */
+
+    updateSectionHeading(
+        section
+    );
+
+
+    /*
+    Update URL hash.
+    */
+
+    if (updateHash) {
+
+        const newHash =
+            `#${section}`;
+
+
+        if (
+            window.location.hash !==
+            newHash
+        ) {
+
+            history.replaceState(
+                null,
+                "",
+                newHash
+            );
+
+        }
+
+    }
+
+
+    /*
+    Close mobile sidebar after navigation.
+    */
+
+    closeMobileSidebar();
+
+
+    /*
+    Scroll dashboard content to top.
+    */
+
+    window.scrollTo(
+        {
+            top: 0,
+            behavior: "smooth"
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: SECTION HEADING
+==================================================*/
+
+function updateSectionHeading(
+    section
+) {
+
+    const titles = {
+
+        overview:
+            "Seller Dashboard",
+
+        products:
+            "My Products",
+
+        orders:
+            "My Orders",
+
+        sales:
+            "Sales",
+
+        earnings:
+            "Earnings",
+
+        withdrawals:
+            "Withdrawals",
+
+        store:
+            "My Store",
+
+        messages:
+            "Messages",
+
+        notifications:
+            "Notifications",
+
+        settings:
+            "Settings"
+
+    };
+
+
+    const title =
+        titles[section] ||
+        "Seller Dashboard";
+
+
+    document
+        .querySelectorAll(
+            "[data-seller-section-title]"
+        )
+        .forEach(
+            element => {
+
+                element.textContent =
+                    title;
+
+            }
+        );
+
+}
+
+
+/*==================================================
+FEATURE: HASH NAVIGATION
+==================================================*/
+
+function setupHashNavigation() {
+
+    window.addEventListener(
+        "hashchange",
+        () => {
+
+            const hash =
+                window.location.hash
+                    .replace("#", "")
+                    .trim();
+
+
+            const valid =
+                getValidDashboardSections();
+
+
+            if (
+                valid.includes(hash)
+            ) {
+
+                openDashboardSection(
+                    hash,
+                    false
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: MOBILE SIDEBAR
+==================================================*/
+
+function setupMobileMenu() {
+
+    const menuButton =
+        $("sellerDashboardMobileMenu");
+
+
+    const sidebar =
+        $("sellerDashboardSidebar");
+
+
+    const overlay =
+        $("sellerDashboardSidebarOverlay");
+
+
+    if (!sidebar) {
+
+        return;
+
+    }
+
+
+    if (menuButton) {
+
+        menuButton.addEventListener(
+            "click",
+            event => {
+
+                event.preventDefault();
+
+                toggleMobileSidebar();
+
+            }
+        );
+
+    }
+
+
+    if (overlay) {
+
+        overlay.addEventListener(
+            "click",
+            () => {
+
+                closeMobileSidebar();
+
+            }
+        );
+
+    }
+
+
+    /*
+    Close menu with Escape.
+    */
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key ===
+                "Escape"
+            ) {
+
+                closeMobileSidebar();
+
+            }
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: TOGGLE MOBILE SIDEBAR
+==================================================*/
+
+function toggleMobileSidebar() {
+
+    const sidebar =
+        $("sellerDashboardSidebar");
+
+
+    const overlay =
+        $("sellerDashboardSidebarOverlay");
+
+
+    if (!sidebar) {
+
+        return;
+
+    }
+
+
+    const isOpen =
+        sidebar.classList.contains(
+            "open"
+        );
+
+
+    if (isOpen) {
+
+        closeMobileSidebar();
+
+    } else {
+
+        openMobileSidebar();
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: OPEN MOBILE SIDEBAR
+==================================================*/
+
+function openMobileSidebar() {
+
+    const sidebar =
+        $("sellerDashboardSidebar");
+
+
+    const overlay =
+        $("sellerDashboardSidebarOverlay");
+
+
+    if (sidebar) {
+
+        sidebar.classList.add(
+            "open"
+        );
+
+    }
+
+
+    if (overlay) {
+
+        overlay.classList.add(
+            "active"
+        );
+
+    }
+
+
+    document.body.classList.add(
+        "seller-dashboard-menu-open"
+    );
+
+}
+
+
+/*==================================================
+FEATURE: CLOSE MOBILE SIDEBAR
+==================================================*/
+
+function closeMobileSidebar() {
+
+    const sidebar =
+        $("sellerDashboardSidebar");
+
+
+    const overlay =
+        $("sellerDashboardSidebarOverlay");
+
+
+    if (sidebar) {
+
+        sidebar.classList.remove(
+            "open"
+        );
+
+    }
+
+
+    if (overlay) {
+
+        overlay.classList.remove(
+            "active"
+        );
+
+    }
+
+
+    document.body.classList.remove(
+        "seller-dashboard-menu-open"
+    );
+
+}
+
+
+/*==================================================
+FEATURE: LOGOUT SYSTEM
+==================================================*/
+
+function setupLogoutSystem() {
+
+    const logoutButtons =
+        document.querySelectorAll(
+            "#sellerDashboardLogout, #sellerDashboardSettingsLogout"
+        );
+
+
+    logoutButtons.forEach(
+        button => {
+
+            if (
+                button.dataset.bound
+            ) {
+
+                return;
+
+            }
+
+
+            button.dataset.bound =
+                "true";
+
+
+            button.addEventListener(
+                "click",
+                async event => {
+
+                    event.preventDefault();
+
+
+                    if (
+                        button.dataset.loggingOut ===
+                        "true"
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    button.dataset.loggingOut =
+                        "true";
+
+
+                    const originalHTML =
+                        button.innerHTML;
+
+
+                    button.innerHTML = `
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                        Logging out...
+                    `;
+
+
+                    try {
+
+                        /*
+                        Firebase sign out.
+                        */
+
+                        await signOut(
+                            auth
+                        );
+
+
+                        /*
+                        Remove only the existing
+                        SmartBazaar session values.
+                        */
+
+                        try {
+
+                            sessionStorage.removeItem(
+                                "smartbazaar_user_email"
+                            );
+
+                            sessionStorage.removeItem(
+                                "smartbazaar_is_admin"
+                            );
+
+                        } catch (
+                            storageError
+                        ) {
+
+                            console.warn(
+                                "Session storage cleanup error:",
+                                storageError
+                            );
+
+                        }
+
+
+                        window.location.href =
+                            "./login.html";
+
+                    } catch (error) {
+
+                        console.error(
+                            "Seller logout error:",
+                            error
+                        );
+
+
+                        button.dataset.loggingOut =
+                            "false";
+
+
+                        button.innerHTML =
+                            originalHTML;
+
+
+                        alert(
+                            "Logout failed. Please try again."
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: PROFILE BUTTON
+==================================================*/
+
+function setupProfileButton() {
+
+    const button =
+        $("sellerDashboardProfileButton");
+
+
+    if (!button) {
+
+        return;
+
+    }
+
+
+    button.addEventListener(
+        "click",
+        event => {
+
+            event.preventDefault();
+
+
+            window.location.href =
+                "./account.html";
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: NOTIFICATION BUTTON
+==================================================*/
+
+function setupNotificationButton() {
+
+    const button =
+        $("sellerDashboardNotificationButton");
+
+
+    if (!button) {
+
+        return;
+
+    }
+
+
+    button.addEventListener(
+        "click",
+        event => {
+
+            event.preventDefault();
+
+
+            openDashboardSection(
+                "notifications"
+            );
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: QUICK ACTIONS
+==================================================*/
+
+function setupQuickActions() {
+
+    /*
+    Add Product buttons.
+    */
+
+    document
+        .querySelectorAll(
+            '[data-action="add-product"]'
+        )
+        .forEach(
+            button => {
+
+                if (
+                    button.dataset.bound
+                ) {
+
+                    return;
+
+                }
+
+
+                button.dataset.bound =
+                    "true";
+
+
+                button.addEventListener(
+                    "click",
+                    event => {
+
+                        event.preventDefault();
+
+                        openProductEditor();
+
+                    }
+                );
+
+            }
+        );
+
+
+    /*
+    Dashboard section links.
+    */
+
+    document
+        .querySelectorAll(
+            '[data-dashboard-action]'
+        )
+        .forEach(
+            button => {
+
+                if (
+                    button.dataset.bound
+                ) {
+
+                    return;
+
+                }
+
+
+                button.dataset.bound =
+                    "true";
+
+
+                button.addEventListener(
+                    "click",
+                    event => {
+
+                        event.preventDefault();
+
+
+                        const section =
+                            button.dataset.dashboardAction;
+
+
+                        if (section) {
+
+                            openDashboardSection(
+                                section
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+}
+
+
+/*==================================================
+FEATURE: VIEW STORE
+==================================================*/
+
+function setupViewStoreButton() {
+
+    const button =
+        $("sellerDashboardViewStore");
+
+
+    if (!button) {
+
+        return;
+
+    }
+
+
+    if (
+        currentUser
+    ) {
+
+        button.href =
+            `./seller-store.html?sellerId=${encodeURIComponent(currentUser.uid)}`;
+
+    }
+
+}
+
+
+/*==================================================
+FEATURE: NOTIFICATION REALTIME LISTENER
+==================================================*/
+
+function setupNotificationListener() {
+
+    if (!currentUser) {
+
+        return;
+
+    }
+
+
+    const notificationRef =
+        ref(
+            database,
+            `users/${currentUser.uid}/notifications`
+        );
+
+
+    onValue(
+        notificationRef,
+        snapshot => {
+
+            const data =
+                snapshot.val() || {};
+
+
+            sellerNotifications =
+                Object.entries(data)
+                    .map(
+                        ([firebaseKey, notification]) => {
+
+                            return {
+
+                                ...(notification || {}),
+
+                                _firebaseKey:
+                                    firebaseKey
+
+                            };
+
+                        }
+                    )
+                    .sort(
+                        (a, b) => {
+
+                            return (
+                                Number(
+                                    b.createdAt ||
+                                    b.timestamp ||
+                                    0
+                                ) -
+                                Number(
+                                    a.createdAt ||
+                                    a.timestamp ||
+                                    0
+                                )
+                            );
+
+                        }
+                    );
+
+
+            renderNotifications();
+
+            updateNotificationBadge();
+
+        },
+        error => {
+
+            console.warn(
+                "Notification listener error:",
+                error
+            );
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: DASHBOARD RESIZE HANDLER
+==================================================*/
+
+function setupResponsiveBehavior() {
+
+    window.addEventListener(
+        "resize",
+        () => {
+
+            /*
+            When switching back to desktop,
+            remove mobile drawer state.
+            */
+
+            if (
+                window.innerWidth >
+                900
+            ) {
+
+                closeMobileSidebar();
+
+            }
+
+        }
+    );
+
+}
+
+
+/*==================================================
+FEATURE: TEXT HELPER
+==================================================*/
+
+function setText(
+    id,
+    value
+) {
+
+    const element =
+        $(id);
+
+
+    if (!element) {
+
+        return;
+
+    }
+
+
+    element.textContent =
+        value === null ||
+        value === undefined
+            ? ""
+            : String(value);
+
+}
+
+
+/*==================================================
+FEATURE: CAPITALIZE
+==================================================*/
+
+function capitalize(
+    value
+) {
+
+    if (!value) {
+
+        return "";
+
+    }
+
+
+    const text =
+        String(value);
+
+
+    return (
+        text.charAt(0).toUpperCase() +
+        text.slice(1)
+    );
+
+}
+
+
+/*==================================================
+FEATURE: NORMALIZE STATUS
+==================================================*/
+
+function normalizeStatus(
+    status
+) {
+
+    const value =
+        String(
+            status || "pending"
+        )
+        .trim()
+        .toLowerCase();
+
+
+    /*
+    Keep the actual database status
+    whenever possible.
+    */
+
+    const allowed = [
+
+        "pending",
+        "confirmed",
+        "processing",
+        "shipped",
+        "delivered",
+        "cancelled",
+        "canceled"
+
+    ];
+
+
+    if (
+        allowed.includes(value)
+    ) {
+
+        return value;
+
+    }
+
+
+    /*
+    Unknown statuses are displayed
+    safely as pending rather than
+    inventing a new status.
+    */
+
+    return "pending";
+
+}
+
+
+/*==================================================
+FEATURE: NUMBER HELPER
+==================================================*/
+
+function safeNumber(
+    value,
+    fallback = 0
+) {
+
+    const number =
+        Number(value);
+
+
+    return Number.isFinite(number)
+        ? number
+        : fallback;
+
+}
+
+
+/*==================================================
+FEATURE: PRODUCT COUNT BADGES
+==================================================*/
+
+function refreshBadges() {
+
+    setText(
+        "sellerDashboardProductsBadge",
+        sellerProducts.length
+    );
+
+
+    setText(
+        "sellerDashboardOrdersBadge",
+        sellerOrders.length
+    );
+
+
+    updateNotificationBadge();
+
+}
+
+
+/*==================================================
+FEATURE: DASHBOARD INITIALIZATION
+==================================================*/
+
+function initializeSellerDashboard() {
+
+    /*
+    Basic UI systems.
+    */
+
+    setupNavigation();
+
+    setupHashNavigation();
+
+    setupMobileMenu();
+
+    setupProductControls();
+
+    setupLogoutSystem();
+
+    setupProfileButton();
+
+    setupNotificationButton();
+
+    setupQuickActions();
+
+    setupResponsiveBehavior();
+
+
+    /*
+    Firebase authentication.
+    */
+
+    setupAuthentication();
+
+}
+
+
+/*==================================================
+FEATURE: START SELLER DASHBOARD
+==================================================*/
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        initializeSellerDashboard();
+
+    }
+);
