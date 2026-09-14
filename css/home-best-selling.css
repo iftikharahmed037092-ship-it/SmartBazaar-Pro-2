@@ -1,0 +1,304 @@
+/* ============================================
+   FEATURE: BEST SELLING HOME SECTION
+   ============================================ */
+
+.home-best-selling-section {
+    width: 100%;
+    margin: 0 auto;
+    padding: 28px 16px;
+    box-sizing: border-box;
+}
+
+.home-best-selling-section .home-section-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.home-best-selling-section .home-section-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.home-best-selling-section .home-section-icon {
+    font-size: 28px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.home-best-selling-section .home-section-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.home-best-selling-section .home-section-subtitle {
+    margin: 4px 0 0;
+    font-size: 13px;
+    line-height: 1.4;
+    opacity: 0.7;
+}
+
+.home-best-selling-section .home-section-view-all {
+    flex-shrink: 0;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+
+/* ============================================
+   HORIZONTAL PRODUCT WRAPPER
+   ============================================ */
+
+.home-best-selling-wrapper {
+    width: 100%;
+    overflow: hidden;
+}
+
+.home-best-selling-grid {
+    width: 100%;
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 2px 2px 10px;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+}
+
+.home-best-selling-grid::-webkit-scrollbar {
+    height: 5px;
+}
+
+.home-best-selling-grid::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+}
+
+
+/* ============================================
+   PRODUCT CARD
+   ============================================ */
+
+.home-best-selling-card {
+    flex: 0 0 220px;
+    width: 220px;
+    min-width: 220px;
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    box-sizing: border-box;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-best-selling-card:hover {
+    transform: translateY(-3px);
+}
+
+.home-best-selling-image-wrap {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    background: #f5f5f5;
+}
+
+.home-best-selling-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.home-best-selling-badge {
+    position: absolute;
+    top: 9px;
+    left: 9px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+}
+
+.home-best-selling-content {
+    padding: 12px;
+}
+
+.home-best-selling-name {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.home-best-selling-price-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.home-best-selling-price {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.home-best-selling-old-price {
+    font-size: 12px;
+    text-decoration: line-through;
+    opacity: 0.55;
+}
+
+.home-best-selling-rating {
+    margin-top: 7px;
+    font-size: 12px;
+    opacity: 0.75;
+}
+
+
+/* ============================================
+   LOADING
+   ============================================ */
+
+.home-best-selling-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 20px;
+    font-size: 13px;
+}
+
+.home-best-selling-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #dddddd;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: homeBestSellingSpin 0.8s linear infinite;
+}
+
+@keyframes homeBestSellingSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+
+.home-best-selling-empty {
+    text-align: center;
+    padding: 22px 16px;
+    font-size: 13px;
+    opacity: 0.75;
+}
+
+.home-best-selling-empty span {
+    display: block;
+    font-size: 28px;
+    margin-bottom: 7px;
+}
+
+.home-best-selling-empty p {
+    margin: 0;
+}
+
+
+/* ============================================
+   TABLET
+   ============================================ */
+
+@media (max-width: 768px) {
+
+    .home-best-selling-section {
+        padding: 22px 12px;
+    }
+
+    .home-best-selling-card {
+        flex-basis: 190px;
+        width: 190px;
+        min-width: 190px;
+    }
+
+    .home-best-selling-image-wrap {
+        height: 155px;
+    }
+
+    .home-best-selling-section .home-section-title {
+        font-size: 20px;
+    }
+}
+
+
+/* ============================================
+   MOBILE
+   ============================================ */
+
+@media (max-width: 480px) {
+
+    .home-best-selling-section {
+        padding: 18px 10px;
+    }
+
+    .home-best-selling-section .home-section-header {
+        margin-bottom: 13px;
+    }
+
+    .home-best-selling-section .home-section-icon {
+        font-size: 24px;
+    }
+
+    .home-best-selling-section .home-section-title {
+        font-size: 18px;
+    }
+
+    .home-best-selling-section .home-section-subtitle {
+        font-size: 11px;
+    }
+
+    .home-best-selling-section .home-section-view-all {
+        font-size: 12px;
+    }
+
+    .home-best-selling-card {
+        flex-basis: 165px;
+        width: 165px;
+        min-width: 165px;
+    }
+
+    .home-best-selling-image-wrap {
+        height: 145px;
+    }
+
+    .home-best-selling-content {
+        padding: 9px;
+    }
+
+    .home-best-selling-name {
+        font-size: 13px;
+    }
+
+    .home-best-selling-price {
+        font-size: 15px;
+    }
+}
