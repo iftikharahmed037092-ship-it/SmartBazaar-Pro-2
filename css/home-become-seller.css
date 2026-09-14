@@ -1,0 +1,343 @@
+/* ============================================
+   FEATURE: BECOME A SELLER HOME SECTION
+   ============================================ */
+
+.home-become-seller-section {
+    width: 100%;
+    margin: 28px 0;
+    padding: 22px;
+    box-sizing: border-box;
+
+    background: linear-gradient(
+        135deg,
+        #f0fff5 0%,
+        #ffffff 55%,
+        #f4fff7 100%
+    );
+
+    border: 1px solid #dcefe2;
+    border-radius: 18px;
+}
+
+
+/* Main Content */
+
+.home-become-seller-content {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+
+/* Main Icon */
+
+.home-become-seller-icon {
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 16px;
+    background: #e5f9ec;
+
+    font-size: 31px;
+}
+
+
+/* Text */
+
+.home-become-seller-text {
+    min-width: 0;
+}
+
+.home-become-seller-label {
+    display: inline-block;
+
+    margin-bottom: 5px;
+
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+
+    color: #168a42;
+}
+
+.home-become-seller-text h2 {
+    margin: 0 0 6px;
+
+    font-size: 23px;
+    line-height: 1.2;
+    font-weight: 750;
+
+    color: #202522;
+}
+
+.home-become-seller-text p {
+    max-width: 650px;
+
+    margin: 0;
+
+    font-size: 13px;
+    line-height: 1.55;
+
+    color: #707772;
+}
+
+
+/* Buttons */
+
+.home-become-seller-actions {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    margin-top: 13px;
+}
+
+.home-become-seller-primary,
+.home-become-seller-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 38px;
+    padding: 0 16px;
+
+    border-radius: 9px;
+
+    text-decoration: none;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.home-become-seller-primary {
+    gap: 7px;
+
+    color: #ffffff;
+    background: #18a64a;
+
+    box-shadow: 0 4px 12px rgba(24, 166, 74, 0.18);
+}
+
+.home-become-seller-primary:hover {
+    transform: translateY(-1px);
+    background: #128c3d;
+    box-shadow: 0 6px 16px rgba(24, 166, 74, 0.24);
+}
+
+.home-become-seller-secondary {
+    color: #168a42;
+    background: #ffffff;
+    border: 1px solid #bfe5ca;
+}
+
+.home-become-seller-secondary:hover {
+    background: #f5fff8;
+}
+
+
+/* Benefits */
+
+.home-become-seller-benefits {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-top: 18px;
+    padding-top: 15px;
+
+    border-top: 1px solid #deeee3;
+}
+
+.home-seller-benefit {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 8px 12px;
+
+    background: #ffffff;
+    border: 1px solid #e4eee7;
+    border-radius: 9px;
+
+    font-size: 11px;
+    color: #444;
+}
+
+.home-seller-benefit span {
+    font-size: 16px;
+}
+
+.home-seller-benefit strong {
+    font-weight: 650;
+}
+
+
+/* ============================================
+   TABLET
+   ============================================ */
+
+@media (max-width: 800px) {
+
+    .home-become-seller-section {
+        padding: 18px;
+        margin: 22px 0;
+    }
+
+    .home-become-seller-content {
+        gap: 14px;
+    }
+
+    .home-become-seller-icon {
+        width: 54px;
+        height: 54px;
+        min-width: 54px;
+        border-radius: 13px;
+        font-size: 26px;
+    }
+
+    .home-become-seller-text h2 {
+        font-size: 20px;
+    }
+
+    .home-become-seller-benefits {
+        gap: 7px;
+    }
+
+    .home-seller-benefit {
+        padding: 7px 9px;
+    }
+
+}
+
+
+/* ============================================
+   MOBILE
+   ============================================ */
+
+@media (max-width: 600px) {
+
+    .home-become-seller-section {
+        margin: 18px 12px;
+        padding: 16px;
+
+        border-radius: 15px;
+    }
+
+    .home-become-seller-content {
+        align-items: flex-start;
+        gap: 11px;
+    }
+
+    .home-become-seller-icon {
+        width: 45px;
+        height: 45px;
+        min-width: 45px;
+
+        border-radius: 11px;
+        font-size: 21px;
+    }
+
+    .home-become-seller-label {
+        font-size: 9px;
+        margin-bottom: 4px;
+    }
+
+    .home-become-seller-text h2 {
+        font-size: 18px;
+        margin-bottom: 5px;
+    }
+
+    .home-become-seller-text p {
+        font-size: 11px;
+        line-height: 1.45;
+    }
+
+    .home-become-seller-actions {
+        margin-top: 10px;
+        gap: 7px;
+    }
+
+    .home-become-seller-primary,
+    .home-become-seller-secondary {
+        min-height: 34px;
+        padding: 0 12px;
+
+        border-radius: 8px;
+
+        font-size: 11px;
+    }
+
+    .home-become-seller-benefits {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+
+        gap: 6px;
+
+        margin-top: 14px;
+        padding-top: 12px;
+    }
+
+    .home-seller-benefit {
+        justify-content: center;
+        flex-direction: column;
+        gap: 3px;
+
+        padding: 7px 4px;
+
+        text-align: center;
+        font-size: 9px;
+    }
+
+    .home-seller-benefit span {
+        font-size: 15px;
+    }
+
+}
+
+
+/* ============================================
+   SMALL MOBILE
+   ============================================ */
+
+@media (max-width: 380px) {
+
+    .home-become-seller-section {
+        margin-left: 8px;
+        margin-right: 8px;
+        padding: 13px;
+    }
+
+    .home-become-seller-icon {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+
+        font-size: 19px;
+    }
+
+    .home-become-seller-text h2 {
+        font-size: 16px;
+    }
+
+    .home-become-seller-text p {
+        font-size: 10.5px;
+    }
+
+    .home-become-seller-primary,
+    .home-become-seller-secondary {
+        min-height: 32px;
+        padding: 0 10px;
+        font-size: 10px;
+    }
+
+}
