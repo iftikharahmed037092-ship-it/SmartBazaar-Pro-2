@@ -56,6 +56,7 @@ FEATURE: FAST FONT CONNECTION
 
     <link rel="stylesheet" href="css/home-best-deals.css">
     <link rel="stylesheet" href="css/home-best-selling.css">
+    <link rel="stylesheet" href="css/home-new-arrivals.css">
 </head>
 
 
@@ -1649,6 +1650,67 @@ END HOME FLASH SALE
     </div>
 
 </section>
+
+    <!-- ============================================
+     FEATURE: NEW ARRIVALS HOME SECTION
+     ============================================ -->
+<section class="home-new-arrivals-section" id="homeNewArrivals">
+
+    <div class="home-section-header">
+
+        <div class="home-section-title-wrap">
+            <span class="home-section-icon">🆕</span>
+
+            <div>
+                <h2 class="home-section-title">New Arrivals</h2>
+                <p class="home-section-subtitle">
+                    Discover the latest products
+                </p>
+            </div>
+        </div>
+
+        <a href="deals.html" class="home-section-view-all">
+            View All
+            <span>→</span>
+        </a>
+
+    </div>
+
+    <!-- New Arrivals Horizontal Products -->
+    <div class="home-new-arrivals-wrapper">
+
+        <div
+            class="home-new-arrivals-grid"
+            id="homeNewArrivalsGrid"
+            aria-label="New Arrivals Products">
+        </div>
+
+    </div>
+
+    <!-- Loading State -->
+    <div
+        class="home-new-arrivals-loading"
+        id="homeNewArrivalsLoading">
+
+        <div class="home-new-arrivals-spinner"></div>
+
+        <span>Loading new arrivals...</span>
+
+    </div>
+
+    <!-- Empty State -->
+    <div
+        class="home-new-arrivals-empty"
+        id="homeNewArrivalsEmpty"
+        hidden>
+
+        <span>🆕</span>
+
+        <p>No new products are available right now.</p>
+
+    </div>
+
+</section>
     
 </main>
 
@@ -1685,6 +1747,7 @@ FOOTER PLACEHOLDER
     </script>
     <script type="module" src="js/home-best-deals.js"></script>
     <script type="module" src="js/home-best-selling.js"></script>
+    <script type="module" src="js/home-new-arrivals.js"></script>
 
 
 </body>
