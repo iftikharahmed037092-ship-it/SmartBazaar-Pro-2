@@ -57,6 +57,7 @@ FEATURE: FAST FONT CONNECTION
     <link rel="stylesheet" href="css/home-best-deals.css">
     <link rel="stylesheet" href="css/home-best-selling.css">
     <link rel="stylesheet" href="css/home-new-arrivals.css">
+    <link rel="stylesheet" href="css/home-popular-stores.css">
 </head>
 
 
@@ -1711,6 +1712,70 @@ END HOME FLASH SALE
     </div>
 
 </section>
+
+    <!-- ============================================
+     FEATURE: POPULAR STORES HOME SECTION
+     ============================================ -->
+<section class="home-popular-stores-section" id="homePopularStores">
+
+    <div class="home-section-header">
+
+        <div class="home-section-title-wrap">
+            <span class="home-section-icon">🏪</span>
+
+            <div>
+                <h2 class="home-section-title">Popular Stores</h2>
+                <p class="home-section-subtitle">
+                    Explore stores customers love
+                </p>
+            </div>
+        </div>
+
+        <a href="account.html" class="home-section-view-all">
+            View All
+            <span>→</span>
+        </a>
+
+    </div>
+
+
+    <!-- Popular Stores Horizontal List -->
+    <div class="home-popular-stores-wrapper">
+
+        <div
+            class="home-popular-stores-grid"
+            id="homePopularStoresGrid"
+            aria-label="Popular Stores">
+        </div>
+
+    </div>
+
+
+    <!-- Loading State -->
+    <div
+        class="home-popular-stores-loading"
+        id="homePopularStoresLoading">
+
+        <div class="home-popular-stores-spinner"></div>
+
+        <span>Loading popular stores...</span>
+
+    </div>
+
+
+    <!-- Empty State -->
+    <div
+        class="home-popular-stores-empty"
+        id="homePopularStoresEmpty"
+        hidden>
+
+        <span>🏪</span>
+
+        <p>No popular stores are available right now.</p>
+
+    </div>
+
+</section>
     
 </main>
 
@@ -1748,6 +1813,8 @@ FOOTER PLACEHOLDER
     <script type="module" src="js/home-best-deals.js"></script>
     <script type="module" src="js/home-best-selling.js"></script>
     <script type="module" src="js/home-new-arrivals.js"></script>
+    <script type="module" src="js/home-popular-stores.js"></script>
+    
 
 
 </body>
