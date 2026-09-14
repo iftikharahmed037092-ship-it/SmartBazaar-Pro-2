@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Become a Seller - SmartBazaar</title>
+
+    <!-- Main Site Styles -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Seller Registration Styles -->
+    <link rel="stylesheet" href="css/seller-register.css">
+
+    <!-- Bottom Navigation -->
+    <link rel="stylesheet" href="bottom-nav.css">
+
+</head>
+
+<body>
+
+    <!-- ============================================
+         FEATURE: SELLER REGISTRATION PAGE
+         ============================================ -->
+
+    <main class="seller-register-page">
+
+        <!-- ========================================
+             TOP HEADER
+             ======================================== -->
+
+        <header class="seller-register-header">
+
+            <a
+                href="index.html"
+                class="seller-register-back"
+                aria-label="Back to SmartBazaar"
+            >
+                ←
+            </a>
+
+            <a
+                href="index.html"
+                class="seller-register-logo"
+            >
+                <span class="seller-register-logo-icon">
+                    🛍️
+                </span>
+
+                <span class="seller-register-logo-text">
+                    SmartBazaar
+                </span>
+            </a>
+
+            <a
+                href="login.html"
+                class="seller-register-login-link"
+            >
+                Already a seller? <strong>Login</strong>
+            </a>
+
+        </header>
+
+
+        <!-- ========================================
+             REGISTRATION CONTAINER
+             ======================================== -->
+
+        <section class="seller-register-container">
+
+            <!-- ====================================
+                 HERO / INTRO
+                 ==================================== -->
+
+            <div class="seller-register-intro">
+
+                <div class="seller-register-intro-icon">
+                    🏪
+                </div>
+
+                <span class="seller-register-label">
+                    SELL ON SMARTBAZAAR
+                </span>
+
+                <h1>
+                    Become a Seller
+                </h1>
+
+                <p>
+                    Start your online business, list your products,
+                    and reach more customers with SmartBazaar.
+                </p>
+
+            </div>
+
+
+            <!-- ====================================
+                 REGISTRATION CARD
+                 ==================================== -->
+
+            <div class="seller-register-card">
+
+                <div class="seller-register-card-header">
+
+                    <h2>
+                        Create Your Seller Account
+                    </h2>
+
+                    <p>
+                        Enter your details to get started.
+                    </p>
+
+                </div>
+
+
+                <!-- ==================================
+                     ERROR / SUCCESS MESSAGE
+                     ================================== -->
+
+                <div
+                    class="seller-register-message"
+                    id="sellerRegisterMessage"
+                    hidden
+                ></div>
+
+
+                <!-- ==================================
+                     FORM
+                     ================================== -->
+
+                <form
+                    id="sellerRegisterForm"
+                    class="seller-register-form"
+                    novalidate
+                >
+
+                    <!-- NAME -->
+
+                    <div class="seller-register-field">
+
+                        <label for="sellerName">
+                            Full Name
+                        </label>
+
+                        <div class="seller-register-input-wrap">
+
+                            <span class="seller-register-input-icon">
+                                👤
+                            </span>
+
+                            <input
+                                type="text"
+                                id="sellerName"
+                                name="sellerName"
+                                placeholder="Enter your full name"
+                                autocomplete="name"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- EMAIL -->
+
+                    <div class="seller-register-field">
+
+                        <label for="sellerEmail">
+                            Email Address
+                        </label>
+
+                        <div class="seller-register-input-wrap">
+
+                            <span class="seller-register-input-icon">
+                                ✉️
+                            </span>
+
+                            <input
+                                type="email"
+                                id="sellerEmail"
+                                name="sellerEmail"
+                                placeholder="Enter your email address"
+                                autocomplete="email"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PHONE -->
+
+                    <div class="seller-register-field">
+
+                        <label for="sellerPhone">
+                            Phone Number
+                        </label>
+
+                        <div class="seller-register-input-wrap">
+
+                            <span class="seller-register-input-icon">
+                                📱
+                            </span>
+
+                            <input
+                                type="tel"
+                                id="sellerPhone"
+                                name="sellerPhone"
+                                placeholder="Enter your phone number"
+                                autocomplete="tel"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PASSWORD -->
+
+                    <div class="seller-register-field">
+
+                        <label for="sellerPassword">
+                            Password
+                        </label>
+
+                        <div class="seller-register-input-wrap">
+
+                            <span class="seller-register-input-icon">
+                                🔒
+                            </span>
+
+                            <input
+                                type="password"
+                                id="sellerPassword"
+                                name="sellerPassword"
+                                placeholder="Create a password"
+                                autocomplete="new-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="seller-register-password-toggle"
+                                id="sellerPasswordToggle"
+                                aria-label="Show password"
+                            >
+                                👁️
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- CONFIRM PASSWORD -->
+
+                    <div class="seller-register-field">
+
+                        <label for="sellerConfirmPassword">
+                            Confirm Password
+                        </label>
+
+                        <div class="seller-register-input-wrap">
+
+                            <span class="seller-register-input-icon">
+                                🔐
+                            </span>
+
+                            <input
+                                type="password"
+                                id="sellerConfirmPassword"
+                                name="sellerConfirmPassword"
+                                placeholder="Confirm your password"
+                                autocomplete="new-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="seller-register-password-toggle"
+                                id="sellerConfirmPasswordToggle"
+                                aria-label="Show password"
+                            >
+                                👁️
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- TERMS -->
+
+                    <div class="seller-register-terms">
+
+                        <label class="seller-register-checkbox">
+
+                            <input
+                                type="checkbox"
+                                id="sellerTerms"
+                                name="sellerTerms"
+                                required
+                            >
+
+                            <span class="seller-register-checkmark"></span>
+
+                            <span class="seller-register-terms-text">
+                                I agree to the SmartBazaar
+                                <a href="#" target="_blank">
+                                    Seller Terms
+                                </a>
+                                and
+                                <a href="#" target="_blank">
+                                    Policies
+                                </a>.
+                            </span>
+
+                        </label>
+
+                    </div>
+
+
+                    <!-- SUBMIT -->
+
+                    <button
+                        type="submit"
+                        class="seller-register-submit"
+                        id="sellerRegisterSubmit"
+                    >
+
+                        <span
+                            class="seller-register-submit-text"
+                        >
+                            Create Seller Account
+                        </span>
+
+                        <span
+                            class="seller-register-submit-spinner"
+                            id="sellerRegisterSpinner"
+                            hidden
+                        ></span>
+
+                        <span class="seller-register-submit-arrow">
+                            →
+                        </span>
+
+                    </button>
+
+                </form>
+
+
+                <!-- ==================================
+                     LOGIN LINK
+                     ================================== -->
+
+                <div class="seller-register-login">
+
+                    <span>
+                        Already have a seller account?
+                    </span>
+
+                    <a href="login.html">
+                        Login
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- ====================================
+                 SELLER BENEFITS
+                 ==================================== -->
+
+            <div class="seller-register-benefits">
+
+                <div class="seller-register-benefit">
+
+                    <div class="seller-register-benefit-icon">
+                        📦
+                    </div>
+
+                    <div>
+                        <strong>
+                            List Products
+                        </strong>
+
+                        <span>
+                            Add and manage your products easily.
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="seller-register-benefit">
+
+                    <div class="seller-register-benefit-icon">
+                        👥
+                    </div>
+
+                    <div>
+                        <strong>
+                            Reach Customers
+                        </strong>
+
+                        <span>
+                            Show your products to more shoppers.
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="seller-register-benefit">
+
+                    <div class="seller-register-benefit-icon">
+                        💰
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Grow Your Business
+                        </strong>
+
+                        <span>
+                            Track sales and grow your store.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ====================================
+                 TRUST NOTE
+                 ==================================== -->
+
+            <div class="seller-register-trust">
+
+                <span class="seller-register-trust-icon">
+                    🛡️
+                </span>
+
+                <div>
+
+                    <strong>
+                        Secure Registration
+                    </strong>
+
+                    <p>
+                        Your account information is protected
+                        by SmartBazaar's secure authentication system.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ============================================
+         FEATURE: SHARED BOTTOM NAVIGATION
+         ============================================ -->
+
+    <div id="bottomNavContainer"></div>
+
+
+    <!-- ============================================
+         SELLER REGISTRATION JAVASCRIPT
+         ============================================ -->
+
+    <script
+        type="module"
+        src="js/seller-register.js"
+    ></script>
+
+    <script
+        type="module"
+        src="bottom-nav.js"
+    ></script>
+
+</body>
+</html>
