@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Seller Dashboard — SmartBazaar</title>
+
+
+    <!--==================================================
+    SMARTBAZAAR PRO 2
+    FEATURE: SELLER DASHBOARD
+    ==================================================-->
+
+    <!-- MAIN WEBSITE CSS -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+    <!-- SELLER DASHBOARD CSS -->
+    <link
+        rel="stylesheet"
+        href="css/seller-dashboard.css"
+    >
+
+    <!-- BOTTOM NAV -->
+    <link
+        rel="stylesheet"
+        href="bottom-nav.css"
+    >
+
+    <!-- FONT AWESOME -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<!--==================================================
+FEATURE: SELLER DASHBOARD HEADER
+==================================================-->
+
+<header
+    class="seller-dashboard-header"
+    id="sellerDashboardHeader"
+>
+
+    <div class="seller-dashboard-header-left">
+
+        <button
+            type="button"
+            class="seller-dashboard-mobile-menu"
+            id="sellerDashboardMobileMenu"
+            aria-label="Open seller dashboard menu"
+        >
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+
+        <a
+            href="index.html"
+            class="seller-dashboard-logo"
+        >
+
+            <span class="seller-dashboard-logo-icon">
+                🛍️
+            </span>
+
+            <span>
+                SmartBazaar
+            </span>
+
+        </a>
+
+    </div>
+
+
+    <div class="seller-dashboard-header-right">
+
+        <a
+            href="index.html"
+            class="seller-dashboard-view-store"
+        >
+            <i class="fa-solid fa-store"></i>
+            <span>Marketplace</span>
+        </a>
+
+
+        <button
+            type="button"
+            class="seller-dashboard-notification-button"
+            id="sellerDashboardNotificationButton"
+            aria-label="Notifications"
+        >
+
+            <i class="fa-regular fa-bell"></i>
+
+            <span
+                class="seller-dashboard-notification-badge"
+                id="sellerDashboardNotificationBadge"
+                hidden
+            >
+                0
+            </span>
+
+        </button>
+
+
+        <button
+            type="button"
+            class="seller-dashboard-profile-button"
+            id="sellerDashboardProfileButton"
+        >
+
+            <span
+                class="seller-dashboard-profile-avatar"
+                id="sellerDashboardProfileAvatar"
+            >
+                <i class="fa-solid fa-user"></i>
+            </span>
+
+            <span
+                class="seller-dashboard-profile-name"
+                id="sellerDashboardProfileName"
+            >
+                Seller
+            </span>
+
+            <i class="fa-solid fa-chevron-down"></i>
+
+        </button>
+
+    </div>
+
+</header>
+
+
+
+<!--==================================================
+FEATURE: SELLER DASHBOARD LAYOUT
+==================================================-->
+
+<div
+    class="seller-dashboard-layout"
+    id="sellerDashboardLayout"
+>
+
+
+    <!--==================================================
+    FEATURE: SIDEBAR OVERLAY
+    ==================================================-->
+
+    <div
+        class="seller-dashboard-sidebar-overlay"
+        id="sellerDashboardSidebarOverlay"
+        hidden
+    ></div>
+
+
+
+    <!--==================================================
+    FEATURE: SELLER SIDEBAR
+    ==================================================-->
+
+    <aside
+        class="seller-dashboard-sidebar"
+        id="sellerDashboardSidebar"
+    >
+
+        <div class="seller-dashboard-sidebar-top">
+
+
+            <!-- SELLER PROFILE -->
+            <div class="seller-dashboard-sidebar-profile">
+
+                <div
+                    class="seller-dashboard-sidebar-avatar"
+                    id="sellerDashboardSidebarAvatar"
+                >
+                    <i class="fa-solid fa-user"></i>
+                </div>
+
+                <div class="seller-dashboard-sidebar-profile-info">
+
+                    <strong
+                        id="sellerDashboardSidebarName"
+                    >
+                        Seller
+                    </strong>
+
+                    <span>
+                        Seller Account
+                    </span>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- NAVIGATION -->
+            <nav
+                class="seller-dashboard-nav"
+                aria-label="Seller Dashboard Navigation"
+            >
+
+                <a
+                    href="#overview"
+                    class="seller-dashboard-nav-item active"
+                    data-section="overview"
+                >
+
+                    <span class="seller-dashboard-nav-icon">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </span>
+
+                    <span class="seller-dashboard-nav-text">
+                        Overview
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="#products"
+                    class="seller-dashboard-nav-item"
+                    data-section="products"
+                >
+
+                    <span class="seller-dashboard-nav-icon">
+                        <i class="fa-solid fa-box-open"></i>
+                    </span>
+
+                    <span class="seller-dashboard-nav-text">
+                        My Products
+                    </span>
+
+                    <span
+                        class="seller-dashboard-nav-badge"
+                        id="sellerDashboardProductsBadge"
+                        hidden
+                    >
+                        0
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="product-editor.html?source=account"
+                    class="seller-dashboard-nav-item"
+                    id="sellerDashboardAddProduct"
+                >
+
+                    <span class="seller-dashboard-nav-icon">
+                        <i class="fa-solid fa-plus"></i>
+                    </span>
+
+                    <span class="seller-dashboard-nav-text">
+                        Add Product
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="#orders"
+                    class="seller-dashboard-nav-item"
+                    data-section="orders"
+                >
+
+                    <span class="seller-dashboard-nav-icon">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                    </span>
+
+                    <span class="seller-dashboard-nav-text">
+                        Orders
+                    </span>
+
+                    <span
+                        class="seller-dashboard-nav-badge"
+                        id="sellerDashboardOrdersBadge"
+                        hidden
+                    >
+                        0
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="#sales"
+                    class="seller-dashboard-nav-item"
+                    data-section="sales"
+                >
+
+                    <span class="seller-dashboard-nav-icon">
+                        <i class="fa-solid fa-arrow-trend-up"></i>
+                    </span>
+
+                    <span class="seller-dashboard-nav-text">
+                        Sales
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="#earnings"
+                    class="seller-dashboard-nav-item"
+                    data-section="earnings"
+                >
+
+                    <span class="seller-dashboard-nav-icon">
+                        <i class="fa-solid fa-wallet"></i>
+                    </span>
+
+                    <span class="seller-dashboard-nav-text">
+                        Earnings
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="#withdrawals"
+                    class="seller-dashboard-nav-item"
+                    data-section="withdrawals"
+                >
+
+                    <span class="seller-dashboard-nav-icon">
+                        <i class="fa-solid fa-money-bill-transfer"></i>
+                    </span>
+
+                    <span class="seller-dashboard-nav-text">
+                        Withdrawals
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="#store"
+                    class="seller-dashboard-nav-item"
+                    data-section="store"
+                >
+
+                    <span class="seller-dashboard-nav-icon">
+                        <i class="fa-solid fa-store"></i>
+                    </span>
+
+                    <span class="seller-dashboard-nav-text">
+                        My Store
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="#messages"
+                    class="seller-dashboard-nav-item"
+                    data-section="messages"
+                >
+
+                    <span class="seller-dashboard-nav-icon">
+                        <i class="fa-regular fa-comments"></i>
+                    </span>
+
+                    <span class="seller-dashboard-nav-text">
+                        Messages
+                    </span>
+
+                    <span
+                        class="seller-dashboard-nav-badge"
+                        id="sellerDashboardMessagesBadge"
+                        hidden
+                    >
+                        0
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="#notifications"
+                    class="seller-dashboard-nav-item"
+                    data-section="notifications"
+                >
+
+                    <span class="seller-dashboard-nav-icon">
+                        <i class="fa-regular fa-bell"></i>
+                    </span>
+
+                    <span class="seller-dashboard-nav-text">
+                        Notifications
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="#settings"
+                    class="seller-dashboard-nav-item"
+                    data-section="settings"
+                >
+
+                    <span class="seller-dashboard-nav-icon">
+                        <i class="fa-solid fa-gear"></i>
+                    </span>
+
+                    <span class="seller-dashboard-nav-text">
+                        Settings
+                    </span>
+
+                </a>
+
+            </nav>
+
+        </div>
+
+
+
+        <!-- SIDEBAR BOTTOM -->
+
+        <div class="seller-dashboard-sidebar-bottom">
+
+            <a
+                href="index.html"
+                class="seller-dashboard-sidebar-marketplace"
+            >
+
+                <i class="fa-solid fa-arrow-left"></i>
+
+                <span>
+                    Back to Marketplace
+                </span>
+
+            </a>
+
+
+            <button
+                type="button"
+                class="seller-dashboard-sidebar-logout"
+                id="sellerDashboardLogout"
+            >
+
+                <i class="fa-solid fa-right-from-bracket"></i>
+
+                <span>
+                    Logout
+                </span>
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+
+    <!--==================================================
+    FEATURE: MAIN CONTENT
+    ==================================================-->
+
+    <main
+        class="seller-dashboard-main"
+        id="sellerDashboardMain"
+    >
+
+
+        <!--==================================================
+        SECTION: OVERVIEW
+        ==================================================-->
+
+        <section
+            class="seller-dashboard-section active"
+            id="sellerDashboardOverviewSection"
+            data-dashboard-section="overview"
+        >
+
+
+            <!-- PAGE HEADER -->
+
+            <div class="seller-dashboard-page-header">
+
+                <div>
+
+                    <span class="seller-dashboard-page-label">
+                        SELLER CENTER
+                    </span>
+
+                    <h1>
+                        Seller Dashboard
+                    </h1>
+
+                    <p>
+                        Manage your products, orders and store from one place.
+                    </p>
+
+                </div>
+
+
+                <a
+                    href="product-editor.html?source=account"
+                    class="seller-dashboard-primary-button"
+                >
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    Add Product
+
+                </a>
+
+            </div>
+
+
+
+            <!-- WELCOME CARD -->
+
+            <div
+                class="seller-dashboard-welcome-card"
+            >
+
+                <div class="seller-dashboard-welcome-content">
+
+                    <span
+                        class="seller-dashboard-welcome-icon"
+                    >
+                        🏪
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Welcome,
+                            <span id="sellerDashboardWelcomeName">
+                                Seller
+                            </span>
+                        </h2>
+
+                        <p>
+                            Grow your business and reach more customers with SmartBazaar.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <a
+                    href="#store"
+                    class="seller-dashboard-welcome-link"
+                    data-section-link="store"
+                >
+                    Manage Store
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+
+            </div>
+
+
+
+            <!--==================================================
+            STATS
+            ==================================================-->
+
+            <div class="seller-dashboard-stats-grid">
+
+
+                <div
+                    class="seller-dashboard-stat-card"
+                    data-stat="products"
+                >
+
+                    <div class="seller-dashboard-stat-icon">
+                        <i class="fa-solid fa-box-open"></i>
+                    </div>
+
+                    <div class="seller-dashboard-stat-content">
+
+                        <span>
+                            Total Products
+                        </span>
+
+                        <strong
+                            id="sellerDashboardTotalProducts"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="seller-dashboard-stat-card"
+                    data-stat="orders"
+                >
+
+                    <div class="seller-dashboard-stat-icon">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                    </div>
+
+                    <div class="seller-dashboard-stat-content">
+
+                        <span>
+                            Total Orders
+                        </span>
+
+                        <strong
+                            id="sellerDashboardTotalOrders"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="seller-dashboard-stat-card"
+                    data-stat="sales"
+                >
+
+                    <div class="seller-dashboard-stat-icon">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+
+                    <div class="seller-dashboard-stat-content">
+
+                        <span>
+                            Total Sales
+                        </span>
+
+                        <strong
+                            id="sellerDashboardTotalSales"
+                        >
+                            Rs. 0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="seller-dashboard-stat-card"
+                    data-stat="earnings"
+                >
+
+                    <div class="seller-dashboard-stat-icon">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+
+                    <div class="seller-dashboard-stat-content">
+
+                        <span>
+                            Seller Earnings
+                        </span>
+
+                        <strong
+                            id="sellerDashboardTotalEarnings"
+                        >
+                            Rs. 0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!--==================================================
+            QUICK ACTIONS
+            ==================================================-->
+
+            <div class="seller-dashboard-content-grid">
+
+
+                <div
+                    class="seller-dashboard-panel seller-dashboard-quick-actions"
+                >
+
+                    <div class="seller-dashboard-panel-header">
+
+                        <div>
+
+                            <h2>
+                                Quick Actions
+                            </h2>
+
+                            <p>
+                                Manage your seller business quickly.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="seller-dashboard-action-grid">
+
+
+                        <a
+                            href="product-editor.html?source=account"
+                            class="seller-dashboard-action-card"
+                        >
+
+                            <span>
+                                <i class="fa-solid fa-plus"></i>
+                            </span>
+
+                            <strong>
+                                Add Product
+                            </strong>
+
+                            <small>
+                                List a new product
+                            </small>
+
+                        </a>
+
+
+                        <a
+                            href="#products"
+                            class="seller-dashboard-action-card"
+                            data-section-link="products"
+                        >
+
+                            <span>
+                                <i class="fa-solid fa-box-open"></i>
+                            </span>
+
+                            <strong>
+                                My Products
+                            </strong>
+
+                            <small>
+                                Manage your products
+                            </small>
+
+                        </a>
+
+
+                        <a
+                            href="#orders"
+                            class="seller-dashboard-action-card"
+                            data-section-link="orders"
+                        >
+
+                            <span>
+                                <i class="fa-solid fa-bag-shopping"></i>
+                            </span>
+
+                            <strong>
+                                Orders
+                            </strong>
+
+                            <small>
+                                View customer orders
+                            </small>
+
+                        </a>
+
+
+                        <a
+                            href="#earnings"
+                            class="seller-dashboard-action-card"
+                            data-section-link="earnings"
+                        >
+
+                            <span>
+                                <i class="fa-solid fa-wallet"></i>
+                            </span>
+
+                            <strong>
+                                Earnings
+                            </strong>
+
+                            <small>
+                                Track your earnings
+                            </small>
+
+                        </a>
+
+
+                        <a
+                            href="#store"
+                            class="seller-dashboard-action-card"
+                            data-section-link="store"
+                        >
+
+                            <span>
+                                <i class="fa-solid fa-store"></i>
+                            </span>
+
+                            <strong>
+                                My Store
+                            </strong>
+
+                            <small>
+                                Manage your storefront
+                            </small>
+
+                        </a>
+
+
+                        <a
+                            href="#messages"
+                            class="seller-dashboard-action-card"
+                            data-section-link="messages"
+                        >
+
+                            <span>
+                                <i class="fa-regular fa-comments"></i>
+                            </span>
+
+                            <strong>
+                                Messages
+                            </strong>
+
+                            <small>
+                                Customer conversations
+                            </small>
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- RECENT ORDERS -->
+
+                <div
+                    class="seller-dashboard-panel seller-dashboard-recent-orders"
+                >
+
+                    <div class="seller-dashboard-panel-header">
+
+                        <div>
+
+                            <h2>
+                                Recent Orders
+                            </h2>
+
+                            <p>
+                                Your latest customer orders.
+                            </p>
+
+                        </div>
+
+
+                        <a
+                            href="#orders"
+                            data-section-link="orders"
+                        >
+                            View All
+                        </a>
+
+                    </div>
+
+
+                    <div
+                        class="seller-dashboard-orders-container"
+                        id="sellerDashboardRecentOrders"
+                    >
+
+                        <div
+                            class="seller-dashboard-empty-state"
+                            id="sellerDashboardRecentOrdersEmpty"
+                        >
+
+                            <span>
+                                🛍️
+                            </span>
+
+                            <strong>
+                                No orders yet
+                            </strong>
+
+                            <p>
+                                Your recent orders will appear here.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!--==================================================
+            PRODUCT PERFORMANCE
+            ==================================================-->
+
+            <div
+                class="seller-dashboard-panel seller-dashboard-product-performance"
+            >
+
+                <div class="seller-dashboard-panel-header">
+
+                    <div>
+
+                        <h2>
+                            Product Overview
+                        </h2>
+
+                        <p>
+                            Keep track of your listed products.
+                        </p>
+
+                    </div>
+
+
+                    <a
+                        href="#products"
+                        data-section-link="products"
+                    >
+                        Manage Products
+                    </a>
+
+                </div>
+
+
+                <div
+                    class="seller-dashboard-product-overview"
+                    id="sellerDashboardProductOverview"
+                >
+
+                    <div class="seller-dashboard-product-overview-item">
+
+                        <span>
+                            Published
+                        </span>
+
+                        <strong
+                            id="sellerDashboardPublishedProducts"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="seller-dashboard-product-overview-item">
+
+                        <span>
+                            Out of Stock
+                        </span>
+
+                        <strong
+                            id="sellerDashboardOutOfStockProducts"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="seller-dashboard-product-overview-item">
+
+                        <span>
+                            With Discounts
+                        </span>
+
+                        <strong
+                            id="sellerDashboardDiscountProducts"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="seller-dashboard-product-overview-item">
+
+                        <span>
+                            Total Stock
+                        </span>
+
+                        <strong
+                            id="sellerDashboardTotalStock"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!--==================================================
+        SECTION: MY PRODUCTS
+        ==================================================-->
+
+        <section
+            class="seller-dashboard-section"
+            id="sellerDashboardProductsSection"
+            data-dashboard-section="products"
+            hidden
+        >
+
+            <div class="seller-dashboard-page-header">
+
+                <div>
+
+                    <span class="seller-dashboard-page-label">
+                        PRODUCT MANAGEMENT
+                    </span>
+
+                    <h1>
+                        My Products
+                    </h1>
+
+                    <p>
+                        Manage the products you sell on SmartBazaar.
+                    </p>
+
+                </div>
+
+
+                <a
+                    href="product-editor.html?source=account"
+                    class="seller-dashboard-primary-button"
+                >
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    Add Product
+
+                </a>
+
+            </div>
+
+
+            <div
+                class="seller-dashboard-products-toolbar"
+            >
+
+                <div class="seller-dashboard-search">
+
+                    <i class="fa-solid fa-magnifying-glass"></i>
+
+                    <input
+                        type="search"
+                        id="sellerDashboardProductSearch"
+                        placeholder="Search your products..."
+                        autocomplete="off"
+                    >
+
+                </div>
+
+
+                <select
+                    id="sellerDashboardProductFilter"
+                    class="seller-dashboard-filter"
+                >
+
+                    <option value="all">
+                        All Products
+                    </option>
+
+                    <option value="published">
+                        Published
+                    </option>
+
+                    <option value="unpublished">
+                        Unpublished
+                    </option>
+
+                    <option value="out-of-stock">
+                        Out of Stock
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div
+                class="seller-dashboard-products-list"
+                id="sellerDashboardProductsList"
+            >
+
+                <div
+                    class="seller-dashboard-loading-state"
+                    id="sellerDashboardProductsLoading"
+                >
+
+                    <span class="seller-dashboard-loading-spinner"></span>
+
+                    <p>
+                        Loading your products...
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!--==================================================
+        SECTION: ORDERS
+        ==================================================-->
+
+        <section
+            class="seller-dashboard-section"
+            id="sellerDashboardOrdersSection"
+            data-dashboard-section="orders"
+            hidden
+        >
+
+            <div class="seller-dashboard-page-header">
+
+                <div>
+
+                    <span class="seller-dashboard-page-label">
+                        ORDER MANAGEMENT
+                    </span>
+
+                    <h1>
+                        Orders
+                    </h1>
+
+                    <p>
+                        Manage orders received for your products.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="seller-dashboard-orders-list"
+                id="sellerDashboardOrdersList"
+            >
+
+                <div class="seller-dashboard-empty-state">
+
+                    <span>
+                        📦
+                    </span>
+
+                    <strong>
+                        Orders will appear here
+                    </strong>
+
+                    <p>
+                        Your customer orders will be connected here.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!--==================================================
+        SECTION: SALES
+        ==================================================-->
+
+        <section
+            class="seller-dashboard-section"
+            id="sellerDashboardSalesSection"
+            data-dashboard-section="sales"
+            hidden
+        >
+
+            <div class="seller-dashboard-page-header">
+
+                <div>
+
+                    <span class="seller-dashboard-page-label">
+                        SALES
+                    </span>
+
+                    <h1>
+                        Sales
+                    </h1>
+
+                    <p>
+                        Track your product sales and order performance.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="seller-dashboard-placeholder-panel">
+
+                <div class="seller-dashboard-placeholder-icon">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+
+                <h2>
+                    Sales Analytics
+                </h2>
+
+                <p>
+                    Your real sales data will appear here once connected to your existing orders.
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <!--==================================================
+        SECTION: EARNINGS
+        ==================================================-->
+
+        <section
+            class="seller-dashboard-section"
+            id="sellerDashboardEarningsSection"
+            data-dashboard-section="earnings"
+            hidden
+        >
+
+            <div class="seller-dashboard-page-header">
+
+                <div>
+
+                    <span class="seller-dashboard-page-label">
+                        FINANCE
+                    </span>
+
+                    <h1>
+                        Earnings
+                    </h1>
+
+                    <p>
+                        Track your marketplace earnings and commission.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="seller-dashboard-finance-grid">
+
+
+                <div class="seller-dashboard-finance-card">
+
+                    <span>
+                        Total Sales
+                    </span>
+
+                    <strong id="sellerDashboardFinanceSales">
+                        Rs. 0
+                    </strong>
+
+                </div>
+
+
+                <div class="seller-dashboard-finance-card">
+
+                    <span>
+                        Commission
+                    </span>
+
+                    <strong id="sellerDashboardFinanceCommission">
+                        Rs. 0
+                    </strong>
+
+                </div>
+
+
+                <div class="seller-dashboard-finance-card">
+
+                    <span>
+                        Seller Earnings
+                    </span>
+
+                    <strong id="sellerDashboardFinanceEarnings">
+                        Rs. 0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!--==================================================
+        SECTION: WITHDRAWALS
+        ==================================================-->
+
+        <section
+            class="seller-dashboard-section"
+            id="sellerDashboardWithdrawalsSection"
+            data-dashboard-section="withdrawals"
+            hidden
+        >
+
+            <div class="seller-dashboard-page-header">
+
+                <div>
+
+                    <span class="seller-dashboard-page-label">
+                        SELLER FINANCE
+                    </span>
+
+                    <h1>
+                        Withdrawals
+                    </h1>
+
+                    <p>
+                        Manage your seller withdrawal requests.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="seller-dashboard-placeholder-panel">
+
+                <div class="seller-dashboard-placeholder-icon">
+                    <i class="fa-solid fa-money-bill-transfer"></i>
+                </div>
+
+                <h2>
+                    Withdrawals
+                </h2>
+
+                <p>
+                    Withdrawal management will be connected to the existing seller finance system.
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <!--==================================================
+        SECTION: MY STORE
+        ==================================================-->
+
+        <section
+            class="seller-dashboard-section"
+            id="sellerDashboardStoreSection"
+            data-dashboard-section="store"
+            hidden
+        >
+
+            <div class="seller-dashboard-page-header">
+
+                <div>
+
+                    <span class="seller-dashboard-page-label">
+                        STORE
+                    </span>
+
+                    <h1>
+                        My Store
+                    </h1>
+
+                    <p>
+                        Manage and preview your SmartBazaar store.
+                    </p>
+
+                </div>
+
+
+                <a
+                    href="#"
+                    class="seller-dashboard-secondary-button"
+                    id="sellerDashboardViewStore"
+                >
+
+                    <i class="fa-solid fa-store"></i>
+
+                    View Store
+
+                </a>
+
+            </div>
+
+
+            <div class="seller-dashboard-store-card">
+
+                <div class="seller-dashboard-store-avatar">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+
+
+                <div class="seller-dashboard-store-info">
+
+                    <span>
+                        YOUR STORE
+                    </span>
+
+                    <h2
+                        id="sellerDashboardStoreName"
+                    >
+                        Your Store
+                    </h2>
+
+                    <p>
+                        Your seller storefront will be connected to your Firebase seller UID.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!--==================================================
+        SECTION: MESSAGES
+        ==================================================-->
+
+        <section
+            class="seller-dashboard-section"
+            id="sellerDashboardMessagesSection"
+            data-dashboard-section="messages"
+            hidden
+        >
+
+            <div class="seller-dashboard-page-header">
+
+                <div>
+
+                    <span class="seller-dashboard-page-label">
+                        COMMUNICATION
+                    </span>
+
+                    <h1>
+                        Messages
+                    </h1>
+
+                    <p>
+                        Communicate with customers and SmartBazaar support.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="seller-dashboard-placeholder-panel">
+
+                <div class="seller-dashboard-placeholder-icon">
+                    <i class="fa-regular fa-comments"></i>
+                </div>
+
+                <h2>
+                    Seller Messages
+                </h2>
+
+                <p>
+                    Your marketplace messaging system will appear here.
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <!--==================================================
+        SECTION: NOTIFICATIONS
+        ==================================================-->
+
+        <section
+            class="seller-dashboard-section"
+            id="sellerDashboardNotificationsSection"
+            data-dashboard-section="notifications"
+            hidden
+        >
+
+            <div class="seller-dashboard-page-header">
+
+                <div>
+
+                    <span class="seller-dashboard-page-label">
+                        UPDATES
+                    </span>
+
+                    <h1>
+                        Notifications
+                    </h1>
+
+                    <p>
+                        Stay updated about your seller activity.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="seller-dashboard-notifications-list"
+                id="sellerDashboardNotificationsList"
+            >
+
+                <div class="seller-dashboard-empty-state">
+
+                    <span>
+                        🔔
+                    </span>
+
+                    <strong>
+                        No notifications
+                    </strong>
+
+                    <p>
+                        New seller notifications will appear here.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!--==================================================
+        SECTION: SETTINGS
+        ==================================================-->
+
+        <section
+            class="seller-dashboard-section"
+            id="sellerDashboardSettingsSection"
+            data-dashboard-section="settings"
+            hidden
+        >
+
+            <div class="seller-dashboard-page-header">
+
+                <div>
+
+                    <span class="seller-dashboard-page-label">
+                        ACCOUNT
+                    </span>
+
+                    <h1>
+                        Settings
+                    </h1>
+
+                    <p>
+                        Manage your seller account settings.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="seller-dashboard-settings-card">
+
+                <a
+                    href="account.html"
+                    class="seller-dashboard-settings-item"
+                >
+
+                    <span class="seller-dashboard-settings-icon">
+                        <i class="fa-solid fa-user"></i>
+                    </span>
+
+                    <span>
+
+                        <strong>
+                            Account Profile
+                        </strong>
+
+                        <small>
+                            Manage your account information
+                        </small>
+
+                    </span>
+
+                    <i class="fa-solid fa-chevron-right"></i>
+
+                </a>
+
+
+                <a
+                    href="account.html"
+                    class="seller-dashboard-settings-item"
+                >
+
+                    <span class="seller-dashboard-settings-icon">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </span>
+
+                    <span>
+
+                        <strong>
+                            Addresses
+                        </strong>
+
+                        <small>
+                            Manage your saved addresses
+                        </small>
+
+                    </span>
+
+                    <i class="fa-solid fa-chevron-right"></i>
+
+                </a>
+
+
+                <button
+                    type="button"
+                    class="seller-dashboard-settings-item"
+                    id="sellerDashboardSettingsLogout"
+                >
+
+                    <span class="seller-dashboard-settings-icon">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </span>
+
+                    <span>
+
+                        <strong>
+                            Logout
+                        </strong>
+
+                        <small>
+                            Sign out of your seller account
+                        </small>
+
+                    </span>
+
+                    <i class="fa-solid fa-chevron-right"></i>
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+
+<!--==================================================
+FEATURE: BOTTOM NAV CONTAINER
+==================================================-->
+
+<div
+    id="bottomNavContainer"
+></div>
+
+
+
+<!--==================================================
+FEATURE: SELLER DASHBOARD SCRIPTS
+==================================================-->
+
+<script
+    type="module"
+    src="js/seller-dashboard.js"
+></script>
+
+
+<script
+    type="module"
+    src="bottom-nav.js"
+></script>
+
+
+</body>
+
+</html>
