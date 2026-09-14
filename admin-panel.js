@@ -304,7 +304,7 @@ function openSection(sectionName) {
             "Manage marketplace products"
         ],
 
-        flash-sale: [
+        "flash-sale": [
             "Flash Sale",
             "Manage limited-time marketplace deals"
         ],
