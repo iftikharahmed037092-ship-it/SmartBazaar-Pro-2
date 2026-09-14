@@ -1,26 +1,13 @@
 /*==================================================
 SMARTBAZAAR PRO 2
-FEATURE: FLASH SALE ADMIN CONTROLLER
-FILE: js/flash-sale-admin.js
-
-UPDATED FOR:
-- Current admin-panel.html
-- Integrated Flash Sale section
-- Existing "products" Firebase path
-- Existing SmartBazaar Pro 2 Firebase config
-
-IMPORTANT:
-- Does NOT create a new Firebase path.
-- Does NOT overwrite existing product data.
-- Does NOT invent Flash Sale Firebase fields.
-- Save campaign connection remains pending until
-  the final Flash Sale data structure is confirmed.
+FEATURE: FLASH SALE ADMIN
+EXISTING PRODUCTS + FLASH SALE PRODUCT EDITOR
 ==================================================*/
-
 
 import {
     ref,
-    onValue
+    onValue,
+    update
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
 
 import {
@@ -30,7 +17,7 @@ import {
 import {
     database,
     auth
-} from "./firebase-config.js";
+} from "../firebase-config.js";
 
 
 /*==================================================
@@ -39,8 +26,7 @@ CONFIGURATION
 
 const PRODUCTS_PATH = "products";
 
-const ADMIN_EMAIL =
-    "iftikharahmed037092@gmail.com";
+const ADMIN_EMAIL = "iftikharahmed037092@gmail.com";
 
 
 /*==================================================
@@ -48,208 +34,31 @@ STATE
 ==================================================*/
 
 let allProducts = [];
-
 let filteredProducts = [];
 
 let selectedProducts = new Set();
 
 let currentSearch = "";
-
 let currentCategory = "all";
-
-let currentFilter = "all";
 
 let editingProductId = null;
 
 let isAdmin = false;
-
 let initialized = false;
 
 let productsUnsubscribe = null;
 
 
 /*==================================================
-DOM HELPERS
+HELPERS
 ==================================================*/
 
-function getElement(...selectors) {
-
-    for (const selector of selectors) {
-
-        const element =
-            document.querySelector(selector);
-
-        if (element) {
-            return element;
-        }
-
-    }
-
-    return null;
-
-}
-
-
-function getElements(...selectors) {
-
-    for (const selector of selectors) {
-
-        const elements =
-            document.querySelectorAll(selector);
-
-        if (elements.length) {
-            return Array.from(elements);
-        }
-
-    }
-
-    return [];
-
-}
-
-
-/*==================================================
-ESCAPE HTML
-==================================================*/
-
-function escapeHtml(value) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-
-        return "";
-
-    }
-
-
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-}
-
-
-/*==================================================
-NUMBER FORMAT
-==================================================*/
-
-function formatNumber(value) {
-
-    const number =
-        Number(value) || 0;
-
-    return number.toLocaleString();
-
-}
-
-
-/*==================================================
-PRICE FORMAT
-==================================================*/
-
-function formatPrice(value) {
-
-    const number =
-        Number(value) || 0;
-
-    return `Rs. ${number.toLocaleString()}`;
-
-}
-
-
-/*==================================================
-TOAST
-==================================================*/
-
-function showFlashSaleToast(
-    message,
-    type = "success"
-) {
-
-    const existingToast =
-        document.querySelector(
-            ".flash-sale-admin-toast"
-        );
-
-    if (existingToast) {
-        existingToast.remove();
-    }
-
-
-    const toast =
-        document.createElement("div");
-
-    toast.className =
-        `flash-sale-admin-toast ${type}`;
-
-
-    let icon =
-        "fa-solid fa-circle-check";
-
-
-    if (type === "error") {
-
-        icon =
-            "fa-solid fa-circle-exclamation";
-
-    } else if (type === "warning") {
-
-        icon =
-            "fa-solid fa-triangle-exclamation";
-
-    }
-
-
-    toast.innerHTML = `
-        <i class="${icon}"></i>
-        <span>${escapeHtml(message)}</span>
-    `;
-
-
-    document.body.appendChild(toast);
-
-
-    requestAnimationFrame(() => {
-
-        toast.classList.add("show");
-
-    });
-
-
-    setTimeout(() => {
-
-        toast.classList.remove("show");
-
-        setTimeout(() => {
-
-            if (toast.parentNode) {
-                toast.remove();
-            }
-
-        }, 300);
-
-    }, 2800);
-
-}
-
-
-/*==================================================
-PRODUCT HELPERS
-==================================================*/
-
-function getProductId(
-    product,
-    firebaseKey = ""
-) {
+function getProductId(product, fallbackId = "") {
 
     return String(
         product?.productId ||
-        firebaseKey ||
+        product?.id ||
+        fallbackId ||
         ""
     );
 
@@ -260,7 +69,6 @@ function getProductName(product) {
 
     return (
         product?.name ||
-        product?.productName ||
         product?.title ||
         "Unnamed Product"
     );
@@ -270,120 +78,50 @@ function getProductName(product) {
 
 function getProductImage(product) {
 
-    if (!product) {
-        return "";
-    }
-
-
-    if (
-        typeof product.image === "string" &&
-        product.image.trim()
-    ) {
-
-        return product.image;
-
-    }
-
-
-    if (
-        typeof product.imageUrl === "string" &&
-        product.imageUrl.trim()
-    ) {
-
-        return product.imageUrl;
-
-    }
-
-
-    if (
-        typeof product.thumbnail === "string" &&
-        product.thumbnail.trim()
-    ) {
-
-        return product.thumbnail;
-
-    }
-
-
-    if (Array.isArray(product.images)) {
-
-        const firstImage =
-            product.images.find(
-                image =>
-                    typeof image === "string" &&
-                    image.trim()
-            );
-
-        if (firstImage) {
-            return firstImage;
-        }
-
-    }
-
-
-    if (
-        product.images &&
-        typeof product.images === "object"
-    ) {
-
-        const imageValues =
-            Object.values(product.images);
-
-
-        const firstImage =
-            imageValues.find(
-                image =>
-                    typeof image === "string" &&
-                    image.trim()
-            );
-
-
-        if (firstImage) {
-            return firstImage;
-        }
-
-    }
-
-
-    return "";
+    return (
+        product?.image ||
+        product?.thumbnail ||
+        product?.images?.[0] ||
+        ""
+    );
 
 }
 
 
 function getProductPrice(product) {
 
-    return Number(
+    const price = Number(
         product?.price ??
         product?.salePrice ??
-        product?.currentPrice ??
         0
     );
+
+    return Number.isFinite(price) ? price : 0;
 
 }
 
 
 function getProductOldPrice(product) {
 
-    return Number(
+    const oldPrice = Number(
         product?.oldPrice ??
-        product?.originalPrice ??
-        product?.regularPrice ??
-        product?.compareAtPrice ??
         0
     );
+
+    return Number.isFinite(oldPrice) ? oldPrice : 0;
 
 }
 
 
 function getProductStock(product) {
 
-    const value =
+    const stock = Number(
         product?.stock ??
-        product?.stockQuantity ??
         product?.quantity ??
-        0;
+        0
+    );
 
-    return Number(value) || 0;
+    return Number.isFinite(stock) ? stock : 0;
 
 }
 
@@ -399,184 +137,246 @@ function getProductCategory(product) {
 
 
 /*==================================================
-FLASH SALE STATUS
-==================================================*/
-
-function getProductStatus(product) {
-
-    if (!product) {
-        return "inactive";
-    }
-
-
-    if (product.published !== true) {
-        return "inactive";
-    }
-
-
-    /*
-     * Read-only compatibility checks.
-     *
-     * No field is created or changed here.
-     */
-
-    const activeFlag =
-        product.flashSale ??
-        product.isFlashSale ??
-        product.flash_sale ??
-        product.flashSaleActive;
-
-
-    if (activeFlag === true) {
-        return "active";
-    }
-
-
-    const saleType =
-        String(
-            product.saleType || ""
-        ).trim().toLowerCase();
-
-
-    if (
-        saleType === "flash-sale" ||
-        saleType === "flash sale" ||
-        saleType === "flashsale"
-    ) {
-
-        return "active";
-
-    }
-
-
-    return "inactive";
-
-}
-
-
-/*==================================================
 NORMALIZE PRODUCT
 ==================================================*/
 
-function normalizeProduct(
-    product,
-    firebaseKey
-) {
-
-    const productId =
-        getProductId(
-            product,
-            firebaseKey
-        );
-
+function normalizeProduct(product, id) {
 
     return {
-
         ...product,
 
-        productId,
+        productId: getProductId(product, id),
 
-        name:
-            getProductName(product),
+        name: getProductName(product),
 
-        image:
-            getProductImage(product),
+        image: getProductImage(product),
 
-        price:
-            getProductPrice(product),
+        price: getProductPrice(product),
 
-        oldPrice:
-            getProductOldPrice(product),
+        oldPrice: getProductOldPrice(product),
 
-        stock:
-            getProductStock(product),
+        stock: getProductStock(product),
 
-        category:
-            getProductCategory(product),
-
-        status:
-            getProductStatus(product)
-
+        category: getProductCategory(product)
     };
 
 }
 
 
 /*==================================================
-LOAD PRODUCTS
+FLASH SALE DATA
 ==================================================*/
 
-function loadProducts() {
+function getFlashSale(product) {
 
-    const productsRef =
-        ref(
-            database,
-            PRODUCTS_PATH
-        );
+    if (
+        product &&
+        typeof product.flashSale === "object" &&
+        product.flashSale !== null
+    ) {
 
-
-    if (typeof productsUnsubscribe === "function") {
-
-        productsUnsubscribe();
+        return product.flashSale;
 
     }
 
-
-    productsUnsubscribe =
-        onValue(
-            productsRef,
-            snapshot => {
-
-                const data =
-                    snapshot.val() || {};
-
-
-                allProducts =
-                    Object.entries(data)
-                        .map(
-                            ([firebaseKey, product]) =>
-                                normalizeProduct(
-                                    product || {},
-                                    firebaseKey
-                                )
-                        )
-                        .filter(
-                            product =>
-                                product.productId
-                        );
-
-
-                cleanupSelectedProducts();
-
-                buildCategoryFilter();
-
-                applyProductFilters();
-
-                updateAdminStats();
-
-                updateCampaignPreview();
-
-            },
-            error => {
-
-                console.error(
-                    "Flash Sale Admin products error:",
-                    error
-                );
-
-
-                showFlashSaleError(
-                    "Products load نہیں ہو سکے۔"
-                );
-
-            }
-        );
+    return null;
 
 }
 
 
 /*==================================================
-CLEAN INVALID SELECTIONS
+AUTH
+==================================================*/
+
+function initializeAuth() {
+
+    onAuthStateChanged(auth, (user) => {
+
+        if (!user) {
+
+            isAdmin = false;
+
+            showAccessError(
+                "Admin login required."
+            );
+
+            return;
+
+        }
+
+
+        if (
+            user.email?.toLowerCase() !==
+            ADMIN_EMAIL.toLowerCase()
+        ) {
+
+            isAdmin = false;
+
+            showAccessError(
+                "You are not authorized to manage Flash Sale."
+            );
+
+            return;
+
+        }
+
+
+        isAdmin = true;
+
+        initializeFlashSaleAdmin();
+
+    });
+
+}
+
+
+/*==================================================
+ACCESS ERROR
+==================================================*/
+
+function showAccessError(message) {
+
+    const list =
+        document.getElementById(
+            "flashSaleAdminProductList"
+        );
+
+    if (list) {
+
+        list.innerHTML = `
+            <div class="flash-sale-admin-empty">
+                <div class="flash-sale-empty-icon">🔒</div>
+
+                <h3>Access Denied</h3>
+
+                <p>${escapeHtml(message)}</p>
+            </div>
+        `;
+
+    }
+
+}
+
+
+/*==================================================
+LOAD EXISTING PRODUCTS
+==================================================*/
+
+function loadProducts() {
+
+    if (!isAdmin) return;
+
+
+    const productsRef =
+        ref(database, PRODUCTS_PATH);
+
+
+    if (productsUnsubscribe) {
+
+        productsUnsubscribe();
+
+        productsUnsubscribe = null;
+
+    }
+
+
+    productsUnsubscribe = onValue(
+        productsRef,
+        (snapshot) => {
+
+            const data =
+                snapshot.val();
+
+
+            allProducts = [];
+
+
+            if (data && typeof data === "object") {
+
+                Object.entries(data).forEach(
+                    ([id, product]) => {
+
+                        if (
+                            product &&
+                            typeof product === "object"
+                        ) {
+
+                            allProducts.push(
+                                normalizeProduct(
+                                    product,
+                                    id
+                                )
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+
+
+            allProducts.sort(
+                (a, b) =>
+                    String(a.name)
+                        .localeCompare(
+                            String(b.name)
+                        )
+            );
+
+
+            cleanupSelectedProducts();
+
+            buildCategoryFilter();
+
+            applyFilters();
+
+            renderSelectedProducts();
+
+            updateStats();
+
+        },
+        (error) => {
+
+            console.error(
+                "Flash Sale products error:",
+                error
+            );
+
+
+            const list =
+                document.getElementById(
+                    "flashSaleAdminProductList"
+                );
+
+            if (list) {
+
+                list.innerHTML = `
+                    <div class="flash-sale-admin-empty">
+
+                        <div class="flash-sale-empty-icon">
+                            ⚠️
+                        </div>
+
+                        <h3>Products Could Not Load</h3>
+
+                        <p>
+                            Firebase products data load نہیں ہو سکا۔
+                        </p>
+
+                    </div>
+                `;
+
+            }
+
+        }
+    );
+
+}
+
+
+/*==================================================
+CLEAN SELECTED PRODUCTS
 ==================================================*/
 
 function cleanupSelectedProducts() {
@@ -584,107 +384,89 @@ function cleanupSelectedProducts() {
     const validIds =
         new Set(
             allProducts.map(
-                product =>
-                    product.productId
+                product => product.productId
             )
         );
 
 
     selectedProducts =
         new Set(
-            Array.from(
-                selectedProducts
-            )
-            .filter(
-                id =>
-                    validIds.has(id)
+            [...selectedProducts].filter(
+                id => validIds.has(id)
             )
         );
-
-
-    updateSelectedCount();
 
 }
 
 
 /*==================================================
-BUILD CATEGORY FILTER
+CATEGORY FILTER
 ==================================================*/
 
 function buildCategoryFilter() {
 
-    const categorySelect =
-        getElement(
-            "#flashSaleProductCategory"
+    const select =
+        document.getElementById(
+            "flashSaleProductCategory"
         );
 
 
-    if (!categorySelect) {
-        return;
-    }
+    if (!select) return;
 
 
     const currentValue =
-        categorySelect.value ||
-        currentCategory ||
-        "all";
+        select.value || "all";
 
 
     const categories =
-        Array.from(
-            new Set(
-                allProducts
-                    .map(
-                        product =>
-                            getProductCategory(product)
-                    )
-                    .filter(Boolean)
-            )
-        )
+        [...new Set(
+            allProducts
+                .map(
+                    product =>
+                        product.category
+                )
+                .filter(Boolean)
+        )]
         .sort(
             (a, b) =>
-                String(a)
-                    .localeCompare(
-                        String(b)
-                    )
+                String(a).localeCompare(
+                    String(b)
+                )
         );
 
 
-    categorySelect.innerHTML = `
+    select.innerHTML = `
         <option value="all">
             All Categories
         </option>
-
-        ${
-            categories
-                .map(
-                    category => `
-                        <option
-                            value="${escapeHtml(category)}"
-                        >
-                            ${escapeHtml(category)}
-                        </option>
-                    `
-                )
-                .join("")
-        }
     `;
 
 
-    const categoryExists =
-        categories.includes(
-            currentValue
-        );
+    categories.forEach(category => {
+
+        const option =
+            document.createElement("option");
+
+        option.value = category;
+
+        option.textContent = category;
+
+        select.appendChild(option);
+
+    });
 
 
-    categorySelect.value =
-        categoryExists
-            ? currentValue
-            : "all";
+    if (
+        categories.includes(currentValue)
+    ) {
 
+        select.value = currentValue;
 
-    currentCategory =
-        categorySelect.value;
+    } else {
+
+        select.value = "all";
+
+    }
 
 }
 
@@ -693,7 +475,7 @@ function buildCategoryFilter() {
 FILTER PRODUCTS
 ==================================================*/
 
-function applyProductFilters() {
+function applyFilters() {
 
     const search =
         currentSearch
@@ -704,85 +486,26 @@ function applyProductFilters() {
     filteredProducts =
         allProducts.filter(product => {
 
-            const name =
-                getProductName(product)
-                    .toLowerCase();
-
-
-            const category =
-                getProductCategory(product)
-                    .toLowerCase();
-
-
-            const productId =
-                String(
-                    product.productId || ""
-                )
-                .toLowerCase();
-
-
             const matchesSearch =
                 !search ||
-                name.includes(search) ||
-                category.includes(search) ||
-                productId.includes(search);
+                getProductName(product)
+                    .toLowerCase()
+                    .includes(search) ||
+                getProductId(product)
+                    .toLowerCase()
+                    .includes(search);
 
 
-            if (!matchesSearch) {
-                return false;
-            }
+            const matchesCategory =
+                currentCategory === "all" ||
+                getProductCategory(product) ===
+                currentCategory;
 
 
-            if (
-                currentCategory !== "all" &&
-                getProductCategory(product) !==
-                    currentCategory
-            ) {
-
-                return false;
-
-            }
-
-
-            if (currentFilter === "active") {
-
-                return (
-                    product.status ===
-                    "active"
-                );
-
-            }
-
-
-            if (currentFilter === "inactive") {
-
-                return (
-                    product.status ===
-                    "inactive"
-                );
-
-            }
-
-
-            if (currentFilter === "published") {
-
-                return (
-                    product.published === true
-                );
-
-            }
-
-
-            if (currentFilter === "unpublished") {
-
-                return (
-                    product.published !== true
-                );
-
-            }
-
-
-            return true;
+            return (
+                matchesSearch &&
+                matchesCategory
+            );
 
         });
 
@@ -793,143 +516,33 @@ function applyProductFilters() {
 
 
 /*==================================================
-SEARCH SETUP
-==================================================*/
-
-function setupSearch() {
-
-    const searchInput =
-        getElement(
-            "#flashSaleProductSearch",
-            "#flashSaleAdminSearch",
-            "#flashSaleSearch",
-            ".flash-sale-admin-search input"
-        );
-
-
-    if (!searchInput) {
-        return;
-    }
-
-
-    searchInput.addEventListener(
-        "input",
-        event => {
-
-            currentSearch =
-                event.target.value || "";
-
-
-            applyProductFilters();
-
-        }
-    );
-
-}
-
-
-/*==================================================
-CATEGORY SETUP
-==================================================*/
-
-function setupCategoryFilter() {
-
-    const categorySelect =
-        getElement(
-            "#flashSaleProductCategory"
-        );
-
-
-    if (!categorySelect) {
-        return;
-    }
-
-
-    categorySelect.addEventListener(
-        "change",
-        event => {
-
-            currentCategory =
-                event.target.value ||
-                "all";
-
-
-            applyProductFilters();
-
-        }
-    );
-
-}
-
-
-/*==================================================
-STATUS FILTER
-==================================================*/
-
-function setupStatusFilter() {
-
-    const filter =
-        getElement(
-            "#flashSaleAdminFilter",
-            "#flashSaleStatusFilter",
-            ".flash-sale-admin-filter"
-        );
-
-
-    if (!filter) {
-        return;
-    }
-
-
-    filter.addEventListener(
-        "change",
-        event => {
-
-            currentFilter =
-                event.target.value ||
-                "all";
-
-
-            applyProductFilters();
-
-        }
-    );
-
-}
-
-
-/*==================================================
 RENDER PRODUCT LIST
 ==================================================*/
 
 function renderProductList() {
 
-    const list =
-        getElement(
-            "#flashSaleAdminProductList",
-            "#flashSaleProductList",
-            ".flash-sale-product-list"
+    const container =
+        document.getElementById(
+            "flashSaleAdminProductList"
         );
 
 
-    if (!list) {
-        return;
-    }
+    if (!container) return;
 
 
     if (!filteredProducts.length) {
 
-        list.innerHTML = `
+        container.innerHTML = `
             <div class="flash-sale-admin-empty">
 
-                <div class="flash-sale-admin-empty-icon">
-                    <i class="fa-solid fa-box-open"></i>
+                <div class="flash-sale-empty-icon">
+                    🔍
                 </div>
 
                 <h3>No Products Found</h3>
 
                 <p>
-                    Search یا category filter بدل کر دوبارہ کوشش کریں۔
+                    Search یا category filter تبدیل کریں۔
                 </p>
 
             </div>
@@ -940,294 +553,154 @@ function renderProductList() {
     }
 
 
-    list.innerHTML =
+    container.innerHTML =
         filteredProducts
-            .map(
-                product =>
-                    createProductItem(product)
+            .map(product =>
+                createProductCard(product)
             )
             .join("");
-
-
-    attachProductActions();
 
 }
 
 
 /*==================================================
-CREATE PRODUCT ITEM
+PRODUCT CARD
 ==================================================*/
 
-function createProductItem(product) {
+function createProductCard(product) {
 
     const productId =
-        product.productId;
+        getProductId(product);
 
 
     const selected =
-        selectedProducts.has(
-            productId
-        );
+        selectedProducts.has(productId);
+
+
+    const flashSale =
+        getFlashSale(product);
 
 
     const image =
         getProductImage(product);
 
 
-    const status =
-        product.status;
+    const price =
+        getProductPrice(product);
 
 
-    const statusLabel =
-        status === "active"
-            ? "Flash Sale Active"
-            : product.published === true
-                ? "Published"
-                : "Unpublished";
+    const stock =
+        getProductStock(product);
 
 
-    const discount =
-        calculateDiscount(
-            product.price,
-            product.oldPrice
-        );
+    const salePrice =
+        flashSale?.salePrice != null
+            ? Number(flashSale.salePrice)
+            : null;
+
+
+    let saleInfo = "";
+
+
+    if (
+        flashSale &&
+        flashSale.enabled === true
+    ) {
+
+        saleInfo = `
+            <span class="flash-sale-product-active">
+                ⚡ Flash Sale Active
+            </span>
+        `;
+
+    }
 
 
     return `
-        <article
-            class="flash-sale-product-item ${
-                selected ? "selected" : ""
-            }"
-            data-product-id="${escapeHtml(productId)}"
+        <div
+            class="flash-sale-admin-product-card
+            ${selected ? "selected" : ""}"
+            data-product-id="${escapeAttribute(productId)}"
         >
 
-            <div class="flash-sale-product-image">
+            <div class="flash-sale-admin-product-image">
 
                 ${
                     image
-                        ? `
-                            <img
-                                src="${escapeHtml(image)}"
-                                alt="${escapeHtml(product.name)}"
-                                loading="lazy"
-                            >
-                        `
-                        : `
-                            <i class="fa-solid fa-image"></i>
-                        `
+                    ?
+                    `
+                    <img
+                        src="${escapeAttribute(image)}"
+                        alt="${escapeAttribute(
+                            getProductName(product)
+                        )}"
+                    >
+                    `
+                    :
+                    `
+                    <div class="flash-sale-product-no-image">
+                        📦
+                    </div>
+                    `
                 }
 
             </div>
 
 
-            <div class="flash-sale-product-info">
+            <div class="flash-sale-admin-product-info">
 
-                <h4 class="flash-sale-product-name">
-                    ${escapeHtml(product.name)}
-                </h4>
+                <h3>
+                    ${escapeHtml(
+                        getProductName(product)
+                    )}
+                </h3>
+
+                <span class="flash-sale-product-id">
+                    ${escapeHtml(productId)}
+                </span>
 
 
                 <div class="flash-sale-product-meta">
 
-                    <span>
-                        <i class="fa-solid fa-layer-group"></i>
-                        ${escapeHtml(product.category)}
-                    </span>
-
+                    <strong>
+                        Rs. ${formatNumber(price)}
+                    </strong>
 
                     <span>
-                        <i class="fa-solid fa-box"></i>
-                        Stock: ${formatNumber(product.stock)}
-                    </span>
-
-
-                    <span class="flash-sale-status ${status}">
-
-                        <i class="fa-solid fa-circle"></i>
-
-                        ${escapeHtml(statusLabel)}
-
+                        Stock: ${formatNumber(stock)}
                     </span>
 
                 </div>
 
 
-                <div class="flash-sale-product-price">
-
-                    ${formatPrice(product.price)}
-
-                    ${
-                        product.oldPrice > 0
-                            ? `
-                                <del>
-                                    ${formatPrice(product.oldPrice)}
-                                </del>
-                            `
-                            : ""
-                    }
-
-                    ${
-                        discount > 0
-                            ? `
-                                <small>
-                                    ${discount}% OFF
-                                </small>
-                            `
-                            : ""
-                    }
-
-                </div>
+                ${saleInfo}
 
             </div>
 
 
-            <div class="flash-sale-product-action">
+            <div class="flash-sale-admin-product-actions">
 
                 <button
                     type="button"
-                    class="flash-sale-select-button"
-                    data-action="select"
-                    data-product-id="${escapeHtml(productId)}"
-                    aria-label="${
-                        selected
-                            ? "Remove product"
-                            : "Select product"
-                    }"
-                    title="${
-                        selected
-                            ? "Remove"
-                            : "Select"
-                    }"
+                    class="admin-secondary-button flash-sale-edit-product-button"
+                    data-product-id="${escapeAttribute(productId)}"
                 >
-
-                    <i class="fa-solid ${
-                        selected
-                            ? "fa-check"
-                            : "fa-plus"
-                    }"></i>
-
+                    Edit
                 </button>
 
 
                 <button
                     type="button"
-                    class="flash-sale-edit-button"
-                    data-action="edit"
-                    data-product-id="${escapeHtml(productId)}"
-                    aria-label="Edit Flash Sale"
-                    title="Edit"
+                    class="admin-primary-button flash-sale-select-product-button"
+                    data-product-id="${escapeAttribute(productId)}"
                 >
-
-                    <i class="fa-solid fa-pen"></i>
-
+                    ${selected ? "Selected ✓" : "Select"}
                 </button>
 
             </div>
 
-        </article>
+        </div>
     `;
-
-}
-
-
-/*==================================================
-PRODUCT ACTIONS
-==================================================*/
-
-function attachProductActions() {
-
-    const buttons =
-        getElements(
-            ".flash-sale-product-action button"
-        );
-
-
-    buttons.forEach(button => {
-
-        button.addEventListener(
-            "click",
-            event => {
-
-                event.preventDefault();
-
-                event.stopPropagation();
-
-
-                const productId =
-                    button.dataset.productId;
-
-
-                const action =
-                    button.dataset.action;
-
-
-                if (!productId) {
-                    return;
-                }
-
-
-                if (action === "select") {
-
-                    toggleProductSelection(
-                        productId
-                    );
-
-                    return;
-
-                }
-
-
-                if (action === "edit") {
-
-                    openProductEditor(
-                        productId
-                    );
-
-                }
-
-            }
-        );
-
-    });
-
-
-    const productItems =
-        getElements(
-            ".flash-sale-product-item"
-        );
-
-
-    productItems.forEach(item => {
-
-        item.addEventListener(
-            "click",
-            event => {
-
-                if (
-                    event.target.closest(
-                        "button"
-                    )
-                ) {
-                    return;
-                }
-
-
-                const productId =
-                    item.dataset.productId;
-
-
-                if (productId) {
-
-                    toggleProductSelection(
-                        productId
-                    );
-
-                }
-
-            }
-        );
-
-    });
 
 }
 
@@ -1236,25 +709,18 @@ function attachProductActions() {
 SELECT PRODUCT
 ==================================================*/
 
-function toggleProductSelection(
-    productId
-) {
+function toggleProductSelection(productId) {
 
-    if (
-        selectedProducts.has(
-            productId
-        )
-    ) {
+    if (!productId) return;
 
-        selectedProducts.delete(
-            productId
-        );
+
+    if (selectedProducts.has(productId)) {
+
+        selectedProducts.delete(productId);
 
     } else {
 
-        selectedProducts.add(
-            productId
-        );
+        selectedProducts.add(productId);
 
     }
 
@@ -1263,114 +729,16 @@ function toggleProductSelection(
 
     renderSelectedProducts();
 
-    updateSelectedCount();
-
-    updateAdminStats();
-
-    updateCampaignPreview();
-
-}
+    updateStats();
 
 
-/*==================================================
-SELECT ALL VISIBLE
-==================================================*/
-
-function selectAllVisibleProducts() {
-
-    filteredProducts.forEach(
-        product => {
-
-            selectedProducts.add(
-                product.productId
-            );
-
-        }
-    );
+    const product =
+        findProduct(productId);
 
 
-    renderProductList();
+    if (product) {
 
-    renderSelectedProducts();
-
-    updateSelectedCount();
-
-    updateAdminStats();
-
-    updateCampaignPreview();
-
-}
-
-
-/*==================================================
-CLEAR SELECTION
-==================================================*/
-
-function clearProductSelection() {
-
-    selectedProducts.clear();
-
-    renderProductList();
-
-    renderSelectedProducts();
-
-    updateSelectedCount();
-
-    updateAdminStats();
-
-    updateCampaignPreview();
-
-}
-
-
-/*==================================================
-SELECTION BUTTONS
-==================================================*/
-
-function setupSelectionButtons() {
-
-    const selectAllButton =
-        getElement(
-            "#flashSaleSelectAll",
-            ".flash-sale-select-all"
-        );
-
-
-    const clearButton =
-        getElement(
-            "#flashSaleClearSelection",
-            ".flash-sale-clear-selection"
-        );
-
-
-    if (selectAllButton) {
-
-        selectAllButton.addEventListener(
-            "click",
-            event => {
-
-                event.preventDefault();
-
-                selectAllVisibleProducts();
-
-            }
-        );
-
-    }
-
-
-    if (clearButton) {
-
-        clearButton.addEventListener(
-            "click",
-            event => {
-
-                event.preventDefault();
-
-                clearProductSelection();
-
-            }
-        );
+        openProductEditor(productId);
 
     }
 
@@ -1378,62 +746,50 @@ function setupSelectionButtons() {
 
 
 /*==================================================
-SELECTED COUNT
+FIND PRODUCT
 ==================================================*/
 
-function updateSelectedCount() {
+function findProduct(productId) {
 
-    const elements =
-        getElements(
-            "#flashSaleSelectedCount",
-            ".flash-sale-selected-count"
-        );
-
-
-    elements.forEach(element => {
-
-        element.textContent =
-            `${formatNumber(
-                selectedProducts.size
-            )} selected`;
-
-    });
+    return allProducts.find(
+        product =>
+            getProductId(product) ===
+            String(productId)
+    ) || null;
 
 }
 
 
 /*==================================================
-RENDER SELECTED PRODUCTS
+SELECTED PRODUCTS
 ==================================================*/
 
 function renderSelectedProducts() {
 
     const container =
-        getElement(
-            "#flashSaleSelectedProducts"
+        document.getElementById(
+            "flashSaleSelectedProducts"
         );
 
 
-    if (!container) {
-        return;
+    const countElement =
+        document.getElementById(
+            "flashSaleSelectedCount"
+        );
+
+
+    if (countElement) {
+
+        countElement.textContent =
+            `${selectedProducts.size} selected`;
+
     }
 
 
-    const selected =
-        Array.from(
-            selectedProducts
-        )
-        .map(
-            id =>
-                allProducts.find(
-                    product =>
-                        product.productId === id
-                )
-        )
-        .filter(Boolean);
+    if (!container) return;
 
 
-    if (!selected.length) {
+    if (!selectedProducts.size) {
 
         container.innerHTML = `
             <div class="flash-sale-admin-empty">
@@ -1457,18 +813,18 @@ function renderSelectedProducts() {
     }
 
 
+    const products =
+        [...selectedProducts]
+            .map(id => findProduct(id))
+            .filter(Boolean);
+
+
     container.innerHTML =
-        selected
-            .map(
-                product =>
-                    createSelectedProductCard(
-                        product
-                    )
+        products
+            .map(product =>
+                createSelectedProduct(product)
             )
             .join("");
-
-
-    attachSelectedProductActions();
 
 }
 
@@ -1477,43 +833,42 @@ function renderSelectedProducts() {
 SELECTED PRODUCT CARD
 ==================================================*/
 
-function createSelectedProductCard(
-    product
-) {
+function createSelectedProduct(product) {
 
-    const image =
-        getProductImage(product);
+    const productId =
+        getProductId(product);
 
 
-    const discount =
-        calculateDiscount(
-            product.price,
-            product.oldPrice
-        );
+    const flashSale =
+        getFlashSale(product);
+
+
+    const salePrice =
+        flashSale?.salePrice != null
+            ? Number(flashSale.salePrice)
+            : 0;
 
 
     return `
-        <article
-            class="flash-sale-selected-product"
-            data-product-id="${escapeHtml(
-                product.productId
-            )}"
-        >
+        <div class="flash-sale-selected-product">
 
             <div class="flash-sale-selected-product-image">
 
                 ${
-                    image
-                        ? `
-                            <img
-                                src="${escapeHtml(image)}"
-                                alt="${escapeHtml(product.name)}"
-                                loading="lazy"
-                            >
-                        `
-                        : `
-                            <i class="fa-solid fa-image"></i>
-                        `
+                    getProductImage(product)
+                    ?
+                    `
+                    <img
+                        src="${escapeAttribute(
+                            getProductImage(product)
+                        )}"
+                        alt="${escapeAttribute(
+                            getProductName(product)
+                        )}"
+                    >
+                    `
+                    :
+                    "📦"
                 }
 
             </div>
@@ -1521,142 +876,794 @@ function createSelectedProductCard(
 
             <div class="flash-sale-selected-product-info">
 
-                <h4>
-                    ${escapeHtml(product.name)}
-                </h4>
-
+                <h3>
+                    ${escapeHtml(
+                        getProductName(product)
+                    )}
+                </h3>
 
                 <span>
-                    ${escapeHtml(product.category)}
+                    ${escapeHtml(productId)}
                 </span>
 
-
                 <strong>
-                    ${formatPrice(product.price)}
+                    ${
+                        salePrice > 0
+                        ? `Sale: Rs. ${formatNumber(salePrice)}`
+                        : "Sale price not set"
+                    }
                 </strong>
-
-
-                ${
-                    discount > 0
-                        ? `
-                            <small>
-                                ${discount}% OFF
-                            </small>
-                        `
-                        : ""
-                }
 
             </div>
 
 
-            <button
-                type="button"
-                class="flash-sale-remove-selected"
-                data-product-id="${escapeHtml(
-                    product.productId
-                )}"
-                aria-label="Remove product"
-                title="Remove"
-            >
+            <div class="flash-sale-selected-product-actions">
 
-                <i class="fa-solid fa-xmark"></i>
+                <button
+                    type="button"
+                    class="admin-secondary-button flash-sale-edit-product-button"
+                    data-product-id="${escapeAttribute(productId)}"
+                >
+                    Edit
+                </button>
 
-            </button>
 
-        </article>
+                <button
+                    type="button"
+                    class="admin-secondary-button flash-sale-remove-product-button"
+                    data-product-id="${escapeAttribute(productId)}"
+                >
+                    Remove
+                </button>
+
+            </div>
+
+        </div>
     `;
 
 }
 
 
 /*==================================================
-SELECTED PRODUCT ACTIONS
+OPEN PRODUCT EDITOR
 ==================================================*/
 
-function attachSelectedProductActions() {
+function openProductEditor(productId) {
 
-    const buttons =
-        getElements(
-            ".flash-sale-remove-selected"
-        );
+    const product =
+        findProduct(productId);
 
 
-    buttons.forEach(button => {
-
-        button.addEventListener(
-            "click",
-            event => {
-
-                event.preventDefault();
-
-                event.stopPropagation();
+    if (!product) return;
 
 
-                const productId =
-                    button.dataset.productId;
+    editingProductId =
+        productId;
 
 
-                if (!productId) {
-                    return;
-                }
+    selectedProducts.add(productId);
 
 
-                selectedProducts.delete(
-                    productId
-                );
-
-
-                renderProductList();
-
-                renderSelectedProducts();
-
-                updateSelectedCount();
-
-                updateAdminStats();
-
-                updateCampaignPreview();
-
-            }
-        );
-
-    });
+    populateEditor(product);
 
 }
 
 
 /*==================================================
-ADMIN STATS
+POPULATE PRODUCT EDITOR
 ==================================================*/
 
-function updateAdminStats() {
+function populateEditor(product) {
+
+    const empty =
+        document.getElementById(
+            "flashSaleEditorEmpty"
+        );
+
+
+    const content =
+        document.getElementById(
+            "flashSaleEditorContent"
+        );
+
+
+    const status =
+        document.getElementById(
+            "flashSaleProductEditorStatus"
+        );
+
+
+    if (empty) {
+
+        empty.hidden = true;
+
+    }
+
+
+    if (content) {
+
+        content.hidden = false;
+
+    }
+
+
+    if (status) {
+
+        status.textContent =
+            "Product Selected";
+
+    }
+
+
+    setText(
+        "flashSaleEditorProductName",
+        getProductName(product)
+    );
+
+
+    setText(
+        "flashSaleEditorProductId",
+        getProductId(product)
+    );
+
+
+    setText(
+        "flashSaleEditorCurrentPrice",
+        `Rs. ${formatNumber(
+            getProductPrice(product)
+        )}`
+    );
+
+
+    setText(
+        "flashSaleEditorCurrentStock",
+        formatNumber(
+            getProductStock(product)
+        )
+    );
+
+
+    const image =
+        document.getElementById(
+            "flashSaleEditorImage"
+        );
+
+
+    if (image) {
+
+        image.src =
+            getProductImage(product) || "";
+
+        image.alt =
+            getProductName(product);
+
+    }
+
+
+    const flashSale =
+        getFlashSale(product);
+
+
+    const salePriceInput =
+        document.getElementById(
+            "flashSaleEditorSalePrice"
+        );
+
+
+    const saleStockInput =
+        document.getElementById(
+            "flashSaleEditorSaleStock"
+        );
+
+
+    const startInput =
+        document.getElementById(
+            "flashSaleEditorStart"
+        );
+
+
+    const endInput =
+        document.getElementById(
+            "flashSaleEditorEnd"
+        );
+
+
+    const enabledInput =
+        document.getElementById(
+            "flashSaleEditorEnabled"
+        );
+
+
+    if (salePriceInput) {
+
+        salePriceInput.value =
+            flashSale?.salePrice != null
+                ? flashSale.salePrice
+                : "";
+
+    }
+
+
+    if (saleStockInput) {
+
+        saleStockInput.value =
+            flashSale?.saleStock != null
+                ? flashSale.saleStock
+                : "";
+
+    }
+
+
+    if (startInput) {
+
+        startInput.value =
+            timestampToLocalInput(
+                flashSale?.startAt
+            );
+
+    }
+
+
+    if (endInput) {
+
+        endInput.value =
+            timestampToLocalInput(
+                flashSale?.endAt
+            );
+
+    }
+
+
+    if (enabledInput) {
+
+        enabledInput.checked =
+            flashSale?.enabled === true;
+
+    }
+
+
+    updateEditorDiscount();
+
+}
+
+
+/*==================================================
+UPDATE DISCOUNT
+==================================================*/
+
+function updateEditorDiscount() {
+
+    const product =
+        editingProductId
+        ? findProduct(editingProductId)
+        : null;
+
+
+    if (!product) return;
+
+
+    const currentPrice =
+        getProductPrice(product);
+
+
+    const salePriceInput =
+        document.getElementById(
+            "flashSaleEditorSalePrice"
+        );
+
+
+    const salePrice =
+        Number(
+            salePriceInput?.value || 0
+        );
+
+
+    let discount = 0;
+
+    let saving = 0;
+
+
+    if (
+        currentPrice > 0 &&
+        salePrice > 0 &&
+        salePrice < currentPrice
+    ) {
+
+        saving =
+            currentPrice - salePrice;
+
+
+        discount =
+            Math.round(
+                (saving / currentPrice) * 100
+            );
+
+    }
+
+
+    setText(
+        "flashSaleEditorDiscount",
+        `${discount}%`
+    );
+
+
+    setText(
+        "flashSaleEditorSaving",
+        `Rs. ${formatNumber(saving)}`
+    );
+
+}
+
+
+/*==================================================
+SAVE PRODUCT FLASH SALE
+==================================================*/
+
+async function saveProductFlashSale() {
+
+    if (!isAdmin) {
+
+        alert(
+            "Admin access required."
+        );
+
+        return;
+
+    }
+
+
+    if (!editingProductId) {
+
+        alert(
+            "پہلے ایک product select کریں۔"
+        );
+
+        return;
+
+    }
+
+
+    const product =
+        findProduct(editingProductId);
+
+
+    if (!product) {
+
+        alert(
+            "Product نہیں ملا۔"
+        );
+
+        return;
+
+    }
+
+
+    const salePriceInput =
+        document.getElementById(
+            "flashSaleEditorSalePrice"
+        );
+
+
+    const saleStockInput =
+        document.getElementById(
+            "flashSaleEditorSaleStock"
+        );
+
+
+    const startInput =
+        document.getElementById(
+            "flashSaleEditorStart"
+        );
+
+
+    const endInput =
+        document.getElementById(
+            "flashSaleEditorEnd"
+        );
+
+
+    const enabledInput =
+        document.getElementById(
+            "flashSaleEditorEnabled"
+        );
+
+
+    const salePrice =
+        Number(
+            salePriceInput?.value || 0
+        );
+
+
+    const saleStock =
+        Number(
+            saleStockInput?.value || 0
+        );
+
+
+    const start =
+        startInput?.value || "";
+
+
+    const end =
+        endInput?.value || "";
+
+
+    const enabled =
+        enabledInput?.checked === true;
+
+
+    const currentPrice =
+        getProductPrice(product);
+
+
+    const currentStock =
+        getProductStock(product);
+
+
+    if (
+        !salePrice ||
+        salePrice <= 0
+    ) {
+
+        alert(
+            "Flash Sale Price درج کریں۔"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        salePrice >= currentPrice
+    ) {
+
+        alert(
+            "Flash Sale Price موجودہ product price سے کم ہونی چاہیے۔"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !saleStock ||
+        saleStock <= 0
+    ) {
+
+        alert(
+            "Flash Sale Stock درج کریں۔"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        currentStock > 0 &&
+        saleStock > currentStock
+    ) {
+
+        alert(
+            "Flash Sale Stock available stock سے زیادہ نہیں ہو سکتی۔"
+        );
+
+        return;
+
+    }
+
+
+    if (!start || !end) {
+
+        alert(
+            "Flash Sale Start اور End دونوں مقرر کریں۔"
+        );
+
+        return;
+
+    }
+
+
+    const startAt =
+        new Date(start).getTime();
+
+
+    const endAt =
+        new Date(end).getTime();
+
+
+    if (
+        !Number.isFinite(startAt) ||
+        !Number.isFinite(endAt)
+    ) {
+
+        alert(
+            "Date & Time درست نہیں ہے۔"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        endAt <= startAt
+    ) {
+
+        alert(
+            "Flash Sale End، Start کے بعد ہونا چاہیے۔"
+        );
+
+        return;
+
+    }
+
+
+    const discount =
+        Math.round(
+            ((currentPrice - salePrice) /
+            currentPrice) * 100
+        );
+
+
+    const flashSale = {
+
+        enabled,
+
+        salePrice,
+
+        saleStock,
+
+        soldQuantity:
+            Number(
+                getFlashSale(product)
+                    ?.soldQuantity || 0
+            ),
+
+        startAt,
+
+        endAt,
+
+        discount
+
+    };
+
+
+    const productRef =
+        ref(
+            database,
+            `${PRODUCTS_PATH}/${editingProductId}`
+        );
+
+
+    try {
+
+        await update(
+            productRef,
+            {
+                flashSale
+            }
+        );
+
+
+        alert(
+            "Product Flash Sale successfully saved."
+        );
+
+
+        selectedProducts.add(
+            editingProductId
+        );
+
+
+        const updatedProduct =
+            findProduct(editingProductId);
+
+
+        if (updatedProduct) {
+
+            updatedProduct.flashSale =
+                flashSale;
+
+            populateEditor(
+                updatedProduct
+            );
+
+        }
+
+
+        renderProductList();
+
+        renderSelectedProducts();
+
+        updateStats();
+
+
+    } catch (error) {
+
+        console.error(
+            "Flash Sale save error:",
+            error
+        );
+
+
+        alert(
+            "Flash Sale save نہیں ہو سکی۔ Firebase console دیکھیں۔"
+        );
+
+    }
+
+}
+
+
+/*==================================================
+CLEAR EDITOR
+==================================================*/
+
+function clearProductEditor() {
+
+    editingProductId = null;
+
+
+    const empty =
+        document.getElementById(
+            "flashSaleEditorEmpty"
+        );
+
+
+    const content =
+        document.getElementById(
+            "flashSaleEditorContent"
+        );
+
+
+    const status =
+        document.getElementById(
+            "flashSaleProductEditorStatus"
+        );
+
+
+    if (empty) {
+
+        empty.hidden = false;
+
+    }
+
+
+    if (content) {
+
+        content.hidden = true;
+
+    }
+
+
+    if (status) {
+
+        status.textContent =
+            "No Product Selected";
+
+    }
+
+
+    [
+        "flashSaleEditorSalePrice",
+        "flashSaleEditorSaleStock",
+        "flashSaleEditorStart",
+        "flashSaleEditorEnd"
+    ].forEach(id => {
+
+        const element =
+            document.getElementById(id);
+
+        if (element) {
+
+            element.value = "";
+
+        }
+
+    });
+
+
+    const enabled =
+        document.getElementById(
+            "flashSaleEditorEnabled"
+        );
+
+
+    if (enabled) {
+
+        enabled.checked = false;
+
+    }
+
+
+    setText(
+        "flashSaleEditorDiscount",
+        "0%"
+    );
+
+
+    setText(
+        "flashSaleEditorSaving",
+        "Rs. 0"
+    );
+
+}
+
+
+/*==================================================
+REMOVE SELECTED PRODUCT
+==================================================*/
+
+function removeSelectedProduct(productId) {
+
+    selectedProducts.delete(
+        productId
+    );
+
+
+    if (
+        editingProductId === productId
+    ) {
+
+        clearProductEditor();
+
+    }
+
+
+    renderProductList();
+
+    renderSelectedProducts();
+
+    updateStats();
+
+}
+
+
+/*==================================================
+STATS
+==================================================*/
+
+function updateStats() {
 
     const activeProducts =
-        allProducts.filter(
-            product =>
-                product.status === "active"
-        );
+        allProducts.filter(product => {
+
+            const flashSale =
+                getFlashSale(product);
+
+            return (
+                flashSale?.enabled === true
+            );
+
+        });
 
 
-    const hotCount =
-        activeProducts.filter(
-            product =>
-                calculateDiscount(
-                    product.price,
-                    product.oldPrice
-                ) >= 30
-        );
+    const hotDeals =
+        activeProducts.filter(product => {
+
+            const discount =
+                Number(
+                    getFlashSale(product)
+                        ?.discount || 0
+                );
+
+            return discount >= 30;
+
+        });
 
 
     const highestDiscount =
-        allProducts.reduce(
+        activeProducts.reduce(
             (highest, product) => {
 
                 const discount =
-                    calculateDiscount(
-                        product.price,
-                        product.oldPrice
+                    Number(
+                        getFlashSale(product)
+                            ?.discount || 0
                     );
-
 
                 return Math.max(
                     highest,
@@ -1669,841 +1676,175 @@ function updateAdminStats() {
 
 
     setText(
-        "#flashSaleActiveCount",
-        activeProducts.length
+        "flashSaleActiveCount",
+        String(
+            activeProducts.length
+        )
     );
 
 
     setText(
-        "#flashSaleHotCount",
-        hotCount.length
+        "flashSaleHotCount",
+        String(
+            hotDeals.length
+        )
     );
 
 
-    setTextRaw(
-        "#flashSaleHighestDiscount",
+    setText(
+        "flashSaleHighestDiscount",
         `${highestDiscount}%`
     );
 
 
     const status =
-        getCampaignStatus();
-
-
-    setTextRaw(
-        "#flashSaleStatus",
-        status
-    );
-
-
-    setTextRaw(
-        "#flashSaleAdminStatus",
-        status
-    );
-
-
-    setText(
-        "#flashSaleProductCount",
-        allProducts.filter(
-            product =>
-                product.published === true
-        ).length
-    );
-
-
-    setText(
-        "#flashSaleStockCount",
-        activeProducts.reduce(
-            (sum, product) =>
-                sum +
-                Number(product.stock || 0),
-            0
-        )
-    );
-
-
-    updateSelectedCount();
-
-}
-
-
-/*==================================================
-SET TEXT
-==================================================*/
-
-function setText(
-    selector,
-    value
-) {
-
-    const element =
-        getElement(selector);
-
-
-    if (element) {
-
-        element.textContent =
-            formatNumber(value);
-
-    }
-
-}
-
-
-function setTextRaw(
-    selector,
-    value
-) {
-
-    const element =
-        getElement(selector);
-
-
-    if (element) {
-
-        element.textContent =
-            String(value);
-
-    }
-
-}
-
-
-/*==================================================
-CAMPAIGN STATUS
-==================================================*/
-
-function getCampaignStatus() {
-
-    const enabled =
-        getElement(
-            "#flashSaleEnabled"
+        document.getElementById(
+            "flashSaleStatus"
         );
 
 
-    const start =
-        getElement(
-            "#flashSaleStart"
+    const adminStatus =
+        document.getElementById(
+            "flashSaleAdminStatus"
         );
 
 
-    const end =
-        getElement(
-            "#flashSaleEnd"
-        );
+    if (activeProducts.length > 0) {
 
+        if (status) {
 
-    if (!enabled) {
-        return "Not Configured";
-    }
+            status.textContent =
+                "Active";
 
+        }
 
-    if (!enabled.checked) {
-        return "Disabled";
-    }
+        if (adminStatus) {
 
+            adminStatus.textContent =
+                "Active";
 
-    if (
-        start?.value &&
-        end?.value
-    ) {
+        }
 
-        const now =
-            Date.now();
+    } else {
 
+        if (status) {
 
-        const startTime =
-            new Date(
-                start.value
-            ).getTime();
+            status.textContent =
+                "Not Configured";
 
+        }
 
-        const endTime =
-            new Date(
-                end.value
-            ).getTime();
+        if (adminStatus) {
 
-
-        if (
-            !Number.isNaN(startTime) &&
-            !Number.isNaN(endTime)
-        ) {
-
-            if (now < startTime) {
-                return "Scheduled";
-            }
-
-
-            if (now >= startTime && now < endTime) {
-                return "Active";
-            }
-
-
-            if (now >= endTime) {
-                return "Ended";
-            }
+            adminStatus.textContent =
+                "Not Configured";
 
         }
 
     }
 
-
-    return "Enabled";
-
 }
 
 
 /*==================================================
-CAMPAIGN FORM EVENTS
+CAMPAIGN FORM
 ==================================================*/
 
 function setupCampaignForm() {
 
-    const fields = [
-        "#flashSaleTitle",
-        "#flashSaleSubtitle",
-        "#flashSaleStart",
-        "#flashSaleEnd",
-        "#flashSaleMaxDiscount",
-        "#flashSaleEnabled"
-    ];
-
-
-    fields.forEach(selector => {
-
-        const element =
-            getElement(selector);
-
-
-        if (!element) {
-            return;
-        }
-
-
-        element.addEventListener(
-            "input",
-            updateCampaignPreview
-        );
-
-
-        element.addEventListener(
-            "change",
-            () => {
-
-                updateCampaignPreview();
-
-                updateAdminStats();
-
-            }
-        );
-
-    });
-
-}
-
-
-/*==================================================
-CAMPAIGN PREVIEW
-==================================================*/
-
-function updateCampaignPreview() {
-
-    updateAdminStats();
-
-    updateSelectedCount();
-
-}
-
-
-/*==================================================
-CALCULATE DISCOUNT
-==================================================*/
-
-function calculateDiscount(
-    salePrice,
-    oldPrice
-) {
-
-    const sale =
-        Number(salePrice) || 0;
-
-
-    const old =
-        Number(oldPrice) || 0;
-
-
-    if (
-        old <= 0 ||
-        sale <= 0 ||
-        sale >= old
-    ) {
-
-        return 0;
-
-    }
-
-
-    return Math.round(
-        ((old - sale) / old) * 100
-    );
-
-}
-
-
-/*==================================================
-OPEN PRODUCT EDITOR
-==================================================*/
-
-function openProductEditor(
-    productId
-) {
-
-    if (!productId) {
-        return;
-    }
-
-
-    editingProductId =
-        productId;
-
-
-    const product =
-        allProducts.find(
-            item =>
-                item.productId === productId
-        );
-
-
-    if (!product) {
-
-        showFlashSaleToast(
-            "Product نہیں ملا۔",
-            "error"
-        );
-
-        return;
-
-    }
-
-
-    populateEditor(product);
-
-    openAdminModal();
-
-}
-
-
-/*==================================================
-POPULATE PRODUCT EDITOR
-==================================================*/
-
-function populateEditor(
-    product
-) {
-
-    const productName =
-        getElement(
-            "#flashSaleProductName",
-            "#flashSaleEditProductName"
-        );
-
-
-    const productId =
-        getElement(
-            "#flashSaleProductId",
-            "#flashSaleEditProductId"
-        );
-
-
-    const price =
-        getElement(
-            "#flashSaleProductPrice",
-            "#flashSaleEditProductPrice"
-        );
-
-
-    const stock =
-        getElement(
-            "#flashSaleProductStock",
-            "#flashSaleEditProductStock"
-        );
-
-
-    const image =
-        getElement(
-            "#flashSalePreviewImage",
-            ".flash-sale-preview-product-image img"
-        );
-
-
-    if (productName) {
-
-        productName.value =
-            getProductName(product);
-
-    }
-
-
-    if (productId) {
-
-        productId.value =
-            product.productId;
-
-    }
-
-
-    if (price) {
-
-        price.value =
-            product.price || "";
-
-    }
-
-
-    if (stock) {
-
-        stock.value =
-            product.stock || "";
-
-    }
-
-
-    if (
-        image &&
-        getProductImage(product)
-    ) {
-
-        image.src =
-            getProductImage(product);
-
-        image.alt =
-            getProductName(product);
-
-    }
-
-
-    updateProductPreview(
-        product
-    );
-
-}
-
-
-/*==================================================
-PRODUCT PREVIEW
-==================================================*/
-
-function updateProductPreview(
-    product
-) {
-
-    if (!product) {
-        return;
-    }
-
-
-    const image =
-        getProductImage(product);
-
-
-    const name =
-        getProductName(product);
-
-
-    const price =
-        getProductPrice(product);
-
-
-    const oldPrice =
-        getProductOldPrice(product);
-
-
-    const discount =
-        calculateDiscount(
-            price,
-            oldPrice
-        );
-
-
-    const imageElement =
-        getElement(
-            "#flashSalePreviewImage",
-            ".flash-sale-preview-product-image img"
-        );
-
-
-    const nameElement =
-        getElement(
-            "#flashSalePreviewName",
-            ".flash-sale-preview-product-info strong"
-        );
-
-
-    const priceElement =
-        getElement(
-            "#flashSalePreviewPrice",
-            ".flash-sale-preview-price"
-        );
-
-
-    const discountElement =
-        getElement(
-            "#flashSalePreviewDiscount",
-            ".flash-sale-preview-discount"
-        );
-
-
-    if (
-        imageElement &&
-        image
-    ) {
-
-        imageElement.src =
-            image;
-
-        imageElement.alt =
-            name;
-
-    }
-
-
-    if (nameElement) {
-
-        nameElement.textContent =
-            name;
-
-    }
-
-
-    if (priceElement) {
-
-        priceElement.innerHTML = `
-            ${formatPrice(price)}
-
-            ${
-                oldPrice > price
-                    ? `
-                        <del>
-                            ${formatPrice(oldPrice)}
-                        </del>
-                    `
-                    : ""
-            }
-        `;
-
-    }
-
-
-    if (discountElement) {
-
-        discountElement.textContent =
-            discount > 0
-                ? `${discount}% OFF`
-                : "FLASH SALE";
-
-    }
-
-
-    updatePreviewStock(
-        product
-    );
-
-}
-
-
-/*==================================================
-PREVIEW STOCK
-==================================================*/
-
-function updatePreviewStock(
-    product
-) {
-
-    const stock =
-        Number(
-            product?.stock
-        ) || 0;
-
-
-    const stockText =
-        getElement(
-            "#flashSalePreviewStockText",
-            ".flash-sale-stock-header strong"
-        );
-
-
-    const stockFill =
-        getElement(
-            "#flashSalePreviewStockFill",
-            ".flash-sale-stock-fill"
-        );
-
-
-    if (stockText) {
-
-        stockText.textContent =
-            `${formatNumber(stock)} available`;
-
-    }
-
-
-    if (stockFill) {
-
-        /*
-         * Preview only.
-         *
-         * No Firebase value is changed.
-         */
-
-        const percentage =
-            Math.min(
-                100,
-                Math.max(
-                    0,
-                    stock
-                )
-            );
-
-
-        stockFill.style.width =
-            `${percentage}%`;
-
-    }
-
-}
-
-
-/*==================================================
-ADMIN MODAL
-==================================================*/
-
-function openAdminModal() {
-
-    const modal =
-        getElement(
-            "#flashSaleAdminModal",
-            ".flash-sale-admin-modal"
-        );
-
-
-    if (!modal) {
-
-        /*
-         * The current admin-panel.html does not yet
-         * require a separate modal for basic selection.
-         */
-
-        return;
-
-    }
-
-
-    modal.classList.add("active");
-
-    modal.removeAttribute("hidden");
-
-    document.body.classList.add(
-        "flash-sale-admin-modal-open"
-    );
-
-}
-
-
-function closeAdminModal() {
-
-    const modal =
-        getElement(
-            "#flashSaleAdminModal",
-            ".flash-sale-admin-modal"
-        );
-
-
-    if (!modal) {
-
-        editingProductId = null;
-
-        return;
-
-    }
-
-
-    modal.classList.remove("active");
-
-    modal.setAttribute(
-        "hidden",
-        ""
-    );
-
-
-    document.body.classList.remove(
-        "flash-sale-admin-modal-open"
-    );
-
-
-    editingProductId = null;
-
-}
-
-
-/*==================================================
-MODAL EVENTS
-==================================================*/
-
-function setupModal() {
-
-    const closeButton =
-        getElement(
-            "#flashSaleAdminModalClose",
-            ".flash-sale-admin-modal-close"
-        );
-
-
-    const overlay =
-        getElement(
-            "#flashSaleAdminModalOverlay",
-            ".flash-sale-admin-modal-overlay"
-        );
-
-
-    if (closeButton) {
-
-        closeButton.addEventListener(
-            "click",
-            event => {
-
-                event.preventDefault();
-
-                closeAdminModal();
-
-            }
-        );
-
-    }
-
-
-    if (overlay) {
-
-        overlay.addEventListener(
-            "click",
-            closeAdminModal
-        );
-
-    }
-
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                event.key === "Escape"
-            ) {
-
-                closeAdminModal();
-
-            }
-
-        }
-    );
-
-}
-
-
-/*==================================================
-SAVE FLASH SALE
-==================================================*/
-
-function setupSaveButton() {
-
     const saveButton =
-        getElement(
-            "#flashSaleSaveButton",
-            ".flash-sale-save-button"
+        document.getElementById(
+            "flashSaleSaveButton"
         );
 
 
-    if (!saveButton) {
-        return;
+    const resetButton =
+        document.getElementById(
+            "flashSaleResetButton"
+        );
+
+
+    if (saveButton) {
+
+        saveButton.addEventListener(
+            "click",
+            saveCampaign
+        );
+
     }
 
 
-    saveButton.addEventListener(
-        "click",
-        event => {
+    if (resetButton) {
 
-            event.preventDefault();
+        resetButton.addEventListener(
+            "click",
+            resetCampaignForm
+        );
 
-            handleFlashSaleSave();
-
-        }
-    );
+    }
 
 }
 
 
 /*==================================================
-FLASH SALE SAVE
+CAMPAIGN SAVE
 ==================================================*/
 
-function handleFlashSaleSave() {
-
-    if (!isAdmin) {
-
-        showFlashSaleToast(
-            "آپ کو Flash Sale manage کرنے کی اجازت نہیں ہے۔",
-            "error"
-        );
-
-        return;
-
-    }
-
+function saveCampaign() {
 
     const title =
-        getElement(
-            "#flashSaleTitle"
+        document.getElementById(
+            "flashSaleTitle"
         )?.value.trim() || "";
 
 
     const subtitle =
-        getElement(
-            "#flashSaleSubtitle"
+        document.getElementById(
+            "flashSaleSubtitle"
         )?.value.trim() || "";
 
 
     const start =
-        getElement(
-            "#flashSaleStart"
+        document.getElementById(
+            "flashSaleStart"
         )?.value || "";
 
 
     const end =
-        getElement(
-            "#flashSaleEnd"
+        document.getElementById(
+            "flashSaleEnd"
         )?.value || "";
 
 
     const maxDiscount =
         Number(
-            getElement(
-                "#flashSaleMaxDiscount"
+            document.getElementById(
+                "flashSaleMaxDiscount"
             )?.value || 0
         );
 
 
     const enabled =
-        Boolean(
-            getElement(
-                "#flashSaleEnabled"
-            )?.checked
+        document.getElementById(
+            "flashSaleEnabled"
+        )?.checked === true;
+
+
+    if (!title) {
+
+        alert(
+            "Sale Title درج کریں۔"
         );
 
+        return;
 
-    if (!selectedProducts.size) {
+    }
 
-        showFlashSaleToast(
-            "کم از کم ایک product منتخب کریں۔",
-            "warning"
+
+    if (!start || !end) {
+
+        alert(
+            "Campaign Start اور End مقرر کریں۔"
         );
 
         return;
@@ -2512,43 +1853,15 @@ function handleFlashSaleSave() {
 
 
     if (
-        start &&
-        end
+        new Date(end).getTime() <=
+        new Date(start).getTime()
     ) {
 
-        const startTime =
-            new Date(start).getTime();
+        alert(
+            "Campaign End، Start کے بعد ہونا چاہیے۔"
+        );
 
-
-        const endTime =
-            new Date(end).getTime();
-
-
-        if (
-            Number.isNaN(startTime) ||
-            Number.isNaN(endTime)
-        ) {
-
-            showFlashSaleToast(
-                "Start یا End date درست نہیں ہے۔",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        if (endTime <= startTime) {
-
-            showFlashSaleToast(
-                "End time، Start time کے بعد ہونا چاہیے۔",
-                "warning"
-            );
-
-            return;
-
-        }
+        return;
 
     }
 
@@ -2558,27 +1871,14 @@ function handleFlashSaleSave() {
         maxDiscount > 100
     ) {
 
-        showFlashSaleToast(
-            "Maximum Discount 0 سے 100 کے درمیان ہونا چاہیے۔",
-            "warning"
+        alert(
+            "Maximum Discount 0 سے 100 کے درمیان ہونا چاہیے۔"
         );
 
         return;
 
     }
 
-
-    /*
-     * IMPORTANT:
-     *
-     * No Firebase write here.
-     *
-     * We only prepare the exact campaign information
-     * currently present in the Admin UI.
-     *
-     * The actual Firebase save will be connected after
-     * the final Flash Sale data structure is confirmed.
-     */
 
     const campaignDraft = {
 
@@ -2603,15 +1903,328 @@ function handleFlashSaleSave() {
 
 
     console.log(
-        "SMARTBAZAAR FLASH SALE DRAFT:",
+        "Flash Sale Campaign:",
         campaignDraft
     );
 
 
-    showFlashSaleToast(
-        "Flash Sale configuration تیار ہے۔ Firebase Save connection اگلے مرحلے میں لگایا جائے گا۔",
-        "warning"
+    const status =
+        document.getElementById(
+            "flashSaleAdminStatus"
+        );
+
+
+    if (status) {
+
+        status.textContent =
+            enabled
+            ? "Active"
+            : "Disabled";
+
+    }
+
+
+    alert(
+        "Campaign settings تیار ہیں۔ Product Flash Sale الگ سے Save کریں۔"
     );
+
+}
+
+
+/*==================================================
+RESET CAMPAIGN
+==================================================*/
+
+function resetCampaignForm() {
+
+    const fields = [
+        "flashSaleTitle",
+        "flashSaleSubtitle",
+        "flashSaleStart",
+        "flashSaleEnd",
+        "flashSaleMaxDiscount"
+    ];
+
+
+    fields.forEach(id => {
+
+        const element =
+            document.getElementById(id);
+
+        if (element) {
+
+            element.value = "";
+
+        }
+
+    });
+
+
+    const enabled =
+        document.getElementById(
+            "flashSaleEnabled"
+        );
+
+
+    if (enabled) {
+
+        enabled.checked = false;
+
+    }
+
+}
+
+
+/*==================================================
+SEARCH
+==================================================*/
+
+function setupSearch() {
+
+    const input =
+        document.getElementById(
+            "flashSaleProductSearch"
+        );
+
+
+    if (!input) return;
+
+
+    input.addEventListener(
+        "input",
+        () => {
+
+            currentSearch =
+                input.value || "";
+
+            applyFilters();
+
+        }
+    );
+
+}
+
+
+/*==================================================
+CATEGORY
+==================================================*/
+
+function setupCategoryFilter() {
+
+    const select =
+        document.getElementById(
+            "flashSaleProductCategory"
+        );
+
+
+    if (!select) return;
+
+
+    select.addEventListener(
+        "change",
+        () => {
+
+            currentCategory =
+                select.value || "all";
+
+            applyFilters();
+
+        }
+    );
+
+}
+
+
+/*==================================================
+PRODUCT BUTTON EVENTS
+==================================================*/
+
+function setupProductEvents() {
+
+    const list =
+        document.getElementById(
+            "flashSaleAdminProductList"
+        );
+
+
+    const selected =
+        document.getElementById(
+            "flashSaleSelectedProducts"
+        );
+
+
+    if (list) {
+
+        list.addEventListener(
+            "click",
+            (event) => {
+
+                const selectButton =
+                    event.target.closest(
+                        ".flash-sale-select-product-button"
+                    );
+
+
+                const editButton =
+                    event.target.closest(
+                        ".flash-sale-edit-product-button"
+                    );
+
+
+                if (selectButton) {
+
+                    const id =
+                        selectButton.dataset.productId;
+
+                    toggleProductSelection(id);
+
+                    return;
+
+                }
+
+
+                if (editButton) {
+
+                    const id =
+                        editButton.dataset.productId;
+
+                    toggleSelectionAndOpenEditor(id);
+
+                }
+
+            }
+        );
+
+    }
+
+
+    if (selected) {
+
+        selected.addEventListener(
+            "click",
+            (event) => {
+
+                const editButton =
+                    event.target.closest(
+                        ".flash-sale-edit-product-button"
+                    );
+
+
+                const removeButton =
+                    event.target.closest(
+                        ".flash-sale-remove-product-button"
+                    );
+
+
+                if (editButton) {
+
+                    const id =
+                        editButton.dataset.productId;
+
+                    openProductEditor(id);
+
+                    return;
+
+                }
+
+
+                if (removeButton) {
+
+                    const id =
+                        removeButton.dataset.productId;
+
+                    removeSelectedProduct(id);
+
+                }
+
+            }
+        );
+
+    }
+
+}
+
+
+/*==================================================
+SELECT + OPEN EDITOR
+==================================================*/
+
+function toggleSelectionAndOpenEditor(productId) {
+
+    if (!productId) return;
+
+
+    selectedProducts.add(
+        productId
+    );
+
+
+    openProductEditor(
+        productId
+    );
+
+
+    renderProductList();
+
+    renderSelectedProducts();
+
+    updateStats();
+
+}
+
+
+/*==================================================
+EDITOR EVENTS
+==================================================*/
+
+function setupEditorEvents() {
+
+    const saveButton =
+        document.getElementById(
+            "flashSaleEditorSaveButton"
+        );
+
+
+    const cancelButton =
+        document.getElementById(
+            "flashSaleEditorCancelButton"
+        );
+
+
+    const salePrice =
+        document.getElementById(
+            "flashSaleEditorSalePrice"
+        );
+
+
+    if (saveButton) {
+
+        saveButton.addEventListener(
+            "click",
+            saveProductFlashSale
+        );
+
+    }
+
+
+    if (cancelButton) {
+
+        cancelButton.addEventListener(
+            "click",
+            clearProductEditor
+        );
+
+    }
+
+
+    if (salePrice) {
+
+        salePrice.addEventListener(
+            "input",
+            updateEditorDiscount
+        );
+
+    }
 
 }
 
@@ -2623,44 +2236,33 @@ ADD PRODUCT BUTTON
 function setupAddProductButton() {
 
     const button =
-        getElement(
-            "#flashSaleAddProductButton"
+        document.getElementById(
+            "flashSaleAddProductButton"
         );
 
 
-    if (!button) {
-        return;
-    }
+    if (!button) return;
 
 
     button.addEventListener(
         "click",
-        event => {
+        () => {
 
-            event.preventDefault();
-
-
-            const productList =
-                getElement(
-                    "#flashSaleAdminProductList"
+            const list =
+                document.getElementById(
+                    "flashSaleAdminProductList"
                 );
 
 
-            if (productList) {
+            if (list) {
 
-                productList.scrollIntoView({
+                list.scrollIntoView({
                     behavior: "smooth",
                     block: "start"
                 });
 
             }
 
-
-            showFlashSaleToast(
-                "اوپر موجود products میں سے product منتخب کریں۔",
-                "success"
-            );
-
         }
     );
 
@@ -2668,235 +2270,33 @@ function setupAddProductButton() {
 
 
 /*==================================================
-RESET BUTTON
+GLOBAL EVENTS
 ==================================================*/
 
-function setupResetButton() {
+function setupGlobalEvents() {
 
-    const button =
-        getElement(
-            "#flashSaleResetButton"
-        );
-
-
-    if (!button) {
-        return;
-    }
-
-
-    button.addEventListener(
+    document.addEventListener(
         "click",
-        event => {
-
-            event.preventDefault();
-
-
-            resetFlashSaleForm();
-
-        }
-    );
-
-}
-
-
-/*==================================================
-RESET FORM
-==================================================*/
-
-function resetFlashSaleForm() {
-
-    const title =
-        getElement(
-            "#flashSaleTitle"
-        );
-
-
-    const subtitle =
-        getElement(
-            "#flashSaleSubtitle"
-        );
-
-
-    const start =
-        getElement(
-            "#flashSaleStart"
-        );
-
-
-    const end =
-        getElement(
-            "#flashSaleEnd"
-        );
-
-
-    const maxDiscount =
-        getElement(
-            "#flashSaleMaxDiscount"
-        );
-
-
-    const enabled =
-        getElement(
-            "#flashSaleEnabled"
-        );
-
-
-    if (title) {
-        title.value = "";
-    }
-
-
-    if (subtitle) {
-        subtitle.value = "";
-    }
-
-
-    if (start) {
-        start.value = "";
-    }
-
-
-    if (end) {
-        end.value = "";
-    }
-
-
-    if (maxDiscount) {
-        maxDiscount.value = "";
-    }
-
-
-    if (enabled) {
-        enabled.checked = false;
-    }
-
-
-    selectedProducts.clear();
-
-
-    renderProductList();
-
-    renderSelectedProducts();
-
-    updateSelectedCount();
-
-    updateAdminStats();
-
-
-    showFlashSaleToast(
-        "Flash Sale form reset ہو گیا۔",
-        "success"
-    );
-
-}
-
-
-/*==================================================
-ERROR
-==================================================*/
-
-function showFlashSaleError(
-    message
-) {
-
-    const container =
-        getElement(
-            "#flashSaleAdminError",
-            ".flash-sale-admin-error"
-        );
-
-
-    if (!container) {
-
-        showFlashSaleToast(
-            message,
-            "error"
-        );
-
-        return;
-
-    }
-
-
-    container.innerHTML = `
-        <i class="fa-solid fa-circle-exclamation"></i>
-        ${escapeHtml(message)}
-    `;
-
-
-    container.hidden = false;
-
-}
-
-
-/*==================================================
-ADMIN AUTH
-==================================================*/
-
-function verifyAdmin(user) {
-
-    if (!user) {
-
-        isAdmin = false;
-
-        return false;
-
-    }
-
-
-    const email =
-        String(
-            user.email || ""
-        )
-        .trim()
-        .toLowerCase();
-
-
-    isAdmin =
-        email ===
-        ADMIN_EMAIL.toLowerCase();
-
-
-    return isAdmin;
-
-}
-
-
-/*==================================================
-AUTH INITIALIZATION
-==================================================*/
-
-function initializeAuth() {
-
-    onAuthStateChanged(
-        auth,
-        user => {
-
-            if (!user) {
-
-                isAdmin = false;
-
-                return;
-
-            }
-
-
-            if (!verifyAdmin(user)) {
-
-                isAdmin = false;
-
-                console.warn(
-                    "Flash Sale Admin: user is not authorized."
+        (event) => {
+
+            const navItem =
+                event.target.closest(
+                    '[data-section="flash-sale"]'
                 );
 
-                return;
+
+            if (navItem) {
+
+                setTimeout(
+                    () => {
+
+                        applyFilters();
+
+                    },
+                    100
+                );
 
             }
-
-
-            isAdmin = true;
-
-            initializeFlashSaleAdmin();
 
         }
     );
@@ -2905,15 +2305,12 @@ function initializeAuth() {
 
 
 /*==================================================
-INITIALIZATION
+INITIALIZE
 ==================================================*/
 
 function initializeFlashSaleAdmin() {
 
-    if (initialized) {
-        return;
-    }
-
+    if (initialized) return;
 
     initialized = true;
 
@@ -2922,19 +2319,15 @@ function initializeFlashSaleAdmin() {
 
     setupCategoryFilter();
 
-    setupStatusFilter();
+    setupProductEvents();
+
+    setupEditorEvents();
 
     setupCampaignForm();
 
-    setupSelectionButtons();
-
     setupAddProductButton();
 
-    setupResetButton();
-
-    setupModal();
-
-    setupSaveButton();
+    setupGlobalEvents();
 
     loadProducts();
 
@@ -2942,144 +2335,169 @@ function initializeFlashSaleAdmin() {
 
 
 /*==================================================
-AUTO INITIALIZATION
+UTILITY
 ==================================================*/
 
-if (
-    document.readyState ===
-    "loading"
-) {
+function setText(id, value) {
 
-    document.addEventListener(
-        "DOMContentLoaded",
-        initializeAuth
+    const element =
+        document.getElementById(id);
+
+    if (element) {
+
+        element.textContent =
+            value;
+
+    }
+
+}
+
+
+function formatNumber(value) {
+
+    const number =
+        Number(value || 0);
+
+
+    return number.toLocaleString(
+        "en-PK"
     );
 
-} else {
+}
 
-    initializeAuth();
+
+function timestampToLocalInput(value) {
+
+    if (
+        value === undefined ||
+        value === null ||
+        value === ""
+    ) {
+
+        return "";
+
+    }
+
+
+    let timestamp =
+        Number(value);
+
+
+    if (!Number.isFinite(timestamp)) {
+
+        return "";
+
+    }
+
+
+    const date =
+        new Date(timestamp);
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return "";
+
+    }
+
+
+    const pad =
+        number =>
+            String(number).padStart(
+                2,
+                "0"
+            );
+
+
+    return (
+        date.getFullYear() +
+        "-" +
+        pad(date.getMonth() + 1) +
+        "-" +
+        pad(date.getDate()) +
+        "T" +
+        pad(date.getHours()) +
+        ":" +
+        pad(date.getMinutes())
+    );
+
+}
+
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+function escapeAttribute(value) {
+
+    return escapeHtml(value);
 
 }
 
 
 /*==================================================
-GLOBAL CONNECTION
+PUBLIC API
 ==================================================*/
 
 window.SmartBazaarFlashSaleAdmin = {
 
-    reloadProducts() {
+    getProducts: () =>
+        allProducts,
 
-        loadProducts();
-
-    },
-
-
-    selectAll() {
-
-        selectAllVisibleProducts();
-
-    },
-
-
-    clearSelection() {
-
-        clearProductSelection();
-
-    },
-
-
-    closeModal() {
-
-        closeAdminModal();
-
-    },
-
-
-    reset() {
-
-        resetFlashSaleForm();
-
-    },
-
-
-    getSelectedProducts() {
-
-        return Array.from(
+    getSelectedProducts: () =>
+        Array.from(
             selectedProducts
-        );
+        ),
 
-    },
+    selectProduct:
+        toggleProductSelection,
 
+    openProductEditor,
 
-    getProducts() {
+    clearProductEditor,
 
-        return [
-            ...allProducts
-        ];
+    saveProductFlashSale,
 
-    },
-
-
-    getFilteredProducts() {
-
-        return [
-            ...filteredProducts
-        ];
-
-    },
-
-
-    getCampaignDraft() {
-
-        return {
-
-            title:
-                getElement(
-                    "#flashSaleTitle"
-                )?.value.trim() || "",
-
-            subtitle:
-                getElement(
-                    "#flashSaleSubtitle"
-                )?.value.trim() || "",
-
-            start:
-                getElement(
-                    "#flashSaleStart"
-                )?.value || "",
-
-            end:
-                getElement(
-                    "#flashSaleEnd"
-                )?.value || "",
-
-            maxDiscount:
-                Number(
-                    getElement(
-                        "#flashSaleMaxDiscount"
-                    )?.value || 0
-                ),
-
-            enabled:
-                Boolean(
-                    getElement(
-                        "#flashSaleEnabled"
-                    )?.checked
-                ),
-
-            productIds:
-                Array.from(
-                    selectedProducts
-                )
-
-        };
-
-    }
+    reloadProducts:
+        loadProducts
 
 };
 
 
 /*==================================================
-END
+START
+==================================================*/
+
+initializeAuth();
+
+
+/*==================================================
+END FLASH SALE ADMIN
 ==================================================*/
