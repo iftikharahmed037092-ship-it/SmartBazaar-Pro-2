@@ -744,3 +744,220 @@ SMALL MOBILE
     }
 
 }
+
+
+
+
+/==================================================
+SMARTBAZAAR PRO 2
+FEATURE: FLASH SALE PRODUCT EDITOR
+==================================================/
+
+.flash-sale-product-editor {
+width: 100%;
+}
+
+.flash-sale-editor-empty {
+text-align: center;
+padding: 50px 20px;
+border: 1px dashed var(--border, #dfe5e1);
+border-radius: var(--radius, 14px);
+background: #fafdfb;
+}
+
+.flash-sale-editor-empty .flash-sale-empty-icon {
+width: 58px;
+height: 58px;
+margin: 0 auto 15px;
+display: flex;
+align-items: center;
+justify-content: center;
+border-radius: 50%;
+background: #effaf2;
+font-size: 28px;
+}
+
+.flash-sale-editor-empty h3 {
+margin: 0 0 8px;
+font-size: 18px;
+}
+
+.flash-sale-editor-empty p {
+margin: 0;
+color: #718078;
+font-size: 14px;
+}
+
+.flash-sale-editor-content {
+width: 100%;
+}
+
+.flash-sale-editor-product {
+display: flex;
+align-items: center;
+gap: 18px;
+padding: 18px;
+margin-bottom: 24px;
+border: 1px solid var(--border, #e1e7e3);
+border-radius: 14px;
+background: #ffffff;
+}
+
+.flash-sale-editor-product-image {
+width: 90px;
+height: 90px;
+flex: 0 0 90px;
+overflow: hidden;
+border-radius: 12px;
+background: #f4f7f5;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.flash-sale-editor-product-image img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+.flash-sale-editor-product-info {
+min-width: 0;
+}
+
+.flash-sale-editor-product-info h3 {
+margin: 0 0 6px;
+font-size: 18px;
+color: var(--text-dark, #17201b);
+}
+
+.flash-sale-editor-product-info > span {
+display: block;
+margin-bottom: 12px;
+font-size: 12px;
+color: #7b8780;
+}
+
+.flash-sale-editor-current-price,
+.flash-sale-editor-current-stock {
+display: inline-block;
+margin-right: 18px;
+font-size: 13px;
+color: #69766e;
+}
+
+.flash-sale-editor-current-price strong,
+.flash-sale-editor-current-stock strong {
+color: #18221c;
+margin-left: 4px;
+}
+
+.flash-sale-editor-form-grid {
+display: grid;
+grid-template-columns: repeat(2, minmax(0, 1fr));
+gap: 20px;
+}
+
+.flash-sale-editor-form-grid .admin-form-group {
+margin: 0;
+}
+
+.flash-sale-editor-form-grid .admin-form-group small {
+display: block;
+margin-top: 7px;
+color: #7a8780;
+font-size: 12px;
+line-height: 1.5;
+}
+
+.flash-sale-editor-form-grid input[type="number"],
+.flash-sale-editor-form-grid input[type="datetime-local"] {
+width: 100%;
+min-height: 46px;
+padding: 0 13px;
+border: 1px solid var(--border, #dfe5e1);
+border-radius: 10px;
+background: #ffffff;
+color: var(--text-dark, #17201b);
+font-size: 14px;
+outline: none;
+box-sizing: border-box;
+}
+
+.flash-sale-editor-form-grid input[type="number"]:focus,
+.flash-sale-editor-form-grid input[type="datetime-local"]:focus {
+border-color: #24a148;
+box-shadow: 0 0 0 3px rgba(36, 161, 72, 0.10);
+}
+
+.flash-sale-editor-discount {
+display: flex;
+align-items: center;
+flex-wrap: wrap;
+gap: 10px 14px;
+margin-top: 24px;
+padding: 16px 18px;
+border-radius: 12px;
+background: #f5faf6;
+border: 1px solid #e2eee5;
+}
+
+.flash-sale-editor-discount span {
+color: #68766d;
+font-size: 13px;
+}
+
+.flash-sale-editor-discount strong {
+color: #179447;
+font-size: 18px;
+margin-right: 12px;
+}
+
+/==================================================
+MOBILE
+==================================================/
+
+@media (max-width: 700px) {
+
+.flash-sale-editor-product {
+    align-items: flex-start;
+    gap: 13px;
+    padding: 14px;
+}
+
+.flash-sale-editor-product-image {
+    width: 72px;
+    height: 72px;
+    flex-basis: 72px;
+}
+
+.flash-sale-editor-product-info h3 {
+    font-size: 16px;
+}
+
+.flash-sale-editor-current-price,
+.flash-sale-editor-current-stock {
+    display: block;
+    margin: 5px 0 0;
+}
+
+.flash-sale-editor-form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+}
+
+@media (max-width: 420px) {
+
+.flash-sale-editor-product {
+    flex-direction: column;
+}
+
+.flash-sale-editor-product-image {
+    width: 80px;
+    height: 80px;
+    flex-basis: 80px;
+}
+
+}
