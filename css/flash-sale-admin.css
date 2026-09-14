@@ -6,557 +6,372 @@ FILE: css/flash-sale-admin.css
 
 
 /*==================================================
-FLASH SALE ROOT
+FLASH SALE SECTION
 ==================================================*/
 
-.flash-sale-admin {
-
-    display: flex;
-
+#flash-saleSection {
+    display: none;
     flex-direction: column;
-
-    gap: 22px;
-
-}
-
-
-/*==================================================
-FLASH SALE HERO
-==================================================*/
-
-.flash-sale-admin-hero {
-
-    position: relative;
-
-    overflow: hidden;
-
-    padding: 28px;
-
-    border-radius: 22px;
-
-    color: #ffffff;
-
-    background:
-        linear-gradient(
-            135deg,
-            #7b1fa2 0%,
-            #c2185b 52%,
-            #ec407a 100%
-        );
-
-    box-shadow:
-        0 18px 45px rgba(123, 31, 162, 0.18);
-
-}
-
-
-.flash-sale-admin-hero::before {
-
-    content: "";
-
-    position: absolute;
-
-    width: 230px;
-
-    height: 230px;
-
-    right: -70px;
-
-    top: -100px;
-
-    border-radius: 50%;
-
-    background:
-        rgba(255, 255, 255, 0.10);
-
-}
-
-
-.flash-sale-admin-hero::after {
-
-    content: "";
-
-    position: absolute;
-
-    width: 150px;
-
-    height: 150px;
-
-    left: 35%;
-
-    bottom: -100px;
-
-    border-radius: 50%;
-
-    background:
-        rgba(255, 255, 255, 0.07);
-
-}
-
-
-.flash-sale-admin-hero-content {
-
-    position: relative;
-
-    z-index: 1;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 25px;
-
-}
-
-
-.flash-sale-admin-hero-info {
-
-    min-width: 0;
-
-}
-
-
-.flash-sale-admin-eyebrow {
-
-    display: inline-flex;
-
-    align-items: center;
-
-    gap: 7px;
-
-    margin-bottom: 9px;
-
-    font-size: 10px;
-
-    font-weight: 800;
-
-    letter-spacing: 2px;
-
-    text-transform: uppercase;
-
-    opacity: 0.85;
-
-}
-
-
-.flash-sale-admin-eyebrow i {
-
-    font-size: 13px;
-
-}
-
-
-.flash-sale-admin-hero h2 {
-
-    margin: 0;
-
-    font-size: 30px;
-
-    line-height: 1.2;
-
-}
-
-
-.flash-sale-admin-hero p {
-
-    max-width: 650px;
-
-    margin: 9px 0 0;
-
-    color:
-        rgba(255, 255, 255, 0.82);
-
-    font-size: 13px;
-
-    line-height: 1.7;
-
-}
-
-
-.flash-sale-admin-hero-action {
-
-    flex-shrink: 0;
-
-}
-
-
-.flash-sale-admin-hero-action button {
-
-    min-height: 46px;
-
-    padding: 0 19px;
-
-    border-radius: 12px;
-
-    color: #7b1fa2;
-
-    background: #ffffff;
-
-    font-size: 13px;
-
-    font-weight: 800;
-
-    box-shadow:
-        0 8px 25px rgba(0, 0, 0, 0.12);
-
-    transition: 0.2s ease;
-
-}
-
-
-.flash-sale-admin-hero-action button:hover {
-
-    transform:
-        translateY(-2px);
-
-}
-
-
-/*==================================================
-FLASH SALE STATS
-==================================================*/
-
-.flash-sale-admin-stats {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(4, minmax(0, 1fr));
-
-    gap: 16px;
-
-}
-
-
-.flash-sale-admin-stat {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 14px;
-
-    min-width: 0;
-
-    padding: 19px;
-
-    background: #ffffff;
-
-    border: 1px solid var(--border);
-
-    border-radius: var(--radius);
-
-    box-shadow: var(--shadow);
-
-}
-
-
-.flash-sale-admin-stat-icon {
-
-    width: 49px;
-
-    height: 49px;
-
-    flex-shrink: 0;
-
-    display: grid;
-
-    place-items: center;
-
-    border-radius: 14px;
-
-    color: #7b1fa2;
-
-    background:
-        #f6edff;
-
-    font-size: 19px;
-
-}
-
-
-.flash-sale-admin-stat-content {
-
-    min-width: 0;
-
-}
-
-
-.flash-sale-admin-stat-content span {
-
-    display: block;
-
-    margin-bottom: 3px;
-
-    color: var(--text-medium);
-
-    font-size: 11px;
-
-}
-
-
-.flash-sale-admin-stat-content strong {
-
-    display: block;
-
-    color: var(--text-dark);
-
-    font-size: 23px;
-
-}
-
-
-.flash-sale-admin-stat-content small {
-
-    display: block;
-
-    margin-top: 3px;
-
-    color: var(--text-light);
-
-    font-size: 9px;
-
-}
-
-
-/*==================================================
-FLASH SALE TOOLBAR
-==================================================*/
-
-.flash-sale-admin-toolbar {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 14px;
-
-    padding: 16px;
-
-    background: #ffffff;
-
-    border: 1px solid var(--border);
-
-    border-radius: var(--radius);
-
-    box-shadow: var(--shadow);
-
-}
-
-
-.flash-sale-admin-search {
-
-    position: relative;
-
-    flex: 1;
-
-    min-width: 180px;
-
-}
-
-
-.flash-sale-admin-search i {
-
-    position: absolute;
-
-    left: 15px;
-
-    top: 50%;
-
-    transform:
-        translateY(-50%);
-
-    color: var(--text-light);
-
-    pointer-events: none;
-
-}
-
-
-.flash-sale-admin-search input {
-
-    width: 100%;
-
-    height: 46px;
-
-    padding:
-        0 15px 0 43px;
-
-    border: 1px solid var(--border);
-
-    border-radius: 12px;
-
-    outline: none;
-
-    background: var(--bg);
-
-    color: var(--text-dark);
-
-    font-family: inherit;
-
-    font-size: 13px;
-
-    transition: 0.2s ease;
-
-}
-
-
-.flash-sale-admin-search input:focus {
-
-    border-color:
-        var(--primary-light);
-
-    background: #ffffff;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(57, 73, 171, 0.09);
-
-}
-
-
-.flash-sale-admin-filters {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 9px;
-
-}
-
-
-.flash-sale-admin-filter {
-
-    height: 46px;
-
-    min-width: 145px;
-
-    padding: 0 12px;
-
-    border: 1px solid var(--border);
-
-    border-radius: 12px;
-
-    outline: none;
-
-    background: #ffffff;
-
-    color: var(--text-dark);
-
-    font-family: inherit;
-
-    font-size: 12px;
-
-    cursor: pointer;
-
-}
-
-
-.flash-sale-admin-filter:focus {
-
-    border-color:
-        var(--primary-light);
-
-}
-
-
-/*==================================================
-FLASH SALE MAIN GRID
-==================================================*/
-
-.flash-sale-admin-main-grid {
-
-    display: grid;
-
-    grid-template-columns:
-        minmax(0, 1.55fr)
-        minmax(330px, 0.85fr);
-
     gap: 20px;
+}
 
-    align-items: start;
-
+#flash-saleSection.active {
+    display: flex;
 }
 
 
 /*==================================================
-FLASH SALE MANAGEMENT CARD
+FLASH SALE HEADING
 ==================================================*/
 
-.flash-sale-admin-card {
-
-    min-width: 0;
-
-    padding: 22px;
-
-    background: #ffffff;
-
-    border: 1px solid var(--border);
-
-    border-radius: var(--radius);
-
-    box-shadow: var(--shadow);
-
-}
-
-
-.flash-sale-admin-card-header {
-
+#flash-saleSection .admin-section-heading {
     display: flex;
-
-    align-items: flex-start;
-
+    align-items: center;
     justify-content: space-between;
-
-    gap: 15px;
-
-    margin-bottom: 20px;
-
+    gap: 20px;
+    margin-bottom: 2px;
 }
 
-
-.flash-sale-admin-card-title {
-
-    min-width: 0;
-
-}
-
-
-.flash-sale-admin-card-title h3 {
-
+#flash-saleSection .admin-section-heading h1 {
     margin: 0;
-
     color: var(--text-dark);
-
-    font-size: 17px;
-
+    font-size: 28px;
+    font-weight: 800;
 }
 
-
-.flash-sale-admin-card-title p {
-
-    margin: 5px 0 0;
-
+#flash-saleSection .admin-section-heading p {
+    margin: 7px 0 0;
     color: var(--text-medium);
-
-    font-size: 11px;
-
+    font-size: 13px;
     line-height: 1.6;
-
 }
 
 
-.flash-sale-admin-card-header > i {
+/*==================================================
+PRIMARY / SECONDARY BUTTONS
+==================================================*/
 
-    color: var(--secondary);
+#flash-saleSection .admin-primary-button,
+#flash-saleSection .admin-secondary-button {
+    min-height: 43px;
+    padding: 0 17px;
+    border-radius: 11px;
+    border: 0;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
 
-    font-size: 18px;
+#flash-saleSection .admin-primary-button {
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    box-shadow: 0 7px 18px rgba(75, 50, 160, 0.17);
+}
 
+#flash-saleSection .admin-primary-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(75, 50, 160, 0.22);
+}
+
+#flash-saleSection .admin-secondary-button {
+    color: var(--text-dark);
+    background: #f3f4f7;
+    border: 1px solid var(--border);
+}
+
+#flash-saleSection .admin-secondary-button:hover {
+    background: #e9ebef;
+}
+
+
+/*==================================================
+FLASH SALE STATISTICS
+==================================================*/
+
+#flash-saleSection .flash-sale-admin-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 15px;
+}
+
+#flash-saleSection .flash-sale-admin-stat-card {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+    padding: 18px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+#flash-saleSection .flash-sale-admin-stat-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    color: #7b1fa2;
+    background: #f6edff;
+    font-size: 19px;
+}
+
+#flash-saleSection .flash-sale-admin-stat-card span {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text-medium);
+    font-size: 10px;
+    font-weight: 600;
+}
+
+#flash-saleSection .flash-sale-admin-stat-card strong {
+    display: block;
+    color: var(--text-dark);
+    font-size: 21px;
+    font-weight: 800;
+}
+
+
+/*==================================================
+FLASH SALE PANELS
+==================================================*/
+
+#flash-saleSection .flash-sale-admin-panel {
+    min-width: 0;
+    padding: 22px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+
+/*==================================================
+PANEL HEADER
+==================================================*/
+
+#flash-saleSection .flash-sale-admin-panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+#flash-saleSection .flash-sale-admin-panel-header h2 {
+    margin: 0;
+    color: var(--text-dark);
+    font-size: 17px;
+    font-weight: 800;
+}
+
+#flash-saleSection .flash-sale-admin-panel-header p {
+    margin: 5px 0 0;
+    color: var(--text-medium);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+
+/*==================================================
+CAMPAIGN STATUS
+==================================================*/
+
+#flash-saleSection .flash-sale-admin-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    min-height: 29px;
+    padding: 0 10px;
+    border-radius: 999px;
+    color: #8a5a00;
+    background: #fff7df;
+    font-size: 9px;
+    font-weight: 800;
+}
+
+
+/*==================================================
+FORM GRID
+==================================================*/
+
+#flash-saleSection .flash-sale-admin-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+}
+
+#flash-saleSection .admin-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+#flash-saleSection .admin-form-group label {
+    color: #34363c;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+#flash-saleSection .admin-form-group input {
+    width: 100%;
+    min-height: 44px;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    outline: none;
+    background: #ffffff;
+    color: var(--text-dark);
+    font-family: inherit;
+    font-size: 12px;
+    transition: 0.2s ease;
+}
+
+#flash-saleSection .admin-form-group input:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(57, 73, 171, 0.09);
+}
+
+
+/*==================================================
+CAMPAIGN SWITCH
+==================================================*/
+
+#flash-saleSection .flash-sale-admin-switch {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+#flash-saleSection .flash-sale-admin-switch input {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+}
+
+#flash-saleSection .flash-sale-admin-switch span {
+    position: relative;
+    width: 45px;
+    height: 25px;
+    flex-shrink: 0;
+    border-radius: 30px;
+    background: #d9dbe1;
+    transition: 0.2s ease;
+}
+
+#flash-saleSection .flash-sale-admin-switch span::before {
+    content: "";
+    position: absolute;
+    width: 19px;
+    height: 19px;
+    left: 3px;
+    top: 3px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    transition: 0.2s ease;
+}
+
+#flash-saleSection .flash-sale-admin-switch input:checked + span {
+    background: linear-gradient(
+        135deg,
+        var(--secondary),
+        var(--accent)
+    );
+}
+
+#flash-saleSection .flash-sale-admin-switch input:checked + span::before {
+    transform: translateX(20px);
+}
+
+#flash-saleSection .flash-sale-admin-switch strong {
+    color: var(--text-dark);
+    font-size: 11px;
+}
+
+
+/*==================================================
+CAMPAIGN ACTIONS
+==================================================*/
+
+#flash-saleSection .flash-sale-admin-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 9px;
+    margin-top: 18px;
+    padding-top: 17px;
+    border-top: 1px solid #f0f1f4;
+}
+
+
+/*==================================================
+PRODUCT TOOLBAR
+==================================================*/
+
+#flash-saleSection .flash-sale-product-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 17px;
+}
+
+#flash-saleSection .flash-sale-product-search {
+    position: relative;
+    flex: 1;
+}
+
+#flash-saleSection .flash-sale-product-search span {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    pointer-events: none;
+}
+
+#flash-saleSection .flash-sale-product-search input,
+#flash-saleSection #flashSaleProductCategory {
+    width: 100%;
+    height: 44px;
+    box-sizing: border-box;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    outline: none;
+    background: #ffffff;
+    color: var(--text-dark);
+    font-family: inherit;
+    font-size: 12px;
+}
+
+#flash-saleSection .flash-sale-product-search input {
+    padding: 0 12px 0 38px;
+}
+
+#flash-saleSection #flashSaleProductCategory {
+    width: 190px;
+    padding: 0 11px;
+    cursor: pointer;
+}
+
+#flash-saleSection .flash-sale-product-search input:focus,
+#flash-saleSection #flashSaleProductCategory:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(57, 73, 171, 0.09);
 }
 
 
@@ -564,1044 +379,174 @@ FLASH SALE MANAGEMENT CARD
 PRODUCT LIST
 ==================================================*/
 
-.flash-sale-product-list {
-
+#flash-saleSection .flash-sale-admin-product-list {
     display: flex;
-
     flex-direction: column;
+    gap: 10px;
+    min-height: 100px;
+}
 
-    gap: 11px;
-
+#flash-saleSection .flash-sale-admin-product-list > * {
+    box-sizing: border-box;
 }
 
 
-.flash-sale-product-item {
+/*==================================================
+PRODUCT ITEM
+==================================================*/
 
+#flash-saleSection .flash-sale-product-item,
+#flash-saleSection .flash-sale-admin-product-item {
     display: grid;
-
-    grid-template-columns:
-        68px minmax(0, 1fr) auto;
-
+    grid-template-columns: 65px minmax(0, 1fr) auto;
     align-items: center;
-
     gap: 13px;
-
-    padding: 12px;
-
+    padding: 11px;
     border: 1px solid var(--border);
-
-    border-radius: 14px;
-
-    background: #ffffff;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        transform 0.2s ease;
-
-}
-
-
-.flash-sale-product-item:hover {
-
-    border-color:
-        rgba(123, 31, 162, 0.22);
-
-    box-shadow:
-        0 8px 22px rgba(15, 23, 42, 0.06);
-
-}
-
-
-.flash-sale-product-item.selected {
-
-    border-color:
-        rgba(123, 31, 162, 0.35);
-
-    background:
-        #fcf9ff;
-
-}
-
-
-.flash-sale-product-image {
-
-    width: 68px;
-
-    height: 68px;
-
-    overflow: hidden;
-
-    display: grid;
-
-    place-items: center;
-
     border-radius: 13px;
-
-    background:
-        #f5f6fa;
-
-    color: var(--text-light);
-
-}
-
-
-.flash-sale-product-image img {
-
-    width: 100%;
-
-    height: 100%;
-
-    display: block;
-
-    object-fit: cover;
-
-}
-
-
-.flash-sale-product-image i {
-
-    font-size: 22px;
-
-}
-
-
-.flash-sale-product-info {
-
-    min-width: 0;
-
-}
-
-
-.flash-sale-product-name {
-
-    margin: 0 0 5px;
-
-    color: var(--text-dark);
-
-    font-size: 13px;
-
-    font-weight: 800;
-
-    white-space: nowrap;
-
-    overflow: hidden;
-
-    text-overflow: ellipsis;
-
-}
-
-
-.flash-sale-product-meta {
-
-    display: flex;
-
-    align-items: center;
-
-    flex-wrap: wrap;
-
-    gap: 8px;
-
-}
-
-
-.flash-sale-product-meta span {
-
-    color: var(--text-medium);
-
-    font-size: 10px;
-
-}
-
-
-.flash-sale-product-meta i {
-
-    margin-right: 3px;
-
-    color: var(--secondary);
-
-}
-
-
-.flash-sale-product-price {
-
-    margin-top: 7px;
-
-    color: var(--primary);
-
-    font-size: 13px;
-
-    font-weight: 800;
-
-}
-
-
-.flash-sale-product-price del {
-
-    margin-left: 5px;
-
-    color: var(--text-light);
-
-    font-size: 10px;
-
-    font-weight: 500;
-
-}
-
-
-.flash-sale-product-action {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 7px;
-
-}
-
-
-.flash-sale-product-action button {
-
-    width: 38px;
-
-    height: 38px;
-
-    display: grid;
-
-    place-items: center;
-
-    border-radius: 10px;
-
-    transition: 0.2s ease;
-
-}
-
-
-.flash-sale-edit-button {
-
-    color: var(--primary);
-
-    background:
-        #eef2ff;
-
-}
-
-
-.flash-sale-toggle-button {
-
-    color: #2478c9;
-
-    background:
-        #edf6ff;
-
-}
-
-
-.flash-sale-delete-button {
-
-    color: var(--danger);
-
-    background:
-        #fff0f2;
-
-}
-
-
-.flash-sale-product-action button:hover {
-
-    transform:
-        translateY(-2px);
-
-}
-
-
-/*==================================================
-FLASH SALE STATUS BADGES
-==================================================*/
-
-.flash-sale-status {
-
-    display: inline-flex;
-
-    align-items: center;
-
-    gap: 5px;
-
-    padding: 4px 8px;
-
-    border-radius: 999px;
-
-    font-size: 9px;
-
-    font-weight: 800;
-
-}
-
-
-.flash-sale-status.active {
-
-    color: #16834b;
-
-    background: #e9f8f0;
-
-}
-
-
-.flash-sale-status.scheduled {
-
-    color: #8a5a00;
-
-    background: #fff7df;
-
-}
-
-
-.flash-sale-status.ended {
-
-    color: #a23b3b;
-
-    background: #fff0f0;
-
-}
-
-
-.flash-sale-status.inactive {
-
-    color: var(--text-medium);
-
-    background: #f1f3f6;
-
-}
-
-
-.flash-sale-status i {
-
-    font-size: 7px;
-
-}
-
-
-/*==================================================
-FLASH SALE FORM
-==================================================*/
-
-.flash-sale-form {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 16px;
-
-}
-
-
-.flash-sale-form-row {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
-    gap: 12px;
-
-}
-
-
-.flash-sale-form-group {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 7px;
-
-}
-
-
-.flash-sale-form-group.full {
-
-    grid-column:
-        1 / -1;
-
-}
-
-
-.flash-sale-form-group label {
-
-    color: #34363c;
-
-    font-size: 12px;
-
-    font-weight: 800;
-
-}
-
-
-.flash-sale-form-group label span {
-
-    color: var(--danger);
-
-}
-
-
-.flash-sale-form-group input,
-.flash-sale-form-group select,
-.flash-sale-form-group textarea {
-
-    width: 100%;
-
-    min-height: 44px;
-
-    padding: 10px 12px;
-
-    border: 1px solid var(--border);
-
-    border-radius: 11px;
-
-    outline: none;
-
     background: #ffffff;
-
-    color: var(--text-dark);
-
-    font-family: inherit;
-
-    font-size: 12px;
-
     transition: 0.2s ease;
-
 }
 
-
-.flash-sale-form-group textarea {
-
-    min-height: 85px;
-
-    resize: vertical;
-
+#flash-saleSection .flash-sale-product-item:hover,
+#flash-saleSection .flash-sale-admin-product-item:hover {
+    border-color: rgba(123, 31, 162, 0.25);
+    box-shadow: 0 7px 20px rgba(15, 23, 42, 0.06);
 }
 
-
-.flash-sale-form-group input:focus,
-.flash-sale-form-group select:focus,
-.flash-sale-form-group textarea:focus {
-
-    border-color:
-        var(--primary-light);
-
-    box-shadow:
-        0 0 0 3px
-        rgba(57, 73, 171, 0.09);
-
-}
-
-
-.flash-sale-form-group small {
-
-    color: var(--text-light);
-
-    font-size: 10px;
-
-    line-height: 1.5;
-
+#flash-saleSection .flash-sale-product-item.selected,
+#flash-saleSection .flash-sale-admin-product-item.selected {
+    border-color: rgba(123, 31, 162, 0.35);
+    background: #fcf9ff;
 }
 
 
 /*==================================================
-FLASH SALE SWITCH
+PRODUCT IMAGE
 ==================================================*/
 
-.flash-sale-switch-row {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 15px;
-
-    padding: 14px;
-
-    border-radius: 13px;
-
-    background: #f7f8fc;
-
-}
-
-
-.flash-sale-switch-info {
-
-    min-width: 0;
-
-}
-
-
-.flash-sale-switch-info strong {
-
-    display: block;
-
-    color: var(--text-dark);
-
-    font-size: 12px;
-
-}
-
-
-.flash-sale-switch-info small {
-
-    display: block;
-
-    margin-top: 4px;
-
-    color: var(--text-medium);
-
-    font-size: 10px;
-
-}
-
-
-.flash-sale-switch {
-
-    position: relative;
-
-    width: 48px;
-
-    height: 27px;
-
-    flex-shrink: 0;
-
-}
-
-
-.flash-sale-switch input {
-
-    width: 0;
-
-    height: 0;
-
-    opacity: 0;
-
-}
-
-
-.flash-sale-switch span {
-
-    position: absolute;
-
-    inset: 0;
-
-    border-radius: 30px;
-
-    background: #d9dbe1;
-
-    cursor: pointer;
-
-    transition: 0.2s ease;
-
-}
-
-
-.flash-sale-switch span::before {
-
-    content: "";
-
-    position: absolute;
-
-    width: 21px;
-
-    height: 21px;
-
-    left: 3px;
-
-    top: 3px;
-
-    border-radius: 50%;
-
-    background: #ffffff;
-
-    box-shadow:
-        0 2px 5px rgba(0, 0, 0, 0.15);
-
-    transition: 0.2s ease;
-
-}
-
-
-.flash-sale-switch input:checked + span {
-
-    background:
-        linear-gradient(
-            135deg,
-            var(--secondary),
-            var(--accent)
-        );
-
-}
-
-
-.flash-sale-switch input:checked + span::before {
-
-    transform:
-        translateX(21px);
-
-}
-
-
-/*==================================================
-FORM ACTIONS
-==================================================*/
-
-.flash-sale-form-actions {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: flex-end;
-
-    gap: 9px;
-
-    padding-top: 4px;
-
-}
-
-
-.flash-sale-form-actions .secondary-action {
-
-    min-height: 42px;
-
-}
-
-
-.flash-sale-save-button {
-
-    min-height: 42px;
-
-    padding: 0 18px;
-
-    border-radius: 11px;
-
-    color: #ffffff;
-
-    background:
-        linear-gradient(
-            135deg,
-            var(--primary),
-            var(--secondary)
-        );
-
-    font-size: 12px;
-
-    font-weight: 800;
-
-    box-shadow:
-        0 7px 18px rgba(75, 50, 160, 0.17);
-
-}
-
-
-.flash-sale-save-button:hover {
-
-    transform:
-        translateY(-1px);
-
-}
-
-
-/*==================================================
-SALE PREVIEW
-==================================================*/
-
-.flash-sale-admin-preview {
-
+#flash-saleSection .flash-sale-product-image,
+#flash-saleSection .flash-sale-admin-product-image {
+    width: 65px;
+    height: 65px;
     overflow: hidden;
-
-    border:
-        1px solid var(--border);
-
-    border-radius: 17px;
-
-    background:
-        #ffffff;
-
-}
-
-
-.flash-sale-preview-header {
-
-    padding: 15px;
-
-    color: #ffffff;
-
-    background:
-        linear-gradient(
-            135deg,
-            #7b1fa2,
-            #ec407a
-        );
-
-}
-
-
-.flash-sale-preview-header-top {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 10px;
-
-}
-
-
-.flash-sale-preview-header h4 {
-
-    margin: 0;
-
-    font-size: 14px;
-
-}
-
-
-.flash-sale-preview-live {
-
-    display: inline-flex;
-
-    align-items: center;
-
-    gap: 5px;
-
-    padding: 4px 7px;
-
-    border-radius: 999px;
-
-    background:
-        rgba(255,255,255,0.15);
-
-    font-size: 9px;
-
-    font-weight: 800;
-
-}
-
-
-.flash-sale-preview-live i {
-
-    font-size: 6px;
-
-}
-
-
-.flash-sale-preview-countdown {
-
     display: grid;
-
-    grid-template-columns:
-        repeat(4, 1fr);
-
-    gap: 6px;
-
-    margin-top: 13px;
-
-}
-
-
-.flash-sale-preview-time {
-
-    padding: 8px 4px;
-
-    text-align: center;
-
-    border-radius: 8px;
-
-    background:
-        rgba(255,255,255,0.12);
-
-}
-
-
-.flash-sale-preview-time strong {
-
-    display: block;
-
-    font-size: 16px;
-
-}
-
-
-.flash-sale-preview-time span {
-
-    display: block;
-
-    margin-top: 2px;
-
-    opacity: 0.72;
-
-    font-size: 8px;
-
-}
-
-
-.flash-sale-preview-body {
-
-    padding: 14px;
-
-}
-
-
-.flash-sale-preview-product {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 10px;
-
-}
-
-
-.flash-sale-preview-product-image {
-
-    width: 58px;
-
-    height: 58px;
-
-    flex-shrink: 0;
-
-    display: grid;
-
     place-items: center;
-
-    overflow: hidden;
-
-    border-radius: 11px;
-
+    border-radius: 12px;
     background: #f5f6fa;
-
 }
 
-
-.flash-sale-preview-product-image img {
-
+#flash-saleSection .flash-sale-product-image img,
+#flash-saleSection .flash-sale-admin-product-image img {
     width: 100%;
-
     height: 100%;
-
-    object-fit: cover;
-
-}
-
-
-.flash-sale-preview-product-image i {
-
-    color: var(--text-light);
-
-}
-
-
-.flash-sale-preview-product-info {
-
-    min-width: 0;
-
-}
-
-
-.flash-sale-preview-product-info strong {
-
     display: block;
+    object-fit: cover;
+}
 
+
+/*==================================================
+PRODUCT INFO
+==================================================*/
+
+#flash-saleSection .flash-sale-product-info,
+#flash-saleSection .flash-sale-admin-product-info {
+    min-width: 0;
+}
+
+#flash-saleSection .flash-sale-product-name,
+#flash-saleSection .flash-sale-admin-product-name {
+    margin: 0 0 5px;
     color: var(--text-dark);
-
-    font-size: 12px;
-
+    font-size: 13px;
+    font-weight: 800;
     white-space: nowrap;
-
     overflow: hidden;
-
     text-overflow: ellipsis;
-
 }
 
+#flash-saleSection .flash-sale-product-meta,
+#flash-saleSection .flash-sale-admin-product-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
 
-.flash-sale-preview-price {
+#flash-saleSection .flash-sale-product-meta span,
+#flash-saleSection .flash-sale-admin-product-meta span {
+    color: var(--text-medium);
+    font-size: 10px;
+}
 
-    margin-top: 5px;
-
+#flash-saleSection .flash-sale-product-price,
+#flash-saleSection .flash-sale-admin-product-price {
+    margin-top: 6px;
     color: var(--primary);
-
-    font-size: 14px;
-
+    font-size: 13px;
     font-weight: 800;
-
-}
-
-
-.flash-sale-preview-price del {
-
-    margin-left: 5px;
-
-    color: var(--text-light);
-
-    font-size: 9px;
-
-}
-
-
-.flash-sale-preview-discount {
-
-    display: inline-block;
-
-    margin-top: 5px;
-
-    padding: 3px 6px;
-
-    border-radius: 6px;
-
-    color: #b4234b;
-
-    background: #fff0f4;
-
-    font-size: 8px;
-
-    font-weight: 800;
-
 }
 
 
 /*==================================================
-STOCK PROGRESS
+PRODUCT ACTION / SELECT
 ==================================================*/
 
-.flash-sale-stock-box {
-
-    margin-top: 14px;
-
-    padding: 12px;
-
-    border-radius: 11px;
-
-    background:
-        #f7f8fc;
-
-}
-
-
-.flash-sale-stock-header {
-
+#flash-saleSection .flash-sale-product-action {
     display: flex;
-
     align-items: center;
-
-    justify-content: space-between;
-
-    gap: 10px;
-
-    margin-bottom: 7px;
-
+    gap: 7px;
 }
 
-
-.flash-sale-stock-header span {
-
-    color: var(--text-medium);
-
-    font-size: 9px;
-
+#flash-saleSection .flash-sale-product-action button {
+    width: 37px;
+    height: 37px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s ease;
 }
 
-
-.flash-sale-stock-header strong {
-
-    color: var(--text-dark);
-
-    font-size: 10px;
-
+#flash-saleSection .flash-sale-product-action button:hover {
+    transform: translateY(-2px);
 }
 
-
-.flash-sale-stock-bar {
-
-    width: 100%;
-
-    height: 7px;
-
-    overflow: hidden;
-
-    border-radius: 999px;
-
-    background:
-        #e7e9ef;
-
+#flash-saleSection .flash-sale-edit-button {
+    color: var(--primary);
+    background: #eef2ff;
 }
 
+#flash-saleSection .flash-sale-toggle-button {
+    color: #2478c9;
+    background: #edf6ff;
+}
 
-.flash-sale-stock-fill {
-
-    width: 0;
-
-    height: 100%;
-
-    border-radius: inherit;
-
-    background:
-        linear-gradient(
-            90deg,
-            var(--secondary),
-            var(--accent)
-        );
-
-    transition:
-        width 0.3s ease;
-
+#flash-saleSection .flash-sale-delete-button {
+    color: var(--danger);
+    background: #fff0f2;
 }
 
 
 /*==================================================
-SALE RULES
+SELECTED PRODUCTS
 ==================================================*/
 
-.flash-sale-rules {
-
+#flash-saleSection .flash-sale-selected-products {
     display: flex;
-
     flex-direction: column;
-
-    gap: 9px;
-
-    margin-top: 15px;
-
+    gap: 10px;
 }
 
-
-.flash-sale-rule {
-
-    display: flex;
-
-    align-items: flex-start;
-
-    gap: 9px;
-
-    color: var(--text-medium);
-
-    font-size: 10px;
-
-    line-height: 1.6;
-
-}
-
-
-.flash-sale-rule i {
-
-    margin-top: 2px;
-
-    color: var(--success);
-
-    font-size: 11px;
-
+#flash-saleSection .flash-sale-selected-count {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 9px;
+    border-radius: 999px;
+    color: #7b1fa2;
+    background: #f6edff;
+    font-size: 9px;
+    font-weight: 800;
 }
 
 
@@ -1609,70 +554,38 @@ SALE RULES
 EMPTY STATE
 ==================================================*/
 
-.flash-sale-admin-empty {
-
-    padding: 55px 20px;
-
+#flash-saleSection .flash-sale-admin-empty {
+    padding: 45px 20px;
     text-align: center;
-
-    border:
-        1px dashed rgba(123, 31, 162, 0.22);
-
-    border-radius: 16px;
-
-    background:
-        #fcfbff;
-
+    border: 1px dashed rgba(123, 31, 162, 0.25);
+    border-radius: 15px;
+    background: #fcfbff;
 }
 
-
-.flash-sale-admin-empty-icon {
-
-    width: 68px;
-
-    height: 68px;
-
-    margin: 0 auto 14px;
-
+#flash-saleSection .flash-sale-empty-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 13px;
     display: grid;
-
     place-items: center;
-
-    border-radius: 20px;
-
+    border-radius: 18px;
     color: var(--secondary);
-
-    background:
-        #f5ecff;
-
-    font-size: 27px;
-
+    background: #f5ecff;
+    font-size: 25px;
 }
 
-
-.flash-sale-admin-empty h3 {
-
+#flash-saleSection .flash-sale-admin-empty h3 {
     margin: 0 0 6px;
-
     color: var(--text-dark);
-
-    font-size: 18px;
-
+    font-size: 17px;
 }
 
-
-.flash-sale-admin-empty p {
-
-    max-width: 450px;
-
+#flash-saleSection .flash-sale-admin-empty p {
+    max-width: 430px;
     margin: 0 auto;
-
     color: var(--text-medium);
-
     font-size: 11px;
-
     line-height: 1.7;
-
 }
 
 
@@ -1680,811 +593,154 @@ EMPTY STATE
 LOADING
 ==================================================*/
 
-.flash-sale-admin-loading {
-
-    min-height: 180px;
-
+#flash-saleSection .flash-sale-admin-loading {
+    min-height: 130px;
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     flex-direction: column;
-
-    gap: 11px;
-
+    gap: 10px;
     color: var(--text-medium);
-
-    font-size: 12px;
-
+    font-size: 11px;
 }
 
-
-.flash-sale-admin-loading i {
-
-    color: var(--secondary);
-
+#flash-saleSection .flash-sale-admin-loading::before {
+    content: "⚡";
     font-size: 22px;
-
+    animation: flashSaleLoadingPulse 1s ease-in-out infinite;
 }
 
-
-/*==================================================
-ERROR
-==================================================*/
-
-.flash-sale-admin-error {
-
-    padding: 18px;
-
-    border:
-        1px solid #fecaca;
-
-    border-radius: 13px;
-
-    color: #991b1b;
-
-    background:
-        #fff1f2;
-
-    font-size: 12px;
-
-}
-
-
-.flash-sale-admin-error i {
-
-    margin-right: 6px;
-
-}
-
-
-/*==================================================
-PAGINATION / LOAD MORE
-==================================================*/
-
-.flash-sale-admin-pagination {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    gap: 8px;
-
-    margin-top: 18px;
-
-}
-
-
-.flash-sale-page-button {
-
-    min-width: 38px;
-
-    height: 38px;
-
-    padding: 0 10px;
-
-    border:
-        1px solid var(--border);
-
-    border-radius: 10px;
-
-    background: #ffffff;
-
-    color: var(--text-medium);
-
-    font-size: 11px;
-
-}
-
-
-.flash-sale-page-button.active {
-
-    color: #ffffff;
-
-    background:
-        var(--primary);
-
-    border-color:
-        var(--primary);
-
-}
-
-
-.flash-sale-page-button:hover {
-
-    border-color:
-        var(--primary-light);
-
-    color:
-        var(--primary);
-
-}
-
-
-/*==================================================
-MODAL
-==================================================*/
-
-.flash-sale-admin-modal {
-
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 10000;
-
-    display: none;
-
-    align-items: center;
-
-    justify-content: center;
-
-    padding: 18px;
-
-}
-
-
-.flash-sale-admin-modal.active {
-
-    display: flex;
-
-}
-
-
-.flash-sale-admin-modal-overlay {
-
-    position: absolute;
-
-    inset: 0;
-
-    background:
-        rgba(15, 23, 42, 0.62);
-
-    backdrop-filter:
-        blur(5px);
-
-}
-
-
-.flash-sale-admin-modal-dialog {
-
-    position: relative;
-
-    z-index: 1;
-
-    width: min(
-        650px,
-        100%
-    );
-
-    max-height:
-        calc(100vh - 36px);
-
-    overflow-y: auto;
-
-    padding: 23px;
-
-    border-radius: 21px;
-
-    background: #ffffff;
-
-    box-shadow:
-        0 25px 70px
-        rgba(15, 23, 42, 0.25);
-
-    animation:
-        flashSaleModalIn 0.2s ease;
-
-}
-
-
-@keyframes flashSaleModalIn {
-
-    from {
-
-        opacity: 0;
-
-        transform:
-            translateY(14px)
-            scale(0.98);
-
+@keyframes flashSaleLoadingPulse {
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.55;
     }
 
-    to {
-
+    50% {
+        transform: scale(1.15);
         opacity: 1;
-
-        transform:
-            translateY(0)
-            scale(1);
-
     }
-
-}
-
-
-.flash-sale-admin-modal-header {
-
-    display: flex;
-
-    align-items: flex-start;
-
-    justify-content: space-between;
-
-    gap: 15px;
-
-    margin-bottom: 20px;
-
-}
-
-
-.flash-sale-admin-modal-header h3 {
-
-    margin: 0;
-
-    color: var(--text-dark);
-
-    font-size: 20px;
-
-}
-
-
-.flash-sale-admin-modal-header p {
-
-    margin-top: 4px;
-
-    color: var(--text-medium);
-
-    font-size: 11px;
-
-}
-
-
-.flash-sale-admin-modal-close {
-
-    width: 38px;
-
-    height: 38px;
-
-    flex-shrink: 0;
-
-    display: grid;
-
-    place-items: center;
-
-    border-radius: 11px;
-
-    color: var(--text-medium);
-
-    background: #f2f3f7;
-
-    font-size: 14px;
-
-}
-
-
-.flash-sale-admin-modal-close:hover {
-
-    color: var(--danger);
-
-    background: #fff0f2;
-
 }
 
 
 /*==================================================
-PRODUCT SELECTOR
-==================================================*/
-
-.flash-sale-product-selector {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 9px;
-
-    max-height: 380px;
-
-    overflow-y: auto;
-
-}
-
-
-.flash-sale-selector-item {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 11px;
-
-    padding: 10px;
-
-    border:
-        1px solid var(--border);
-
-    border-radius: 12px;
-
-    cursor: pointer;
-
-    transition: 0.2s ease;
-
-}
-
-
-.flash-sale-selector-item:hover {
-
-    background:
-        #faf9ff;
-
-    border-color:
-        rgba(123, 31, 162, 0.20);
-
-}
-
-
-.flash-sale-selector-item.selected {
-
-    background:
-        #fcf8ff;
-
-    border-color:
-        rgba(123, 31, 162, 0.35);
-
-}
-
-
-.flash-sale-selector-check {
-
-    width: 20px;
-
-    height: 20px;
-
-    flex-shrink: 0;
-
-    display: grid;
-
-    place-items: center;
-
-    border:
-        1px solid #dfe1e7;
-
-    border-radius: 6px;
-
-    color: #ffffff;
-
-    background: #ffffff;
-
-    font-size: 10px;
-
-}
-
-
-.flash-sale-selector-item.selected
-.flash-sale-selector-check {
-
-    border-color:
-        var(--secondary);
-
-    background:
-        var(--secondary);
-
-}
-
-
-.flash-sale-selector-image {
-
-    width: 45px;
-
-    height: 45px;
-
-    flex-shrink: 0;
-
-    overflow: hidden;
-
-    display: grid;
-
-    place-items: center;
-
-    border-radius: 9px;
-
-    background:
-        #f5f6fa;
-
-}
-
-
-.flash-sale-selector-image img {
-
-    width: 100%;
-
-    height: 100%;
-
-    object-fit: cover;
-
-}
-
-
-.flash-sale-selector-info {
-
-    min-width: 0;
-
-    flex: 1;
-
-}
-
-
-.flash-sale-selector-info strong {
-
-    display: block;
-
-    color: var(--text-dark);
-
-    font-size: 11px;
-
-    white-space: nowrap;
-
-    overflow: hidden;
-
-    text-overflow: ellipsis;
-
-}
-
-
-.flash-sale-selector-info span {
-
-    display: block;
-
-    margin-top: 3px;
-
-    color: var(--text-medium);
-
-    font-size: 9px;
-
-}
-
-
-/*==================================================
-DANGER ZONE
-==================================================*/
-
-.flash-sale-danger-zone {
-
-    margin-top: 20px;
-
-    padding: 15px;
-
-    border:
-        1px solid #fee2e2;
-
-    border-radius: 13px;
-
-    background:
-        #fff8f8;
-
-}
-
-
-.flash-sale-danger-zone h4 {
-
-    margin: 0 0 5px;
-
-    color: #991b1b;
-
-    font-size: 12px;
-
-}
-
-
-.flash-sale-danger-zone p {
-
-    margin: 0 0 10px;
-
-    color: #b45353;
-
-    font-size: 10px;
-
-    line-height: 1.6;
-
-}
-
-
-.flash-sale-danger-button {
-
-    min-height: 36px;
-
-    padding: 0 12px;
-
-    border-radius: 9px;
-
-    color: #ffffff;
-
-    background:
-        var(--danger);
-
-    font-size: 10px;
-
-    font-weight: 700;
-
-}
-
-
-/*==================================================
-BODY MODAL LOCK
-==================================================*/
-
-body.flash-sale-admin-modal-open {
-
-    overflow: hidden;
-
-}
-
-
-/*==================================================
-MOBILE
+RESPONSIVE — TABLET
 ==================================================*/
 
 @media (max-width: 1100px) {
 
-    .flash-sale-admin-stats {
-
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-
-    }
-
-
-    .flash-sale-admin-main-grid {
-
-        grid-template-columns:
-            1fr;
-
+    #flash-saleSection .flash-sale-admin-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
 }
 
 
-@media (max-width: 850px) {
+/*==================================================
+RESPONSIVE — MOBILE
+==================================================*/
 
-    .flash-sale-admin-hero-content {
+@media (max-width: 700px) {
 
-        align-items: flex-start;
-
-        flex-direction: column;
-
+    #flash-saleSection {
+        gap: 15px;
     }
 
-
-    .flash-sale-admin-hero-action {
-
-        width: 100%;
-
-    }
-
-
-    .flash-sale-admin-hero-action button {
-
-        width: 100%;
-
-    }
-
-
-    .flash-sale-admin-toolbar {
-
+    #flash-saleSection .admin-section-heading {
         align-items: stretch;
-
         flex-direction: column;
-
     }
 
-
-    .flash-sale-admin-filters {
-
-        width: 100%;
-
-    }
-
-
-    .flash-sale-admin-filter {
-
-        flex: 1;
-
-    }
-
-}
-
-
-@media (max-width: 650px) {
-
-    .flash-sale-admin {
-
-        gap: 16px;
-
-    }
-
-
-    .flash-sale-admin-hero {
-
-        padding: 22px 18px;
-
-        border-radius: 18px;
-
-    }
-
-
-    .flash-sale-admin-hero h2 {
-
+    #flash-saleSection .admin-section-heading h1 {
         font-size: 24px;
-
     }
 
-
-    .flash-sale-admin-hero p {
-
+    #flash-saleSection .admin-section-heading p {
         font-size: 11px;
-
     }
 
-
-    .flash-sale-admin-stats {
-
-        grid-template-columns:
-            1fr;
-
-        gap: 10px;
-
-    }
-
-
-    .flash-sale-admin-stat {
-
-        padding: 16px;
-
-    }
-
-
-    .flash-sale-admin-card {
-
-        padding: 17px;
-
-        border-radius: 17px;
-
-    }
-
-
-    .flash-sale-admin-card-header {
-
-        margin-bottom: 16px;
-
-    }
-
-
-    .flash-sale-product-item {
-
-        grid-template-columns:
-            58px minmax(0, 1fr);
-
-        gap: 10px;
-
-    }
-
-
-    .flash-sale-product-image {
-
-        width: 58px;
-
-        height: 58px;
-
-    }
-
-
-    .flash-sale-product-action {
-
-        grid-column:
-            1 / -1;
-
-        justify-content: flex-end;
-
-        padding-top: 9px;
-
-        border-top:
-            1px solid #f0f1f4;
-
-    }
-
-
-    .flash-sale-form-row {
-
-        grid-template-columns:
-            1fr;
-
-    }
-
-
-    .flash-sale-form-group.full {
-
-        grid-column:
-            auto;
-
-    }
-
-
-    .flash-sale-form-actions {
-
-        flex-direction: column-reverse;
-
-    }
-
-
-    .flash-sale-form-actions button {
-
+    #flash-saleSection .admin-section-heading .admin-primary-button {
         width: 100%;
-
     }
 
-
-    .flash-sale-admin-modal {
-
-        padding: 10px;
-
+    #flash-saleSection .flash-sale-admin-stats {
+        grid-template-columns: 1fr;
+        gap: 10px;
     }
 
+    #flash-saleSection .flash-sale-admin-stat-card {
+        padding: 15px;
+    }
 
-    .flash-sale-admin-modal-dialog {
+    #flash-saleSection .flash-sale-admin-panel {
+        padding: 17px;
+        border-radius: 16px;
+    }
 
-        max-height:
-            calc(100vh - 20px);
+    #flash-saleSection .flash-sale-admin-panel-header {
+        flex-direction: column;
+    }
 
-        padding: 18px;
+    #flash-saleSection .flash-sale-admin-form-grid {
+        grid-template-columns: 1fr;
+    }
 
-        border-radius: 18px;
+    #flash-saleSection .flash-sale-product-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
 
+    #flash-saleSection #flashSaleProductCategory {
+        width: 100%;
+    }
+
+    #flash-saleSection .flash-sale-product-item,
+    #flash-saleSection .flash-sale-admin-product-item {
+        grid-template-columns: 55px minmax(0, 1fr);
+    }
+
+    #flash-saleSection .flash-sale-product-image,
+    #flash-saleSection .flash-sale-admin-product-image {
+        width: 55px;
+        height: 55px;
+    }
+
+    #flash-saleSection .flash-sale-product-action {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+        padding-top: 9px;
+        border-top: 1px solid #f0f1f4;
+    }
+
+    #flash-saleSection .flash-sale-admin-actions {
+        flex-direction: column;
+    }
+
+    #flash-saleSection .flash-sale-admin-actions button {
+        width: 100%;
     }
 
 }
 
+
+/*==================================================
+SMALL MOBILE
+==================================================*/
 
 @media (max-width: 420px) {
 
-    .flash-sale-preview-countdown {
-
-        gap: 4px;
-
+    #flash-saleSection .flash-sale-admin-panel {
+        padding: 14px;
     }
 
-
-    .flash-sale-preview-time {
-
-        padding: 7px 2px;
-
+    #flash-saleSection .flash-sale-admin-stat-card {
+        gap: 10px;
     }
 
-
-    .flash-sale-preview-time strong {
-
-        font-size: 14px;
-
-    }
-
-
-    .flash-sale-product-meta {
-
-        gap: 5px;
-
-    }
-
-
-    .flash-sale-product-action button {
-
-        width: 35px;
-
-        height: 35px;
-
+    #flash-saleSection .flash-sale-admin-stat-icon {
+        width: 43px;
+        height: 43px;
     }
 
 }
